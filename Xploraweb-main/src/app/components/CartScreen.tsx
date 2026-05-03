@@ -1,6 +1,5 @@
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
-import { supabase } from '../lib/supabase';
 import { useState } from 'react';
 import { SimpleFooter } from './SimpleFooter';
 import { useNavigate } from 'react-router';
@@ -16,8 +15,10 @@ export function CartScreen() {
     setLoading(true);
     setError('');
     try {
-      const { data, error: fnError } = await supabase.functions.invoke('stripe-checkout', {
-        body: {
+      const res = await fetch('/api/stripe-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           items: items.map(i => ({
             name: i.name,
             description: i.description,
@@ -27,10 +28,11 @@ export function CartScreen() {
           })),
           successUrl: window.location.origin + '?checkout_success=1',
           cancelUrl: window.location.origin + '?checkout_cancelled=1',
-        },
+        }),
       });
-      if (fnError) throw new Error(fnError.message);
-      if (data?.url) {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Checkout failed');
+      if (data.url) {
         clearCart();
         window.location.href = data.url;
       }
