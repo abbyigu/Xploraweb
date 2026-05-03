@@ -29,15 +29,44 @@ export function AccountScreen() {
     setTimeout(() => setPasswordEmailSent(false), 4000);
   };
 
-  const [savedItineraries, setSavedItineraries] = useState([
+  const defaultItineraries = [
     { id: 1, title: 'Artistic Soul of Quebec City', date: 'Saved on Apr 15, 2026' },
     { id: 2, title: "Foodie's Paradise", date: 'Saved on Apr 20, 2026' },
-  ]);
-
-  const [savedPerks, setSavedPerks] = useState([
+  ];
+  const defaultPerks = [
     { id: 1, title: 'Secret dessert menu unlocked', venue: 'Café Névé', validUntil: 'May 1, 2026' },
     { id: 2, title: 'Skip the line access', venue: 'Musée National', validUntil: 'May 15, 2026' },
-  ]);
+  ];
+
+  const [savedItineraries, setSavedItineraries] = useState(() => {
+    try {
+      const raw = localStorage.getItem('xplora_saved_itineraries');
+      return raw ? JSON.parse(raw) : defaultItineraries;
+    } catch { return defaultItineraries; }
+  });
+
+  const [savedPerks, setSavedPerks] = useState(() => {
+    try {
+      const raw = localStorage.getItem('xplora_saved_perks');
+      return raw ? JSON.parse(raw) : defaultPerks;
+    } catch { return defaultPerks; }
+  });
+
+  const removeItinerary = (id: number) => {
+    setSavedItineraries((prev: typeof defaultItineraries) => {
+      const updated = prev.filter((i) => i.id !== id);
+      localStorage.setItem('xplora_saved_itineraries', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removePerk = (id: number) => {
+    setSavedPerks((prev: typeof defaultPerks) => {
+      const updated = prev.filter((p) => p.id !== id);
+      localStorage.setItem('xplora_saved_perks', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const interestOptions = [
     'Food & Dining', 'Art & Culture', 'Nightlife',
@@ -253,7 +282,7 @@ export function AccountScreen() {
                       <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
                       <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
                     </div>
-                    <button onClick={() => setSavedItineraries((prev) => prev.filter((i) => i.id !== item.id))} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                    <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
@@ -269,7 +298,7 @@ export function AccountScreen() {
                       <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
                       <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
                     </div>
-                    <button onClick={() => setSavedPerks((prev) => prev.filter((p) => p.id !== perk.id))} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                    <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
