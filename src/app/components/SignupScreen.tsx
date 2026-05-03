@@ -54,9 +54,11 @@ export function SignupScreen() {
       return;
     }
 
-    if (signUpData.user) {
+    // Save initial profile (linked to the new user's ID)
+    const userId = signUpData?.user?.id;
+    if (userId) {
       await supabase.from('profiles').upsert({
-        id: signUpData.user.id,
+        id: userId,
         name: formData.name,
         email: formData.email,
         location: 'Quebec City, QC',
