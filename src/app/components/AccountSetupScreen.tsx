@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, Camera } from 'lucide-react';
+import { saveUser } from '../lib/userStorage';
 
 export function AccountSetupScreen() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ export function AccountSetupScreen() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    saveUser({ interests, avatar: profileImage });
     navigate('/home');
   };
 

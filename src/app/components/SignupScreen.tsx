@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User, Upload } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
+import { saveUser } from '../lib/userStorage';
 
 // Kit newsletter config
 const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
@@ -36,6 +37,8 @@ export function SignupScreen() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Save name and email to localStorage
+    saveUser({ name: formData.name, email: formData.email });
     if (newsletter && formData.email) {
       await subscribeToNewsletter(formData.email, formData.name);
     }
