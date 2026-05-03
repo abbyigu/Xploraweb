@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router';
-import { Home, Map, Sparkles, Users } from 'lucide-react';
+import { Home, Map, Sparkles, Users, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect } from 'react';
 import { getProfile } from '../lib/supabase';
+import { useCart } from '../context/CartContext';
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -11,6 +12,7 @@ function getInitials(name: string): string {
 export function Header() {
   const location = useLocation();
   const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
+  const { count } = useCart();
 
   useEffect(() => {
     getProfile().then((data) => {
@@ -23,6 +25,7 @@ export function Header() {
   const navItems = [
     { path: '/home', icon: Home, label: 'Home' },
     { path: '/itinerary', icon: Map, label: 'Experiences' },
+    { path: '/shop', icon: ShoppingBag, label: 'Shop' },
     { path: '/meetups', icon: Users, label: 'Social' },
     { path: '/perks', icon: Sparkles, label: 'Perks' },
   ];
@@ -49,6 +52,14 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
+            <Link to="/cart" className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
+              <ShoppingCart className="w-5 h-5" />
+              {count > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                  {count > 9 ? '9+' : count}
+                </span>
+              )}
+            </Link>
             <div className="text-right">
               <p className="text-sm text-muted-foreground">Exploring</p>
               <p className="font-medium">Quebec City, QC</p>
