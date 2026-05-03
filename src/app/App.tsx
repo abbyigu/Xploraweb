@@ -15,7 +15,7 @@ import { Header } from './components/Header';
 
 export default function App() {
   return (
-    <MemoryRouter initialEntries={['/home']} initialIndex={0}>
+    <MemoryRouter initialEntries={['/']} initialIndex={0}>
       <div className="min-h-screen bg-background">
         <Header />
         <div className="md:max-w-none max-w-md mx-auto relative">
