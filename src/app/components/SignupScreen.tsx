@@ -40,7 +40,7 @@ export function SignupScreen() {
     }
 
     setLoading(true);
-    const { error: signUpError } = await supabase.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -54,14 +54,18 @@ export function SignupScreen() {
       return;
     }
 
-    // Save initial profile
-    await supabase.from('profiles').insert({
-      name: formData.name,
-      email: formData.email,
-      location: 'Quebec City, QC',
-      interests: [],
-      avatar_url: null,
-    });
+    // Save initial profile (linked to the new user's ID)
+    const userId = signUpData?.user?.id;
+    if (userId) {
+      await supabase.from('profiles').upsert({
+        id: userId,
+        name: formData.name,
+        email: formData.email,
+        location: 'Quebec City, QC',
+        interests: [],
+        avatar_url: null,
+      });
+    }
 
     if (newsletter) {
       await subscribeToNewsletter(formData.email, formData.name);
