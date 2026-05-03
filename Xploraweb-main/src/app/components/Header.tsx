@@ -1,9 +1,22 @@
 import { Link, useLocation } from 'react-router';
 import { Home, Map, Sparkles, Users } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
+import { useState, useEffect } from 'react';
+import { getProfile } from '../lib/supabase';
+
+function getInitials(name: string): string {
+  return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
+}
 
 export function Header() {
   const location = useLocation();
+  const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
+
+  useEffect(() => {
+    getProfile().then((data) => {
+      if (data) setAvatar({ url: data.avatar_url, name: data.name });
+    });
+  }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -41,8 +54,11 @@ export function Header() {
               <p className="font-medium">Quebec City, QC</p>
             </div>
             <Link to="/account">
-              <div className="w-10 h-10 rounded-full bg-[#2E5B1F] text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity">
-                <span className="text-sm">JD</span>
+              <div className="w-10 h-10 rounded-full bg-[#2E5B1F] text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
+                {avatar.url
+                  ? <img src={avatar.url} alt="Profile" className="w-full h-full object-cover" />
+                  : <span className="text-sm">{avatar.name ? getInitials(avatar.name) : '?'}</span>
+                }
               </div>
             </Link>
           </div>
