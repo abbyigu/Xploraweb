@@ -1,4 +1,5 @@
 import { MemoryRouter, Routes, Route } from 'react-router';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { LandingPage } from './components/LandingPage';
 import { HomeScreen } from './components/HomeScreen';
 import { ItineraryScreen } from './components/ItineraryScreen';
@@ -33,6 +34,7 @@ export default function App() {
         </div>
         <BottomNav />
       </div>
+      <SpeedInsights />
     </MemoryRouter>
   );
 }
