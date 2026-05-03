@@ -27,14 +27,16 @@ export async function getProfile(): Promise<Profile | null> {
   return data;
 }
 
-export async function upsertProfile(updates: Partial<Profile>): Promise<void> {
+export async function upsertProfile(updates: Partial<Profile>): Promise<string | null> {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
+  if (!user) return 'Not authenticated. Please sign in and try again.';
 
-  await supabase.from('profiles').upsert({
+  const { error } = await supabase.from('profiles').upsert({
     id: user.id,
     email: user.email,
     ...updates,
     updated_at: new Date().toISOString(),
   });
+
+  return error ? error.message : null;
 }
