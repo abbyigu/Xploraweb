@@ -13,6 +13,7 @@ export function AccountScreen() {
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved'>('profile');
   const [profile, setProfile] = useState({ name: '', email: '', location: 'Quebec City, QC', interests: [] as string[], avatar_url: null as string | null });
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -40,7 +41,12 @@ export function AccountScreen() {
   }, []);
 
   const handleSaveProfile = async () => {
-    await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
+    setSaveError('');
+    const error = await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
+    if (error) {
+      setSaveError(error);
+      return;
+    }
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -151,6 +157,9 @@ export function AccountScreen() {
                     className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Quebec City, QC" />
                 </div>
               </div>
+              {saveError && (
+                <p className="mt-3 text-sm text-red-600">{saveError}</p>
+              )}
               <button onClick={handleSaveProfile} className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
                 {saved ? '✓ Saved!' : 'Save Changes'}
               </button>
