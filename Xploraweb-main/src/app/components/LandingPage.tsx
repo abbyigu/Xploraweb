@@ -3,7 +3,6 @@ import { Compass, Users, Tag, MapPin, ArrowRight } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Footer } from './Footer';
-import NewsletterSignup from './NewsletterSignup';
 
 export function LandingPage() {
   const features = [
@@ -151,17 +150,6 @@ export function LandingPage() {
             Create Free Account
             <ArrowRight className="w-5 h-5" />
           </Link>
-        </div>
-      </div>
-
-      {/* Newsletter Section */}
-      <div className="bg-muted/20 py-16 md:py-24">
-        <div className="max-w-2xl mx-auto px-6 md:px-8 text-center">
-          <h2 className="text-3xl md:text-4xl mb-4">Don't Miss a Thing</h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Subscribe for slow travel inspiration, Quebec hidden gems, and exclusive Xplora deals.
-          </p>
-          <NewsletterSignup />
         </div>
       </div>
 
