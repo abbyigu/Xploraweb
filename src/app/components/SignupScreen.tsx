@@ -3,6 +3,27 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User, Upload } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 
+// Kit newsletter config
+const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
+const KIT_FORM_UID = '361503f84f';
+
+async function subscribeToNewsletter(email: string, firstName: string) {
+  try {
+    const formData = new FormData();
+    formData.append('email_address', email);
+    formData.append('first_name', firstName.split(' ')[0]);
+    formData.append('api_key', KIT_API_KEY);
+
+    await fetch(`https://app.kit.com/forms/${KIT_FORM_UID}/subscriptions`, {
+      method: 'POST',
+      body: formData,
+      mode: 'no-cors', // Kit doesn't return CORS headers on this endpoint
+    });
+  } catch {
+    // Silently fail — newsletter signup should never block account creation
+  }
+}
+
 export function SignupScreen() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -11,9 +32,13 @@ export function SignupScreen() {
     password: '',
     confirmPassword: '',
   });
+  const [newsletter, setNewsletter] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (newsletter && formData.email) {
+      await subscribeToNewsletter(formData.email, formData.name);
+    }
     navigate('/account-setup');
   };
 
@@ -88,6 +113,19 @@ export function SignupScreen() {
               />
             </div>
           </div>
+
+          {/* Newsletter opt-in — CASL compliant */}
+          <label className="flex items-start gap-3 cursor-pointer mt-2">
+            <input
+              type="checkbox"
+              checked={newsletter}
+              onChange={(e) => setNewsletter(e.target.checked)}
+              className="mt-1 rounded border-border accent-primary"
+            />
+            <span className="text-sm text-muted-foreground">
+              Subscribe to the Xplora newsletter — slow travel tips, Quebec hidden gems &amp; exclusive deals. You can unsubscribe anytime.
+            </span>
+          </label>
 
           <button
             type="submit"

@@ -1,4 +1,5 @@
 import { XploraLogo } from './XploraLogo';
+import NewsletterSignup from './NewsletterSignup';
 
 export function Footer() {
   return (
@@ -56,6 +57,17 @@ export function Footer() {
               </a>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Newsletter Signup */}
+      <div className="bg-muted/20 border-t border-border py-12 md:py-16">
+        <div className="max-w-2xl mx-auto px-6 md:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl mb-3">Stay in the Loop</h2>
+          <p className="text-muted-foreground mb-6">
+            Get curated Quebec experiences, exclusive deals, and community events delivered to your inbox.
+          </p>
+          <NewsletterSignup />
         </div>
       </div>
 
