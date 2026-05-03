@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Mail, Lock, User, Upload } from 'lucide-react';
+import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { saveUser } from '../lib/userStorage';
+import { supabase } from '../lib/supabase';
 
-// Kit newsletter config
 const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
 const KIT_FORM_UID = '361503f84f';
 
@@ -14,34 +13,61 @@ async function subscribeToNewsletter(email: string, firstName: string) {
     formData.append('email_address', email);
     formData.append('first_name', firstName.split(' ')[0]);
     formData.append('api_key', KIT_API_KEY);
-
     await fetch(`https://app.kit.com/forms/${KIT_FORM_UID}/subscriptions`, {
       method: 'POST',
       body: formData,
-      mode: 'no-cors', // Kit doesn't return CORS headers on this endpoint
+      mode: 'no-cors',
     });
   } catch {
-    // Silently fail — newsletter signup should never block account creation
+    // Silently fail
   }
 }
 
 export function SignupScreen() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [newsletter, setNewsletter] = useState(true);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Save name and email to localStorage
-    saveUser({ name: formData.name, email: formData.email });
-    if (newsletter && formData.email) {
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setLoading(true);
+    const { error: signUpError } = await supabase.auth.signUp({
+      email: formData.email,
+      password: formData.password,
+      options: {
+        data: { name: formData.name },
+      },
+    });
+
+    if (signUpError) {
+      setError(signUpError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Save initial profile
+    await supabase.from('profiles').insert({
+      name: formData.name,
+      email: formData.email,
+      location: 'Quebec City, QC',
+      interests: [],
+      avatar_url: null,
+    });
+
+    if (newsletter) {
       await subscribeToNewsletter(formData.email, formData.name);
     }
+
+    setLoading(false);
     navigate('/account-setup');
   };
 
@@ -56,6 +82,12 @@ export function SignupScreen() {
           <p className="text-muted-foreground">Start exploring like a local</p>
         </div>
 
+        {error && (
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm mb-2">Full Name</label>
@@ -66,7 +98,7 @@ export function SignupScreen() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="John Doe"
+                placeholder="Your full name"
                 required
               />
             </div>
@@ -117,7 +149,6 @@ export function SignupScreen() {
             </div>
           </div>
 
-          {/* Newsletter opt-in — CASL compliant */}
           <label className="flex items-start gap-3 cursor-pointer mt-2">
             <input
               type="checkbox"
@@ -126,23 +157,22 @@ export function SignupScreen() {
               className="mt-1 rounded border-border accent-primary"
             />
             <span className="text-sm text-muted-foreground">
-              Subscribe to the Xplora newsletter — slow travel tips, Quebec hidden gems &amp; exclusive deals. You can unsubscribe anytime.
+              Subscribe to the Xplora newsletter — slow travel tips, Quebec hidden gems &amp; exclusive deals. Unsubscribe anytime.
             </span>
           </label>
 
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6"
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            Create Account
+            {loading ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-primary hover:underline">
-            Sign in
-          </Link>
+          <Link to="/login" className="text-primary hover:underline">Sign in</Link>
         </p>
       </div>
     </div>

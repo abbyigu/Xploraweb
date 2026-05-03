@@ -2,16 +2,31 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
+import { supabase } from '../lib/supabase';
 
 export function LoginScreen() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: formData.email,
+      password: formData.password,
+    });
+
+    if (signInError) {
+      setError('Invalid email or password. Please try again.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(false);
     navigate('/home');
   };
 
@@ -25,6 +40,12 @@ export function LoginScreen() {
           <h1 className="text-3xl mb-2">Welcome Back</h1>
           <p className="text-muted-foreground">Sign in to continue exploring</p>
         </div>
+
+        {error && (
+          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -62,24 +83,21 @@ export function LoginScreen() {
               <input type="checkbox" className="rounded" />
               <span>Remember me</span>
             </label>
-            <a href="#" className="text-primary hover:underline">
-              Forgot password?
-            </a>
+            <a href="#" className="text-primary hover:underline">Forgot password?</a>
           </div>
 
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6"
+            disabled={loading}
+            className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            Sign In
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don't have an account?{' '}
-          <Link to="/signup" className="text-primary hover:underline">
-            Create one
-          </Link>
+          <Link to="/signup" className="text-primary hover:underline">Create one</Link>
         </p>
       </div>
     </div>

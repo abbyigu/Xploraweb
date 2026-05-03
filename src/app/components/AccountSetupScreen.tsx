@@ -1,37 +1,39 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, Camera } from 'lucide-react';
-import { saveUser } from '../lib/userStorage';
+import { upsertProfile } from '../lib/supabase';
 
 export function AccountSetupScreen() {
   const navigate = useNavigate();
   const [interests, setInterests] = useState<string[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const interestOptions = [
-    'Food & Dining',
-    'Art & Culture',
-    'Nightlife',
-    'Outdoor Activities',
-    'History',
-    'Shopping',
-    'Music & Events',
-    'Sports',
-    'Photography',
-    'Architecture',
+    'Food & Dining', 'Art & Culture', 'Nightlife',
+    'Outdoor Activities', 'History', 'Shopping',
+    'Music & Events', 'Sports', 'Photography', 'Architecture',
   ];
 
   const toggleInterest = (interest: string) => {
     setInterests((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : [...prev, interest]
+      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest]
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setProfileImage(reader.result as string);
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    saveUser({ interests, avatar: profileImage });
+    setLoading(true);
+    await upsertProfile({ interests, avatar_url: profileImage });
+    setLoading(false);
     navigate('/home');
   };
 
@@ -46,19 +48,19 @@ export function AccountSetupScreen() {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="flex flex-col items-center">
             <div className="relative">
-              <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
-                {profileImage ? (
-                  <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <Camera className="w-12 h-12 text-muted-foreground" />
-                )}
-              </div>
-              <button
-                type="button"
-                className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:opacity-90"
-              >
-                <Upload className="w-4 h-4" />
-              </button>
+              <label className="cursor-pointer">
+                <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-12 h-12 text-muted-foreground" />
+                  )}
+                </div>
+                <div className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:opacity-90">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+              </label>
             </div>
             <p className="text-sm text-muted-foreground mt-2">Upload profile photo</p>
           </div>
@@ -93,9 +95,10 @@ export function AccountSetupScreen() {
             </button>
             <button
               type="submit"
-              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity"
+              disabled={loading}
+              className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
             >
-              Complete Setup
+              {loading ? 'Saving...' : 'Complete Setup'}
             </button>
           </div>
         </form>
