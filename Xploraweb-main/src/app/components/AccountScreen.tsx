@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
@@ -15,6 +15,19 @@ export function AccountScreen() {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
+  const [passwordEmailSent, setPasswordEmailSent] = useState(false);
+
+  const toggleSection = (section: 'notifications' | 'privacy') =>
+    setOpenSection((prev) => (prev === section ? null : section));
+
+  const handleChangePassword = async () => {
+    if (!profile.email) return;
+    await supabase.auth.resetPasswordForEmail(profile.email);
+    setPasswordEmailSent(true);
+    setTimeout(() => setPasswordEmailSent(false), 4000);
+  };
 
   const [savedItineraries, setSavedItineraries] = useState([
     { id: 1, title: 'Artistic Soul of Quebec City', date: 'Saved on Apr 15, 2026' },
@@ -157,12 +170,43 @@ export function AccountScreen() {
             </div>
 
             <div className="space-y-2">
-              <button className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors">
-                <Bell className="w-5 h-5 text-muted-foreground" /><span>Notifications</span>
-              </button>
-              <button className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors">
-                <Lock className="w-5 h-5 text-muted-foreground" /><span>Privacy & Security</span>
-              </button>
+              {/* Notifications */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>Notifications</span></div>
+                  {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {openSection === 'notifications' && (
+                  <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+                    {([
+                      { key: 'email', label: 'Email notifications' },
+                      { key: 'push', label: 'Push notifications' },
+                      { key: 'newsletter', label: 'Newsletter' },
+                    ] as const).map(({ key, label }) => (
+                      <label key={key} className="flex items-center justify-between text-sm">
+                        <span>{label}</span>
+                        <input type="checkbox" checked={notifPrefs[key]} onChange={(e) => setNotifPrefs((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Privacy & Security */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>Privacy & Security</span></div>
+                  {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {openSection === 'privacy' && (
+                  <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                    <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                      {passwordEmailSent ? '✓ Reset email sent — check your inbox' : 'Change Password'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
                 <LogOut className="w-5 h-5" /><span>Log Out</span>
               </button>
