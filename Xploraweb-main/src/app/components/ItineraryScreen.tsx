@@ -1,18 +1,16 @@
-import { Clock, Users, MapPin, ShoppingCart } from 'lucide-react';
+import { Clock, Users, MapPin, ShoppingCart, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SimpleFooter } from './SimpleFooter';
 import { experiences } from '../data/products';
 import { useCart } from '../context/CartContext';
-import { useState } from 'react';
 
 export function ItineraryScreen() {
-  const { addItem } = useCart();
-  const [added, setAdded] = useState<string | null>(null);
+  const { addItem, items } = useCart();
+
+  const inCart = (id: string) => items.some(i => i.id === id);
 
   const handleAdd = (exp: typeof experiences[0]) => {
-    addItem(exp);
-    setAdded(exp.id);
-    setTimeout(() => setAdded(null), 1500);
+    if (!inCart(exp.id)) addItem(exp);
   };
 
   return (
@@ -67,13 +65,13 @@ export function ItineraryScreen() {
                   <button
                     onClick={() => handleAdd(exp)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                      added === exp.id
-                        ? 'bg-green-500 text-white'
+                      inCart(exp.id)
+                        ? 'bg-green-500 text-white cursor-default'
                         : 'bg-primary text-primary-foreground hover:opacity-90'
                     }`}
                   >
-                    <ShoppingCart className="w-4 h-4" />
-                    {added === exp.id ? 'Added!' : 'Book'}
+                    {inCart(exp.id) ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+                    {inCart(exp.id) ? 'In Cart' : 'Book'}
                   </button>
                 </div>
               </div>

@@ -1,5 +1,4 @@
-import { ShoppingCart } from 'lucide-react';
-import { useState } from 'react';
+import { ShoppingCart, Check } from 'lucide-react';
 import { experiences, merch, memberships } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
@@ -14,14 +13,13 @@ function formatPrice(cents: number) {
 
 export function ShopScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('experiences');
-  const { addItem, count } = useCart();
+  const { addItem, items, count } = useCart();
   const navigate = useNavigate();
-  const [added, setAdded] = useState<string | null>(null);
+
+  const inCart = (id: string) => items.some(i => i.id === id);
 
   const handleAdd = (product: (typeof experiences)[0]) => {
-    addItem(product);
-    setAdded(product.id);
-    setTimeout(() => setAdded(null), 1500);
+    if (!inCart(product.id)) addItem(product);
   };
 
   const tabs: { key: Tab; label: string }[] = [
@@ -82,9 +80,10 @@ export function ShopScreen() {
                   <span className="text-lg font-medium">{formatPrice(product.price)}{product.type === 'membership' && product.badge === '/month' ? '/mo' : ''}</span>
                   <button
                     onClick={() => handleAdd(product)}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${added === product.id ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+                    className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${inCart(product.id) ? 'bg-green-500 text-white cursor-default' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
                   >
-                    {added === product.id ? '✓ Added' : 'Add to Cart'}
+                    {inCart(product.id) ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
+                    {inCart(product.id) ? 'In Cart' : 'Add to Cart'}
                   </button>
                 </div>
               </div>
