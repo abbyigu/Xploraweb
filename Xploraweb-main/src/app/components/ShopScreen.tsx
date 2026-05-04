@@ -1,4 +1,5 @@
 import { ShoppingCart, Check } from 'lucide-react';
+import { useState } from 'react';
 import { experiences, merch, memberships } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
