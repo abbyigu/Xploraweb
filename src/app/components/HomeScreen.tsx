@@ -1,8 +1,9 @@
 import { SearchHeader } from './SearchHeader';
-import { CuratedDayCard } from './CuratedDayCard';
 import { MeetupCard } from './MeetupCard';
 import { DealCard } from './DealCard';
-import { curatedDays, meetups, perks } from '../data/mockData';
+import { ExperienceCard } from './ExperienceCard';
+import { experiences } from '../data/products';
+import { meetups, perks } from '../data/mockData';
 import { Footer } from './Footer';
 
 export function HomeScreen() {
@@ -14,9 +15,7 @@ export function HomeScreen() {
         <section>
           <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Curated for You</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {curatedDays.map((day) => (
-              <CuratedDayCard key={day.id} {...day} />
-            ))}
+            {experiences.slice(0, 3).map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
           </div>
         </section>
 

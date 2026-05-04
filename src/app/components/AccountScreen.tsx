@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
-import { supabase, getProfile, upsertProfile } from '../lib/supabase';
+import { supabase, getProfile, upsertProfile } from '@/app/lib/supabase';
 import { useNavigate } from 'react-router';
 
 function getInitials(name: string): string {
@@ -13,19 +13,60 @@ export function AccountScreen() {
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved'>('profile');
   const [profile, setProfile] = useState({ name: '', email: '', location: 'Quebec City, QC', interests: [] as string[], avatar_url: null as string | null });
   const [saved, setSaved] = useState(false);
-  const [saveError, setSaveError] = useState('');
   const [loading, setLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
+  const [passwordEmailSent, setPasswordEmailSent] = useState(false);
 
-  const savedItineraries = [
+  const toggleSection = (section: 'notifications' | 'privacy') =>
+    setOpenSection((prev) => (prev === section ? null : section));
+
+  const handleChangePassword = async () => {
+    if (!profile.email) return;
+    await supabase.auth.resetPasswordForEmail(profile.email, { redirectTo: window.location.origin });
+    setPasswordEmailSent(true);
+    setTimeout(() => setPasswordEmailSent(false), 4000);
+  };
+
+  const defaultItineraries = [
     { id: 1, title: 'Artistic Soul of Quebec City', date: 'Saved on Apr 15, 2026' },
     { id: 2, title: "Foodie's Paradise", date: 'Saved on Apr 20, 2026' },
   ];
-
-  const savedPerks = [
+  const defaultPerks = [
     { id: 1, title: 'Secret dessert menu unlocked', venue: 'Café Névé', validUntil: 'May 1, 2026' },
     { id: 2, title: 'Skip the line access', venue: 'Musée National', validUntil: 'May 15, 2026' },
   ];
+
+  const [savedItineraries, setSavedItineraries] = useState(() => {
+    try {
+      const raw = localStorage.getItem('xplora_saved_itineraries');
+      return raw ? JSON.parse(raw) : defaultItineraries;
+    } catch { return defaultItineraries; }
+  });
+
+  const [savedPerks, setSavedPerks] = useState(() => {
+    try {
+      const raw = localStorage.getItem('xplora_saved_perks');
+      return raw ? JSON.parse(raw) : defaultPerks;
+    } catch { return defaultPerks; }
+  });
+
+  const removeItinerary = (id: number) => {
+    setSavedItineraries((prev: typeof defaultItineraries) => {
+      const updated = prev.filter((i) => i.id !== id);
+      localStorage.setItem('xplora_saved_itineraries', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const removePerk = (id: number) => {
+    setSavedPerks((prev: typeof defaultPerks) => {
+      const updated = prev.filter((p) => p.id !== id);
+      localStorage.setItem('xplora_saved_perks', JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const interestOptions = [
     'Food & Dining', 'Art & Culture', 'Nightlife',
@@ -41,12 +82,7 @@ export function AccountScreen() {
   }, []);
 
   const handleSaveProfile = async () => {
-    setSaveError('');
-    const error = await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
-    if (error) {
-      setSaveError(error);
-      return;
-    }
+    await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   };
@@ -157,21 +193,49 @@ export function AccountScreen() {
                     className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Quebec City, QC" />
                 </div>
               </div>
-              {saveError && (
-                <p className="mt-3 text-sm text-red-600">{saveError}</p>
-              )}
               <button onClick={handleSaveProfile} className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
                 {saved ? '✓ Saved!' : 'Save Changes'}
               </button>
             </div>
 
             <div className="space-y-2">
-              <button className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors">
-                <Bell className="w-5 h-5 text-muted-foreground" /><span>Notifications</span>
-              </button>
-              <button className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors">
-                <Lock className="w-5 h-5 text-muted-foreground" /><span>Privacy & Security</span>
-              </button>
+              {/* Notifications */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>Notifications</span></div>
+                  {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {openSection === 'notifications' && (
+                  <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+                    {([
+                      { key: 'email', label: 'Email notifications' },
+                      { key: 'push', label: 'Push notifications' },
+                      { key: 'newsletter', label: 'Newsletter' },
+                    ] as const).map(({ key, label }) => (
+                      <label key={key} className="flex items-center justify-between text-sm">
+                        <span>{label}</span>
+                        <input type="checkbox" checked={notifPrefs[key]} onChange={(e) => setNotifPrefs((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Privacy & Security */}
+              <div className="bg-card rounded-xl border border-border overflow-hidden">
+                <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                  <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>Privacy & Security</span></div>
+                  {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                </button>
+                {openSection === 'privacy' && (
+                  <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                    <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                      {passwordEmailSent ? '✓ Reset email sent — check your inbox' : 'Change Password'}
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
                 <LogOut className="w-5 h-5" /><span>Log Out</span>
               </button>
@@ -214,8 +278,13 @@ export function AccountScreen() {
               <div className="space-y-3">
                 {savedItineraries.map((item) => (
                   <div key={item.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
-                    <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
-                    <Heart className="w-5 h-5 text-secondary fill-secondary" />
+                    <div className="flex items-center gap-3">
+                      <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
+                      <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
+                    </div>
+                    <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 ))}
               </div>
@@ -225,8 +294,13 @@ export function AccountScreen() {
               <div className="space-y-3">
                 {savedPerks.map((perk) => (
                   <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
-                    <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
-                    <Heart className="w-5 h-5 text-secondary fill-secondary" />
+                    <div className="flex items-center gap-3">
+                      <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
+                      <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
+                    </div>
+                    <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                      <X className="w-4 h-4" />
+                    </button>
                   </div>
                 ))}
               </div>
