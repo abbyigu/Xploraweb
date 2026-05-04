@@ -24,7 +24,7 @@ export function AccountScreen() {
 
   const handleChangePassword = async () => {
     if (!profile.email) return;
-    await supabase.auth.resetPasswordForEmail(profile.email);
+    await supabase.auth.resetPasswordForEmail(profile.email, { redirectTo: window.location.origin });
     setPasswordEmailSent(true);
     setTimeout(() => setPasswordEmailSent(false), 4000);
   };

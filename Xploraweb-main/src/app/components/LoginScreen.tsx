@@ -83,7 +83,7 @@ export function LoginScreen() {
               <input type="checkbox" className="rounded" />
               <span>Remember me</span>
             </label>
-            <a href="#" className="text-primary hover:underline">Forgot password?</a>
+            <button type="button" onClick={() => navigate('/forgot-password')} className="text-primary hover:underline">Forgot password?</button>
           </div>
 
           <button
