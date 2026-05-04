@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, Camera } from 'lucide-react';
-import { upsertProfile } from '../lib/supabase';
+import { upsertProfile } from '@/app/lib/supabase';
 
 export function AccountSetupScreen() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/app/lib/supabase';
 
 export function ResetPasswordScreen() {
   const navigate = useNavigate();

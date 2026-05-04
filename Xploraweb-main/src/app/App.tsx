@@ -17,7 +17,7 @@ import { CartScreen } from './components/CartScreen';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
-import { supabase } from './lib/supabase';
+import { supabase } from '@/app/lib/supabase';
 
 // Listens for Supabase PASSWORD_RECOVERY event and navigates to the reset screen.
 // Must live inside MemoryRouter so useNavigate is available.

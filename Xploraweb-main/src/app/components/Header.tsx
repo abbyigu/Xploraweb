@@ -2,7 +2,7 @@ import { Link, useLocation } from 'react-router';
 import { Home, Map, Sparkles, Users, ShoppingCart, ShoppingBag } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect } from 'react';
-import { getProfile } from '../lib/supabase';
+import { getProfile } from '@/app/lib/supabase';
 import { useCart } from '../context/CartContext';
 
 function getInitials(name: string): string {

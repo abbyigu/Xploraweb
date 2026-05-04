@@ -2,7 +2,7 @@ import { Sparkles, Lock, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SimpleFooter } from './SimpleFooter';
 import { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { supabase } from '@/app/lib/supabase';
 import { useNavigate } from 'react-router';
 
 function Paywall() {
