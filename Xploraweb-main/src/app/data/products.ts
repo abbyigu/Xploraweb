@@ -6,58 +6,80 @@ export interface Product {
   image: string;
   type: 'experience' | 'merch' | 'membership';
   badge?: string;
+  // experience-specific
+  duration?: string;
+  spots?: number;
+  difficulty?: string;
 }
 
 export const experiences: Product[] = [
   {
     id: 'exp-1',
     name: 'Artistic Soul of Quebec City',
-    description: 'Street art, galleries, and indie cafes — full day guided experience',
+    description: 'Street art, galleries, and indie cafes',
     price: 4500,
     image: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
     badge: 'Popular',
+    duration: 'Full Day',
+    spots: 5,
+    difficulty: 'Easy',
   },
   {
     id: 'exp-2',
     name: "Foodie's Paradise",
-    description: 'Local markets and hidden culinary gems — 4 hour tour',
+    description: 'Local markets and hidden culinary gems',
     price: 5500,
     image: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
+    duration: '4 hours',
+    spots: 4,
+    difficulty: 'Easy',
   },
   {
     id: 'exp-3',
     name: 'Urban Explorer',
-    description: 'Architecture and city secrets — half day',
+    description: 'Architecture and city secrets',
     price: 4000,
     image: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
+    duration: 'Half Day',
+    spots: 6,
+    difficulty: 'Moderate',
   },
   {
     id: 'exp-4',
     name: 'Historic Old Quebec',
-    description: 'Walk through centuries of history — 3 hours',
+    description: 'Walk through centuries of history',
     price: 3500,
     image: 'https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
+    duration: '3 hours',
+    spots: 5,
+    difficulty: 'Easy',
   },
   {
     id: 'exp-5',
     name: 'Nature & Parks',
-    description: 'Green spaces and waterfront trails — half day',
+    description: 'Green spaces and waterfront trails',
     price: 3800,
     image: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
+    duration: 'Half Day',
+    spots: 4,
+    difficulty: 'Moderate',
   },
   {
     id: 'exp-6',
     name: 'Nightlife Tour',
-    description: 'Best bars, clubs, and late-night eats — evening',
+    description: 'Best bars, clubs, and late-night eats',
     price: 6000,
     image: 'https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
     badge: 'New',
+    duration: 'Evening',
+    spots: 5,
+    difficulty: 'Easy',
   },
 ];
 
