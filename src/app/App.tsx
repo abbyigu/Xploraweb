@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { MemoryRouter, Routes, Route, useNavigate } from 'react-router';
+import { BrowserRouter, Routes, Route, useNavigate } from 'react-router';
 import { LandingPage } from './components/LandingPage';
 import { HomeScreen } from './components/HomeScreen';
 import { ItineraryScreen } from './components/ItineraryScreen';
@@ -22,7 +22,6 @@ import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 
 // Listens for Supabase PASSWORD_RECOVERY event and navigates to the reset screen.
-// Must live inside MemoryRouter so useNavigate is available.
 function AuthHandler() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -36,17 +35,10 @@ function AuthHandler() {
   return null;
 }
 
-// If the URL has ?code= Supabase will exchange it for a PASSWORD_RECOVERY session.
-// Start the router there so the user never sees a flash of the home screen first.
-function getInitialRoute() {
-  if (new URLSearchParams(window.location.search).has('code')) return '/reset-password';
-  return '/home';
-}
-
 export default function App() {
   return (
     <CartProvider>
-      <MemoryRouter initialEntries={[getInitialRoute()]} initialIndex={0}>
+      <BrowserRouter>
         <AuthHandler />
         <div className="min-h-screen bg-background">
           <Header />
@@ -71,7 +63,7 @@ export default function App() {
           </div>
           <BottomNav />
         </div>
-      </MemoryRouter>
+      </BrowserRouter>
       <SpeedInsights />
     </CartProvider>
   );
