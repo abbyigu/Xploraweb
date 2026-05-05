@@ -16,6 +16,10 @@ import { AccountScreen } from './components/AccountScreen';
 import { ShopScreen } from './components/ShopScreen';
 import { CartScreen } from './components/CartScreen';
 import { MembershipScreen } from './components/MembershipScreen';
+import { BusinessLandingScreen } from './components/BusinessLandingScreen';
+import { BusinessSignupScreen } from './components/BusinessSignupScreen';
+import { BusinessLoginScreen } from './components/BusinessLoginScreen';
+import { BusinessDashboardScreen } from './components/BusinessDashboardScreen';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
@@ -60,6 +64,10 @@ export default function App() {
               <Route path="/shop" element={<ShopScreen />} />
               <Route path="/cart" element={<CartScreen />} />
               <Route path="/membership" element={<MembershipScreen />} />
+              <Route path="/business" element={<BusinessLandingScreen />} />
+              <Route path="/business/signup" element={<BusinessSignupScreen />} />
+              <Route path="/business/login" element={<BusinessLoginScreen />} />
+              <Route path="/business/dashboard" element={<BusinessDashboardScreen />} />
             </Routes>
           </div>
           <BottomNav />

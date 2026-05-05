@@ -62,12 +62,90 @@ function Paywall() {
   );
 }
 
+const STATIC_PERKS = [
+  {
+    id: 1,
+    title: "Secret dessert menu unlocked",
+    venue: "Café Névé",
+    description: "Chef's private creations, not on the regular menu",
+    image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Tonight only",
+    unlocked: true,
+    location: "Saint-Roch",
+  },
+  {
+    id: 2,
+    title: "First sip on us",
+    venue: "Le Perché Rooftop",
+    description: "Welcome cocktail for Xplora members",
+    image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "This week",
+    unlocked: true,
+    location: "Downtown",
+  },
+  {
+    id: 3,
+    title: "Skip the line access",
+    venue: "Musée National",
+    description: "Walk right in, no waiting",
+    image: "https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Anytime",
+    unlocked: true,
+    location: "Old Quebec",
+  },
+  {
+    id: 4,
+    title: "Chef's table unlocked",
+    venue: "Le Bistro Local",
+    description: "Reserved seating and special tasting menu",
+    image: "https://images.unsplash.com/photo-1758346970392-4e9e1031d58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Weekends",
+    unlocked: false,
+    location: "Petit-Champlain",
+    requirement: "Complete 2 experiences to unlock",
+  },
+  {
+    id: 5,
+    title: "Late night studio access",
+    venue: "Art Collective Space",
+    description: "Private viewings after hours",
+    image: "https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Friday nights",
+    unlocked: false,
+    location: "Saint-Roch",
+    requirement: "Attend 1 meetup to unlock",
+  },
+  {
+    id: 6,
+    title: "Rooftop sunrise sessions",
+    venue: "Hidden Garden",
+    description: "Morning yoga & coffee before the city wakes",
+    image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Saturdays",
+    unlocked: false,
+    location: "Old Port",
+    requirement: "Complete 3 experiences to unlock",
+  },
+];
+
 export function PerksScreen() {
   const [authStatus, setAuthStatus] = useState<'loading' | 'member' | 'guest'>('loading');
+  const [businessPerks, setBusinessPerks] = useState<any[]>([]);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      setAuthStatus(data.user ? 'member' : 'guest');
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) {
+        setAuthStatus('guest');
+        return;
+      }
+      // Load business-submitted perks
+      const { data: bPerks } = await supabase
+        .from('business_perks')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      if (bPerks) setBusinessPerks(bPerks);
+      setAuthStatus('member');
     });
   }, []);
 
@@ -81,72 +159,19 @@ export function PerksScreen() {
 
   if (authStatus === 'guest') return <Paywall />;
 
-  const perks = [
-    {
-      id: 1,
-      title: "Secret dessert menu unlocked",
-      venue: "Café Névé",
-      description: "Chef's private creations, not on the regular menu",
-      image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "Tonight only",
-      unlocked: true,
-      location: "Saint-Roch",
-    },
-    {
-      id: 2,
-      title: "First sip on us",
-      venue: "Le Perché Rooftop",
-      description: "Welcome cocktail for Xplora members",
-      image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "This week",
-      unlocked: true,
-      location: "Downtown",
-    },
-    {
-      id: 3,
-      title: "Skip the line access",
-      venue: "Musée National",
-      description: "Walk right in, no waiting",
-      image: "https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "Anytime",
-      unlocked: true,
-      location: "Old Quebec",
-    },
-    {
-      id: 4,
-      title: "Chef's table unlocked",
-      venue: "Le Bistro Local",
-      description: "Reserved seating and special tasting menu",
-      image: "https://images.unsplash.com/photo-1758346970392-4e9e1031d58b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "Weekends",
-      unlocked: false,
-      location: "Petit-Champlain",
-      requirement: "Complete 2 experiences to unlock",
-    },
-    {
-      id: 5,
-      title: "Late night studio access",
-      venue: "Art Collective Space",
-      description: "Private viewings after hours",
-      image: "https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "Friday nights",
-      unlocked: false,
-      location: "Saint-Roch",
-      requirement: "Attend 1 meetup to unlock",
-    },
-    {
-      id: 6,
-      title: "Rooftop sunrise sessions",
-      venue: "Hidden Garden",
-      description: "Morning yoga & coffee before the city wakes",
-      image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      timing: "Saturdays",
-      unlocked: false,
-      location: "Old Port",
-      requirement: "Complete 3 experiences to unlock",
-    },
-  ];
+  // Merge business perks (all unlocked) with static perks
+  const fromBusiness = businessPerks.map((p, i) => ({
+    id: 1000 + i,
+    title: p.title,
+    venue: p.business_name,
+    description: p.description,
+    image: p.image_url || "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: p.timing,
+    unlocked: true,
+    location: p.location,
+  }));
 
+  const perks = [...fromBusiness, ...STATIC_PERKS];
   const unlockedPerks = perks.filter(p => p.unlocked);
   const lockedPerks = perks.filter(p => !p.unlocked);
 
