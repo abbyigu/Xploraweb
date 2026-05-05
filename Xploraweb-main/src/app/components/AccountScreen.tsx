@@ -31,27 +31,18 @@ export function AccountScreen() {
     setTimeout(() => setPasswordEmailSent(false), 4000);
   };
 
-  const defaultItineraries = [
-    { id: 1, title: 'Artistic Soul of Quebec City', date: 'Saved on Apr 15, 2026' },
-    { id: 2, title: "Foodie's Paradise", date: 'Saved on Apr 20, 2026' },
-  ];
-  const defaultPerks = [
-    { id: 1, title: 'Secret dessert menu unlocked', venue: 'Café Névé', validUntil: 'May 1, 2026' },
-    { id: 2, title: 'Skip the line access', venue: 'Musée National', validUntil: 'May 15, 2026' },
-  ];
-
   const [savedItineraries, setSavedItineraries] = useState(() => {
     try {
       const raw = localStorage.getItem('xplora_saved_itineraries');
-      return raw ? JSON.parse(raw) : defaultItineraries;
-    } catch { return defaultItineraries; }
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
   });
 
   const [savedPerks, setSavedPerks] = useState(() => {
     try {
       const raw = localStorage.getItem('xplora_saved_perks');
-      return raw ? JSON.parse(raw) : defaultPerks;
-    } catch { return defaultPerks; }
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
   });
 
   const removeItinerary = (id: number) => {
@@ -343,6 +334,9 @@ export function AccountScreen() {
           <div className="space-y-6">
             <div>
               <h3 className="text-xl mb-4">Saved Itineraries</h3>
+              {savedItineraries.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4">No saved itineraries yet.</p>
+              )}
               <div className="space-y-3">
                 {savedItineraries.map((item) => (
                   <div key={item.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
@@ -359,6 +353,9 @@ export function AccountScreen() {
             </div>
             <div>
               <h3 className="text-xl mb-4">Saved Perks</h3>
+              {savedPerks.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4">No saved perks yet.</p>
+              )}
               <div className="space-y-3">
                 {savedPerks.map((perk) => (
                   <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
