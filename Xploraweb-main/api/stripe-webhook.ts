@@ -38,19 +38,81 @@ export default async function handler(req: any, res: any) {
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object as Stripe.Checkout.Session;
 
-    const { error } = await supabase.from('orders').insert({
-      stripe_session_id: session.id,
-      user_id: session.metadata?.userId || null,
-      customer_email: session.customer_details?.email || session.customer_email,
-      amount_total: session.amount_total,
-      currency: session.currency,
-      status: 'completed',
-      created_at: new Date().toISOString(),
-    });
+    if (session.mode === 'subscription' && session.subscription) {
+      // Retrieve full subscription to get price/interval info
+      const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+      const priceId = subscription.items.data[0]?.price.id;
+      const interval = subscription.items.data[0]?.price.recurring?.interval;
+      const plan = interval === 'year' ? 'yearly' : 'monthly';
+
+      const { error } = await supabase.from('subscriptions').upsert({
+        user_id: session.metadata?.userId || null,
+        stripe_customer_id: session.customer as string,
+        stripe_subscription_id: subscription.id,
+        stripe_price_id: priceId,
+        status: subscription.status,
+        plan,
+        current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'stripe_subscription_id' });
+
+      if (error) {
+        console.error('Supabase subscription insert failed:', error.message);
+        return res.status(500).json({ error: 'Failed to save subscription' });
+      }
+    } else {
+      // One-time purchase — save to orders table
+      const { error } = await supabase.from('orders').insert({
+        stripe_session_id: session.id,
+        user_id: session.metadata?.userId || null,
+        customer_email: session.customer_details?.email || session.customer_email,
+        amount_total: session.amount_total,
+        currency: session.currency,
+        status: 'completed',
+        created_at: new Date().toISOString(),
+      });
+
+      if (error) {
+        console.error('Supabase insert failed:', error.message);
+        return res.status(500).json({ error: 'Failed to save order' });
+      }
+    }
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object as Stripe.Subscription;
+    const interval = subscription.items.data[0]?.price.recurring?.interval;
+    const plan = interval === 'year' ? 'yearly' : 'monthly';
+
+    const { error } = await supabase.from('subscriptions').upsert({
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer as string,
+      stripe_price_id: subscription.items.data[0]?.price.id,
+      status: subscription.status,
+      plan,
+      current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'stripe_subscription_id' });
 
     if (error) {
-      console.error('Supabase insert failed:', error.message);
-      return res.status(500).json({ error: 'Failed to save order' });
+      console.error('Supabase subscription update failed:', error.message);
+      return res.status(500).json({ error: 'Failed to update subscription' });
+    }
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const subscription = event.data.object as Stripe.Subscription;
+
+    const { error } = await supabase.from('subscriptions').upsert({
+      stripe_subscription_id: subscription.id,
+      stripe_customer_id: subscription.customer as string,
+      status: 'canceled',
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'stripe_subscription_id' });
+
+    if (error) {
+      console.error('Supabase subscription delete failed:', error.message);
+      return res.status(500).json({ error: 'Failed to cancel subscription' });
     }
   }
 
