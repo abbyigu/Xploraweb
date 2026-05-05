@@ -34,7 +34,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Club Horizon <noreply@goxplora.ca>',
+      from: process.env.RESEND_FROM_EMAIL || 'Club Horizon <onboarding@resend.dev>',
       to,
       subject,
       html,
