@@ -15,6 +15,7 @@ import { AccountSetupScreen } from './components/AccountSetupScreen';
 import { AccountScreen } from './components/AccountScreen';
 import { ShopScreen } from './components/ShopScreen';
 import { CartScreen } from './components/CartScreen';
+import { MembershipScreen } from './components/MembershipScreen';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
@@ -65,6 +66,7 @@ export default function App() {
               <Route path="/perks" element={<PerksScreen />} />
               <Route path="/shop" element={<ShopScreen />} />
               <Route path="/cart" element={<CartScreen />} />
+              <Route path="/membership" element={<MembershipScreen />} />
             </Routes>
           </div>
           <BottomNav />

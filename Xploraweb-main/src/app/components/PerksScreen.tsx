@@ -48,8 +48,8 @@ function Paywall() {
             <p className="text-sm text-muted-foreground mb-6">
               Xplora Perks are exclusive to members. Join to unlock insider access to hidden menus, skip-the-line passes, and more.
             </p>
-            <button onClick={() => navigate('/signup')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
-              Join Xplora
+            <button onClick={() => navigate('/membership')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
+              Join — $10/month
             </button>
             <button onClick={() => navigate('/login')} className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors">
               Already a member? Log in

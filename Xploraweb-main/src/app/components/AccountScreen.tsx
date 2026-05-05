@@ -158,6 +158,15 @@ export function AccountScreen() {
               Create Account
             </button>
           </div>
+
+          <div
+            className="mt-6 bg-primary/10 border border-primary/20 rounded-2xl p-4 text-center cursor-pointer hover:bg-primary/15 transition-colors"
+            onClick={() => navigate('/membership')}
+          >
+            <p className="text-sm font-medium text-primary mb-0.5">Club Membership</p>
+            <p className="text-xs text-muted-foreground">Early access · Guest passes · Members-only 5 à 7</p>
+            <p className="text-xs text-primary mt-2 underline underline-offset-2">From $10/month →</p>
+          </div>
         </div>
       </div>
     );
@@ -277,6 +286,17 @@ export function AccountScreen() {
                     </button>
                   </div>
                 )}
+              </div>
+
+              <div
+                className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
+                onClick={() => navigate('/membership')}
+              >
+                <div>
+                  <p className="text-sm font-medium text-primary">Club Membership</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Early access · Guest passes · 5 à 7</p>
+                </div>
+                <span className="text-sm text-primary font-medium">$10/mo →</span>
               </div>
 
               <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
