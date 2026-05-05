@@ -1,4 +1,4 @@
-import logoFull from "../../imports/Xplora_logo-2.png";
+import logoFull from "../../imports/Xplora_logo_new.png";
 import logoIcon from "../../imports/Favicon.png";
 
 export function XploraLogo({
@@ -13,6 +13,7 @@ export function XploraLogo({
       src={variant === "icon" ? logoIcon : logoFull}
       alt="Xplora"
       className={className}
+      style={variant === "full" ? { mixBlendMode: 'multiply' } : undefined}
     />
   );
 }
