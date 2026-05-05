@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { XploraLogo } from './XploraLogo';
 import NewsletterSignup from './NewsletterSignup';
 
@@ -80,7 +81,7 @@ export function Footer() {
               <span className="text-sm text-muted-foreground">© 2026 Xplora. All rights reserved.</span>
             </div>
             <div className="flex gap-6 text-sm text-muted-foreground">
-              <a href="#" className="hover:text-foreground transition-colors">About</a>
+              <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
               <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
               <a href="#" className="hover:text-foreground transition-colors">Terms</a>
               <a href="#" className="hover:text-foreground transition-colors">Contact</a>

@@ -45,6 +45,7 @@ export default function App() {
           <div className="md:max-w-none max-w-md mx-auto relative">
             <Routes>
               <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<LandingPage />} />
               <Route path="/welcome" element={<WelcomeScreen />} />
               <Route path="/signup" element={<SignupScreen />} />
               <Route path="/login" element={<LoginScreen />} />
