@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export function LoginScreen() {
   const navigate = useNavigate();

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Mail } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export function ForgotPasswordScreen() {
   const navigate = useNavigate();

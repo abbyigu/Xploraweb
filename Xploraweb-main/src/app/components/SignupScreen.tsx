@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '@/app/lib/supabase';
+import { supabase } from '../lib/supabase';
 
 const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
 const KIT_FORM_UID = '361503f84f';

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
-import { supabase, getProfile, upsertProfile } from '@/app/lib/supabase';
+import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 
 function getInitials(name: string): string {
