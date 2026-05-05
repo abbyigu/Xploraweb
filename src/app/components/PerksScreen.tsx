@@ -159,9 +159,31 @@ export function PerksScreen() {
 
   if (authStatus === 'guest') return <Paywall />;
 
+  const [buyingId, setBuyingId] = useState<string | null>(null);
+
+  async function handleBuyExperience(exp: any) {
+    setBuyingId(exp.rawId);
+    const { data: { user } } = await supabase.auth.getUser();
+    const res = await fetch('/api/buy-experience', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        experienceId: exp.rawId,
+        userId: user?.id || '',
+        customerEmail: user?.email || '',
+        successUrl: `${window.location.origin}/home?booking=success`,
+        cancelUrl: `${window.location.origin}/perks`,
+      }),
+    });
+    const data = await res.json();
+    setBuyingId(null);
+    if (data.url) window.location.href = data.url;
+  }
+
   // Merge business perks (all unlocked) with static perks
   const fromBusiness = businessPerks.map((p, i) => ({
     id: 1000 + i,
+    rawId: p.id,
     title: p.title,
     venue: p.business_name,
     description: p.description,
@@ -169,9 +191,12 @@ export function PerksScreen() {
     timing: p.timing,
     unlocked: true,
     location: p.location,
+    type: p.type as 'free' | 'paid',
+    price_cents: p.price_cents,
+    spots_remaining: p.spots_remaining,
   }));
 
-  const perks = [...fromBusiness, ...STATIC_PERKS];
+  const perks = [...fromBusiness, ...STATIC_PERKS.map(p => ({ ...p, type: 'free' as const, rawId: null, price_cents: null, spots_remaining: null }))];
   const unlockedPerks = perks.filter(p => p.unlocked);
   const lockedPerks = perks.filter(p => !p.unlocked);
 
@@ -227,9 +252,20 @@ export function PerksScreen() {
                     <p className="text-sm text-muted-foreground mb-3">
                       {perk.description}
                     </p>
-                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                      <MapPin className="w-4 h-4" />
-                      {perk.location}
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                        <MapPin className="w-4 h-4" />
+                        {perk.location}
+                      </div>
+                      {perk.type === 'paid' && perk.rawId && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleBuyExperience(perk); }}
+                          disabled={buyingId === perk.rawId || perk.spots_remaining === 0}
+                          className="bg-secondary text-secondary-foreground px-4 py-1.5 rounded-full text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                        >
+                          {buyingId === perk.rawId ? '…' : perk.spots_remaining === 0 ? 'Sold out' : `Buy — $${((perk.price_cents || 0) / 100).toFixed(0)}`}
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
