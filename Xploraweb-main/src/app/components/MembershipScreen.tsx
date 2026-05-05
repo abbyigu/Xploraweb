@@ -1,7 +1,13 @@
 import { useState } from 'react';
-import { Check, Star } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
+import { supabase } from '../lib/supabase';
+
+const PRICE_IDS = {
+  monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
+  yearly: 'price_1TTkTaLXjgh0xxiruBF7GyMg',
+};
 
 const perks = [
   { icon: '🎟️', text: 'Early access to all experiences (48h priority)' },
@@ -14,13 +20,39 @@ const perks = [
 
 export function MembershipScreen() {
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
-  const [joining, setJoining] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleSubscribe = () => {
-    // TODO: wire to Stripe subscription checkout once Price IDs are configured
-    setJoining(true);
-    setTimeout(() => setJoining(false), 2000);
+  const handleSubscribe = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+
+      const res = await fetch('/api/stripe-subscription', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId: PRICE_IDS[billing],
+          successUrl: `${window.location.origin}/?subscribed=true`,
+          cancelUrl: window.location.href,
+          userId: user?.id || '',
+          customerEmail: user?.email || '',
+        }),
+      });
+
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Something went wrong.');
+      }
+    } catch {
+      setError('Could not connect to checkout. Try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -75,11 +107,14 @@ export function MembershipScreen() {
             )}
           </div>
 
+          {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
+
           <button
             onClick={handleSubscribe}
-            className="mt-6 w-full bg-primary text-primary-foreground py-4 rounded-2xl text-base font-medium hover:opacity-90 transition-opacity"
+            disabled={loading}
+            className="mt-6 w-full bg-primary text-primary-foreground py-4 rounded-2xl text-base font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {joining ? '✓ Coming soon — stay tuned!' : `Join for ${billing === 'monthly' ? '$10/month' : '$100/year'}`}
+            {loading ? 'Redirecting…' : `Join for ${billing === 'monthly' ? '$10/month' : '$100/year'}`}
           </button>
           <p className="text-xs text-muted-foreground mt-3">Cancel anytime. No commitment.</p>
         </div>
