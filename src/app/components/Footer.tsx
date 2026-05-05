@@ -80,8 +80,9 @@ export function Footer() {
               <XploraLogo variant="icon" className="h-8 w-8 rounded-full" />
               <span className="text-sm text-muted-foreground">© 2026 Xplora. All rights reserved.</span>
             </div>
-            <div className="flex gap-6 text-sm text-muted-foreground">
+            <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
+              <Link to="/business" className="hover:text-foreground transition-colors font-medium text-secondary">For Businesses</Link>
               <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
               <a href="#" className="hover:text-foreground transition-colors">Terms</a>
               <a href="#" className="hover:text-foreground transition-colors">Contact</a>

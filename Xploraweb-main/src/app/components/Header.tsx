@@ -52,6 +52,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-4">
+            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors">For Businesses</Link>
             <Link to="/cart" className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
               <ShoppingCart className="w-5 h-5" />
               {count > 0 && (
