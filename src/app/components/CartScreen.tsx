@@ -3,6 +3,7 @@ import { useCart } from '../context/CartContext';
 import { useState } from 'react';
 import { SimpleFooter } from './SimpleFooter';
 import { useNavigate } from 'react-router';
+import { supabase } from '../lib/supabase';
 
 export function CartScreen() {
   const { items, removeItem, updateQuantity, clearCart, total, count } = useCart();
@@ -15,6 +16,8 @@ export function CartScreen() {
     setLoading(true);
     setError('');
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+
       const res = await fetch('/api/stripe-checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -28,6 +31,8 @@ export function CartScreen() {
           })),
           successUrl: window.location.origin + '?checkout_success=1',
           cancelUrl: window.location.origin + '?checkout_cancelled=1',
+          userId: user?.id || '',
+          customerEmail: user?.email || '',
         }),
       });
       const data = await res.json();

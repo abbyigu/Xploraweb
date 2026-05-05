@@ -11,7 +11,7 @@ export default async function handler(req: any, res: any) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { items, successUrl, cancelUrl } = req.body;
+    const { items, successUrl, cancelUrl, userId, customerEmail } = req.body;
 
     const lineItems = items.map((item: {
       name: string; description: string; price: number; quantity: number; image?: string;
@@ -34,6 +34,8 @@ export default async function handler(req: any, res: any) {
       mode: 'payment',
       success_url: successUrl,
       cancel_url: cancelUrl,
+      ...(customerEmail ? { customer_email: customerEmail } : {}),
+      metadata: { userId: userId || '' },
     });
 
     return res.status(200).json({ url: session.url });
