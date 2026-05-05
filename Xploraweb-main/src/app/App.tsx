@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { MemoryRouter, Routes, Route, useNavigate } from 'react-router';
 import { LandingPage } from './components/LandingPage';
 import { HomeScreen } from './components/HomeScreen';
@@ -69,6 +70,7 @@ export default function App() {
           <BottomNav />
         </div>
       </MemoryRouter>
+      <SpeedInsights />
     </CartProvider>
   );
 }
