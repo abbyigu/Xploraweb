@@ -84,7 +84,12 @@ export function AccountScreen() {
         return;
       }
       getProfile().then((data) => {
-        if (data) setProfile(data as typeof profile);
+        if (data) {
+          setProfile(data as typeof profile);
+        } else {
+          // No profile row yet — pre-fill email from auth
+          setProfile((p) => ({ ...p, email: user.email || '' }));
+        }
         setLoading(false);
       });
     });
