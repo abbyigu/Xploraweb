@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
+import { XploraLogo } from './XploraLogo';
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -14,6 +15,7 @@ export function AccountScreen() {
   const [profile, setProfile] = useState({ name: '', email: '', location: 'Quebec City, QC', interests: [] as string[], avatar_url: null as string | null });
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | null>(null);
   const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
@@ -75,9 +77,16 @@ export function AccountScreen() {
   ];
 
   useEffect(() => {
-    getProfile().then((data) => {
-      if (data) setProfile(data as typeof profile);
-      setLoading(false);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        setIsGuest(true);
+        setLoading(false);
+        return;
+      }
+      getProfile().then((data) => {
+        if (data) setProfile(data as typeof profile);
+        setLoading(false);
+      });
     });
   }, []);
 
@@ -116,6 +125,40 @@ export function AccountScreen() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <p className="text-muted-foreground">Loading your profile...</p>
+      </div>
+    );
+  }
+
+  if (isGuest) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12">
+        <div className="max-w-sm w-full text-center">
+          <div className="flex justify-center mb-6">
+            <XploraLogo variant="full" className="h-14" />
+          </div>
+
+          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+            <User className="w-9 h-9 text-muted-foreground" />
+          </div>
+
+          <h1 className="text-2xl mb-2">Your Account</h1>
+          <p className="text-muted-foreground mb-8">Sign in to access your profile, saved itineraries, and perks.</p>
+
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate('/login')}
+              className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity font-medium"
+            >
+              Log In
+            </button>
+            <button
+              onClick={() => navigate('/signup')}
+              className="w-full border border-border py-3 rounded-xl hover:bg-muted transition-colors font-medium"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
