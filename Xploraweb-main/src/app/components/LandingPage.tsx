@@ -167,38 +167,6 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* Membership CTA */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
-        <div className="bg-primary text-primary-foreground rounded-3xl p-8 md:p-14">
-          <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-10 md:items-center">
-            <div className="flex-1 space-y-4">
-              <p className="text-xs uppercase tracking-widest opacity-60">Club Membership</p>
-              <h2 className="text-3xl md:text-4xl">Everything you need to explore Québec City right</h2>
-              <ul className="space-y-2">
-                {memberBenefits.map((b) => (
-                  <li key={b.label} className="flex items-center gap-2 text-sm opacity-90">
-                    <span>{b.icon}</span> {b.label}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="flex-shrink-0 text-center space-y-4">
-              <div>
-                <p className="text-5xl font-serif">$10</p>
-                <p className="text-sm opacity-70">/month · or $100/year</p>
-              </div>
-              <Link
-                to="/signup"
-                className="inline-block bg-white text-primary px-8 py-3 rounded-2xl text-sm font-medium hover:opacity-90 transition-opacity"
-              >
-                Join Club Horizon
-              </Link>
-              <p className="text-xs opacity-50">Cancel anytime</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* B2B Partner Section */}
       <div className="bg-muted/30 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-8">

@@ -131,6 +131,7 @@ const STATIC_PERKS = [
 export function PerksScreen() {
   const [authStatus, setAuthStatus] = useState<'loading' | 'member' | 'guest'>('loading');
   const [businessPerks, setBusinessPerks] = useState<any[]>([]);
+  const [buyingId, setBuyingId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -158,8 +159,6 @@ export function PerksScreen() {
   }
 
   if (authStatus === 'guest') return <Paywall />;
-
-  const [buyingId, setBuyingId] = useState<string | null>(null);
 
   async function handleBuyExperience(exp: any) {
     setBuyingId(exp.rawId);

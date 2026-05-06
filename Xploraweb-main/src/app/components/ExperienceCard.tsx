@@ -1,15 +1,20 @@
 import { Clock, Users, MapPin, ShoppingCart, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useCart } from '../context/CartContext';
+import { useNavigate } from 'react-router';
 import type { Product } from '../data/products';
 
 export function ExperienceCard({ exp }: { exp: Product }) {
   const { addItem, items } = useCart();
+  const navigate = useNavigate();
   const inCart = items.some(i => i.id === exp.id);
 
   return (
     <div className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow">
-      <div className="relative h-48">
+      <div
+        className="relative h-48 cursor-pointer"
+        onClick={() => navigate(`/experience/${exp.id}`)}
+      >
         <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
         <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
           <Clock className="w-3.5 h-3.5" />
@@ -22,7 +27,12 @@ export function ExperienceCard({ exp }: { exp: Product }) {
         )}
       </div>
       <div className="p-4">
-        <h3 className="text-lg mb-1">{exp.name}</h3>
+        <h3
+          className="text-lg mb-1 cursor-pointer hover:text-primary transition-colors"
+          onClick={() => navigate(`/experience/${exp.id}`)}
+        >
+          {exp.name}
+        </h3>
         <p className="text-sm text-muted-foreground mb-3">{exp.description}</p>
         <div className="flex items-center justify-between text-sm mb-4">
           <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -35,7 +45,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-lg font-medium">${(exp.price / 100).toFixed(0)}</span>
+          <span className="text-lg font-medium">{exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}</span>
           <button
             onClick={() => { if (!inCart) addItem(exp); }}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${

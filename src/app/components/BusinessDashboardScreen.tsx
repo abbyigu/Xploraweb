@@ -95,20 +95,25 @@ export function BusinessDashboardScreen() {
 
   async function handleConnectStripe() {
     setConnectingStripe(true);
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-    const returnUrl = `${window.location.origin}/business/dashboard`;
-    const res = await fetch('/api/stripe-connect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId: user.id, returnUrl }),
-    });
-    const data = await res.json();
-    if (data.url) {
-      window.location.href = data.url;
-    } else {
-      setError(data.error || 'Failed to start Stripe onboarding');
+      const returnUrl = `${window.location.origin}/business/dashboard`;
+      const res = await fetch('/api/stripe-connect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: user.id, returnUrl }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        setError(data.error || 'Failed to start Stripe onboarding');
+        setConnectingStripe(false);
+      }
+    } catch (err: any) {
+      setError('Server error — check Vercel env vars (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)');
       setConnectingStripe(false);
     }
   }
@@ -215,13 +220,22 @@ export function BusinessDashboardScreen() {
                 <p className="text-xs text-amber-600 mt-0.5">You'll receive 80% of each ticket sale automatically. Free perks work without this.</p>
               </div>
             </div>
-            <button
-              onClick={handleConnectStripe}
-              disabled={connectingStripe}
-              className="flex-shrink-0 bg-amber-600 text-white px-5 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-60"
-            >
-              {connectingStripe ? 'Redirecting…' : 'Connect Stripe'}
-            </button>
+            {connectingStripe ? (
+              <div className="flex-shrink-0 flex items-center gap-2 px-5 py-2 text-amber-700 text-sm">
+                <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                </svg>
+                Opening Stripe…
+              </div>
+            ) : (
+              <button
+                onClick={handleConnectStripe}
+                className="flex-shrink-0 bg-amber-600 text-white px-5 py-2 rounded-xl text-sm hover:opacity-90 transition-opacity"
+              >
+                Connect Stripe
+              </button>
+            )}
           </div>
         )}
 

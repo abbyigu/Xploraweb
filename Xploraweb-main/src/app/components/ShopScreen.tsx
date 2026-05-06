@@ -1,35 +1,34 @@
 import { ShoppingCart, Check } from 'lucide-react';
 import { useState } from 'react';
-import { experiences, merch, memberships } from '../data/products';
+import { merch, memberships } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
-type Tab = 'experiences' | 'merch' | 'memberships';
+type Tab = 'merch' | 'memberships';
 
 function formatPrice(cents: number) {
   return '$' + (cents / 100).toFixed(0);
 }
 
 export function ShopScreen() {
-  const [activeTab, setActiveTab] = useState<Tab>('experiences');
+  const [activeTab, setActiveTab] = useState<Tab>('merch');
   const { addItem, items, count } = useCart();
   const navigate = useNavigate();
 
   const inCart = (id: string) => items.some(i => i.id === id);
 
-  const handleAdd = (product: (typeof experiences)[0]) => {
+  const handleAdd = (product: (typeof merch)[0]) => {
     if (!inCart(product.id)) addItem(product);
   };
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'experiences', label: 'Experiences' },
     { key: 'merch', label: 'Merch' },
     { key: 'memberships', label: 'Memberships' },
   ];
 
-  const products = activeTab === 'experiences' ? experiences : activeTab === 'merch' ? merch : memberships;
+  const products = activeTab === 'merch' ? merch : memberships;
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">

@@ -2,22 +2,42 @@ import { SearchHeader } from './SearchHeader';
 import { MeetupCard } from './MeetupCard';
 import { DealCard } from './DealCard';
 import { ExperienceCard } from './ExperienceCard';
-import { experiences } from '../data/products';
+import { EXPERIENCE_CATEGORIES } from '../data/products';
+import { useExperiences } from '../hooks/useExperiences';
 import { meetups, perks } from '../data/mockData';
 import { Footer } from './Footer';
 import { useNavigate } from 'react-router';
 
 export function HomeScreen() {
   const navigate = useNavigate();
+  const { experiences } = useExperiences();
   return (
     <div className="min-h-screen pb-24 md:pb-8">
       <SearchHeader />
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 md:space-y-12">
         <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Curated for You</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {experiences.slice(0, 3).map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+          <h2 className="text-xl md:text-2xl mb-6 md:mb-8">Curated for You</h2>
+          <div className="space-y-10">
+            {EXPERIENCE_CATEGORIES.map(cat => {
+              const items = experiences.filter(e => e.category === cat.id);
+              if (!items.length) return null;
+              return (
+                <div key={cat.id}>
+                  <div className="mb-3">
+                    <h3 className="text-lg font-medium">{cat.name}</h3>
+                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
+                  </div>
+                  <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible">
+                    {items.map(exp => (
+                      <div key={exp.id} className="min-w-[260px] md:min-w-0 flex-shrink-0 md:flex-shrink">
+                        <ExperienceCard exp={exp} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </section>
 
@@ -46,16 +66,7 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">5 à 7 Meetups</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            {meetups.map((meetup) => (
-              <MeetupCard key={meetup.id} {...meetup} />
-            ))}
-          </div>
-        </section>
-
-        <section>
+<section>
           <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Unlocked Spots</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
             {perks.map((perk) => (

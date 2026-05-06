@@ -20,6 +20,7 @@ import { BusinessLandingScreen } from './components/BusinessLandingScreen';
 import { BusinessSignupScreen } from './components/BusinessSignupScreen';
 import { BusinessLoginScreen } from './components/BusinessLoginScreen';
 import { BusinessDashboardScreen } from './components/BusinessDashboardScreen';
+import { ExperienceDetailScreen } from './components/ExperienceDetailScreen';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
@@ -59,6 +60,7 @@ export default function App() {
               <Route path="/account" element={<AccountScreen />} />
               <Route path="/home" element={<HomeScreen />} />
               <Route path="/itinerary" element={<ItineraryScreen />} />
+              <Route path="/experience/:id" element={<ExperienceDetailScreen />} />
               <Route path="/meetups" element={<MeetupsScreen />} />
               <Route path="/perks" element={<PerksScreen />} />
               <Route path="/shop" element={<ShopScreen />} />
