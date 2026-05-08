@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Compass, BookOpen, Users, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
+import { Compass, Users, Moon, Sparkles } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
@@ -8,22 +9,127 @@ import type { ExperienceCategory } from '../data/products';
 
 type Filter = 'all' | ExperienceCategory;
 
+const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
+const NEIGHBOURHOOD_OPTIONS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
+
 const TIER_META: Record<ExperienceCategory, {
   icon: React.ElementType;
   accent: string;
   pill: string;
 }> = {
-  xplorators:    { icon: Compass,  accent: 'bg-emerald-50 border-emerald-200', pill: 'bg-emerald-100 text-emerald-800' },
-  xplorastories: { icon: BookOpen, accent: 'bg-amber-50 border-amber-200',     pill: 'bg-amber-100 text-amber-800'     },
-  xploratours:   { icon: Users,    accent: 'bg-sky-50 border-sky-200',          pill: 'bg-sky-100 text-sky-800'         },
-  xploranights:  { icon: Moon,     accent: 'bg-violet-50 border-violet-200',    pill: 'bg-violet-100 text-violet-800'   },
+  xplorators:    { icon: Compass,   accent: 'bg-xplora-icon-bg border-xplora-primary/30',           pill: 'bg-xplora-primary/15 text-xplora-ink'        },
+  xploratours:   { icon: Users,     accent: 'bg-xplora-accent-teal/10 border-xplora-accent-teal/30', pill: 'bg-xplora-accent-teal/15 text-xplora-ink'    },
+  xploranights:  { icon: Moon,      accent: 'bg-xplora-accent-green/10 border-xplora-accent-green/30', pill: 'bg-xplora-accent-green/15 text-xplora-ink' },
+  xploratorsplus:{ icon: Sparkles,  accent: 'bg-xplora-icon-bg border-xplora-primary/30',           pill: 'bg-xplora-primary/15 text-xplora-ink'        },
 };
 
 export function ItineraryScreen() {
   const { experiences } = useExperiences();
-  const [filter, setFilter] = useState<Filter>('all');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filter, setFilter] = useState<Filter>(() => {
+    const cat = searchParams.get('category');
+    return (cat as ExperienceCategory) || 'all';
+  });
+  const [selectedVibes, setSelectedVibes] = useState<string[]>(() => {
+    const v = searchParams.get('vibe');
+    return v ? [v.toLowerCase()] : [];
+  });
+  const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(() => {
+    return searchParams.get('neighbourhood');
+  });
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    const v = searchParams.get('vibe');
+    const n = searchParams.get('neighbourhood');
+    if (cat) setFilter(cat as ExperienceCategory);
+    if (v) { setSelectedVibes([v.toLowerCase()]); setSelectedNeighbourhood(null); }
+    if (n) { setSelectedNeighbourhood(n); setSelectedVibes([]); }
+  }, [searchParams]);
 
   const activeCat = EXPERIENCE_CATEGORIES.find(c => c.id === filter);
+
+  function toggleVibe(vibe: string) {
+    setSelectedVibes(prev =>
+      prev.includes(vibe) ? prev.filter(v => v !== vibe) : [...prev, vibe]
+    );
+    setSelectedNeighbourhood(null);
+    setSearchParams({});
+  }
+
+  function toggleNeighbourhood(n: string) {
+    setSelectedNeighbourhood(prev => prev === n ? null : n);
+    setSelectedVibes([]);
+    setSearchParams({});
+  }
+
+  function clearAll() {
+    setSelectedVibes([]);
+    setSelectedNeighbourhood(null);
+    setSearchParams({});
+  }
+
+  const hasFilter = selectedVibes.length > 0 || selectedNeighbourhood !== null;
+
+  let filteredExperiences = experiences;
+  if (selectedVibes.length > 0) {
+    filteredExperiences = filteredExperiences.filter(e =>
+      e.vibes?.some(v => selectedVibes.includes(v.toLowerCase()))
+    );
+  }
+  if (selectedNeighbourhood) {
+    filteredExperiences = filteredExperiences.filter(e =>
+      e.neighbourhood?.toLowerCase() === selectedNeighbourhood.toLowerCase()
+    );
+  }
+
+  function renderContent() {
+    if (hasFilter) {
+      if (filteredExperiences.length === 0) {
+        return <p className="text-muted-foreground text-sm py-8 text-center">No experiences match this filter yet — check back soon.</p>;
+      }
+      return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {filteredExperiences.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+        </div>
+      );
+    }
+    if (filter === 'all') {
+      return (
+        <>
+          {EXPERIENCE_CATEGORIES.map(cat => {
+            const items = experiences.filter(e => e.category === cat.id);
+            if (!items.length) return null;
+            const meta = TIER_META[cat.id];
+            const Icon = meta.icon;
+            return (
+              <section key={cat.id}>
+                <div className="flex items-start gap-3 mb-5">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.pill}`}>
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
+                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                  {items.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+                </div>
+              </section>
+            );
+          })}
+        </>
+      );
+    }
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+        {experiences.filter(e => e.category === filter).map(exp => (
+          <ExperienceCard key={exp.id} exp={exp} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
@@ -31,10 +137,14 @@ export function ItineraryScreen() {
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl mb-1">Experiences</h1>
           <p className="text-sm md:text-base opacity-90 mb-5">
-            {activeCat ? activeCat.tagline : 'Find your next adventure in Québec City'}
+            {selectedNeighbourhood
+              ? `Experiences in ${selectedNeighbourhood}`
+              : selectedVibes.length > 0
+              ? 'Filtered by vibe'
+              : activeCat ? activeCat.tagline : 'Find your next adventure in Québec City'}
           </p>
 
-          {/* Scrollable filter strip */}
+          {/* Scrollable category filter strip */}
           <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <button
               onClick={() => setFilter('all')}
@@ -64,37 +174,65 @@ export function ItineraryScreen() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
-        {filter === 'all' ? (
-          EXPERIENCE_CATEGORIES.map(cat => {
-            const items = experiences.filter(e => e.category === cat.id);
-            if (!items.length) return null;
-            const meta = TIER_META[cat.id];
-            const Icon = meta.icon;
-            return (
-              <section key={cat.id}>
-                <div className="flex items-start gap-3 mb-5">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.pill}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
-                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {items.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
-                </div>
-              </section>
-            );
-          })
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {experiences.filter(e => e.category === filter).map(exp => (
-              <ExperienceCard key={exp.id} exp={exp} />
-            ))}
+      {/* Vibe + neighbourhood filter section */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
+        <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base md:text-lg">Explore by vibe or neighbourhood</h2>
+            {hasFilter && (
+              <button
+                onClick={clearAll}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+              >
+                Clear all
+              </button>
+            )}
           </div>
-        )}
+
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Vibe</p>
+            <div className="flex flex-wrap gap-2">
+              {VIBE_OPTIONS.map(v => {
+                const active = selectedVibes.includes(v);
+                return (
+                  <button
+                    key={v}
+                    onClick={() => toggleVibe(v)}
+                    className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                      active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary hover:bg-primary/20'
+                    }`}
+                  >
+                    {v}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Neighbourhood</p>
+            <div className="flex flex-wrap gap-2">
+              {NEIGHBOURHOOD_OPTIONS.map(n => {
+                const active = selectedNeighbourhood === n;
+                return (
+                  <button
+                    key={n}
+                    onClick={() => toggleNeighbourhood(n)}
+                    className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                      active ? 'bg-secondary text-secondary-foreground' : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
+        {renderContent()}
       </div>
 
       <SimpleFooter />

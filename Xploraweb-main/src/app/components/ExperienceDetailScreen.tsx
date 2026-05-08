@@ -27,6 +27,17 @@ export function ExperienceDetailScreen() {
   const photos = exp.images && exp.images.length > 0 ? exp.images : [exp.image];
   const inCart = items.some(i => i.id === exp.id);
 
+  const purchaseAndAdd = () => {
+    if (inCart) return;
+    addItem(exp);
+    try {
+      const existing: string[] = JSON.parse(localStorage.getItem('xplora_purchased') || '[]');
+      if (!existing.includes(exp.id)) {
+        localStorage.setItem('xplora_purchased', JSON.stringify([...existing, exp.id]));
+      }
+    } catch { /* ignore */ }
+  };
+
   const prevPhoto = () => setPhotoIndex(i => (i - 1 + photos.length) % photos.length);
   const nextPhoto = () => setPhotoIndex(i => (i + 1) % photos.length);
 
@@ -95,6 +106,9 @@ export function ExperienceDetailScreen() {
                 {exp.languages && (
                   <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" />{exp.languages.join(' · ')}</span>
                 )}
+                {exp.neighbourhood && (
+                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{exp.neighbourhood}</span>
+                )}
               </div>
             </div>
 
@@ -126,6 +140,53 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
+            {/* What's included + What to bring — side by side */}
+            {((exp.includes && exp.includes.length > 0) || (exp.toBring && exp.toBring.length > 0)) && (
+              <div className="grid grid-cols-2 gap-6">
+                {exp.includes && exp.includes.length > 0 && (
+                  <div>
+                    <h2 className="text-lg mb-3">What's included</h2>
+                    <ul className="space-y-2">
+                      {exp.includes.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {exp.toBring && exp.toBring.length > 0 && (
+                  <div>
+                    <h2 className="text-lg mb-3">What to bring</h2>
+                    <ul className="space-y-2">
+                      {exp.toBring.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                          <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground flex-shrink-0 mt-1.5" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Itinerary — xplorators only */}
+            {exp.category === 'xplorators' && exp.itinerary && exp.itinerary.length > 0 && (
+              <div>
+                <h2 className="text-lg mb-3">Itinerary</h2>
+                <ol className="space-y-3">
+                  {exp.itinerary.map((stop, i) => (
+                    <li key={i} className="flex items-start gap-3 text-sm">
+                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium mt-0.5">{i + 1}</span>
+                      <span className="text-muted-foreground leading-relaxed">{stop}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
+
             {/* Description */}
             {exp.longDescription && (
               <div>
@@ -135,36 +196,6 @@ export function ExperienceDetailScreen() {
                     <p key={i} className="text-sm text-muted-foreground leading-relaxed">{para}</p>
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* What's included */}
-            {exp.includes && exp.includes.length > 0 && (
-              <div>
-                <h2 className="text-lg mb-3">What's included</h2>
-                <ul className="space-y-2">
-                  {exp.includes.map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm">
-                      <Check className="w-4 h-4 text-primary flex-shrink-0" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {/* What to bring */}
-            {exp.toBring && exp.toBring.length > 0 && (
-              <div>
-                <h2 className="text-lg mb-3">What to bring</h2>
-                <ul className="space-y-2">
-                  {exp.toBring.map((item, i) => (
-                    <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
-                      <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground flex-shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
               </div>
             )}
 
@@ -198,18 +229,15 @@ export function ExperienceDetailScreen() {
                   <p className="text-3xl font-medium mb-1">Free</p>
                   <p className="text-sm text-muted-foreground mb-6">Self-guided — go at your own pace</p>
                   <button
-                    onClick={() => { if (!inCart) addItem(exp); }}
+                    onClick={purchaseAndAdd}
                     className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
                   >
                     {inCart ? <><Check className="w-4 h-4" /> Saved to my routes</> : 'Get the route'}
                   </button>
-                  <div className="mt-5 pt-5 border-t border-border space-y-2">
-                    <p className="text-xs text-muted-foreground text-center mb-3">Want more from these spots?</p>
-                    <button onClick={() => navigate('/itinerary')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
-                      Xplora-stories — Discover hidden layers
-                    </button>
-                    <button onClick={() => navigate('/itinerary')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
-                      Xplora-tours — Experience together
+                  <div className="mt-5 pt-5 border-t border-border">
+                    <p className="text-xs text-muted-foreground text-center mb-3">Want to explore with a group?</p>
+                    <button onClick={() => navigate('/itinerary?category=xploratours')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
+                      Xplora-tours — Experience together →
                     </button>
                   </div>
                 </>
@@ -218,7 +246,7 @@ export function ExperienceDetailScreen() {
                   <p className="text-3xl font-medium mb-1">${(exp.price / 100).toFixed(0)}<span className="text-base text-muted-foreground font-normal"> / person</span></p>
                   {exp.spots && <p className="text-sm text-muted-foreground mb-6">{exp.spots} spots available</p>}
                   <button
-                    onClick={() => { if (!inCart) addItem(exp); }}
+                    onClick={purchaseAndAdd}
                     className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
                   >
                     {inCart ? <><Check className="w-4 h-4" /> Added to cart</> : <><ShoppingCart className="w-4 h-4" /> Book this experience</>}
@@ -243,7 +271,7 @@ export function ExperienceDetailScreen() {
           <p className="text-xs text-muted-foreground">{exp.price === 0 ? 'Self-guided' : `${exp.spots} spots left`}</p>
         </div>
         <button
-          onClick={() => { if (!inCart) addItem(exp); else navigate('/cart'); }}
+          onClick={() => { if (!inCart) purchaseAndAdd(); else navigate('/cart'); }}
           className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
         >
           {exp.price === 0

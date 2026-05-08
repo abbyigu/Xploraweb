@@ -13,9 +13,7 @@ export function XploraLogo({
       src={variant === "icon" ? logoIcon : logoFull}
       alt="Xplora"
       className={className}
-      width={variant === "full" ? 300 : 64}
-      height={variant === "full" ? 200 : 64}
-      style={variant === "full" ? { mixBlendMode: 'multiply' } : undefined}
+      style={variant === "full" ? { mixBlendMode: 'multiply', width: 'auto' } : { width: 'auto' }}
       fetchPriority="high"
     />
   );

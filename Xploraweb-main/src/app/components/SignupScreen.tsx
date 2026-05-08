@@ -44,7 +44,7 @@ export function SignupScreen() {
       email: formData.email,
       password: formData.password,
       options: {
-        data: { name: formData.name },
+        data: { name: formData.name, account_type: 'member' },
       },
     });
 

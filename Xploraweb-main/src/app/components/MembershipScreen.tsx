@@ -58,20 +58,20 @@ export function MembershipScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground px-6 md:px-8 pt-8 pb-10 rounded-b-[3rem] md:rounded-none">
-        <div className="max-w-2xl mx-auto text-center">
+        <div className="max-w-2xl lg:max-w-3xl mx-auto text-center">
           <div className="flex justify-center mb-3">
             <div className="bg-white/20 backdrop-blur-sm rounded-full p-3">
               <Star className="w-6 h-6 fill-current" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl mb-2">Club Membership</h1>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl mb-2">Xplora Membership</h1>
           <p className="text-sm md:text-base opacity-90">
             Your key to Québec City's best-kept secrets
           </p>
         </div>
       </div>
 
-      <div className="max-w-2xl mx-auto px-6 md:px-8 py-8 space-y-6">
+      <div className="max-w-2xl lg:max-w-3xl mx-auto px-6 md:px-8 py-8 lg:py-12 space-y-6 lg:space-y-8">
 
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-1 bg-muted rounded-full p-1 w-fit mx-auto">

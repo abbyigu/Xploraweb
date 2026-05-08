@@ -52,7 +52,7 @@ export function BusinessSignupScreen() {
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { data: { name: form.contactName } },
+      options: { data: { name: form.contactName, account_type: 'business', business_name: form.businessName } },
     });
 
     if (signUpError) {
@@ -78,7 +78,7 @@ export function BusinessSignupScreen() {
     }
 
     setLoading(false);
-    navigate('/business/dashboard');
+    navigate('/business/login');
   };
 
   return (
@@ -92,7 +92,7 @@ export function BusinessSignupScreen() {
             <Building2 className="w-3.5 h-3.5" /> Business Account
           </div>
           <h1 className="text-2xl mb-1">Create your partner account</h1>
-          <p className="text-sm text-muted-foreground">Start offering perks to Club Horizon members</p>
+          <p className="text-sm text-muted-foreground">Start offering perks to Xplora members</p>
         </div>
 
         {error && (
