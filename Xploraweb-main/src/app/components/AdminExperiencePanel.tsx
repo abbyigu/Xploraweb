@@ -96,9 +96,9 @@ export function AdminExperiencePanel() {
   async function uploadImage(file: File): Promise<{ url: string | null; error: string | null }> {
     const ext = file.name.split('.').pop();
     const path = `experiences/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('perk-images').upload(path, file, { upsert: true });
+    const { error } = await supabase.storage.from('perks-images').upload(path, file, { upsert: true });
     if (error) return { url: null, error: error.message };
-    return { url: supabase.storage.from('perk-images').getPublicUrl(path).data.publicUrl, error: null };
+    return { url: supabase.storage.from('perks-images').getPublicUrl(path).data.publicUrl, error: null };
   }
 
   const openNew = () => {

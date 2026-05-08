@@ -1,3 +1,4 @@
+// v2
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -5,10 +6,11 @@ import { EXPERIENCE_CATEGORIES } from '../data/products';
 
 const BLANK = {
   name: '', description: '', long_description: '', price_cents: 0,
-  image_url: '', duration: '', spots: '', difficulty: 'Easy',
+  duration: '', spots: '', difficulty: 'Easy',
   category: 'xplorators', badge: '', meeting_point: '',
   host_name: '', host_bio: '',
   highlights: '', includes: '', to_bring: '', languages: 'English, Français',
+  itinerary: '', neighbourhood: '', vibes: '',
 };
 
 export function AdminExperiencePanel() {
@@ -18,6 +20,10 @@ export function AdminExperiencePanel() {
   const [form, setForm] = useState({ ...BLANK });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
+
+  const [error, setError] = useState('');
 
   const load = async () => {
     const { data } = await supabase
@@ -32,14 +38,30 @@ export function AdminExperiencePanel() {
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
 
-  const openNew = () => { setForm({ ...BLANK }); setEditing(null); setShowForm(true); };
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function uploadImage(file: File): Promise<{ url: string | null; error: string | null }> {
+    const ext = file.name.split('.').pop();
+    const path = `experiences/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('perks-images').upload(path, file, { upsert: true });
+    if (error) return { url: null, error: error.message };
+    return { url: supabase.storage.from('perks-images').getPublicUrl(path).data.publicUrl, error: null };
+  }
+
+  const openNew = () => { setForm({ ...BLANK }); setEditing(null); setImageFile(null); setImagePreview(''); setShowForm(true); };
   const openEdit = (exp: any) => {
+    setImageFile(null);
+    setImagePreview(exp.image_url || '');
     setForm({
       name: exp.name || '',
       description: exp.description || '',
       long_description: exp.long_description || '',
       price_cents: exp.price_cents ?? 0,
-      image_url: exp.image_url || '',
       duration: exp.duration || '',
       spots: exp.spots?.toString() || '',
       difficulty: exp.difficulty || 'Easy',
@@ -52,6 +74,9 @@ export function AdminExperiencePanel() {
       includes: (exp.includes || []).join('\n'),
       to_bring: (exp.to_bring || []).join('\n'),
       languages: (exp.languages || ['English', 'Français']).join(', '),
+      itinerary: (exp.itinerary || []).join('\n'),
+      neighbourhood: exp.neighbourhood || '',
+      vibes: (exp.vibes || []).join(', '),
     });
     setEditing(exp.id);
     setShowForm(true);
@@ -59,12 +84,23 @@ export function AdminExperiencePanel() {
 
   const handleSave = async () => {
     setSaving(true);
+    setError('');
+    let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
+    if (imageFile) {
+      const result = await uploadImage(imageFile);
+      if (result.error) {
+        setError(`Image upload failed: ${result.error}`);
+        setSaving(false);
+        return;
+      }
+      imageUrl = result.url;
+    }
     const payload = {
       name: form.name,
       description: form.description,
       long_description: form.long_description || null,
       price_cents: Number(form.price_cents),
-      image_url: form.image_url || null,
+      image_url: imageUrl,
       duration: form.duration || null,
       spots: form.spots ? Number(form.spots) : null,
       difficulty: form.difficulty || null,
@@ -77,13 +113,21 @@ export function AdminExperiencePanel() {
       includes: form.includes ? form.includes.split('\n').map(s => s.trim()).filter(Boolean) : null,
       to_bring: form.to_bring ? form.to_bring.split('\n').map(s => s.trim()).filter(Boolean) : null,
       languages: form.languages ? form.languages.split(',').map(s => s.trim()).filter(Boolean) : null,
-      status: 'active',
+      itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      neighbourhood: form.neighbourhood || null,
+      vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
     };
 
+    let dbError: any;
     if (editing) {
-      await supabase.from('xplora_experiences').update(payload).eq('id', editing);
+      ({ error: dbError } = await supabase.from('xplora_experiences').update(payload).eq('id', editing));
     } else {
-      await supabase.from('xplora_experiences').insert(payload);
+      ({ error: dbError } = await supabase.from('xplora_experiences').insert({ ...payload, status: 'active' }));
+    }
+    if (dbError) {
+      setError(dbError.message);
+      setSaving(false);
+      return;
     }
 
     await load();
@@ -95,6 +139,12 @@ export function AdminExperiencePanel() {
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this experience?')) return;
     await supabase.from('xplora_experiences').delete().eq('id', id);
+    await load();
+  };
+
+  const toggleStatus = async (exp: any) => {
+    const next = exp.status === 'active' ? 'draft' : 'active';
+    await supabase.from('xplora_experiences').update({ status: next }).eq('id', exp.id);
     await load();
   };
 
@@ -120,6 +170,7 @@ export function AdminExperiencePanel() {
             <h4 className="font-medium">{editing ? 'Edit Experience' : 'New Experience'}</h4>
             <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
           </div>
+          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
@@ -128,8 +179,8 @@ export function AdminExperiencePanel() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Short description</label>
-              <input value={form.description} onChange={set('description')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="One-liner shown on card" />
+              <label className="text-xs text-muted-foreground">Short description <span className="text-primary">— shown on home page cards</span></label>
+              <input value={form.description} onChange={set('description')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="One-liner shown on card (e.g. Bagels, hidden stories & neighbourhood wandering)" />
             </div>
 
             <div>
@@ -170,19 +221,57 @@ export function AdminExperiencePanel() {
               <input value={form.badge} onChange={set('badge')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Popular, New, Free" />
             </div>
 
-            <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Image URL</label>
-              <input value={form.image_url} onChange={set('image_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://..." />
+            <div>
+              <label className="text-xs text-muted-foreground">Neighbourhood</label>
+              <input value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Saint-Roch, Limoilou" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Full description</label>
+              <label className="text-xs text-muted-foreground">What's your vibe? — comma-separated</label>
+              <input value={form.vibes} onChange={set('vibes')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. cozy, adventurous, foodie, romantic, hidden gem" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Image</label>
+              <div className="mt-1 space-y-2">
+                <label className="flex items-center justify-center gap-2 w-full px-3 py-2.5 rounded-lg border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors text-sm text-muted-foreground">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  {imagePreview && !imageFile ? 'Replace with file upload' : imageFile ? 'Change file' : '📷 Upload image'}
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-xs text-muted-foreground">or paste a URL</span>
+                  <div className="flex-1 h-px bg-border" />
+                </div>
+                <input
+                  type="url"
+                  placeholder="https://images.unsplash.com/..."
+                  value={!imageFile ? imagePreview : ''}
+                  onChange={e => { setImageFile(null); setImagePreview(e.target.value); }}
+                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+              </div>
+              {imagePreview && (
+                <div className="mt-2 relative">
+                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                </div>
+              )}
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Full description <span className="text-muted-foreground/60">— shown on detail page only, not on cards</span></label>
               <textarea value={form.long_description} onChange={set('long_description')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Full experience description (separate paragraphs with a blank line)" />
             </div>
 
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Highlights — one per line</label>
               <textarea value={form.highlights} onChange={set('highlights')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Free & self-guided&#10;Curated stop list&#10;Go at your own pace" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Itinerary stops — one per line</label>
+              <textarea value={form.itinerary} onChange={set('itinerary')} rows={5} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Place des Arts — Start at the open-air gallery in Saint-Roch&#10;Rue Saint-Joseph — Walk the main creative artery&#10;Escalier Casse-Cou — Oldest staircase in North America" />
             </div>
 
             <div>
@@ -216,6 +305,7 @@ export function AdminExperiencePanel() {
             </div>
           </div>
 
+          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
             disabled={saving || !form.name}
@@ -240,6 +330,17 @@ export function AdminExperiencePanel() {
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={() => toggleStatus(exp)}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                  exp.status === 'active'
+                    ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${exp.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
+                {exp.status === 'active' ? 'Live' : 'Draft'}
+              </button>
               <button onClick={() => openEdit(exp)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                 <Edit2 className="w-4 h-4" />
               </button>
