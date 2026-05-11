@@ -76,21 +76,13 @@ export function LandingPage() {
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-              <Link
-                to="/signup"
-                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                Join Xplora
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
-              >
-                Sign In
-              </Link>
-            </div>
+            <button
+              onClick={() => document.getElementById('experiences')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center gap-2"
+            >
+              Explore Now
+              <ArrowRight className="w-5 h-5" />
+            </button>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
@@ -169,7 +161,7 @@ export function LandingPage() {
       </div>
 
       {/* Experience previews */}
-      <div className="bg-muted/30 py-16 md:py-24">
+      <div id="experiences" className="bg-muted/30 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
