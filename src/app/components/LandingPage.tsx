@@ -1,10 +1,23 @@
 import { Link } from 'react-router';
+import { useState, useEffect } from 'react';
 import { ArrowRight, MapPin, Sparkles, Users, Calendar, Star, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Footer } from './Footer';
+import { supabase } from '../lib/supabase';
+
+const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 export function LandingPage() {
+  const [explorerCount, setExplorerCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('profiles')
+      .select('*', { count: 'exact', head: true })
+      .then(({ count }) => { if (count !== null) setExplorerCount(count); });
+  }, []);
+
   const memberBenefits = [
     { icon: '🎟️', label: '48h early access to all experiences' },
     { icon: '👫', label: '1 free guest pass every month' },
@@ -51,15 +64,15 @@ export function LandingPage() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-12 md:py-20">
           <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
-            <XploraLogo variant="full" className="h-28 md:h-40" />
+            <XploraLogo variant="full" className="h-36 md:h-52" />
 
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-widest opacity-60">Club Horizon — Québec City</p>
+              <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl md:text-5xl leading-tight">
-                Discover Québec City<br />like you actually live here
+                Your guide to the best<br />of Québec City
               </h1>
               <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">
-                Curated experiences, exclusive 5 à 7 meetups, and insider perks at the best local venues — all in one members-only club.
+                Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
               </p>
             </div>
 
@@ -68,7 +81,7 @@ export function LandingPage() {
                 to="/signup"
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                Join Club Horizon
+                Join Xplora
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
@@ -84,17 +97,40 @@ export function LandingPage() {
               <span>·</span>
               <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> Launching June 2026</span>
               <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Members-only</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Locals & Visitors</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Explorer count banner */}
+      <div className="bg-[#12343B] text-white py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
+          <div className="flex -space-x-2">
+            {AVATAR_SEEDS.map((seed) => (
+              <div
+                key={seed}
+                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold border-2 border-[#12343B]"
+              >
+                {seed[0]}
+              </div>
+            ))}
+          </div>
+          <p className="text-sm text-white/90">
+            Join{' '}
+            <span className="font-semibold text-white">
+              {explorerCount !== null ? `${explorerCount.toLocaleString()}+` : '...'}
+            </span>{' '}
+            explorers discovering Québec City
+          </p>
         </div>
       </div>
 
       {/* How it works */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl mb-3">Made for people who actually want to explore</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">No more generic Google searches. Club Horizon gives you a real local's view of Québec City.</p>
+          <h2 className="text-3xl md:text-4xl mb-3">Stop searching. Start exploring.</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">No more generic Google searches. Xplora is your insider guide to Québec City's trendy spots — curated by people who actually know the city.</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
@@ -178,7 +214,7 @@ export function LandingPage() {
                 </div>
                 <h2 className="text-3xl md:text-4xl">Put your venue in front of people who actually show up</h2>
                 <p className="text-muted-foreground leading-relaxed">
-                  Club Horizon members are engaged locals and young professionals who explore Québec City on purpose. Offering a perk puts your business directly in their hands — no ad spend, no algorithm.
+                  Xplora reaches locals who explore their city on purpose and visitors who want to experience it like an insider. Offering a perk puts your business in front of people who are actively looking for it — no ad spend, no algorithm.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3">
@@ -211,7 +247,7 @@ export function LandingPage() {
                 {[
                   { stat: 'Free', label: 'No cost to offer a perk' },
                   { stat: '5 à 7', label: 'Host your own member event' },
-                  { stat: '100%', label: 'Local, engaged audience' },
+                  { stat: 'Real', label: 'Local, engaged audience' },
                 ].map((item) => (
                   <div key={item.label} className="bg-card border border-border rounded-2xl p-5">
                     <p className="text-2xl font-serif text-secondary mb-1">{item.stat}</p>

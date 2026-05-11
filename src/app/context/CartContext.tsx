@@ -7,7 +7,7 @@ export interface CartItem {
   price: number; // in cents CAD
   quantity: number;
   image?: string;
-  type: 'experience' | 'merch' | 'membership';
+  type: 'experience' | 'merch' | 'membership' | 'perk';
 }
 
 interface CartContextType {

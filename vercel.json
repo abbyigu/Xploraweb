@@ -1,3 +1,9 @@
 {
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "crons": [
+    {
+      "path": "/api/cleanup-archived",
+      "schedule": "0 2 * * *"
+    }
+  ]
 }

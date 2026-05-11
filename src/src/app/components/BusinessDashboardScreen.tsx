@@ -63,15 +63,21 @@ interface AdminPerk {
 
 const CATEGORIES = ['Tonight only', 'This week', 'Weekends', 'Anytime'];
 const TIMINGS = ['Tonight only', 'This week', 'Weekends', 'Friday nights', 'Saturdays', 'Anytime'];
+const XPLORA_CATEGORIES = [
+  { id: 'xplorators', label: 'Xplora-tors (self-guided, free)' },
+  { id: 'xplorateurs', label: 'Xplora-tours (guided, paid)' },
+  { id: 'xploranights', label: 'Xplora Nights (events)' },
+];
 
 const EMPTY_FORM = {
-  type: 'free' as 'free' | 'paid',
+  type: 'free' as 'free' | 'paid' | 'xplora_experience',
   title: '',
   description: '',
   offer: '',
   category: 'Anytime',
+  xplora_category: 'xplorators',
   timing: 'Anytime',
-  image_url: '',
+  duration: '',
   location: '',
   address: '',
   price: '',
@@ -87,12 +93,15 @@ export function BusinessDashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [error, setError] = useState('');
   const [stripeJustConnected] = useState(searchParams.get('stripe') === 'connected');
   const [adminBusinesses, setAdminBusinesses] = useState<AdminBusiness[]>([]);
   const [adminPerks, setAdminPerks] = useState<AdminPerk[]>([]);
+  const [adminXperiences, setAdminXperiences] = useState<AdminPerk[]>([]);
   const [adminExpanded, setAdminExpanded] = useState<string | null>(null);
   const [tab, setTab] = useState<'offers' | 'benefits'>('offers');
 
@@ -125,12 +134,14 @@ export function BusinessDashboardScreen() {
     if (profileRes.data) {
       setProfile(profileRes.data);
       if (profileRes.data.is_admin) {
-        const [bizRes, allPerksRes] = await Promise.all([
+        const [bizRes, allPerksRes, xperiencesRes] = await Promise.all([
           supabase.from('profiles').select('id, business_name, name, email, stripe_connect_onboarded, created_at').eq('account_type', 'business').order('created_at', { ascending: false }),
-          supabase.from('business_perks').select('id, business_id, business_name, title, type, price_cents, status, location, timing, created_at').order('created_at', { ascending: false }),
+          supabase.from('business_perks').select('id, business_id, business_name, title, type, price_cents, status, location, timing, created_at').neq('type', 'xplora_experience').order('created_at', { ascending: false }),
+          supabase.from('business_perks').select('id, business_id, business_name, title, type, price_cents, status, location, timing, created_at').eq('type', 'xplora_experience').order('created_at', { ascending: false }),
         ]);
         if (bizRes.data) setAdminBusinesses(bizRes.data);
         if (allPerksRes.data) setAdminPerks(allPerksRes.data);
+        if (xperiencesRes.data) setAdminXperiences(xperiencesRes.data);
       }
     }
     if (perksRes.data) setPerks(perksRes.data);
@@ -165,6 +176,21 @@ export function BusinessDashboardScreen() {
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  }
+
+  async function uploadImage(file: File, userId: string): Promise<string | null> {
+    const ext = file.name.split('.').pop();
+    const path = `${userId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('perk-images').upload(path, file, { upsert: true });
+    if (error) { setError('Image upload failed: ' + error.message); return null; }
+    return supabase.storage.from('perk-images').getPublicUrl(path).data.publicUrl;
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
@@ -178,28 +204,38 @@ export function BusinessDashboardScreen() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error: insertError } = await supabase.from('business_perks').insert({
+    let imageUrl: string | null = null;
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile, user.id);
+      if (!imageUrl) { setSubmitting(false); return; }
+    }
+
+    let insertError: any = null;
+
+    ({ error: insertError } = await supabase.from('business_perks').insert({
       business_id: user.id,
       business_name: profile?.business_name || '',
       title: form.title,
       description: form.description,
-      offer: form.type === 'paid' ? `$${form.price} CAD` : form.offer,
-      category: form.category,
-      timing: form.timing,
-      image_url: form.image_url || null,
+      offer: form.type === 'paid' ? `$${form.price} CAD` : form.type === 'xplora_experience' ? form.duration : form.offer,
+      category: form.type === 'xplora_experience' ? form.xplora_category : form.category,
+      timing: form.type === 'xplora_experience' ? (form.duration || 'Anytime') : form.timing,
+      image_url: imageUrl,
       location: form.location,
       address: form.type === 'paid' ? form.address : null,
       type: form.type,
-      price_cents: form.type === 'paid' ? Math.round(parseFloat(form.price) * 100) : null,
-      spots_total: form.type === 'paid' && form.spots ? parseInt(form.spots) : null,
-      spots_remaining: form.type === 'paid' && form.spots ? parseInt(form.spots) : null,
+      price_cents: (form.type === 'paid' || form.type === 'xplora_experience') && form.price ? Math.round(parseFloat(form.price) * 100) : null,
+      spots_total: form.spots ? parseInt(form.spots) : null,
+      spots_remaining: form.spots ? parseInt(form.spots) : null,
       event_date: form.type === 'paid' && form.event_date ? form.event_date : null,
       status: 'active',
-    });
+    }));
 
     if (insertError) { setError(insertError.message); setSubmitting(false); return; }
 
     setForm(EMPTY_FORM);
+    setImageFile(null);
+    setImagePreview('');
     setShowForm(false);
     setSubmitting(false);
     await loadData();
@@ -221,12 +257,14 @@ export function BusinessDashboardScreen() {
     const next = perk.status === 'active' ? 'paused' : 'active';
     await supabase.from('business_perks').update({ status: next }).eq('id', perk.id);
     setAdminPerks(p => p.map(x => x.id === perk.id ? { ...x, status: next } : x));
+    setAdminXperiences(p => p.map(x => x.id === perk.id ? { ...x, status: next } : x));
   }
 
   async function adminDeletePerk(id: string) {
-    if (!confirm('Delete this perk permanently?')) return;
+    if (!confirm('Delete this permanently?')) return;
     await supabase.from('business_perks').delete().eq('id', id);
     setAdminPerks(p => p.filter(x => x.id !== id));
+    setAdminXperiences(p => p.filter(x => x.id !== id));
   }
 
   async function handleLogout() {
@@ -348,15 +386,15 @@ export function BusinessDashboardScreen() {
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
               {/* Type toggle */}
-              <div className="flex gap-3">
-                {(['free', 'paid'] as const).map((t) => (
+              <div className="flex gap-2">
+                {(['free', 'paid', 'xplora_experience'] as const).map((t) => (
                   <button
                     key={t}
                     type="button"
                     onClick={() => setForm((f) => ({ ...f, type: t }))}
-                    className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${form.type === t ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/40'}`}
+                    className={`flex-1 py-2.5 rounded-xl text-xs font-medium border transition-colors ${form.type === t ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/40'}`}
                   >
-                    {t === 'free' ? '✨ Free Perk' : '🎟️ Paid Experience'}
+                    {t === 'free' ? '✨ Free Perk' : t === 'paid' ? '🎟️ Paid Experience' : '🗺️ Xplora Xperience'}
                   </button>
                 ))}
               </div>
@@ -397,24 +435,43 @@ export function BusinessDashboardScreen() {
                 </div>
               )}
 
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm mb-1.5">Category</label>
-                  <select value={form.category} onChange={set('category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
-                    {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
-                  </select>
+              {form.type === 'xplora_experience' ? (
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm mb-1.5">Xplora Category</label>
+                    <select value={form.xplora_category} onChange={set('xplora_category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                      {XPLORA_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1.5">Duration</label>
+                    <input type="text" value={form.duration} onChange={set('duration')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="2–3 hours" />
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1.5">Neighbourhood</label>
+                    <input type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm mb-1.5">Timing</label>
-                  <select value={form.timing} onChange={set('timing')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
-                    {TIMINGS.map((t) => <option key={t}>{t}</option>)}
-                  </select>
+              ) : (
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm mb-1.5">Category</label>
+                    <select value={form.category} onChange={set('category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                      {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1.5">Timing</label>
+                    <select value={form.timing} onChange={set('timing')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                      {TIMINGS.map((t) => <option key={t}>{t}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm mb-1.5">Neighbourhood</label>
+                    <input type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm mb-1.5">Neighbourhood</label>
-                  <input type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
-                </div>
-              </div>
+              )}
 
               {form.type === 'paid' && (
                 <div>
@@ -424,12 +481,21 @@ export function BusinessDashboardScreen() {
               )}
 
               <div>
-                <label className="block text-sm mb-1.5">Image URL <span className="text-muted-foreground">(optional)</span></label>
-                <input type="url" value={form.image_url} onChange={set('image_url')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="https://…" />
+                <label className="block text-sm mb-1.5">Image <span className="text-muted-foreground">(optional)</span></label>
+                <label className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors text-sm text-muted-foreground">
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                  {imagePreview ? 'Change image' : '📷 Upload image'}
+                </label>
+                {imagePreview && (
+                  <div className="mt-2 relative">
+                    <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+                    <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                  </div>
+                )}
               </div>
 
               <button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-60">
-                {submitting ? 'Publishing…' : form.type === 'free' ? 'Publish Free Perk' : 'Publish Paid Experience'}
+                {submitting ? 'Publishing…' : form.type === 'free' ? 'Publish Free Perk' : form.type === 'paid' ? 'Publish Paid Experience' : 'Publish Xplora Xperience'}
               </button>
             </form>
           )}
@@ -481,6 +547,39 @@ export function BusinessDashboardScreen() {
             <div className="flex items-center gap-2">
               <Shield className="w-5 h-5 text-primary" />
               <h2 className="text-xl">Admin</h2>
+            </div>
+
+            {/* Xplora Xperiences */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Map className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-base font-medium">Xplora Xperiences ({adminXperiences.length})</h3>
+              </div>
+              {adminXperiences.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No Xplora Xperiences yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {adminXperiences.map(xp => (
+                    <div key={xp.id} className="bg-card border border-border rounded-2xl px-4 py-3 flex items-center justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{xp.title}</p>
+                        <p className="text-xs text-muted-foreground">{xp.timing} · {xp.category || xp.location} · {xp.price_cents ? `$${(xp.price_cents / 100).toFixed(0)}` : 'Free'}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${xp.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
+                          {xp.status === 'active' ? 'Live' : 'Paused'}
+                        </span>
+                        <button onClick={() => adminTogglePerk(xp)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+                          {xp.status === 'active' ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Eye className="w-3.5 h-3.5 text-primary" />}
+                        </button>
+                        <button onClick={() => adminDeletePerk(xp.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                          <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* All businesses */}

@@ -1,10 +1,10 @@
-export type ExperienceCategory = 'xplorators' | 'xplorastories' | 'xploratours' | 'xploranights';
+export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' | 'xploratorsplus';
 
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
-  { id: 'xplorators',    name: 'Xplora-tors',    tagline: 'Explore freely · Free & self-guided' },
-  { id: 'xplorastories', name: 'Xplora-stories',  tagline: 'Discover hidden layers' },
-  { id: 'xploratours',   name: 'Xplora-tours',    tagline: 'Experience together' },
-  { id: 'xploranights',  name: 'Xplora Nights',   tagline: 'Special events & unforgettable evenings' },
+  { id: 'xplorators',    name: 'Xplorators',    tagline: 'Explore at your pace · Self-guided' },
+  { id: 'xploratours',   name: 'Xploratours',   tagline: 'Experience together' },
+  { id: 'xploranights',  name: 'Xplora Nights', tagline: 'The nights worth going out for' },
+  { id: 'xploratorsplus', name: 'Xplorators+',  tagline: 'Go deeper · Stories, context & local access' },
 ];
 
 export interface Product {
@@ -30,6 +30,9 @@ export interface Product {
   hostName?: string;
   hostBio?: string;
   highlights?: string[];
+  itinerary?: string[];
+  neighbourhood?: string;
+  vibes?: string[];
 }
 
 export const experiences: Product[] = [
@@ -52,6 +55,8 @@ export const experiences: Product[] = [
     spots: undefined,
     difficulty: 'Easy',
     category: 'xplorators',
+    neighbourhood: 'Saint-Roch',
+    vibes: ['artsy', 'cozy', 'hidden gem'],
     longDescription: `Xplora-tors is your free, self-guided adventure through Québec City. We give you a curated list of locations — neighbourhoods, murals, courtyards, lookouts — and you explore on your own terms. No schedule, no group, no guide. Just you and the city.\n\nThis route takes you through Saint-Roch's street art corridor, a hidden staircase in Old Quebec, a riverside lookout most locals don't know about, and a few spots worth stopping at just to sit and take it in.\n\nWant to go deeper? Each location on this route has a story behind it. If you'd like that context — the history, the people, the hidden layers — check out Xplora-stories, our narrative-led experience that brings these same places to life. Or join an Xplora-tours outing to discover the city alongside other members.`,
     highlights: [
       'Completely free — no booking required',
@@ -72,6 +77,15 @@ export const experiences: Product[] = [
     ],
     meetingPoint: 'Start anywhere on the route — fully flexible',
     languages: ['English', 'Français'],
+    itinerary: [
+      'Place des Arts, Saint-Roch — Start at this open-air gallery anchoring the creative quarter',
+      'Rue Saint-Joseph Est — Walk the main artery of Saint-Roch, lined with indie cafés and boutiques',
+      'Mural at Chemin Sainte-Foy — A four-storey mural painted by a local collective; best seen from across the street',
+      'Café Largo — A neighbourhood staple with exposed brick and rotating art on the walls; worth a stop',
+      'Escalier Casse-Cou — The oldest staircase in North America, connecting Lower Town to Old Quebec',
+      'Rue du Trésor — Open-air gallery where local artists sell prints and originals year-round',
+      'Terrasse Dufferin — End your route here for a panoramic view of the St. Lawrence River',
+    ],
   },
   {
     id: 'exp-5',
@@ -85,31 +99,86 @@ export const experiences: Product[] = [
     spots: undefined,
     difficulty: 'Easy',
     category: 'xplorators',
-  },
-  // Xplora-stories
-  {
-    id: 'exp-4',
-    name: 'Historic Old Quebec',
-    description: 'Walk through centuries of history',
-    price: 3500,
-    image: 'https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
-    type: 'experience',
-    duration: '3 hours',
-    spots: 5,
-    difficulty: 'Easy',
-    category: 'xplorastories',
+    neighbourhood: 'Montcalm',
+    vibes: ['outdoorsy', 'family-friendly'],
+    itinerary: [
+      'Parc de la Rivière-Saint-Charles — A 32km linear park along the river; start near the Dorchester bridge',
+      'Domaine Maizerets — Hidden arboretum with over 200 tree species, a pond, and heritage greenhouses',
+      'Parc du Bois-de-Coulonge — Former lieutenant-governor estate turned public park with river views',
+      'Plaines d\'Abraham — Historic battlefield turned urban park at the heart of the city',
+      'Bassin Louise — Waterfront promenade with sailboats, terraces, and views of the port',
+      'Parc de la Chute-Montmorency — End with Québec\'s most dramatic natural sight: a waterfall taller than Niagara',
+    ],
   },
   {
-    id: 'exp-2',
-    name: "Foodie's Paradise",
-    description: 'Local markets and hidden culinary gems',
-    price: 5500,
-    image: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+    id: 'exp-9',
+    name: 'Hidden Staircases & Passages',
+    description: 'Secret shortcuts and forgotten corridors of Old Quebec',
+    price: 0,
+    image: 'https://images.unsplash.com/photo-1555881400-74d7acaacd8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
-    duration: '4 hours',
-    spots: 4,
+    badge: 'Free',
+    duration: 'Go at your own pace',
     difficulty: 'Easy',
-    category: 'xplorastories',
+    category: 'xplorators',
+    neighbourhood: 'Vieux-Québec',
+    vibes: ['adventurous', 'hidden gem'],
+    itinerary: [
+      'Escalier Casse-Cou — The steepest and oldest staircase in North America, connecting Petit-Champlain to Old Quebec',
+      'Passage du Chien-d\'Or — A narrow alley tucked behind the post office with a carved stone golden dog above the door',
+      'Escalier du Faubourg — A lesser-known staircase locals use as a shortcut between Saint-Jean-Baptiste and Saint-Roch',
+      'Rue Sous-le-Fort — A one-lane street running beneath the cliff face; look up for the best view of the Château',
+      'Tunnel under the Citadelle — A short pedestrian passage carved through the old fortifications',
+      'Côte de la Montagne — The historic road connecting Upper and Lower Town, lined with 17th century stone walls',
+    ],
+  },
+  {
+    id: 'exp-maguire-tors',
+    name: 'Xplorators · Maguire',
+    description: 'Bagels, hidden stories & neighbourhood wandering',
+    price: 0,
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+    images: [
+      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
+      'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
+      'https://images.unsplash.com/photo-1519501025264-65ba15a82390?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200',
+    ],
+    type: 'experience',
+    badge: 'Free',
+    duration: 'Go at your own pace',
+    spots: undefined,
+    difficulty: 'Easy',
+    category: 'xplorators',
+    neighbourhood: 'Maguire',
+    vibes: ['cozy', 'foodie', 'hidden gem'],
+    longDescription: `Avenue Maguire is one of Québec City's most lived-in streets — not a tourist strip, just a real neighbourhood doing its thing. Bakeries that have been there for decades, a bagel counter that locals line up for on weekend mornings, courtyards you'd miss if you didn't slow down.\n\nThis self-guided route takes you through the length of Maguire and the side streets worth ducking into. No schedule, no group. Just the route, a few stops we love, and the neighbourhood doing what it does.\n\nWant the stories behind what you're seeing? Xplorators+ Maguire adds audio context and insider stops. Or join an Xploratours Maguire outing to explore it with a local host and a small group.`,
+    highlights: [
+      'Completely free — no booking required',
+      'Best bagel stop on the route (we\'re serious)',
+      'Hidden courtyard most people walk past',
+      'Neighbourhood locals actually use',
+      'Works at any pace — 1.5h to a full morning',
+    ],
+    includes: [
+      'Digital route with all stops and addresses',
+      'Brief note on each location',
+      'Best time to visit each spot',
+    ],
+    toBring: [
+      'Good walking shoes',
+      'Your phone for the map',
+      'An appetite — seriously',
+    ],
+    meetingPoint: 'Start at either end of Avenue Maguire — fully flexible',
+    languages: ['English', 'Français'],
+    itinerary: [
+      'Boulangerie artisanale — Start your morning here; the counter opens early and the lineup moves fast',
+      'Avenue Maguire main strip — Walk the length of the street; take your time at the window displays',
+      'Rue Marly side street — Turn here for a quieter residential block with some of the best front gardens on the route',
+      'Hidden courtyard off Maguire — Look for the small passage on the east side; most people walk right past it',
+      'Local coffee stop — A neighbourhood café that hasn\'t changed in 20 years; cash preferred',
+      'Parc de Sillery — End of the route; a small park with a river-adjacent lookout worth the extra 10 minutes',
+    ],
   },
   // Xplora-tours
   {
@@ -123,6 +192,8 @@ export const experiences: Product[] = [
     spots: 6,
     difficulty: 'Moderate',
     category: 'xploratours',
+    neighbourhood: 'Vieux-Québec',
+    vibes: ['adventurous', 'artsy'],
   },
   {
     id: 'exp-7',
@@ -135,6 +206,104 @@ export const experiences: Product[] = [
     spots: 8,
     difficulty: 'Easy',
     category: 'xploratours',
+    neighbourhood: 'Saint-Roch',
+    vibes: ['artsy', 'lively', 'foodie'],
+  },
+  {
+    id: 'exp-10',
+    name: 'Old Port Food & History Walk',
+    description: 'Taste local flavours while uncovering 400 years of history',
+    price: 4500,
+    image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+    type: 'experience',
+    duration: '3 hours',
+    spots: 8,
+    difficulty: 'Easy',
+    category: 'xploratours',
+    neighbourhood: 'Vieux-Québec',
+    vibes: ['foodie', 'romantic', 'adventurous'],
+  },
+  {
+    id: 'exp-maguire-tours',
+    name: 'Xploratours · Maguire',
+    description: 'Guided walk through one of Québec City\'s most charming streets',
+    price: 3500,
+    image: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+    type: 'experience',
+    duration: '2 hours',
+    spots: 8,
+    difficulty: 'Easy',
+    category: 'xploratours',
+    neighbourhood: 'Maguire',
+    vibes: ['foodie', 'cozy', 'hidden gem'],
+    highlights: [
+      'Small group — max 8 people',
+      'Local host with real neighbourhood knowledge',
+      'Stops at places not on any tourist map',
+      'Includes a tasting stop along the route',
+    ],
+    includes: [
+      'Guided 2-hour walk with local host',
+      'One tasting stop (bagels or pastry)',
+      'Digital recap with all stop addresses after the tour',
+    ],
+    toBring: [
+      'Comfortable walking shoes',
+      'Light layer (mornings can be cool)',
+    ],
+    meetingPoint: 'Corner of Avenue Maguire & Rue du Chalutier — details sent on booking',
+    languages: ['English', 'Français'],
+    itinerary: [
+      'Meet at the corner — quick intro, no fluff',
+      'Boulangerie stop — first tasting, story of the baker',
+      'The main strip walk — architecture, shopfronts, what changed and what hasn\'t',
+      'Hidden courtyard — the one locals use as a shortcut',
+      'Neighbourhood café — off-menu order if you want it',
+      'Parc de Sillery lookout — wrap-up with a view',
+    ],
+  },
+  // Xplorators+
+  {
+    id: 'exp-maguire-plus',
+    name: 'Xplorators+ · Maguire',
+    description: 'You already know where to go. Now find out why it matters.',
+    price: 1500,
+    image: '/maguire-staircase.jpeg',
+    type: 'experience',
+    badge: 'Members',
+    duration: 'Go at your own pace',
+    spots: undefined,
+    difficulty: 'Easy',
+    category: 'xploratorsplus',
+    neighbourhood: 'Maguire',
+    vibes: ['hidden gem', 'cozy', 'adventurous'],
+    highlights: [
+      'Everything in Xplorators · Maguire, plus',
+      'Audio narration at every stop',
+      'Insider stops not on the free route',
+      'Historical context and neighbourhood stories',
+      'Member pricing ($15 → $10 with membership)',
+    ],
+    includes: [
+      'Full self-guided route with audio at each stop',
+      'Extended itinerary with 3 bonus insider locations',
+      'Neighbourhood history notes',
+    ],
+    toBring: [
+      'Earbuds or headphones for audio',
+      'Walking shoes',
+      'An appetite',
+    ],
+    meetingPoint: 'Start anywhere on the route — route begins at the north end of Avenue Maguire',
+    languages: ['English', 'Français'],
+    itinerary: [
+      'North end of Maguire — audio intro sets the scene; 2-minute listen before you start walking',
+      'First bagel stop — extended audio on the history of this block and who used to live here',
+      'Rue Marly detour — bonus stop not on the free route; a courtyard with a story',
+      'The old pharmacy — now a café, but the tile work inside is original 1940s',
+      'Hidden passage — audio explains why this alley existed and what it connected',
+      'Lookout point — final audio note, a local\'s perspective on why this neighbourhood matters',
+    ],
   },
   // Xplora Nights
   {
@@ -149,6 +318,8 @@ export const experiences: Product[] = [
     spots: 5,
     difficulty: 'Easy',
     category: 'xploranights',
+    neighbourhood: 'Saint-Jean-Baptiste',
+    vibes: ['late night', 'lively', 'adventurous'],
   },
   {
     id: 'exp-8',
@@ -162,6 +333,23 @@ export const experiences: Product[] = [
     spots: 20,
     difficulty: 'Easy',
     category: 'xploranights',
+    neighbourhood: 'Vieux-Québec',
+    vibes: ['romantic', 'lively', 'late night'],
+  },
+  {
+    id: 'exp-11',
+    name: 'Jazz & Cocktails Evening',
+    description: 'Live jazz, craft cocktails, and the best hidden bars in the city',
+    price: 5500,
+    image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+    type: 'experience',
+    badge: 'Popular',
+    duration: 'Evening',
+    spots: 10,
+    difficulty: 'Easy',
+    category: 'xploranights',
+    neighbourhood: 'Saint-Roch',
+    vibes: ['romantic', 'cozy', 'late night'],
   },
 ];
 
@@ -184,7 +372,7 @@ export const merch: Product[] = [
   },
   {
     id: 'merch-3',
-    name: 'Quebec City Map Print',
+    name: 'Québec City Map Print',
     description: 'Illustrated art print — 8×10 inch, ready to frame',
     price: 2000,
     image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -203,7 +391,7 @@ export const merch: Product[] = [
 export const memberships: Product[] = [
   {
     id: 'member-monthly',
-    name: 'Club Membership — Monthly',
+    name: 'Xplora Membership — Monthly',
     description: 'Early access, member pricing, guest pass, monthly 5 à 7, insider perks & surprise upgrades',
     price: 1000,
     image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -212,7 +400,7 @@ export const memberships: Product[] = [
   },
   {
     id: 'member-yearly',
-    name: 'Club Membership — Yearly',
+    name: 'Xplora Membership — Yearly',
     description: 'Everything in monthly — save $20 by paying annually',
     price: 10000,
     image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',

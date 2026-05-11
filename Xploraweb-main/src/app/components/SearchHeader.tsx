@@ -1,11 +1,13 @@
-import { XploraLogo } from './XploraLogo';
+import { useNavigate } from 'react-router';
 
 export function SearchHeader({ greeting }: { greeting?: string } = {}) {
+  const navigate = useNavigate();
+
   const vibes = [
-    { label: '🍷 Date night', value: 'date' },
-    { label: '🌿 Chill solo', value: 'solo' },
-    { label: '🎉 With friends', value: 'friends' },
-    { label: '🎨 Something new', value: 'new' },
+    { label: '🍷 Date night',    category: 'xploranights'   },
+    { label: '🌿 Chill solo',    category: 'xplorators'     },
+    { label: '🎉 With friends',  category: 'xploratours'    },
+    { label: '🎨 Something new', category: 'xploratorsplus' },
   ];
 
   const getTimeOfDay = () => {
@@ -27,11 +29,12 @@ export function SearchHeader({ greeting }: { greeting?: string } = {}) {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-3 max-w-2xl">
+        <div className="flex flex-wrap gap-2">
           {vibes.map((vibe) => (
             <button
-              key={vibe.value}
-              className="bg-white/90 backdrop-blur-sm text-foreground px-4 py-3 rounded-xl text-sm md:text-base hover:bg-white hover:shadow-sm transition-all"
+              key={vibe.category}
+              onClick={() => navigate(`/itinerary?category=${vibe.category}`)}
+              className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
             >
               {vibe.label}
             </button>

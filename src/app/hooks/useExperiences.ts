@@ -24,6 +24,9 @@ function mapRow(row: any): Product {
     languages: row.languages || undefined,
     hostName: row.host_name || undefined,
     hostBio: row.host_bio || undefined,
+    itinerary: row.itinerary || undefined,
+    neighbourhood: row.neighbourhood || undefined,
+    vibes: row.vibes || undefined,
   };
 }
 
@@ -32,17 +35,28 @@ export function useExperiences() {
   const [loading, setLoading] = useState(true);
 
   const reload = async () => {
-    const { data } = await supabase
-      .from('xplora_experiences')
-      .select('*')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
+    const [xploraRes, perksRes] = await Promise.all([
+      supabase.from('xplora_experiences').select('*').eq('status', 'active').order('created_at', { ascending: false }),
+      supabase.from('business_perks').select('*').eq('type', 'xplora_experience').eq('status', 'active').order('created_at', { ascending: false }),
+    ]);
 
-    if (data && data.length > 0) {
-      setExperiences([...data.map(mapRow), ...staticExperiences]);
-    } else {
-      setExperiences(staticExperiences);
-    }
+    const fromXplora = (xploraRes.data || []).map(mapRow);
+    const fromPerks = (perksRes.data || []).map((row: any): Product => ({
+      id: row.id,
+      name: row.title,
+      description: row.description || '',
+      price: row.price_cents ?? 0,
+      image: row.image_url || 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+      type: 'experience' as const,
+      badge: undefined,
+      duration: row.timing || undefined,
+      spots: row.spots_total || undefined,
+      difficulty: undefined,
+      category: row.category,
+    }));
+
+    const dynamic = [...fromXplora, ...fromPerks];
+    setExperiences(dynamic.length > 0 ? [...dynamic, ...staticExperiences] : staticExperiences);
     setLoading(false);
   };
 

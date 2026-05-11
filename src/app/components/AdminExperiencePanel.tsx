@@ -1,6 +1,6 @@
 // v2
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, Archive } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 
@@ -13,7 +13,7 @@ const BLANK = {
   itinerary: '', neighbourhood: '', vibes: '',
 };
 
-export function AdminExperiencePanel() {
+export function AdminExperiencePanel({ onStatsChange }: { onStatsChange?: () => void } = {}) {
   const [experiences, setExperiences] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
@@ -29,6 +29,7 @@ export function AdminExperiencePanel() {
     const { data } = await supabase
       .from('xplora_experiences')
       .select('*')
+      .neq('status', 'archived')
       .order('created_at', { ascending: false });
     if (data) setExperiences(data);
   };
@@ -98,67 +99,81 @@ export function AdminExperiencePanel() {
   const handleSave = async () => {
     setSaving(true);
     setError('');
-    let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
-    if (imageFile) {
-      const result = await uploadImage(imageFile);
-      if (result.error) {
-        setError(`Image upload failed: ${result.error}`);
+    try {
+      let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
+      if (imageFile) {
+        const result = await uploadImage(imageFile);
+        if (result.error) {
+          setError(`Image upload failed: ${result.error}`);
+          setSaving(false);
+          return;
+        }
+        imageUrl = result.url;
+      }
+      const payload = {
+        name: form.name,
+        description: form.description,
+        long_description: form.long_description || null,
+        price_cents: Number(form.price_cents),
+        image_url: imageUrl,
+        duration: form.duration || null,
+        spots: form.spots ? Number(form.spots) : null,
+        difficulty: form.difficulty || null,
+        category: form.category || null,
+        badge: form.badge || null,
+        meeting_point: form.meeting_point || null,
+        host_name: form.host_name || null,
+        host_bio: form.host_bio || null,
+        highlights: form.highlights ? form.highlights.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        includes: form.includes ? form.includes.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        to_bring: form.to_bring ? form.to_bring.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        languages: form.languages ? form.languages.split(',').map(s => s.trim()).filter(Boolean) : null,
+        itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        neighbourhood: form.neighbourhood || null,
+        vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
+      };
+
+      let dbError: any;
+      if (editing) {
+        ({ error: dbError } = await supabase.from('xplora_experiences').update(payload).eq('id', editing));
+      } else {
+        ({ error: dbError } = await supabase.from('xplora_experiences').insert({ ...payload, status: 'active' }));
+      }
+      if (dbError) {
+        setError(dbError.message);
         setSaving(false);
         return;
       }
-      imageUrl = result.url;
-    }
-    const payload = {
-      name: form.name,
-      description: form.description,
-      long_description: form.long_description || null,
-      price_cents: Number(form.price_cents),
-      image_url: imageUrl,
-      duration: form.duration || null,
-      spots: form.spots ? Number(form.spots) : null,
-      difficulty: form.difficulty || null,
-      category: form.category || null,
-      badge: form.badge || null,
-      meeting_point: form.meeting_point || null,
-      host_name: form.host_name || null,
-      host_bio: form.host_bio || null,
-      highlights: form.highlights ? form.highlights.split('\n').map(s => s.trim()).filter(Boolean) : null,
-      includes: form.includes ? form.includes.split('\n').map(s => s.trim()).filter(Boolean) : null,
-      to_bring: form.to_bring ? form.to_bring.split('\n').map(s => s.trim()).filter(Boolean) : null,
-      languages: form.languages ? form.languages.split(',').map(s => s.trim()).filter(Boolean) : null,
-      itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
-      neighbourhood: form.neighbourhood || null,
-      vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
-    };
 
-    let dbError: any;
-    if (editing) {
-      ({ error: dbError } = await supabase.from('xplora_experiences').update(payload).eq('id', editing));
-    } else {
-      ({ error: dbError } = await supabase.from('xplora_experiences').insert({ ...payload, status: 'active' }));
-    }
-    if (dbError) {
-      setError(dbError.message);
+      await load();
+      onStatsChange?.();
       setSaving(false);
-      return;
+      setSaved(true);
+      setTimeout(() => { setSaved(false); setShowForm(false); setEditing(null); }, 1200);
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong. Please try again.');
+      setSaving(false);
     }
+  };
 
+  const handleArchive = async (id: string) => {
+    await supabase.from('xplora_experiences').update({ status: 'archived', archived_at: new Date().toISOString() }).eq('id', id);
     await load();
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => { setSaved(false); setShowForm(false); setEditing(null); }, 1200);
+    onStatsChange?.();
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this experience?')) return;
     await supabase.from('xplora_experiences').delete().eq('id', id);
     await load();
+    onStatsChange?.();
   };
 
   const toggleStatus = async (exp: any) => {
     const next = exp.status === 'active' ? 'draft' : 'active';
     await supabase.from('xplora_experiences').update({ status: next }).eq('id', exp.id);
     await load();
+    onStatsChange?.();
   };
 
   return (
@@ -356,6 +371,9 @@ export function AdminExperiencePanel() {
               </button>
               <button onClick={() => openEdit(exp)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                 <Edit2 className="w-4 h-4" />
+              </button>
+              <button onClick={() => handleArchive(exp.id)} className="p-2 rounded-lg hover:bg-amber-50 transition-colors text-muted-foreground hover:text-amber-500" title="Archive (auto-deletes in 2 days)">
+                <Archive className="w-4 h-4" />
               </button>
               <button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
                 <Trash2 className="w-4 h-4" />

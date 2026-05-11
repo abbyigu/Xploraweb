@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map } from 'lucide-react';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { XploraLogo } from './XploraLogo';
+import { useExperiences } from '../hooks/useExperiences';
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -12,7 +13,12 @@ function getInitials(name: string): string {
 
 export function AccountScreen() {
   const navigate = useNavigate();
+  const { experiences } = useExperiences();
+  const [purchasedIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
+  });
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved' | 'admin'>('profile');
+  const [expandedExp, setExpandedExp] = useState<string | null>(null);
   const [profile, setProfile] = useState({
     name: '', email: '', location: 'Quebec City, QC', interests: [] as string[], avatar_url: null as string | null,
     account_type: '' as string,
@@ -394,48 +400,158 @@ export function AccountScreen() {
           </div>
         )}
 
-        {activeTab === 'saved' && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-xl mb-4">Saved Itineraries</h3>
-              {savedItineraries.length === 0 && (
-                <p className="text-sm text-muted-foreground py-4">No saved itineraries yet.</p>
-              )}
-              <div className="space-y-3">
-                {savedItineraries.map((item) => (
-                  <div key={item.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
-                      <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
-                    </div>
-                    <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
-                      <X className="w-4 h-4" />
+        {activeTab === 'saved' && (() => {
+          const bookedExps = purchasedIds
+            .map(id => experiences.find(e => e.id === id))
+            .filter((e): e is NonNullable<typeof e> => !!e);
+
+          return (
+            <div className="space-y-8">
+
+              {/* My Experiences */}
+              <div>
+                <h3 className="text-xl mb-4">My Experiences</h3>
+                {bookedExps.length === 0 ? (
+                  <div className="bg-card border border-border rounded-2xl p-6 text-center">
+                    <Map className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Experiences you book will appear here with their map and itinerary.</p>
+                    <button onClick={() => navigate('/itinerary')} className="mt-4 text-sm text-primary hover:underline">
+                      Browse experiences →
                     </button>
                   </div>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h3 className="text-xl mb-4">Saved Perks</h3>
-              {savedPerks.length === 0 && (
-                <p className="text-sm text-muted-foreground py-4">No saved perks yet.</p>
-              )}
-              <div className="space-y-3">
-                {savedPerks.map((perk) => (
-                  <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
-                    <div className="flex items-center gap-3">
-                      <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
-                      <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
-                    </div>
-                    <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
-                      <X className="w-4 h-4" />
-                    </button>
+                ) : (
+                  <div className="space-y-3">
+                    {bookedExps.map((exp) => {
+                      const isOpen = expandedExp === exp.id;
+                      const categoryLabel =
+                        exp.category === 'xplorators' ? 'Xplora-tors' :
+                        exp.category === 'xploratours' ? 'Xplora-tours' :
+                        exp.category === 'xploranights' ? 'Xplora Nights' : '';
+
+                      return (
+                        <div key={exp.id} className="bg-card border border-border rounded-2xl overflow-hidden">
+                          {/* Header row */}
+                          <button
+                            className="w-full flex items-center gap-4 p-4 hover:bg-muted/30 transition-colors text-left"
+                            onClick={() => setExpandedExp(isOpen ? null : exp.id)}
+                          >
+                            {exp.image && (
+                              <img src={exp.image} alt={exp.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              {categoryLabel && <p className="text-xs text-secondary uppercase tracking-widest mb-0.5">{categoryLabel}</p>}
+                              <h4 className="font-medium text-base truncate">{exp.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)} / person`}
+                              </p>
+                            </div>
+                            <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {/* Expanded: map + itinerary */}
+                          {isOpen && (
+                            <div className="border-t border-border px-4 pb-5 pt-4 space-y-5">
+
+                              {/* Meeting point / map */}
+                              {exp.meetingPoint && (
+                                <div>
+                                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Meeting Point</p>
+                                  <div className="flex items-start gap-3 bg-muted/30 rounded-xl p-3">
+                                    <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                                    <div>
+                                      <p className="text-sm">{exp.meetingPoint}</p>
+                                      <a
+                                        href={`https://maps.google.com/?q=${encodeURIComponent(exp.meetingPoint)}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1"
+                                      >
+                                        Open in Maps <ExternalLink className="w-3 h-3" />
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Itinerary stops */}
+                              {exp.itinerary && exp.itinerary.length > 0 && (
+                                <div>
+                                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Itinerary</p>
+                                  <ol className="space-y-2.5">
+                                    {exp.itinerary.map((stop, i) => (
+                                      <li key={i} className="flex items-start gap-3 text-sm">
+                                        <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium mt-0.5">
+                                          {i + 1}
+                                        </span>
+                                        <span className="text-muted-foreground leading-relaxed">{stop}</span>
+                                      </li>
+                                    ))}
+                                  </ol>
+                                </div>
+                              )}
+
+                              <button
+                                onClick={() => navigate(`/experience/${exp.id}`)}
+                                className="text-sm text-primary hover:underline"
+                              >
+                                View full details →
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
+                )}
               </div>
+
+              {/* Saved Itineraries */}
+              <div>
+                <h3 className="text-xl mb-4">Saved Itineraries</h3>
+                {savedItineraries.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No saved itineraries yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {savedItineraries.map((item) => (
+                      <div key={item.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
+                          <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
+                        </div>
+                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Saved Perks */}
+              <div>
+                <h3 className="text-xl mb-4">Saved Perks</h3>
+                {savedPerks.length === 0 ? (
+                  <p className="text-sm text-muted-foreground py-2">No saved perks yet.</p>
+                ) : (
+                  <div className="space-y-3">
+                    {savedPerks.map((perk) => (
+                      <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-3">
+                          <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
+                          <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
+                        </div>
+                        <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {activeTab === 'admin' && (profile as any).is_admin && (
           <AdminExperiencePanel />

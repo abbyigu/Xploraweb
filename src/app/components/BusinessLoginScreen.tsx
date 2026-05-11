@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { SimpleFooter } from './SimpleFooter';
 
 export function BusinessLoginScreen() {
   const navigate = useNavigate();
@@ -31,7 +32,8 @@ export function BusinessLoginScreen() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -97,6 +99,8 @@ export function BusinessLoginScreen() {
           <Link to="/login" className="text-primary hover:underline">Member sign in</Link>
         </p>
       </div>
+      </div>
+      <SimpleFooter />
     </div>
   );
 }

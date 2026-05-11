@@ -18,7 +18,7 @@ export function BusinessLandingScreen() {
     {
       step: '3',
       title: 'Go live instantly',
-      desc: 'Your perk appears in the Club Horizon perks feed for all members to see and redeem.',
+      desc: 'Your perk appears in the Xplora perks feed for all members to see and redeem.',
     },
   ];
 
@@ -28,7 +28,7 @@ export function BusinessLandingScreen() {
     'Host a members-only 5 à 7 at your venue',
     'Featured placement in curated itineraries',
     'Manage your perks anytime from your dashboard',
-    'Build a loyal relationship with Club Horizon members',
+    'Build a loyal relationship with Xplora members',
   ];
 
   const partnerTypes = [
@@ -59,7 +59,7 @@ export function BusinessLandingScreen() {
               Reach Québec City explorers<br />who actually show up
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-              Club Horizon members are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
+              Xplora members are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
               <Link
@@ -102,12 +102,32 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
+      {/* Member audience banner */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-4">
+        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
+            <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Members</h2>
+            <ul className="space-y-1 text-sm opacity-90">
+              <li>🏙️ Engaged Québec City locals & young professionals</li>
+              <li>🎟️ Paying $10/month to actively discover the city</li>
+              <li>🍸 Attending monthly members-only 5 à 7</li>
+            </ul>
+          </div>
+          <div className="text-center md:text-right flex-shrink-0">
+            <p className="text-3xl font-serif">$10</p>
+            <p className="text-sm opacity-80">/month members</p>
+            <p className="text-xs opacity-60 mt-1">committed explorers, not casual browsers</p>
+          </div>
+        </div>
+      </div>
+
       {/* Benefits */}
       <div className="bg-muted/30 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-12 md:items-center">
             <div className="flex-1 space-y-6">
-              <h2 className="text-3xl md:text-4xl">Why partner with Club Horizon?</h2>
+              <h2 className="text-3xl md:text-4xl">Why partner with Xplora?</h2>
               <ul className="space-y-3">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-sm">
@@ -161,10 +181,26 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
+      {/* What's your vibe banner */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12">
+        <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Discovery</p>
+            <h2 className="text-xl md:text-2xl mb-2">What's your vibe?</h2>
+            <p className="text-sm text-muted-foreground max-w-lg">Members discover venues and experiences by vibe. Tag your perk so the right people find it.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
+              <span key={v} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize">{v}</span>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Final CTA */}
       <div className="bg-primary text-primary-foreground py-16 md:py-20">
         <div className="max-w-2xl mx-auto px-6 md:px-8 text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl">Ready to reach Club Horizon members?</h2>
+          <h2 className="text-3xl md:text-4xl">Ready to reach Xplora members?</h2>
           <p className="opacity-80">Create your free business account and submit your first perk today.</p>
           <Link
             to="/business/signup"

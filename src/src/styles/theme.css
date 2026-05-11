@@ -2,50 +2,54 @@
 
 :root {
   --font-size: 16px;
-  --font-serif: 'Playfair Display', serif;
+  --font-serif: 'Fraunces', serif;
   --font-sans: 'Inter', sans-serif;
 
-  --xplora-green: #D4C4A8;
-  --xplora-terracotta: #C7652E;
-  --xplora-cream: #FFF8F0;
+  /* Brand palette */
+  --xplora-primary: #119FB3;
+  --xplora-primary-light: #16AFC0;
+  --xplora-accent-teal: #33C0A3;
+  --xplora-accent-green: #71D45A;
+  --xplora-ink: #12343B;
+  --xplora-icon-bg: #E6F6F8;
 
-  --background: #FFF8F0;
-  --foreground: #2E2E2E;
+  --background: #F7F8F5;
+  --foreground: #243238;
   --card: #ffffff;
-  --card-foreground: #2E2E2E;
+  --card-foreground: #243238;
   --popover: #ffffff;
-  --popover-foreground: #2E2E2E;
-  --primary: #D4C4A8;
-  --primary-foreground: #2E2E2E;
-  --secondary: #C7652E;
+  --popover-foreground: #243238;
+  --primary: #119FB3;
+  --primary-foreground: #ffffff;
+  --secondary: #33C0A3;
   --secondary-foreground: #ffffff;
-  --muted: #E8E3DD;
-  --muted-foreground: #717171;
-  --accent: #C7652E;
+  --muted: #ECEEE8;
+  --muted-foreground: #5E7278;
+  --accent: #33C0A3;
   --accent-foreground: #ffffff;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
-  --border: rgba(46, 46, 46, 0.1);
+  --border: #ECEEE8;
   --input: transparent;
   --input-background: #ffffff;
-  --switch-background: #cbced4;
+  --switch-background: #ECEEE8;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
-  --ring: #D4C4A8;
-  --chart-1: #D4C4A8;
-  --chart-2: #C7652E;
-  --chart-3: #F7F3EE;
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
+  --ring: #119FB3;
+  --chart-1: #119FB3;
+  --chart-2: #33C0A3;
+  --chart-3: #71D45A;
+  --chart-4: #12343B;
+  --chart-5: #5E7278;
   --radius: 1rem;
   --sidebar: #ffffff;
-  --sidebar-foreground: #2E2E2E;
-  --sidebar-primary: #D4C4A8;
-  --sidebar-primary-foreground: #2E2E2E;
-  --sidebar-accent: #F7F3EE;
-  --sidebar-accent-foreground: #2E2E2E;
-  --sidebar-border: rgba(46, 46, 46, 0.1);
-  --sidebar-ring: #D4C4A8;
+  --sidebar-foreground: #243238;
+  --sidebar-primary: #119FB3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #E6F6F8;
+  --sidebar-accent-foreground: #243238;
+  --sidebar-border: #ECEEE8;
+  --sidebar-ring: #119FB3;
 }
 
 .dark {
@@ -86,6 +90,14 @@
 }
 
 @theme inline {
+  /* Xplora brand tokens — usable as bg-xplora-primary, text-xplora-ink, etc. */
+  --color-xplora-primary: var(--xplora-primary);
+  --color-xplora-primary-light: var(--xplora-primary-light);
+  --color-xplora-accent-teal: var(--xplora-accent-teal);
+  --color-xplora-accent-green: var(--xplora-accent-green);
+  --color-xplora-ink: var(--xplora-ink);
+  --color-xplora-icon-bg: var(--xplora-icon-bg);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

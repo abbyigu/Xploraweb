@@ -6,11 +6,11 @@ export function Footer() {
   return (
     <div>
       {/* Newsletter Signup */}
-      <div className="bg-muted/20 border-t border-border py-12 md:py-16">
-        <div className="max-w-2xl mx-auto px-6 md:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl mb-3">Stay in the Loop</h2>
+      <div className="bg-muted/20 border-t border-border py-12 md:py-16 lg:py-20">
+        <div className="max-w-2xl lg:max-w-3xl mx-auto px-6 md:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl mb-3">Be First in the Door</h2>
           <p className="text-muted-foreground mb-6">
-            Get curated Quebec experiences, exclusive deals, and community events delivered to your inbox.
+            Get curated Québec City experiences, insider perks, and upcoming events delivered to your inbox.
           </p>
           <NewsletterSignup />
         </div>
@@ -27,9 +27,9 @@ export function Footer() {
             <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-foreground transition-colors">About</Link>
               <Link to="/business" className="hover:text-foreground transition-colors font-medium text-secondary">For Businesses</Link>
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+              <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
+              <a href="mailto:hello@goxplora.ca" className="hover:text-foreground transition-colors">Contact</a>
             </div>
           </div>
         </div>

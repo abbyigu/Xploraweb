@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { Compass, BookOpen, Users, Moon } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router';
+import { Compass, Users, Moon } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
@@ -13,15 +14,23 @@ const TIER_META: Record<ExperienceCategory, {
   accent: string;
   pill: string;
 }> = {
-  xplorators:    { icon: Compass,  accent: 'bg-emerald-50 border-emerald-200', pill: 'bg-emerald-100 text-emerald-800' },
-  xplorastories: { icon: BookOpen, accent: 'bg-amber-50 border-amber-200',     pill: 'bg-amber-100 text-amber-800'     },
-  xploratours:   { icon: Users,    accent: 'bg-sky-50 border-sky-200',          pill: 'bg-sky-100 text-sky-800'         },
-  xploranights:  { icon: Moon,     accent: 'bg-violet-50 border-violet-200',    pill: 'bg-violet-100 text-violet-800'   },
+  xplorators:   { icon: Compass, accent: 'bg-xplora-icon-bg border-xplora-primary/30',      pill: 'bg-xplora-primary/15 text-xplora-ink'       },
+  xploratours:  { icon: Users,   accent: 'bg-xplora-accent-teal/10 border-xplora-accent-teal/30', pill: 'bg-xplora-accent-teal/15 text-xplora-ink'  },
+  xploranights: { icon: Moon,    accent: 'bg-xplora-accent-green/10 border-xplora-accent-green/30', pill: 'bg-xplora-accent-green/15 text-xplora-ink' },
 };
 
 export function ItineraryScreen() {
   const { experiences } = useExperiences();
-  const [filter, setFilter] = useState<Filter>('all');
+  const [searchParams] = useSearchParams();
+  const [filter, setFilter] = useState<Filter>(() => {
+    const cat = searchParams.get('category');
+    return (cat as ExperienceCategory) || 'all';
+  });
+
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    if (cat) setFilter(cat as ExperienceCategory);
+  }, [searchParams]);
 
   const activeCat = EXPERIENCE_CATEGORIES.find(c => c.id === filter);
 

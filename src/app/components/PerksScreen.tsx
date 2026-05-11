@@ -1,66 +1,10 @@
-import { Sparkles, Lock, MapPin } from 'lucide-react';
+import { Sparkles, Lock, MapPin, ArrowRight, ShoppingCart, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SimpleFooter } from './SimpleFooter';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
-
-function Paywall() {
-  const navigate = useNavigate();
-  const previewPerks = [
-    { title: "Secret dessert menu unlocked", venue: "Café Névé", image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
-    { title: "First sip on us", venue: "Le Perché Rooftop", image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
-    { title: "Skip the line access", venue: "Musée National", image: "https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
-  ];
-
-  return (
-    <div className="min-h-screen pb-24 md:pb-8 bg-background">
-      <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Xplora Perks</h1>
-          <p className="text-sm opacity-90">Insider access to places you won't find anywhere else</p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 relative">
-        {/* Blurred preview */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 blur-sm pointer-events-none select-none">
-          {previewPerks.map((perk, i) => (
-            <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
-              <div className="h-40 overflow-hidden">
-                <img src={perk.image} alt="" className="w-full h-full object-cover" />
-              </div>
-              <div className="p-4">
-                <h3 className="text-base mb-1">{perk.title}</h3>
-                <p className="text-sm text-muted-foreground">{perk.venue}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Paywall overlay */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl p-8 mx-6 max-w-sm w-full text-center border border-border">
-            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Lock className="w-8 h-8 text-primary" />
-            </div>
-            <h2 className="text-xl mb-2">Members Only</h2>
-            <p className="text-sm text-muted-foreground mb-6">
-              Xplora Perks are exclusive to members. Join to unlock insider access to hidden menus, skip-the-line passes, and more.
-            </p>
-            <button onClick={() => navigate('/membership')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
-              Join — $10/month
-            </button>
-            <button onClick={() => navigate('/login')} className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Already a member? Log in
-            </button>
-          </div>
-        </div>
-      </div>
-      <SimpleFooter />
-    </div>
-  );
-}
+import { useCart } from '../context/CartContext';
 
 const STATIC_PERKS = [
   {
@@ -126,27 +70,70 @@ const STATIC_PERKS = [
     location: "Old Port",
     requirement: "Complete 3 experiences to unlock",
   },
+  {
+    id: 7,
+    title: "Tasting menu add-on",
+    venue: "Chez Boulay",
+    description: "Extra course reserved for Xplora members",
+    image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Any evening",
+    unlocked: false,
+    location: "Old Quebec",
+    requirement: "Complete 2 experiences to unlock",
+  },
+  {
+    id: 8,
+    title: "Free rental upgrade",
+    venue: "Cyclo Vélo",
+    description: "Electric bike upgrade at no extra charge",
+    image: "https://images.unsplash.com/photo-1571068316344-75bc76f77890?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Weekdays",
+    unlocked: false,
+    location: "Saint-Roch",
+    requirement: "Attend 1 meetup to unlock",
+  },
+  {
+    id: 9,
+    title: "Private tasting session",
+    venue: "Distillerie Menaud",
+    description: "Guided spirits tasting before doors open",
+    image: "https://images.unsplash.com/photo-1569529465841-dfecdab7503b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
+    timing: "Select Saturdays",
+    unlocked: false,
+    location: "Limoilou",
+    requirement: "Complete 2 experiences to unlock",
+  },
 ];
 
 export function PerksScreen() {
+  const navigate = useNavigate();
+  const { addItem, items } = useCart();
   const [authStatus, setAuthStatus] = useState<'loading' | 'member' | 'guest'>('loading');
+  const [isSubscribed, setIsSubscribed] = useState(false);
   const [businessPerks, setBusinessPerks] = useState<any[]>([]);
   const [buyingId, setBuyingId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) {
-        setAuthStatus('guest');
-        return;
-      }
-      // Load business-submitted perks
       const { data: bPerks } = await supabase
         .from('business_perks')
         .select('*')
         .eq('status', 'active')
         .order('created_at', { ascending: false });
       if (bPerks) setBusinessPerks(bPerks);
-      setAuthStatus('member');
+
+      if (data.user) {
+        const { data: sub } = await supabase
+          .from('subscriptions')
+          .select('status')
+          .eq('user_id', data.user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+        setIsSubscribed(!!sub);
+        setAuthStatus('member');
+      } else {
+        setAuthStatus('guest');
+      }
     });
   }, []);
 
@@ -157,8 +144,6 @@ export function PerksScreen() {
       </div>
     );
   }
-
-  if (authStatus === 'guest') return <Paywall />;
 
   async function handleBuyExperience(exp: any) {
     setBuyingId(exp.rawId);
@@ -222,6 +207,23 @@ export function PerksScreen() {
         </div>
       </div>
 
+      {authStatus === 'guest' && (
+        <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
+          <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p className="font-medium mb-0.5">These perks are exclusive to members</p>
+              <p className="text-sm text-muted-foreground">Join Xplora for $10/month and unlock all of this — plus new perks added every week.</p>
+            </div>
+            <button
+              onClick={() => navigate('/membership')}
+              className="shrink-0 flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 rounded-xl text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Become a member <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 md:space-y-12">
         {unlockedPerks.length > 0 && (
           <section>
@@ -256,7 +258,7 @@ export function PerksScreen() {
                         <MapPin className="w-4 h-4" />
                         {perk.location}
                       </div>
-                      {perk.type === 'paid' && perk.rawId && (
+                      {perk.type === 'paid' && perk.rawId ? (
                         <button
                           onClick={(e) => { e.stopPropagation(); handleBuyExperience(perk); }}
                           disabled={buyingId === perk.rawId || perk.spots_remaining === 0}
@@ -264,7 +266,20 @@ export function PerksScreen() {
                         >
                           {buyingId === perk.rawId ? '…' : perk.spots_remaining === 0 ? 'Sold out' : `Buy — $${((perk.price_cents || 0) / 100).toFixed(0)}`}
                         </button>
-                      )}
+                      ) : isSubscribed ? (() => {
+                        const inCart = items.some(i => i.id === `perk-${perk.id}`);
+                        return (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (!inCart) addItem({ id: `perk-${perk.id}`, name: perk.title, description: perk.venue, price: 0, image: perk.image, type: 'perk' });
+                            }}
+                            className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${inCart ? 'bg-green-100 text-green-700' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+                          >
+                            {inCart ? <><Check className="w-3.5 h-3.5" /> Added</> : <><ShoppingCart className="w-3.5 h-3.5" /> Add to cart</>}
+                          </button>
+                        );
+                      })() : null}
                     </div>
                   </div>
                 </div>

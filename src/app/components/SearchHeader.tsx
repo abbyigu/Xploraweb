@@ -1,12 +1,10 @@
-import { XploraLogo } from './XploraLogo';
+import { useNavigate } from 'react-router';
 
-export function SearchHeader() {
-  const vibes = [
-    { label: '🍷 Date night', value: 'date' },
-    { label: '🌿 Chill solo', value: 'solo' },
-    { label: '🎉 With friends', value: 'friends' },
-    { label: '🎨 Something new', value: 'new' },
-  ];
+const VIBES = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
+const NEIGHBOURHOODS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
+
+export function SearchHeader({ greeting }: { greeting?: string } = {}) {
+  const navigate = useNavigate();
 
   const getTimeOfDay = () => {
     const hour = new Date().getHours();
@@ -18,26 +16,33 @@ export function SearchHeader() {
 
   return (
     <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex-1">
-            <h1 className="text-xl md:text-3xl mb-1">What's your vibe {getTimeOfDay()}?</h1>
-            <p className="text-xs md:text-base opacity-90 md:hidden">Quebec City, QC</p>
-          </div>
-          <div className="md:hidden w-14 h-14 rounded-full bg-white flex items-center justify-center flex-shrink-0">
-            <XploraLogo variant="icon" className="w-10 h-10 rounded-full" />
+      <div className="max-w-7xl mx-auto space-y-5">
+        <div>
+          {greeting && <p className="text-base font-medium mb-1 opacity-80">{greeting}</p>}
+          <h1 className="text-xl md:text-3xl mb-1">What's your vibe {getTimeOfDay()}?</h1>
+          <p className="text-xs md:text-base opacity-70 md:hidden">Quebec City, QC</p>
+        </div>
+        <div>
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Vibe</p>
+          <div className="flex flex-wrap gap-2">
+            {VIBES.map(v => (
+              <button key={v} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(v)}`)}
+                className="px-3 py-1.5 bg-white/90 text-primary rounded-full text-sm capitalize hover:bg-white transition-colors">
+                {v}
+              </button>
+            ))}
           </div>
         </div>
-
-        <div className="flex flex-wrap gap-3 max-w-2xl">
-          {vibes.map((vibe) => (
-            <button
-              key={vibe.value}
-              className="bg-white/90 backdrop-blur-sm text-foreground px-4 py-3 rounded-xl text-sm md:text-base hover:bg-white hover:shadow-sm transition-all"
-            >
-              {vibe.label}
-            </button>
-          ))}
+        <div>
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Neighbourhood</p>
+          <div className="flex flex-wrap gap-2">
+            {NEIGHBOURHOODS.map(n => (
+              <button key={n} onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)}
+                className="px-3 py-1.5 bg-white/90 text-secondary rounded-full text-sm hover:bg-white transition-colors">
+                {n}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>

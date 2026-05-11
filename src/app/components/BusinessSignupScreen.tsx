@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User, Globe, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { SimpleFooter } from './SimpleFooter';
 
 const BUSINESS_TYPES = [
   'Restaurant',
@@ -52,7 +53,7 @@ export function BusinessSignupScreen() {
     const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: form.email,
       password: form.password,
-      options: { data: { name: form.contactName } },
+      options: { data: { name: form.contactName, account_type: 'business', business_name: form.businessName } },
     });
 
     if (signUpError) {
@@ -78,11 +79,12 @@ export function BusinessSignupScreen() {
     }
 
     setLoading(false);
-    navigate('/business/dashboard');
+    navigate('/business/login');
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-background flex flex-col">
+      <div className="flex-1 flex items-center justify-center px-6 py-12">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
@@ -92,7 +94,7 @@ export function BusinessSignupScreen() {
             <Building2 className="w-3.5 h-3.5" /> Business Account
           </div>
           <h1 className="text-2xl mb-1">Create your partner account</h1>
-          <p className="text-sm text-muted-foreground">Start offering perks to Club Horizon members</p>
+          <p className="text-sm text-muted-foreground">Start offering perks to Xplora members</p>
         </div>
 
         {error && (
@@ -222,6 +224,8 @@ export function BusinessSignupScreen() {
           <Link to="/signup" className="text-primary hover:underline">Join as a member</Link>
         </p>
       </div>
+      </div>
+      <SimpleFooter />
     </div>
   );
 }
