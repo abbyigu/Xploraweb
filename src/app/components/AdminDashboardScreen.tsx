@@ -148,8 +148,9 @@ export function AdminDashboardScreen() {
   };
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center flex-col gap-4">
       <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm text-muted-foreground">Loading admin dashboard…</p>
     </div>
   );
 
