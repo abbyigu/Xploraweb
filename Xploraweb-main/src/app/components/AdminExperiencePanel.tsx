@@ -553,44 +553,54 @@ export function AdminExperiencePanel() {
         </div>
       )}
 
-      {/* DB Experiences */}
+      {/* DB Experiences — one section per category */}
       {experiences.length === 0 && staticOnly.length === 0 && !showForm && (
         <p className="text-sm text-muted-foreground py-4 text-center">No experiences yet. Click "Add Experience" to start.</p>
       )}
 
-      {experiences.length > 0 && (
-        <div className="space-y-2">
-          {experiences.filter(exp => exp.status !== 'deleted' && exp.status !== 'archived').map(exp => (
-            <div key={exp.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-sm truncate">{exp.name}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {EXPERIENCE_CATEGORIES.find(c => c.id === exp.category)?.name || exp.category} · {exp.price_cents === 0 ? 'Free' : `$${(exp.price_cents / 100).toFixed(0)}`}
-                </p>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => toggleStatus(exp)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                    exp.status === 'active'
-                      ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${exp.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
-                  {exp.status === 'active' ? 'Live' : 'Draft'}
-                </button>
-                <button onClick={() => openEdit(exp)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+      {EXPERIENCE_CATEGORIES.map(cat => {
+        const catExps = experiences.filter(exp => exp.status !== 'deleted' && exp.status !== 'archived' && exp.category === cat.id);
+        return (
+          <div key={cat.id} className="space-y-2">
+            <div className="flex items-center gap-2 pt-2">
+              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{cat.name}</p>
+              <span className="text-xs text-muted-foreground/60">({catExps.length})</span>
+              <div className="flex-1 h-px bg-border" />
             </div>
-          ))}
-        </div>
-      )}
+            {catExps.length === 0 ? (
+              <p className="text-xs text-muted-foreground/50 pb-1 pl-1">No experiences in this category yet.</p>
+            ) : catExps.map(exp => (
+              <div key={exp.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-sm truncate">{exp.name}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {exp.price_cents === 0 ? 'Free' : `$${(exp.price_cents / 100).toFixed(0)}`}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => toggleStatus(exp)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                      exp.status === 'active'
+                        ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${exp.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
+                    {exp.status === 'active' ? 'Live' : 'Draft'}
+                  </button>
+                  <button onClick={() => openEdit(exp)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+      })}
 
       {/* Static experiences not yet in DB */}
       {staticOnly.length > 0 && (
