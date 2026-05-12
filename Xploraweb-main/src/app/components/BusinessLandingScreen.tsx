@@ -6,6 +6,12 @@ import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
+const VIBE_KEY: Record<string, string> = {
+  'cozy': 'cozy', 'adventurous': 'adventurous', 'foodie': 'foodie', 'romantic': 'romantic',
+  'hidden gem': 'hiddenGem', 'lively': 'lively', 'artsy': 'artsy', 'outdoorsy': 'outdoorsy',
+  'late night': 'lateNight', 'family-friendly': 'familyFriendly',
+};
+
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 function ExplorerBanner() {
@@ -226,20 +232,20 @@ export function BusinessLandingScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
         <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Discovery</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('business.discovery')}</p>
             <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
-            <p className="text-sm text-muted-foreground max-w-lg">Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it.</p>
+            <p className="text-sm text-muted-foreground max-w-lg">{t('business.exploreByDesc')}</p>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Vibe</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
             <div className="flex flex-wrap gap-2">
               {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
-                <Link key={v} to={`/itinerary?vibe=${encodeURIComponent(v)}`} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize hover:bg-primary/20 transition-colors">{v}</Link>
+                <Link key={v} to={`/itinerary?vibe=${encodeURIComponent(v)}`} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors">{t(`vibes.${VIBE_KEY[v]}`, v)}</Link>
               ))}
             </div>
           </div>
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Neighbourhood</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
             <div className="flex flex-wrap gap-2">
               {['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'].map(n => (
                 <Link key={n} to={`/itinerary?neighbourhood=${encodeURIComponent(n)}`} className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors">{n}</Link>

@@ -76,7 +76,11 @@
     "vibe": "Ambiance",
     "neighbourhood": "Quartier",
     "clearAll": "Tout effacer",
-    "noResults": "Aucune expérience ne correspond à ce filtre pour l'instant — reviens bientôt."
+    "noResults": "Aucune expérience ne correspond à ce filtre pour l'instant — reviens bientôt.",
+    "taglineXplorators": "Explorez à votre rythme · Autoguidé",
+    "taglineXploratorsPlus": "Allez plus loin · Récits, contexte et accès local",
+    "taglineXploratours": "Vivre ensemble",
+    "taglineXploranights": "Les soirées qui valent le déplacement"
   },
   "experienceCard": {
     "book": "Réserver",
@@ -405,7 +409,9 @@
     "creating": "Création du compte...",
     "hasAccount": "Tu as déjà un compte ?",
     "lookingPersonalAccount": "Tu cherches un compte personnel ?",
-    "joinAsMember": "Rejoindre comme membre"
+    "joinAsMember": "Rejoindre comme membre",
+    "discovery": "Découverte",
+    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquetez votre avantage pour que les bonnes personnes le trouvent."
   },
   "forgotPassword": {
     "title": "Mot de passe oublié ?",
@@ -533,5 +539,17 @@
     "validUntil": "Valide jusqu'au",
     "remove": "Retirer",
     "close": "Fermer"
+  },
+  "vibes": {
+    "cozy": "Cosy",
+    "adventurous": "Aventurier",
+    "foodie": "Gastronomique",
+    "romantic": "Romantique",
+    "hiddenGem": "Perle cachée",
+    "lively": "Animé",
+    "artsy": "Artistique",
+    "outdoorsy": "Plein air",
+    "lateNight": "Nuit tardive",
+    "familyFriendly": "Famille"
   }
 }

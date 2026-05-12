@@ -13,6 +13,19 @@ type Filter = 'all' | ExperienceCategory;
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 const NEIGHBOURHOOD_OPTIONS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
 
+const VIBE_KEY: Record<string, string> = {
+  'cozy': 'cozy', 'adventurous': 'adventurous', 'foodie': 'foodie', 'romantic': 'romantic',
+  'hidden gem': 'hiddenGem', 'lively': 'lively', 'artsy': 'artsy', 'outdoorsy': 'outdoorsy',
+  'late night': 'lateNight', 'family-friendly': 'familyFriendly',
+};
+
+const CAT_TAGLINE_KEY: Record<string, string> = {
+  xplorators: 'taglineXplorators',
+  xploratorsplus: 'taglineXploratorsPlus',
+  xploratours: 'taglineXploratours',
+  xploranights: 'taglineXploranights',
+};
+
 const TIER_META: Record<ExperienceCategory, {
   icon: React.ElementType;
   accent: string;
@@ -112,7 +125,7 @@ export function ItineraryScreen() {
                   </div>
                   <div>
                     <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
-                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
+                    <p className="text-sm text-muted-foreground">{t(`itinerary.${CAT_TAGLINE_KEY[cat.id]}`, cat.tagline)}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -200,11 +213,11 @@ export function ItineraryScreen() {
                   <button
                     key={v}
                     onClick={() => toggleVibe(v)}
-                    className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
+                    className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
                       active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary hover:bg-primary/20'
                     }`}
                   >
-                    {v}
+                    {t(`vibes.${VIBE_KEY[v]}`, v)}
                   </button>
                 );
               })}

@@ -76,7 +76,11 @@
     "vibe": "Vibe",
     "neighbourhood": "Neighbourhood",
     "clearAll": "Clear all",
-    "noResults": "No experiences match this filter yet — check back soon."
+    "noResults": "No experiences match this filter yet — check back soon.",
+    "taglineXplorators": "Explore at your pace · Self-guided",
+    "taglineXploratorsPlus": "Go deeper · Stories, context & local access",
+    "taglineXploratours": "Experience together",
+    "taglineXploranights": "The nights worth going out for"
   },
   "experienceCard": {
     "book": "Book",
@@ -405,7 +409,9 @@
     "creating": "Creating account...",
     "hasAccount": "Already have an account?",
     "lookingPersonalAccount": "Looking for a personal account?",
-    "joinAsMember": "Join as a member"
+    "joinAsMember": "Join as a member",
+    "discovery": "Discovery",
+    "exploreByDesc": "Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it."
   },
   "forgotPassword": {
     "title": "Forgot Password?",
@@ -533,5 +539,17 @@
     "validUntil": "Valid until",
     "remove": "Remove",
     "close": "Close"
+  },
+  "vibes": {
+    "cozy": "Cozy",
+    "adventurous": "Adventurous",
+    "foodie": "Foodie",
+    "romantic": "Romantic",
+    "hiddenGem": "Hidden Gem",
+    "lively": "Lively",
+    "artsy": "Artsy",
+    "outdoorsy": "Outdoorsy",
+    "lateNight": "Late Night",
+    "familyFriendly": "Family-Friendly"
   }
 }
