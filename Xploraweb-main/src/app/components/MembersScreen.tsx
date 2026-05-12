@@ -4,11 +4,13 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 // ─── Paywall (shown when not logged in) ──────────────────────────────────────
 
 function Paywall() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const previewPerks = [
     { title: "Secret dessert menu unlocked", venue: "Café Névé", image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
     { title: "First sip on us", venue: "Le Perché Rooftop", image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
@@ -19,8 +21,8 @@ function Paywall() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Members</h1>
-          <p className="text-sm opacity-90">Perks & social events for Xplora members</p>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('members.sectionTitle')}</h1>
+          <p className="text-sm opacity-90">{t('members.sectionSubtitle')}</p>
         </div>
       </div>
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 relative">
@@ -42,15 +44,15 @@ function Paywall() {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-xl mb-2">Members Only</h2>
+            <h2 className="text-xl mb-2">{t('members.title')}</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Join to unlock insider perks, local deals, and social events with fellow Xplorators.
+              {t('members.subtitle')}
             </p>
             <button onClick={() => navigate('/membership')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
-              Join — $10/month
+              {t('members.join')}
             </button>
             <button onClick={() => navigate('/login')} className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Already a member? Log in
+              {t('members.alreadyMember')}
             </button>
           </div>
         </div>
@@ -83,6 +85,7 @@ const MEETUPS = [
 // ─── Main screen ──────────────────────────────────────────────────────────────
 
 export function MembersScreen() {
+  const { t } = useTranslation();
   const [authStatus, setAuthStatus] = useState<'loading' | 'member' | 'guest'>('loading');
   const [businessPerks, setBusinessPerks] = useState<any[]>([]);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -132,22 +135,21 @@ export function MembersScreen() {
       {/* Header */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Members</h1>
-          <p className="text-sm md:text-base opacity-90 mb-5">Your perks and social events in one place</p>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('members.sectionTitle')}</h1>
+          <p className="text-sm md:text-base opacity-90 mb-5">{t('members.sectionSubtitle')}</p>
 
-          {/* Tabs */}
           <div className="flex gap-2">
             <button
               onClick={() => setTab('perks')}
               className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'perks' ? 'bg-white text-foreground shadow-sm' : 'bg-white/20 hover:bg-white/30'}`}
             >
-              <Sparkles className="w-3.5 h-3.5" /> Perks
+              <Sparkles className="w-3.5 h-3.5" /> {t('members.perks')}
             </button>
             <button
               onClick={() => setTab('social')}
               className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-sm font-medium transition-all ${tab === 'social' ? 'bg-white text-foreground shadow-sm' : 'bg-white/20 hover:bg-white/30'}`}
             >
-              <Users className="w-3.5 h-3.5" /> Social
+              <Users className="w-3.5 h-3.5" /> {t('members.social')}
             </button>
           </div>
         </div>
@@ -161,11 +163,11 @@ export function MembersScreen() {
             {/* Stats */}
             <div className="bg-card border border-border rounded-2xl p-4 md:p-6 flex items-center justify-between max-w-sm">
               <div>
-                <p className="text-sm text-muted-foreground">Active</p>
+                <p className="text-sm text-muted-foreground">{t('members.ready')}</p>
                 <p className="text-2xl md:text-3xl font-serif">{unlockedPerks.length}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Coming Soon</p>
+                <p className="text-sm text-muted-foreground">{t('members.unlock')}</p>
                 <p className="text-2xl md:text-3xl font-serif">{lockedPerks.length}</p>
               </div>
               <Sparkles className="w-9 h-9 text-primary/30" />
@@ -173,7 +175,7 @@ export function MembersScreen() {
 
             {unlockedPerks.length > 0 && (
               <section>
-                <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Ready for You</h2>
+                <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('members.ready')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {unlockedPerks.map(perk => (
                     <div key={perk.id} className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-all cursor-pointer group">
@@ -209,7 +211,7 @@ export function MembersScreen() {
 
             {lockedPerks.length > 0 && (
               <section>
-                <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Unlock More</h2>
+                <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('members.unlock')}</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {lockedPerks.map(perk => (
                     <div key={perk.id} className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border opacity-60 hover:opacity-75 transition-opacity">
@@ -242,8 +244,8 @@ export function MembersScreen() {
         {tab === 'social' && (
           <div>
             <div className="mb-6">
-              <h2 className="text-xl md:text-2xl mb-1">Happening Now & Soon</h2>
-              <p className="text-sm text-muted-foreground">Real people, real plans — just show up</p>
+              <h2 className="text-xl md:text-2xl mb-1">{t('members.happeningNow')}</h2>
+              <p className="text-sm text-muted-foreground">{t('meetups.subtitle')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {MEETUPS.map(meetup => (
@@ -252,7 +254,7 @@ export function MembersScreen() {
                     <ImageWithFallback src={meetup.image} alt={meetup.title} className="w-full h-full object-cover" />
                     <div className="absolute top-3 left-3 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full text-xs font-medium">{meetup.urgency}</div>
                     <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
-                      <Users className="w-3.5 h-3.5" />{meetup.attendees} going
+                      <Users className="w-3.5 h-3.5" />{meetup.attendees} {t('meetups.going')}
                     </div>
                   </div>
                   <div className="p-4">
@@ -265,7 +267,7 @@ export function MembersScreen() {
                       <div className="text-xs text-muted-foreground">{meetup.host}</div>
                     </div>
                     <button className="w-full bg-secondary text-secondary-foreground py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity font-medium">
-                      I'm in
+                      {t('meetups.imIn')}
                     </button>
                   </div>
                 </div>

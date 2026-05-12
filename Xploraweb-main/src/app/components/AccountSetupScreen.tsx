@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { Upload, Camera } from 'lucide-react';
 import { upsertProfile } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function AccountSetupScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [interests, setInterests] = useState<string[]>([]);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -41,8 +43,8 @@ export function AccountSetupScreen() {
     <div className="min-h-screen bg-background px-6 py-12">
       <div className="max-w-2xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-3xl mb-2">Complete Your Profile</h1>
-          <p className="text-muted-foreground">Help us personalize your experience</p>
+          <h1 className="text-3xl mb-2">{t('accountSetup.title')}</h1>
+          <p className="text-muted-foreground">{t('accountSetup.subtitle')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -62,11 +64,11 @@ export function AccountSetupScreen() {
                 <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
-            <p className="text-sm text-muted-foreground mt-2">Upload profile photo</p>
+            <p className="text-sm text-muted-foreground mt-2">{t('accountSetup.uploadPhoto')}</p>
           </div>
 
           <div>
-            <h2 className="text-xl mb-4">What are you interested in?</h2>
+            <h2 className="text-xl mb-4">{t('accountSetup.interests')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {interestOptions.map((interest) => (
                 <button
@@ -91,14 +93,14 @@ export function AccountSetupScreen() {
               onClick={() => navigate('/home')}
               className="flex-1 py-3 rounded-xl border border-border hover:bg-muted transition-colors"
             >
-              Skip for now
+              {t('accountSetup.skip')}
             </button>
             <button
               type="submit"
               disabled={loading}
               className="flex-1 bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60"
             >
-              {loading ? 'Saving...' : 'Complete Setup'}
+              {loading ? t('accountSetup.saving') : t('accountSetup.complete')}
             </button>
           </div>
         </form>

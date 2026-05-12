@@ -1,10 +1,12 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
+import './i18n';
 
 const HomeScreen             = lazy(() => import('./components/HomeScreen').then(m => ({ default: m.HomeScreen })));
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
@@ -40,11 +42,25 @@ function AuthHandler() {
   return null;
 }
 
+function LanguageSync() {
+  const { i18n } = useTranslation();
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase.from('profiles').select('language').eq('id', user.id).single().then(({ data }) => {
+        if (data?.language) i18n.changeLanguage(data.language);
+      });
+    });
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <CartProvider>
     <BrowserRouter>
       <AuthHandler />
+      <LanguageSync />
       <div className="min-h-screen bg-background">
         <Header />
         <div className="md:max-w-none max-w-md mx-auto relative">

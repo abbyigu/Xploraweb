@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function LoginScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ export function LoginScreen() {
     });
 
     if (signInError) {
-      setError('Invalid email or password. Please try again.');
+      setError(t('login.error'));
       setLoading(false);
       return;
     }
@@ -37,8 +39,8 @@ export function LoginScreen() {
           <div className="flex justify-center mb-6">
             <XploraLogo variant="full" className="h-16" />
           </div>
-          <h1 className="text-3xl mb-2">Welcome Back</h1>
-          <p className="text-muted-foreground">Sign in to continue exploring</p>
+          <h1 className="text-3xl mb-2">{t('login.title')}</h1>
+          <p className="text-muted-foreground">{t('login.subtitle')}</p>
         </div>
 
         {error && (
@@ -49,7 +51,7 @@ export function LoginScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">Email</label>
+            <label className="block text-sm mb-2">{t('login.email', { defaultValue: t('signup.email') })}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -64,7 +66,7 @@ export function LoginScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Password</label>
+            <label className="block text-sm mb-2">{t('signup.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -81,9 +83,9 @@ export function LoginScreen() {
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center gap-2">
               <input type="checkbox" className="rounded" />
-              <span>Remember me</span>
+              <span>{t('login.rememberMe')}</span>
             </label>
-            <button type="button" onClick={() => navigate('/forgot-password')} className="text-primary hover:underline">Forgot password?</button>
+            <button type="button" onClick={() => navigate('/forgot-password')} className="text-primary hover:underline">{t('login.forgotPassword')}</button>
           </div>
 
           <button
@@ -91,13 +93,13 @@ export function LoginScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            {loading ? 'Signing in...' : 'Sign In'}
+            {loading ? t('login.signingIn') : t('login.signIn')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Don't have an account?{' '}
-          <Link to="/signup" className="text-primary hover:underline">Create one</Link>
+          {t('login.noAccount')}{' '}
+          <Link to="/signup" className="text-primary hover:underline">{t('login.createOne')}</Link>
         </p>
       </div>
     </div>

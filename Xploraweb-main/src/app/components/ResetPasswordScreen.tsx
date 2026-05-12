@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function ResetPasswordScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState('');
@@ -18,11 +20,11 @@ export function ResetPasswordScreen() {
     e.preventDefault();
     setError('');
     if (password !== confirm) {
-      setError('Passwords do not match.');
+      setError(t('resetPassword.mismatch'));
       return;
     }
     if (password.length < 8) {
-      setError('Password must be at least 8 characters.');
+      setError(t('resetPassword.tooShort'));
       return;
     }
     setLoading(true);
@@ -43,8 +45,8 @@ export function ResetPasswordScreen() {
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <span className="text-3xl text-green-600">✓</span>
           </div>
-          <h2 className="text-2xl mb-2">Password Updated!</h2>
-          <p className="text-muted-foreground">You're all set. Redirecting you home…</p>
+          <h2 className="text-2xl mb-2">{t('resetPassword.success')}</h2>
+          <p className="text-muted-foreground">{t('resetPassword.redirecting')}</p>
         </div>
       </div>
     );
@@ -57,8 +59,8 @@ export function ResetPasswordScreen() {
           <div className="flex justify-center mb-6">
             <XploraLogo variant="full" className="h-16" />
           </div>
-          <h1 className="text-3xl mb-2">New Password</h1>
-          <p className="text-muted-foreground">Choose a strong password for your account</p>
+          <h1 className="text-3xl mb-2">{t('resetPassword.newPassword')}</h1>
+          <p className="text-muted-foreground">{t('resetPassword.subtitle')}</p>
         </div>
 
         {error && (
@@ -67,7 +69,7 @@ export function ResetPasswordScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">New Password</label>
+            <label className="block text-sm mb-2">{t('resetPassword.newPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -89,7 +91,7 @@ export function ResetPasswordScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Confirm Password</label>
+            <label className="block text-sm mb-2">{t('resetPassword.confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -115,7 +117,7 @@ export function ResetPasswordScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            {loading ? 'Updating…' : 'Set New Password'}
+            {loading ? t('resetPassword.updating') : t('resetPassword.submit')}
           </button>
         </form>
       </div>

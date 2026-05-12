@@ -3,10 +3,12 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
 import type { Product } from '../data/products';
+import { useTranslation } from 'react-i18next';
 
 export function ExperienceCard({ exp }: { exp: Product }) {
   const { addItem, items } = useCart();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const inCart = items.some(i => i.id === exp.id);
 
   return (
@@ -41,7 +43,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
         <div className="flex items-center justify-between text-xs md:text-sm mb-2 md:mb-4">
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <MapPin className="w-4 h-4" />
-            {exp.spots} spots
+            {exp.spots} {t('experienceCard.spots')}
           </div>
           <div className="flex items-center gap-1.5 text-muted-foreground">
             <Users className="w-4 h-4" />
@@ -49,7 +51,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
           </div>
         </div>
         <div className="flex items-center justify-between mt-auto pt-1.5 md:pt-0">
-          <span className="text-xs md:text-lg font-medium">{exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}</span>
+          <span className="text-xs md:text-lg font-medium">{exp.price === 0 ? t('experienceCard.free', 'Free') : `$${(exp.price / 100).toFixed(0)}`}</span>
           <button
             onClick={() => { if (!inCart) addItem(exp); }}
             className={`flex items-center gap-1 md:gap-2 px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-medium transition-all ${
@@ -57,7 +59,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
             }`}
           >
             {inCart ? <Check className="w-3 h-3 md:w-4 md:h-4" /> : <ShoppingCart className="w-3 h-3 md:w-4 md:h-4" />}
-            {inCart ? 'Added' : 'Book'}
+            {inCart ? t('experienceCard.added') : t('experienceCard.book')}
           </button>
         </div>
       </div>

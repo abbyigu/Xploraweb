@@ -11,6 +11,7 @@ import { perks } from '../data/mockData';
 import { Footer } from './Footer';
 import { useState, useEffect } from 'react';
 import { supabase, getProfile } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -63,6 +64,7 @@ function CardCarousel({ children }: { children: React.ReactNode }) {
 }
 
 function ExplorerBanner() {
+  const { t } = useTranslation();
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
     supabase
@@ -88,7 +90,7 @@ function ExplorerBanner() {
           <span className="font-semibold text-white">
             {count !== null ? `${count.toLocaleString()}+` : '...'}
           </span>{' '}
-          explorers discovering Québec City
+          {t('home.explorers')}
         </p>
       </div>
     </div>
@@ -97,6 +99,7 @@ function ExplorerBanner() {
 
 export function HomeScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { experiences } = useExperiences();
   const [authState, setAuthState] = useState<{
     loading: boolean;
@@ -144,22 +147,22 @@ export function HomeScreen() {
               <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
                 <XploraLogo variant="full" className="h-28 md:h-40" />
                 <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest opacity-60">Welcome back</p>
-                  <h1 className="text-3xl md:text-5xl leading-tight">Hey {firstName} 👋</h1>
-                  <p className="text-base md:text-lg opacity-80">Manage your perks, track your listings, and grow your reach.</p>
+                  <p className="text-xs uppercase tracking-widest opacity-60">{t('home.welcomeBack')}</p>
+                  <h1 className="text-3xl md:text-5xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
+                  <p className="text-base md:text-lg opacity-80">{t('home.businessDesc')}</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
                   <button
                     onClick={() => navigate('/business/dashboard')}
                     className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
-                    <LayoutDashboard className="w-5 h-5" /> Dashboard
+                    <LayoutDashboard className="w-5 h-5" /> {t('home.dashboard')}
                   </button>
                   <button
                     onClick={() => navigate('/account')}
                     className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
                   >
-                    <User className="w-5 h-5" /> Account
+                    <User className="w-5 h-5" /> {t('home.account')}
                   </button>
                 </div>
               </div>
@@ -202,7 +205,7 @@ export function HomeScreen() {
         {/* Shared content for all logged-in users */}
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
           <section>
-            <h2 className="text-xl md:text-2xl mb-6 md:mb-8">Xperiences</h2>
+            <h2 className="text-xl md:text-2xl mb-6 md:mb-8">{t('home.experiences')}</h2>
             <div className="space-y-10">
               {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
                 const items = experiences.filter(e => e.category === cat.id);
@@ -241,17 +244,17 @@ export function HomeScreen() {
               >
                 <div>
                   <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
-                  <h2 className="text-xl md:text-2xl mb-2">Become a Member</h2>
+                  <h2 className="text-xl md:text-2xl mb-2">{t('home.becomeMember')}</h2>
                   <ul className="space-y-1 text-sm opacity-90">
-                    <li>🎟️ 48h early access to all experiences</li>
-                    <li>👫 1 free guest pass every month</li>
-                    <li>🍸 Monthly members-only 5 à 7</li>
+                    <li>🎟️ {t('home.earlyAccess')}</li>
+                    <li>👫 {t('home.guestPass')}</li>
+                    <li>🍸 {t('home.fiveASept')}</li>
                   </ul>
                 </div>
                 <div className="text-center md:text-right flex-shrink-0">
                   <p className="text-3xl font-serif">$10</p>
-                  <p className="text-sm opacity-80">/month</p>
-                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">Learn more</button>
+                  <p className="text-sm opacity-80">{t('home.perMonth')}</p>
+                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">{t('home.learnMore')}</button>
                 </div>
               </div>
             </section>
@@ -284,7 +287,7 @@ export function HomeScreen() {
           })()}
 
           <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Perks</h2>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
               {perks.map((perk) => (
                 <DealCard key={perk.id} {...perk} />
@@ -310,12 +313,8 @@ export function HomeScreen() {
 
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">
-                Your guide to the best<br />of Québec City
-              </h1>
-              <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">
-                Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
-              </p>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
+              <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">{t('landing.subheadline')}</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
@@ -323,23 +322,23 @@ export function HomeScreen() {
                 to="/signup"
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                Join Xplora
+                {t('landing.joinXplora')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 to="/login"
                 className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
               >
-                Sign In
+                {t('landing.signIn')}
               </Link>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
               <span>·</span>
-              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> Launching June 2026</span>
+              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> {t('home.launching')}</span>
               <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Locals & Visitors</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
             </div>
           </div>
         </div>
@@ -353,7 +352,7 @@ export function HomeScreen() {
       {/* Experiences feed */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
         <section>
-          <h2 className="text-xl md:text-2xl mb-6 md:mb-8">Xperiences</h2>
+          <h2 className="text-xl md:text-2xl mb-6 md:mb-8">{t('home.experiences')}</h2>
           <div className="space-y-10">
             {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
               const items = experiences.filter(e => e.category === cat.id);
@@ -435,7 +434,7 @@ export function HomeScreen() {
         })()}
 
         <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Perks</h2>
+          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
             {perks.map((perk) => (
               <DealCard key={perk.id} {...perk} />

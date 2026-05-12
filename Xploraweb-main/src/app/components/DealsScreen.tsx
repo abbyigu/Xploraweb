@@ -1,8 +1,10 @@
 import { Tag, Lock, Check, MapPin, Coffee, UtensilsCrossed, Palette, Music } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useTranslation } from 'react-i18next';
 
 export function DealsScreen() {
+  const { t } = useTranslation();
   const deals = [
     {
       id: 1,
@@ -78,8 +80,8 @@ export function DealsScreen() {
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between mb-4 md:mb-6">
             <div>
-              <h1 className="text-2xl md:text-3xl mb-1">Local Deals</h1>
-              <p className="text-sm md:text-base opacity-90">Exclusive perks for explorers</p>
+              <h1 className="text-2xl md:text-3xl mb-1">{t('deals.title')}</h1>
+              <p className="text-sm md:text-base opacity-90">{t('deals.subtitle')}</p>
             </div>
             <div className="md:hidden w-12 h-12 rounded-full bg-white flex items-center justify-center">
               <XploraLogo variant="icon" className="w-8 h-8" />
@@ -88,11 +90,11 @@ export function DealsScreen() {
 
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 md:p-6 flex items-center justify-between max-w-2xl">
             <div>
-              <p className="text-sm md:text-base opacity-90">Active Deals</p>
+              <p className="text-sm md:text-base opacity-90">{t('deals.active')}</p>
               <p className="text-2xl md:text-3xl font-serif">{unlockedDeals.length}</p>
             </div>
             <div>
-              <p className="text-sm md:text-base opacity-90">To Unlock</p>
+              <p className="text-sm md:text-base opacity-90">{t('deals.toUnlock')}</p>
               <p className="text-2xl md:text-3xl font-serif">{lockedDeals.length}</p>
             </div>
             <Tag className="w-10 h-10 md:w-12 md:h-12 opacity-50" />
@@ -103,7 +105,7 @@ export function DealsScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 md:space-y-12">
         {unlockedDeals.length > 0 && (
           <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Available Now</h2>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('deals.available')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {unlockedDeals.map((deal) => {
                 const Icon = deal.icon;
@@ -120,7 +122,7 @@ export function DealsScreen() {
                       />
                       <div className="absolute top-3 right-3 bg-primary text-primary-foreground px-3 py-1.5 rounded-full text-xs flex items-center gap-1.5">
                         <Check className="w-3.5 h-3.5" />
-                        Unlocked
+                        {t('deals.unlocked')}
                       </div>
                       <div className="absolute top-3 left-3 bg-secondary text-secondary-foreground px-3 py-1.5 rounded-full text-sm">
                         {deal.discount}
@@ -145,7 +147,7 @@ export function DealsScreen() {
                           {deal.location}
                         </div>
                         <button className="px-4 py-2 bg-primary text-primary-foreground rounded-full text-sm hover:opacity-90 transition-opacity">
-                          Redeem
+                          {t('deals.redeem')}
                         </button>
                       </div>
                     </div>
@@ -158,7 +160,7 @@ export function DealsScreen() {
 
         {lockedDeals.length > 0 && (
           <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Coming Soon</h2>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('deals.comingSoon')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {lockedDeals.map((deal) => {
                 const Icon = deal.icon;

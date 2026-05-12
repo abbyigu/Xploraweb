@@ -1,8 +1,10 @@
 import { Clock, Users, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { SimpleFooter } from './SimpleFooter';
+import { useTranslation } from 'react-i18next';
 
 export function MeetupsScreen() {
+  const { t } = useTranslation();
   const meetups = [
     {
       id: 1,
@@ -95,8 +97,8 @@ export function MeetupsScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4">
-            <h1 className="text-2xl md:text-3xl mb-1">Happening Now & Soon</h1>
-            <p className="text-sm md:text-base opacity-90">Real people, real plans — just show up</p>
+            <h1 className="text-2xl md:text-3xl mb-1">{t('meetups.title')}</h1>
+            <p className="text-sm md:text-base opacity-90">{t('meetups.subtitle')}</p>
           </div>
         </div>
       </div>
@@ -119,7 +121,7 @@ export function MeetupsScreen() {
                 </div>
                 <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs flex items-center gap-1">
                   <Users className="w-3.5 h-3.5" />
-                  {meetup.attendees} going
+                  {meetup.attendees} {t('meetups.going')}
                 </div>
               </div>
               <div className="p-4">
@@ -137,7 +139,7 @@ export function MeetupsScreen() {
                 </div>
 
                 <button className="w-full bg-secondary text-secondary-foreground py-2.5 rounded-xl text-sm hover:opacity-90 transition-opacity font-medium">
-                  I'm in
+                  {t('meetups.imIn')}
                 </button>
               </div>
             </div>

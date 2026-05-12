@@ -1,13 +1,23 @@
 import { SimpleFooter } from './SimpleFooter';
+import { useTranslation } from 'react-i18next';
 
 export function PrivacyScreen() {
+  const { t } = useTranslation();
+
+  const thirdParties = [
+    { name: t('privacy.s3supabase'), use: t('privacy.s3supabaseDesc') },
+    { name: t('privacy.s3stripe'), use: t('privacy.s3stripeDesc') },
+    { name: t('privacy.s3resend'), use: t('privacy.s3resendDesc') },
+    { name: t('privacy.s3vercel'), use: t('privacy.s3vercelDesc') },
+  ];
+
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-6 md:px-8 pt-12 pb-10">
         <div className="max-w-3xl mx-auto">
           <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Xplora</p>
-          <h1 className="text-3xl md:text-4xl">Privacy Policy</h1>
-          <p className="text-muted-foreground mt-2 text-sm">Last updated: May 8, 2026</p>
+          <h1 className="text-3xl md:text-4xl">{t('privacy.title')}</h1>
+          <p className="text-muted-foreground mt-2 text-sm">{t('privacy.lastUpdated')}</p>
         </div>
       </div>
 
@@ -15,103 +25,90 @@ export function PrivacyScreen() {
 
         <section className="space-y-3">
           <p className="text-muted-foreground">
-            Xplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights under Canada's <em>Personal Information Protection and Electronic Documents Act</em> (PIPEDA) and applicable Québec privacy law.
+            {t('privacy.intro', 'Xplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information.')}
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">1. Information we collect</h2>
+          <h2 className="text-lg font-medium">{t('privacy.s1title')}</h2>
           <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-            <li><strong className="text-foreground">Account information</strong> — your name, email address, and password when you sign up.</li>
-            <li><strong className="text-foreground">Profile data</strong> — your account type (explorer or business), profile photo if you upload one, and any preferences you set.</li>
-            <li><strong className="text-foreground">Payment information</strong> — processed by Stripe. We never store your card number, CVV, or banking details. We receive a Stripe customer ID and subscription status only.</li>
-            <li><strong className="text-foreground">Usage data</strong> — pages visited, experiences viewed, and interactions within the app, collected to improve the product.</li>
-            <li><strong className="text-foreground">Communications</strong> — emails you send to us at hello@goxplora.ca.</li>
+            <li><strong className="text-foreground">{t('privacy.s1account')}</strong> — {t('privacy.s1accountDesc')}</li>
+            <li><strong className="text-foreground">{t('privacy.s1profile')}</strong> — {t('privacy.s1profileDesc')}</li>
+            <li><strong className="text-foreground">{t('privacy.s1payment')}</strong> — {t('privacy.s1paymentDesc')}</li>
+            <li><strong className="text-foreground">{t('privacy.s1usage')}</strong> — {t('privacy.s1usageDesc')}</li>
+            <li><strong className="text-foreground">{t('privacy.s1comms')}</strong> — {t('privacy.s1commsDesc')}</li>
           </ul>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">2. How we use your information</h2>
+          <h2 className="text-lg font-medium">{t('privacy.s2title')}</h2>
           <ul className="space-y-2 text-muted-foreground list-disc list-inside">
-            <li>To create and manage your account.</li>
-            <li>To process payments and manage your membership.</li>
-            <li>To send transactional emails (booking confirmations, welcome messages, receipts).</li>
-            <li>To send our newsletter and event updates, only if you have opted in.</li>
-            <li>To improve the app and personalize your experience.</li>
-            <li>To comply with legal obligations.</li>
+            <li>{t('privacy.s2i1')}</li>
+            <li>{t('privacy.s2i2')}</li>
+            <li>{t('privacy.s2i3')}</li>
+            <li>{t('privacy.s2i4')}</li>
+            <li>{t('privacy.s2i5')}</li>
+            <li>{t('privacy.s2i6')}</li>
           </ul>
-          <p className="text-muted-foreground">We do not sell your personal information to third parties.</p>
+          <p className="text-muted-foreground">{t('privacy.s2noSell')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">3. Third-party services</h2>
-          <p className="text-muted-foreground">We use the following trusted third-party services to operate Xplora:</p>
+          <h2 className="text-lg font-medium">{t('privacy.s3title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s3intro')}</p>
           <div className="space-y-2">
-            {[
-              { name: 'Supabase', use: 'Database, authentication, and file storage. Data is hosted in Canada (AWS ca-central-1).' },
-              { name: 'Stripe', use: 'Payment processing and subscription management. Stripe is PCI-DSS compliant.' },
-              { name: 'Resend', use: 'Transactional and marketing email delivery.' },
-              { name: 'Vercel', use: 'Application hosting and performance analytics.' },
-            ].map((s) => (
+            {thirdParties.map((s) => (
               <div key={s.name} className="bg-muted/30 rounded-xl p-4">
                 <p className="font-medium text-foreground">{s.name}</p>
                 <p className="text-muted-foreground text-sm mt-0.5">{s.use}</p>
               </div>
             ))}
           </div>
-          <p className="text-muted-foreground">Each provider operates under their own privacy policy and security standards.</p>
+          <p className="text-muted-foreground">{t('privacy.s3footer')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">4. Cookies and local storage</h2>
-          <p className="text-muted-foreground">
-            Xplora uses browser local storage to save your cart, saved itineraries, and session preferences. We use cookies only as required for authentication (Supabase session tokens) and performance monitoring (Vercel). We do not use advertising or tracking cookies.
-          </p>
+          <h2 className="text-lg font-medium">{t('privacy.s4title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s4desc')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">5. Data retention</h2>
-          <p className="text-muted-foreground">
-            We retain your account data for as long as your account is active. If you delete your account, we will remove your personal information within 30 days, except where retention is required by law or for legitimate business purposes (e.g., financial records).
-          </p>
+          <h2 className="text-lg font-medium">{t('privacy.s5title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s5desc')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">6. Your rights</h2>
-          <p className="text-muted-foreground">Under PIPEDA and Québec Law 25, you have the right to:</p>
+          <h2 className="text-lg font-medium">{t('privacy.s6title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s6intro')}</p>
           <ul className="space-y-1 text-muted-foreground list-disc list-inside">
-            <li>Access the personal information we hold about you.</li>
-            <li>Correct inaccurate or incomplete information.</li>
-            <li>Request deletion of your account and associated data.</li>
-            <li>Withdraw consent for marketing communications at any time by unsubscribing.</li>
+            <li>{t('privacy.s6i1')}</li>
+            <li>{t('privacy.s6i2')}</li>
+            <li>{t('privacy.s6i3')}</li>
+            <li>{t('privacy.s6i4')}</li>
           </ul>
           <p className="text-muted-foreground">
-            To exercise any of these rights, email us at{' '}
+            {t('privacy.s6contact')}{' '}
             <a href="mailto:hello@goxplora.ca" className="text-primary underline underline-offset-2">hello@goxplora.ca</a>.
           </p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">7. Security</h2>
-          <p className="text-muted-foreground">
-            We use industry-standard measures to protect your data, including encrypted connections (HTTPS), secure authentication, and row-level security on our database. No method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.
-          </p>
+          <h2 className="text-lg font-medium">{t('privacy.s7title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s7desc')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">8. Changes to this policy</h2>
-          <p className="text-muted-foreground">
-            We may update this policy from time to time. If we make material changes, we will notify you by email or by posting a notice in the app. Continued use of Xplora after changes are posted constitutes your acceptance of the revised policy.
-          </p>
+          <h2 className="text-lg font-medium">{t('privacy.s8title')}</h2>
+          <p className="text-muted-foreground">{t('privacy.s8desc')}</p>
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-lg font-medium">9. Contact</h2>
+          <h2 className="text-lg font-medium">{t('privacy.s9title')}</h2>
           <p className="text-muted-foreground">
-            Questions or concerns about this policy? Reach us at{' '}
+            {t('privacy.s9desc')}{' '}
             <a href="mailto:hello@goxplora.ca" className="text-primary underline underline-offset-2">hello@goxplora.ca</a>.
             <br />
-            Xplora · Club Horizon · Québec City, QC, Canada
+            {t('privacy.orgLine')}
           </p>
         </section>
 

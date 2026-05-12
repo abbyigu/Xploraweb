@@ -4,6 +4,8 @@ import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect } from 'react';
 import { getProfile } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../hooks/useLanguage';
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -13,6 +15,8 @@ export function Header() {
   const location = useLocation();
   const { count } = useCart();
   const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     getProfile().then((data) => {
@@ -23,9 +27,9 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',           icon: Compass, label: 'Xperiences' },
-    { path: '/members',    icon: Gift,    label: 'Perks' },
-    { path: '/about',      icon: Info,    label: 'About' },
+    { path: '/',        icon: Compass, labelKey: 'header.experiences' },
+    { path: '/members', icon: Gift,    labelKey: 'header.perks' },
+    { path: '/about',   icon: Info,    labelKey: 'header.about' },
   ];
 
   return (
@@ -37,7 +41,7 @@ export function Header() {
           </div>
 
           <nav className="flex items-center gap-1 md:gap-2 lg:gap-3">
-            {navItems.map(({ path, icon: Icon, label }) => (
+            {navItems.map(({ path, icon: Icon, labelKey }) => (
               <Link
                 key={path}
                 to={path}
@@ -48,13 +52,22 @@ export function Header() {
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="text-xs md:text-sm lg:text-base">{label}</span>
+                <span className="text-xs md:text-sm lg:text-base">{t(labelKey)}</span>
               </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-3 lg:gap-5">
-            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors">For Businesses</Link>
+            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors">{t('header.forBusinesses')}</Link>
+
+            {/* Language toggle */}
+            <button
+              onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+              className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
+            >
+              {language === 'fr' ? 'EN' : 'FR'}
+            </button>
+
             <Link to="/cart" className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
               <ShoppingCart className="w-5 h-5" />
               {count > 0 && (
@@ -64,8 +77,8 @@ export function Header() {
               )}
             </Link>
             <div className="text-right">
-              <p className="text-sm text-muted-foreground">Exploring</p>
-              <p className="font-medium">Québec City, QC</p>
+              <p className="text-sm text-muted-foreground">{t('header.exploring')}</p>
+              <p className="font-medium">{t('header.city')}</p>
             </div>
             <Link to="/account">
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">

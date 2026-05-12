@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router';
 import { Mail } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function ForgotPasswordScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,12 +35,12 @@ export function ForgotPasswordScreen() {
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Mail className="w-8 h-8 text-primary" />
           </div>
-          <h2 className="text-2xl mb-2">Check your inbox</h2>
+          <h2 className="text-2xl mb-2">{t('forgotPassword.checkInbox')}</h2>
           <p className="text-muted-foreground mb-6">
-            We sent a reset link to <strong>{email}</strong>. Click it to choose a new password.
+            {t('forgotPassword.sentTo')} <strong>{email}</strong>. {t('forgotPassword.clickIt')}
           </p>
           <button onClick={() => navigate('/login')} className="text-primary hover:underline text-sm">
-            Back to Sign In
+            {t('forgotPassword.backToSignIn')}
           </button>
         </div>
       </div>
@@ -52,8 +54,8 @@ export function ForgotPasswordScreen() {
           <div className="flex justify-center mb-6">
             <XploraLogo variant="full" className="h-16" />
           </div>
-          <h1 className="text-3xl mb-2">Forgot Password?</h1>
-          <p className="text-muted-foreground">Enter your email and we'll send you a reset link</p>
+          <h1 className="text-3xl mb-2">{t('forgotPassword.title')}</h1>
+          <p className="text-muted-foreground">{t('forgotPassword.subtitle')}</p>
         </div>
 
         {error && (
@@ -62,7 +64,7 @@ export function ForgotPasswordScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">Email</label>
+            <label className="block text-sm mb-2">{t('forgotPassword.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -81,14 +83,14 @@ export function ForgotPasswordScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            {loading ? 'Sending…' : 'Send Reset Link'}
+            {loading ? t('forgotPassword.sending') : t('forgotPassword.sendLink')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Remembered it?{' '}
+          {t('forgotPassword.remembered')}{' '}
           <button onClick={() => navigate('/login')} className="text-primary hover:underline">
-            Sign in
+            {t('forgotPassword.signIn')}
           </button>
         </p>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User, Globe, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const BUSINESS_TYPES = [
   'Restaurant',
@@ -19,6 +20,7 @@ const BUSINESS_TYPES = [
 
 export function BusinessSignupScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     contactName: '',
     businessName: '',
@@ -89,10 +91,10 @@ export function BusinessSignupScreen() {
             <XploraLogo variant="full" className="h-14" />
           </div>
           <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs mb-3">
-            <Building2 className="w-3.5 h-3.5" /> Business Account
+            <Building2 className="w-3.5 h-3.5" /> {t('business.signupTitle')}
           </div>
-          <h1 className="text-2xl mb-1">Create your partner account</h1>
-          <p className="text-sm text-muted-foreground">Start offering perks to Xplora members</p>
+          <h1 className="text-2xl mb-1">{t('business.signupSubtitle')}</h1>
+          <p className="text-sm text-muted-foreground">{t('business.signupDesc')}</p>
         </div>
 
         {error && (
@@ -101,7 +103,7 @@ export function BusinessSignupScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1.5">Business Name</label>
+            <label className="block text-sm mb-1.5">{t('business.businessName')}</label>
             <div className="relative">
               <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -116,7 +118,7 @@ export function BusinessSignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Business Type</label>
+            <label className="block text-sm mb-1.5">{t('business.businessType')}</label>
             <select
               value={form.businessType}
               onChange={set('businessType')}
@@ -124,14 +126,14 @@ export function BusinessSignupScreen() {
               required
             >
               <option value="">Select a type…</option>
-              {BUSINESS_TYPES.map((t) => (
-                <option key={t} value={t}>{t}</option>
+              {BUSINESS_TYPES.map((btype) => (
+                <option key={btype} value={btype}>{btype}</option>
               ))}
             </select>
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Your Name</label>
+            <label className="block text-sm mb-1.5">{t('business.yourName')}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -146,7 +148,7 @@ export function BusinessSignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Email</label>
+            <label className="block text-sm mb-1.5">{t('business.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -161,7 +163,7 @@ export function BusinessSignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Website <span className="text-muted-foreground">(optional)</span></label>
+            <label className="block text-sm mb-1.5">{t('business.website')}</label>
             <div className="relative">
               <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -175,7 +177,7 @@ export function BusinessSignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Password</label>
+            <label className="block text-sm mb-1.5">{t('business.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -190,7 +192,7 @@ export function BusinessSignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Confirm Password</label>
+            <label className="block text-sm mb-1.5">{t('business.confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -209,17 +211,17 @@ export function BusinessSignupScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-2 disabled:opacity-60 text-sm"
           >
-            {loading ? 'Creating account…' : 'Create Business Account'}
+            {loading ? t('business.creating') : t('business.createBusinessBtn')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Already have an account?{' '}
-          <Link to="/business/login" className="text-primary hover:underline">Sign in</Link>
+          {t('business.hasAccount')}{' '}
+          <Link to="/business/login" className="text-primary hover:underline">{t('business.signIn')}</Link>
         </p>
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Looking for a personal account?{' '}
-          <Link to="/signup" className="text-primary hover:underline">Join as a member</Link>
+          {t('business.lookingPersonalAccount')}{' '}
+          <Link to="/signup" className="text-primary hover:underline">{t('business.joinAsMember')}</Link>
         </p>
       </div>
     </div>

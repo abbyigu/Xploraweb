@@ -1,24 +1,28 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Gift, Info, User, ShoppingCart } from 'lucide-react';
+import { Compass, Gift, Info, User, ShoppingCart, Languages } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../hooks/useLanguage';
 
 export function BottomNav() {
   const location = useLocation();
   const { count } = useCart();
+  const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',           icon: Compass,      label: 'Xperiences', badge: 0 },
-    { path: '/members',    icon: Gift,         label: 'Perks',      badge: 0 },
-    { path: '/about',      icon: Info,         label: 'About',      badge: 0 },
-    { path: '/cart',       icon: ShoppingCart, label: 'Cart',       badge: count },
-    { path: '/account',    icon: User,         label: 'Account',    badge: 0 },
+    { path: '/',        icon: Compass,      labelKey: 'nav.experiences', badge: 0 },
+    { path: '/members', icon: Gift,         labelKey: 'nav.perks',       badge: 0 },
+    { path: '/about',   icon: Info,         labelKey: 'nav.about',       badge: 0 },
+    { path: '/cart',    icon: ShoppingCart, labelKey: 'nav.cart',        badge: count },
+    { path: '/account', icon: User,         labelKey: 'nav.account',     badge: 0 },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
       <div className="max-w-md mx-auto flex justify-around items-center py-2 px-1">
-        {navItems.map(({ path, icon: Icon, label, badge }) => (
+        {navItems.map(({ path, icon: Icon, labelKey, badge }) => (
           <Link
             key={path}
             to={path}
@@ -34,9 +38,18 @@ export function BottomNav() {
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
-            <span className="text-[10px]">{label}</span>
+            <span className="text-[10px]">{t(labelKey)}</span>
           </Link>
         ))}
+
+        {/* Language toggle */}
+        <button
+          onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+          className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all text-muted-foreground hover:bg-muted/40"
+        >
+          <Languages className="w-4 h-4" />
+          <span className="text-[10px] font-medium">{language === 'fr' ? 'EN' : 'FR'}</span>
+        </button>
       </div>
     </nav>
   );

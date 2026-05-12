@@ -5,10 +5,12 @@ import { XploraLogo } from './XploraLogo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 export function LandingPage() {
+  const { t } = useTranslation();
   const [explorerCount, setExplorerCount] = useState<number | null>(null);
 
   useEffect(() => {
@@ -68,12 +70,8 @@ export function LandingPage() {
 
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
-              <h1 className="text-3xl md:text-5xl leading-tight">
-                Your guide to the best<br />of Québec City
-              </h1>
-              <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">
-                Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
-              </p>
+              <h1 className="text-3xl md:text-5xl leading-tight">{t('landing.headline')}</h1>
+              <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">{t('landing.subheadline')}</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
@@ -81,23 +79,23 @@ export function LandingPage() {
                 to="/signup"
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                Join Xplora
+                {t('landing.joinXplora')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 to="/login"
                 className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
               >
-                Sign In
+                {t('landing.signIn')}
               </Link>
             </div>
 
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
               <span>·</span>
-              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> Launching June 2026</span>
+              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> {t('landing.launching', { defaultValue: 'Launching June 2026' })}</span>
               <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Locals & Visitors</span>
+              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
             </div>
           </div>
         </div>
@@ -121,7 +119,7 @@ export function LandingPage() {
             <span className="font-semibold text-white">
               {explorerCount !== null ? `${explorerCount.toLocaleString()}+` : '...'}
             </span>{' '}
-            explorers discovering Québec City
+            {t('home.explorers')}
           </p>
         </div>
       </div>
@@ -129,30 +127,15 @@ export function LandingPage() {
       {/* How it works */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl mb-3">Stop searching. Start exploring.</h2>
-          <p className="text-muted-foreground max-w-xl mx-auto">No more generic Google searches. Xplora is your insider guide to Québec City's trendy spots — curated by people who actually know the city.</p>
+          <h2 className="text-3xl md:text-4xl mb-3">{t('landing.stopSearching')}</h2>
+          <p className="text-muted-foreground max-w-xl mx-auto">{t('landing.noMore')}</p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            {
-              icon: <Sparkles className="w-7 h-7 text-primary" />,
-              step: '01',
-              title: 'Get your itinerary',
-              desc: 'Curated day plans built around Saint-Roch, Old Port, Petit-Champlain and beyond. No filler, no tourist traps.',
-            },
-            {
-              icon: <Calendar className="w-7 h-7 text-primary" />,
-              step: '02',
-              title: 'Show up to a 5 à 7',
-              desc: 'Monthly meetups hosted at the best local spots. Walk in, meet people, have a drink. First one is on us.',
-            },
-            {
-              icon: <Star className="w-7 h-7 text-primary" />,
-              step: '03',
-              title: 'Unlock insider perks',
-              desc: 'Skip-the-line access, secret menus, welcome cocktails. Real deals from real local venues — not ads.',
-            },
+            { icon: <Sparkles className="w-7 h-7 text-primary" />, step: '01', title: t('landing.getItinerary'), desc: 'Curated day plans built around Saint-Roch, Old Port, Petit-Champlain and beyond. No filler, no tourist traps.' },
+            { icon: <Calendar className="w-7 h-7 text-primary" />, step: '02', title: t('landing.fiveASept'), desc: 'Monthly meetups hosted at the best local spots. Walk in, meet people, have a drink. First one is on us.' },
+            { icon: <Star className="w-7 h-7 text-primary" />, step: '03', title: t('landing.unlockPerks'), desc: 'Skip-the-line access, secret menus, welcome cocktails. Real deals from real local venues — not ads.' },
           ].map((item) => (
             <div key={item.step} className="relative">
               <div className="absolute -top-3 -left-2 text-6xl font-serif text-primary/10 select-none">{item.step}</div>
@@ -173,11 +156,11 @@ export function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <div className="flex items-end justify-between mb-10">
             <div>
-              <h2 className="text-3xl md:text-4xl mb-2">This week in Québec City</h2>
-              <p className="text-muted-foreground">Curated plans ready to go</p>
+              <h2 className="text-3xl md:text-4xl mb-2">{t('landing.thisWeek')}</h2>
+              <p className="text-muted-foreground">{t('landing.curatedPlans')}</p>
             </div>
             <Link to="/signup" className="hidden md:flex items-center gap-2 text-sm text-primary hover:underline">
-              See all <ArrowRight className="w-4 h-4" />
+              {t('landing.seeAll')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
 
@@ -212,10 +195,8 @@ export function LandingPage() {
                 <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-1.5 rounded-full text-sm">
                   <Building2 className="w-4 h-4" /> For Québec City Businesses
                 </div>
-                <h2 className="text-3xl md:text-4xl">Put your venue in front of people who actually show up</h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Xplora reaches locals who explore their city on purpose and visitors who want to experience it like an insider. Offering a perk puts your business in front of people who are actively looking for it — no ad spend, no algorithm.
-                </p>
+                <h2 className="text-3xl md:text-4xl">{t('landing.businessTagline')}</h2>
+                <p className="text-muted-foreground leading-relaxed">{t('landing.businessDesc')}</p>
 
                 <div className="grid grid-cols-2 gap-3">
                   {partnerTypes.map((t) => (
@@ -231,23 +212,23 @@ export function LandingPage() {
                     to="/business"
                     className="px-6 py-3 bg-secondary text-secondary-foreground rounded-2xl text-sm font-medium hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
                   >
-                    Become a Perk Partner
+                    {t('landing.becomePartner')}
                     <ArrowRight className="w-4 h-4" />
                   </Link>
                   <Link
                     to="/business/login"
                     className="px-6 py-3 border border-border rounded-2xl text-sm hover:bg-muted/40 transition-colors flex items-center justify-center"
                   >
-                    Business Sign In
+                    {t('landing.businessSignIn')}
                   </Link>
                 </div>
               </div>
 
               <div className="flex-shrink-0 grid grid-cols-1 gap-4 w-full md:w-72">
                 {[
-                  { stat: 'Free', label: 'No cost to offer a perk' },
+                  { stat: t('landing.free'), label: t('landing.freeDesc') },
                   { stat: '5 à 7', label: 'Host your own member event' },
-                  { stat: 'Real', label: 'Local, engaged audience' },
+                  { stat: t('landing.real'), label: t('landing.realDesc') },
                 ].map((item) => (
                   <div key={item.label} className="bg-card border border-border rounded-2xl p-5">
                     <p className="text-2xl font-serif text-secondary mb-1">{item.stat}</p>

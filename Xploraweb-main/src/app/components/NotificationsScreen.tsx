@@ -1,40 +1,43 @@
 import { Bell, Tag, Calendar, Sparkles } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
-
-const PLACEHOLDER_NOTIFICATIONS = [
-  {
-    id: 1,
-    icon: Sparkles,
-    iconBg: 'bg-xplora-icon-bg',
-    iconColor: 'text-xplora-primary',
-    title: 'New experience added',
-    body: 'A new Xplora-tors adventure just dropped in Québec City. Be the first to book!',
-    time: '2h ago',
-    unread: true,
-  },
-  {
-    id: 2,
-    icon: Tag,
-    iconBg: 'bg-xplora-accent-teal/10',
-    iconColor: 'text-xplora-accent-teal',
-    title: 'Member perk available',
-    body: 'Café Krieghoff is offering 15% off for Xplora members this weekend.',
-    time: '1d ago',
-    unread: true,
-  },
-  {
-    id: 3,
-    icon: Calendar,
-    iconBg: 'bg-xplora-accent-green/10',
-    iconColor: 'text-xplora-accent-green',
-    title: 'Upcoming event reminder',
-    body: "Your Xplora Nights booking is tomorrow at 8 PM. Don't forget!",
-    time: '2d ago',
-    unread: false,
-  },
-];
+import { useTranslation } from 'react-i18next';
 
 export function NotificationsScreen() {
+  const { t } = useTranslation();
+
+  const PLACEHOLDER_NOTIFICATIONS = [
+    {
+      id: 1,
+      icon: Sparkles,
+      iconBg: 'bg-xplora-icon-bg',
+      iconColor: 'text-xplora-primary',
+      title: t('notifications.notif1Title'),
+      body: t('notifications.notif1Body'),
+      time: t('notifications.notif1Time'),
+      unread: true,
+    },
+    {
+      id: 2,
+      icon: Tag,
+      iconBg: 'bg-xplora-accent-teal/10',
+      iconColor: 'text-xplora-accent-teal',
+      title: t('notifications.notif2Title'),
+      body: t('notifications.notif2Body'),
+      time: t('notifications.notif2Time'),
+      unread: true,
+    },
+    {
+      id: 3,
+      icon: Calendar,
+      iconBg: 'bg-xplora-accent-green/10',
+      iconColor: 'text-xplora-accent-green',
+      title: t('notifications.notif3Title'),
+      body: t('notifications.notif3Body'),
+      time: t('notifications.notif3Time'),
+      unread: false,
+    },
+  ];
+
   const unreadCount = PLACEHOLDER_NOTIFICATIONS.filter(n => n.unread).length;
 
   return (
@@ -42,14 +45,14 @@ export function NotificationsScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
-            <h1 className="text-2xl md:text-3xl">Notifications</h1>
+            <h1 className="text-2xl md:text-3xl">{t('notifications.title')}</h1>
             {unreadCount > 0 && (
               <span className="px-2 py-0.5 rounded-full bg-primary text-white text-xs font-medium">
-                {unreadCount} new
+                {unreadCount} {t('notifications.new')}
               </span>
             )}
           </div>
-          <p className="text-sm md:text-base opacity-90">Stay up to date with Xplora</p>
+          <p className="text-sm md:text-base opacity-90">{t('notifications.subtitle')}</p>
         </div>
       </div>
 
@@ -59,9 +62,9 @@ export function NotificationsScreen() {
             <div className="w-16 h-16 rounded-full bg-xplora-icon-bg flex items-center justify-center mb-4">
               <Bell className="w-8 h-8 text-xplora-primary" />
             </div>
-            <h2 className="text-lg font-medium text-foreground mb-2">All caught up</h2>
+            <h2 className="text-lg font-medium text-foreground mb-2">{t('notifications.allCaughtUp')}</h2>
             <p className="text-sm text-muted-foreground max-w-xs">
-              You'll see new experiences, member perks, and event reminders here.
+              {t('notifications.emptyDesc')}
             </p>
           </div>
         ) : (

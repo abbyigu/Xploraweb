@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router';
 import { Plus, LogOut, Trash2, Eye, EyeOff, Building2, CheckCircle, AlertCircle, Shield, Users, ChevronDown, ChevronUp, Star, MapPin, Mail, Globe, LayoutDashboard, Gift, Map } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
+import { useTranslation } from 'react-i18next';
 
 const PARTNERSHIP_BENEFITS = [
   { icon: Star,   title: 'Featured Venue',             desc: 'Dedicated spotlight in the Xplora member app' },
@@ -87,6 +88,7 @@ const EMPTY_FORM = {
 
 export function BusinessDashboardScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [perks, setPerks] = useState<BusinessPerk[]>([]);
@@ -284,12 +286,12 @@ export function BusinessDashboardScreen() {
           <div className="flex items-center gap-3">
             <XploraLogo variant="icon" className="h-8 w-8" />
             <div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1"><Building2 className="w-3 h-3" /> Partner Dashboard</p>
-              <p className="text-sm font-medium">{profile?.business_name || 'Your Business'}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1"><Building2 className="w-3 h-3" /> {t('business.dashboardTitle')}</p>
+              <p className="text-sm font-medium">{profile?.business_name || t('business.yourBusiness')}</p>
             </div>
           </div>
           <button onClick={handleLogout} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <LogOut className="w-4 h-4" /> Sign out
+            <LogOut className="w-4 h-4" /> {t('business.signOut')}
           </button>
         </div>
       </div>

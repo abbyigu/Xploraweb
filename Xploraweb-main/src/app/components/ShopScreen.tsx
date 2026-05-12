@@ -5,6 +5,7 @@ import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useTranslation } from 'react-i18next';
 
 type Tab = 'merch' | 'memberships';
 
@@ -16,6 +17,7 @@ export function ShopScreen() {
   const [activeTab, setActiveTab] = useState<Tab>('merch');
   const { addItem, items, count } = useCart();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const inCart = (id: string) => items.some(i => i.id === id);
 
@@ -24,8 +26,8 @@ export function ShopScreen() {
   };
 
   const tabs: { key: Tab; label: string }[] = [
-    { key: 'merch', label: 'Merch' },
-    { key: 'memberships', label: 'Memberships' },
+    { key: 'merch', label: t('shop.merch') },
+    { key: 'memberships', label: t('shop.memberships') },
   ];
 
   const products = activeTab === 'merch' ? merch : memberships;
@@ -35,8 +37,8 @@ export function ShopScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl mb-1">Shop</h1>
-            <p className="text-sm opacity-90">Experiences, merch & memberships</p>
+            <h1 className="text-2xl md:text-3xl mb-1">{t('shop.title')}</h1>
+            <p className="text-sm opacity-90">{t('shop.subtitle')}</p>
           </div>
           <button onClick={() => navigate('/cart')} className="relative bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/30 transition-colors">
             <ShoppingCart className="w-5 h-5" />
@@ -83,7 +85,7 @@ export function ShopScreen() {
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${inCart(product.id) ? 'bg-green-500 text-white cursor-default' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
                   >
                     {inCart(product.id) ? <Check className="w-4 h-4" /> : <ShoppingCart className="w-4 h-4" />}
-                    {inCart(product.id) ? 'In Cart' : 'Add to Cart'}
+                    {inCart(product.id) ? t('shop.inCart') : t('shop.addToCart')}
                   </button>
                 </div>
               </div>

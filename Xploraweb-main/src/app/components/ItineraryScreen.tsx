@@ -6,6 +6,7 @@ import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
 import { useExperiences } from '../hooks/useExperiences';
 import type { ExperienceCategory } from '../data/products';
+import { useTranslation } from 'react-i18next';
 
 type Filter = 'all' | ExperienceCategory;
 
@@ -24,6 +25,7 @@ const TIER_META: Record<ExperienceCategory, {
 };
 
 export function ItineraryScreen() {
+  const { t } = useTranslation();
   const { experiences } = useExperiences();
   const [searchParams, setSearchParams] = useSearchParams();
   const [filter, setFilter] = useState<Filter>(() => {
@@ -86,7 +88,7 @@ export function ItineraryScreen() {
   function renderContent() {
     if (hasFilter) {
       if (filteredExperiences.length === 0) {
-        return <p className="text-muted-foreground text-sm py-8 text-center">No experiences match this filter yet — check back soon.</p>;
+        return <p className="text-muted-foreground text-sm py-8 text-center">{t('itinerary.noResults')}</p>;
       }
       return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -135,13 +137,13 @@ export function ItineraryScreen() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Experiences</h1>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('itinerary.title')}</h1>
           <p className="text-sm md:text-base opacity-90 mb-5">
             {selectedNeighbourhood
-              ? `Experiences in ${selectedNeighbourhood}`
+              ? `${t('itinerary.title')} — ${selectedNeighbourhood}`
               : selectedVibes.length > 0
-              ? 'Filtered by vibe'
-              : activeCat ? activeCat.tagline : 'Find your next adventure in Québec City'}
+              ? t('itinerary.vibe')
+              : activeCat ? activeCat.tagline : t('itinerary.subtitle')}
           </p>
 
           {/* Scrollable category filter strip */}
@@ -152,7 +154,7 @@ export function ItineraryScreen() {
                 filter === 'all' ? 'bg-white text-foreground shadow-sm' : 'bg-white/20 hover:bg-white/30'
               }`}
             >
-              All
+              {t('itinerary.all')}
             </button>
             {EXPERIENCE_CATEGORIES.map(cat => {
               const meta = TIER_META[cat.id];
@@ -178,19 +180,19 @@ export function ItineraryScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
         <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base md:text-lg">Explore by vibe or neighbourhood</h2>
+            <h2 className="text-base md:text-lg">{t('itinerary.filterPrompt')}</h2>
             {hasFilter && (
               <button
                 onClick={clearAll}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
               >
-                Clear all
+                {t('itinerary.clearAll')}
               </button>
             )}
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Vibe</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
             <div className="flex flex-wrap gap-2">
               {VIBE_OPTIONS.map(v => {
                 const active = selectedVibes.includes(v);
@@ -210,7 +212,7 @@ export function ItineraryScreen() {
           </div>
 
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Neighbourhood</p>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
             <div className="flex flex-wrap gap-2">
               {NEIGHBOURHOOD_OPTIONS.map(n => {
                 const active = selectedNeighbourhood === n;

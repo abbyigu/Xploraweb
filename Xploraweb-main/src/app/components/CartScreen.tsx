@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { SimpleFooter } from './SimpleFooter';
 import { useNavigate } from 'react-router';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function CartScreen() {
   const { items, removeItem, updateQuantity, clearCart, total, count } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
@@ -53,18 +55,18 @@ export function CartScreen() {
       <div className="min-h-screen pb-24 md:pb-8 bg-background flex flex-col">
         <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
           <div className="max-w-4xl mx-auto">
-            <h1 className="text-2xl md:text-3xl mb-1">Your Cart</h1>
-            <p className="text-sm opacity-90">0 items</p>
+            <h1 className="text-2xl md:text-3xl mb-1">{t('cart.title')}</h1>
+            <p className="text-sm opacity-90">0 {t('cart.items')}</p>
           </div>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center gap-4 px-6 text-center">
           <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center">
             <ShoppingBag className="w-10 h-10 text-muted-foreground" />
           </div>
-          <h2 className="text-xl">Your cart is empty</h2>
-          <p className="text-muted-foreground text-sm max-w-xs">Add experiences, merch, or a membership to get started.</p>
+          <h2 className="text-xl">{t('cart.empty')}</h2>
+          <p className="text-muted-foreground text-sm max-w-xs">{t('cart.emptyDesc')}</p>
           <button onClick={() => navigate('/itinerary')} className="mt-2 bg-primary text-primary-foreground px-6 py-3 rounded-xl hover:opacity-90 transition-opacity">
-            Browse Experiences
+            {t('cart.browse')}
           </button>
         </div>
         <SimpleFooter />
@@ -76,8 +78,8 @@ export function CartScreen() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Your Cart</h1>
-          <p className="text-sm opacity-90">{count} {count === 1 ? 'item' : 'items'}</p>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('cart.title')}</h1>
+          <p className="text-sm opacity-90">{count} {t('cart.items')}</p>
         </div>
       </div>
 
@@ -114,9 +116,8 @@ export function CartScreen() {
           </div>
         ))}
 
-        {/* Order summary */}
         <div className="bg-card rounded-2xl border border-border p-5 space-y-3">
-          <h3 className="text-lg">Order Summary</h3>
+          <h3 className="text-lg">{t('cart.orderSummary')}</h3>
           <div className="space-y-2 text-sm">
             {items.map(item => (
               <div key={item.id} className="flex justify-between text-muted-foreground">
@@ -126,7 +127,7 @@ export function CartScreen() {
             ))}
           </div>
           <div className="border-t border-border pt-3 flex justify-between font-medium">
-            <span>Total (CAD)</span>
+            <span>{t('cart.total')}</span>
             <span>${(total / 100).toFixed(2)}</span>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -135,9 +136,9 @@ export function CartScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60 font-medium"
           >
-            {loading ? 'Redirecting to Stripe…' : 'Checkout with Stripe'}
+            {loading ? 'Redirecting to Stripe…' : t('cart.checkout')}
           </button>
-          <p className="text-xs text-center text-muted-foreground">🔒 Secure payment powered by Stripe</p>
+          <p className="text-xs text-center text-muted-foreground">{t('cart.secure')}</p>
         </div>
       </div>
 

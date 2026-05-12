@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import { XploraLogo } from './XploraLogo';
 import { useExperiences } from '../hooks/useExperiences';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
+import { useTranslation } from 'react-i18next';
 
 interface PendingReview {
   id: string; experience_id: string; rating: number; comment: string | null;
@@ -25,6 +26,7 @@ function getInitials(name: string): string {
 
 export function AccountScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { experiences } = useExperiences();
   const [purchasedIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
@@ -187,7 +189,7 @@ export function AccountScreen() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-muted-foreground">Loading your profile...</p>
+        <p className="text-muted-foreground">{t('account.loading')}</p>
       </div>
     );
   }
@@ -204,21 +206,21 @@ export function AccountScreen() {
             <User className="w-9 h-9 text-muted-foreground" />
           </div>
 
-          <h1 className="text-2xl mb-2">Your Account</h1>
-          <p className="text-muted-foreground mb-8">Sign in to access your profile, saved itineraries, and perks.</p>
+          <h1 className="text-2xl mb-2">{t('account.title')}</h1>
+          <p className="text-muted-foreground mb-8">{t('account.guestPrompt')}</p>
 
           <div className="space-y-3">
             <button
               onClick={() => navigate('/login')}
               className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity font-medium"
             >
-              Log In
+              {t('account.logIn')}
             </button>
             <button
               onClick={() => navigate('/signup')}
               className="w-full border border-border py-3 rounded-xl hover:bg-muted transition-colors font-medium"
             >
-              Create Account
+              {t('account.createAccount')}
             </button>
           </div>
 
@@ -226,9 +228,9 @@ export function AccountScreen() {
             className="mt-6 bg-primary/10 border border-primary/20 rounded-2xl p-4 text-center cursor-pointer hover:bg-primary/15 transition-colors"
             onClick={() => navigate('/membership')}
           >
-            <p className="text-sm font-medium text-primary mb-0.5">Club Membership</p>
-            <p className="text-xs text-muted-foreground">Early access · Guest passes · Members-only 5 à 7</p>
-            <p className="text-xs text-primary mt-2 underline underline-offset-2">From $10/month →</p>
+            <p className="text-sm font-medium text-primary mb-0.5">{t('account.membership')}</p>
+            <p className="text-xs text-muted-foreground">{t('account.membershipSub')}</p>
+            <p className="text-xs text-primary mt-2 underline underline-offset-2">{t('account.membershipPrice')}</p>
           </div>
         </div>
       </div>
@@ -281,7 +283,7 @@ export function AccountScreen() {
                   activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
                 }`}
               >
-                {tab === 'profile' ? 'Profile & Settings' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === 'profile' ? t('account.profileTab') : tab === 'preferences' ? t('account.preferencesTab') : t('account.savedTab')}
               </button>
             ))}
             {(profile as any).is_admin && (
@@ -300,26 +302,26 @@ export function AccountScreen() {
         {activeTab === 'profile' && (
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-4 border border-border">
-              <h3 className="text-lg mb-4">Personal Information</h3>
+              <h3 className="text-lg mb-4">{t('account.personalInfo')}</h3>
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1">Full Name</label>
+                  <label className="block text-sm text-muted-foreground mb-1">{t('account.fullName')}</label>
                   <input type="text" value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
                     className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your full name" />
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1">Email</label>
+                  <label className="block text-sm text-muted-foreground mb-1">{t('account.email')}</label>
                   <input type="email" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
                     className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="your@email.com" />
                 </div>
                 <div>
-                  <label className="block text-sm text-muted-foreground mb-1">Location</label>
+                  <label className="block text-sm text-muted-foreground mb-1">{t('account.location')}</label>
                   <input type="text" value={profile.location} onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
                     className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Quebec City, QC" />
                 </div>
               </div>
               <button onClick={handleSaveProfile} className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
-                {saved ? '✓ Saved!' : 'Save Changes'}
+                {saved ? t('account.saved') : t('account.saveChanges')}
               </button>
             </div>
 
@@ -329,13 +331,13 @@ export function AccountScreen() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2">
                     <Building2 className="w-5 h-5 text-secondary" />
-                    <h3 className="text-lg">Your Business</h3>
+                    <h3 className="text-lg">{t('account.yourBusiness')}</h3>
                   </div>
                   <button
                     onClick={() => navigate('/business/dashboard')}
                     className="flex items-center gap-1.5 text-sm text-secondary hover:underline"
                   >
-                    Dashboard <ExternalLink className="w-3.5 h-3.5" />
+                    {t('account.dashboard')} <ExternalLink className="w-3.5 h-3.5" />
                   </button>
                 </div>
                 <div className="space-y-3">
@@ -360,8 +362,8 @@ export function AccountScreen() {
                       <span className={`w-2 h-2 rounded-full ${profile.stripe_connect_onboarded ? 'bg-green-500' : 'bg-amber-400'}`} />
                       <p className="text-sm">
                         {profile.stripe_connect_onboarded
-                          ? 'Stripe Connected — ready to accept payments'
-                          : 'Stripe not connected — go to dashboard to set up'}
+                          ? t('account.stripeConnected')
+                          : t('account.stripeNotConnected')}
                       </p>
                     </div>
                   </div>
@@ -373,15 +375,15 @@ export function AccountScreen() {
               {/* Notifications */}
               <div className="bg-card rounded-xl border border-border overflow-hidden">
                 <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
-                  <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>Notifications</span></div>
+                  <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>{t('account.notifications')}</span></div>
                   {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
                 {openSection === 'notifications' && (
                   <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
                     {([
-                      { key: 'email', label: 'Email notifications' },
-                      { key: 'push', label: 'Push notifications' },
-                      { key: 'newsletter', label: 'Newsletter' },
+                      { key: 'email', label: t('account.emailNotifs') },
+                      { key: 'push', label: t('account.pushNotifs') },
+                      { key: 'newsletter', label: t('account.newsletter') },
                     ] as const).map(({ key, label }) => (
                       <label key={key} className="flex items-center justify-between text-sm">
                         <span>{label}</span>
@@ -395,13 +397,13 @@ export function AccountScreen() {
               {/* Privacy & Security */}
               <div className="bg-card rounded-xl border border-border overflow-hidden">
                 <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
-                  <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>Privacy & Security</span></div>
+                  <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>{t('account.privacySecurity')}</span></div>
                   {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
                 {openSection === 'privacy' && (
                   <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
                     <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                      {passwordEmailSent ? '✓ Reset email sent — check your inbox' : 'Change Password'}
+                      {passwordEmailSent ? t('account.passwordSent') : t('account.changePassword')}
                     </button>
                   </div>
                 )}
@@ -412,14 +414,14 @@ export function AccountScreen() {
                 onClick={() => navigate('/membership')}
               >
                 <div>
-                  <p className="text-sm font-medium text-primary">Club Membership</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Early access · Guest passes · 5 à 7</p>
+                  <p className="text-sm font-medium text-primary">{t('account.membership')}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t('account.membershipSub')}</p>
                 </div>
-                <span className="text-sm text-primary font-medium">$10/mo →</span>
+                <span className="text-sm text-primary font-medium">{t('account.membershipPrice')}</span>
               </div>
 
               <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
-                <LogOut className="w-5 h-5" /><span>Log Out</span>
+                <LogOut className="w-5 h-5" /><span>{t('account.logOut')}</span>
               </button>
             </div>
           </div>
@@ -428,7 +430,7 @@ export function AccountScreen() {
         {activeTab === 'preferences' && (
           <div className="space-y-4">
             <div className="bg-card rounded-xl p-4 border border-border">
-              <h3 className="text-lg mb-4">Your Interests</h3>
+              <h3 className="text-lg mb-4">{t('account.interests')}</h3>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {interestOptions.map((interest) => (
                   <button key={interest} onClick={() => toggleInterest(interest)}
@@ -443,11 +445,10 @@ export function AccountScreen() {
             </div>
 
             <div className="bg-card rounded-xl p-4 border border-border">
-              <h3 className="text-lg mb-4">Exploration Preferences</h3>
               <div className="space-y-3">
-                <label className="flex items-center justify-between"><span>Show me hidden gems</span><input type="checkbox" defaultChecked className="rounded" /></label>
-                <label className="flex items-center justify-between"><span>Include family-friendly activities</span><input type="checkbox" defaultChecked className="rounded" /></label>
-                <label className="flex items-center justify-between"><span>Budget-friendly options only</span><input type="checkbox" className="rounded" /></label>
+                <label className="flex items-center justify-between"><span>{t('account.showHiddenGems')}</span><input type="checkbox" defaultChecked className="rounded" /></label>
+                <label className="flex items-center justify-between"><span>{t('account.familyFriendly')}</span><input type="checkbox" defaultChecked className="rounded" /></label>
+                <label className="flex items-center justify-between"><span>{t('account.budgetFriendly')}</span><input type="checkbox" className="rounded" /></label>
               </div>
             </div>
           </div>
@@ -463,13 +464,13 @@ export function AccountScreen() {
 
               {/* My Experiences */}
               <div>
-                <h3 className="text-xl mb-4">My Experiences</h3>
+                <h3 className="text-xl mb-4">{t('account.myExperiences')}</h3>
                 {bookedExps.length === 0 ? (
                   <div className="bg-card border border-border rounded-2xl p-6 text-center">
                     <Map className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-sm text-muted-foreground">Experiences you book will appear here with their map and itinerary.</p>
+                    <p className="text-sm text-muted-foreground">{t('account.noExperiences')}</p>
                     <button onClick={() => navigate('/itinerary')} className="mt-4 text-sm text-primary hover:underline">
-                      Browse experiences →
+                      {t('account.browseExperiences')}
                     </button>
                   </div>
                 ) : (
@@ -508,7 +509,7 @@ export function AccountScreen() {
                               {/* Meeting point / map */}
                               {exp.meetingPoint && (
                                 <div>
-                                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Meeting Point</p>
+                                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('account.meetingPoint')}</p>
                                   <div className="flex items-start gap-3 bg-muted/30 rounded-xl p-3">
                                     <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                                     <div>
@@ -519,7 +520,7 @@ export function AccountScreen() {
                                         rel="noopener noreferrer"
                                         className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1"
                                       >
-                                        Open in Maps <ExternalLink className="w-3 h-3" />
+                                        {t('account.openMaps')} <ExternalLink className="w-3 h-3" />
                                       </a>
                                     </div>
                                   </div>
@@ -560,9 +561,9 @@ export function AccountScreen() {
 
               {/* Saved Itineraries */}
               <div>
-                <h3 className="text-xl mb-4">Saved Itineraries</h3>
+                <h3 className="text-xl mb-4">{t('account.savedItineraries')}</h3>
                 {savedItineraries.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">No saved itineraries yet.</p>
+                  <p className="text-sm text-muted-foreground py-2">{t('account.noItineraries')}</p>
                 ) : (
                   <div className="space-y-3">
                     {savedItineraries.map((item) => (
@@ -582,16 +583,16 @@ export function AccountScreen() {
 
               {/* Saved Perks */}
               <div>
-                <h3 className="text-xl mb-4">Saved Perks</h3>
+                <h3 className="text-xl mb-4">{t('account.savedPerks')}</h3>
                 {savedPerks.length === 0 ? (
-                  <p className="text-sm text-muted-foreground py-2">No saved perks yet.</p>
+                  <p className="text-sm text-muted-foreground py-2">{t('account.noPerks')}</p>
                 ) : (
                   <div className="space-y-3">
                     {savedPerks.map((perk) => (
                       <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
                         <div className="flex items-center gap-3">
                           <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
-                          <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · Valid until {perk.validUntil}</p></div>
+                          <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · {t('account.validUntil')} {perk.validUntil}</p></div>
                         </div>
                         <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
                           <X className="w-4 h-4" />
@@ -610,18 +611,18 @@ export function AccountScreen() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="flex gap-1 bg-muted rounded-xl p-1">
-                {(['experiences', 'reviews', 'archive'] as const).map(t => (
-                  <button key={t} onClick={() => setAdminTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${adminTab === t ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                    {t === 'reviews' && <MessageSquare className="w-3.5 h-3.5" />}
-                    {t === 'archive' && <Archive className="w-3.5 h-3.5" />}
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                    {t === 'reviews' && pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>}
-                    {t === 'archive' && archivedExps.length > 0 && <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{archivedExps.length}</span>}
+                {(['experiences', 'reviews', 'archive'] as const).map(tabKey => (
+                  <button key={tabKey} onClick={() => setAdminTab(tabKey)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${adminTab === tabKey ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {tabKey === 'reviews' && <MessageSquare className="w-3.5 h-3.5" />}
+                    {tabKey === 'archive' && <Archive className="w-3.5 h-3.5" />}
+                    {tabKey.charAt(0).toUpperCase() + tabKey.slice(1)}
+                    {tabKey === 'reviews' && pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>}
+                    {tabKey === 'archive' && archivedExps.length > 0 && <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{archivedExps.length}</span>}
                   </button>
                 ))}
               </div>
               <button onClick={() => navigate('/dashboard')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-                <LayoutDashboard className="w-4 h-4" /> Full dashboard
+                <LayoutDashboard className="w-4 h-4" /> {t('account.fullDashboard')}
               </button>
             </div>
 

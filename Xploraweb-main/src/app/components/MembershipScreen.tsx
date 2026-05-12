@@ -3,26 +3,28 @@ import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const PRICE_IDS = {
   monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
   yearly: 'price_1TTkTaLXjgh0xxiruBF7GyMg',
 };
 
-const perks = [
-  { icon: '🎟️', text: 'Early access to all experiences (48h priority)' },
-  { icon: '💸', text: 'Member-only pricing on events' },
-  { icon: '👫', text: '1 free guest pass every month' },
-  { icon: '🍸', text: 'Monthly members-only 5 à 7' },
-  { icon: '🔓', text: 'Insider perks & local deals' },
-  { icon: '🎁', text: 'Surprise upgrades & freebies' },
-];
-
 export function MembershipScreen() {
+  const { t } = useTranslation();
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const perks = [
+    { icon: '🎟️', text: t('membership.earlyAccess') },
+    { icon: '💸', text: t('membership.memberPricing') },
+    { icon: '👫', text: t('membership.guestPass') },
+    { icon: '🍸', text: t('membership.fiveASept') },
+    { icon: '🔓', text: t('membership.perks') },
+    { icon: '🎁', text: t('membership.surprises') },
+  ];
 
   const handleSubscribe = async () => {
     setLoading(true);
@@ -64,10 +66,8 @@ export function MembershipScreen() {
               <Star className="w-6 h-6 fill-current" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl mb-2">Xplora Membership</h1>
-          <p className="text-sm md:text-base opacity-90">
-            Your key to Québec City's best-kept secrets
-          </p>
+          <h1 className="text-3xl md:text-4xl lg:text-5xl mb-2">{t('membership.title')}</h1>
+          <p className="text-sm md:text-base opacity-90">{t('membership.subtitle')}</p>
         </div>
       </div>
 
@@ -79,14 +79,14 @@ export function MembershipScreen() {
             onClick={() => setBilling('monthly')}
             className={`px-5 py-2 rounded-full text-sm transition-all ${billing === 'monthly' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
           >
-            Monthly
+            {t('membership.monthly')}
           </button>
           <button
             onClick={() => setBilling('yearly')}
             className={`px-5 py-2 rounded-full text-sm transition-all flex items-center gap-2 ${billing === 'yearly' ? 'bg-background shadow text-foreground' : 'text-muted-foreground'}`}
           >
-            Yearly
-            <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full">Save $20</span>
+            {t('membership.yearly')}
+            <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full">{t('membership.save')}</span>
           </button>
         </div>
 
@@ -102,7 +102,7 @@ export function MembershipScreen() {
               <>
                 <span className="text-5xl font-serif">$100</span>
                 <span className="text-muted-foreground text-lg">/year</span>
-                <p className="text-sm text-secondary mt-1">That's $8.33/month — 2 months free</p>
+                <p className="text-sm text-secondary mt-1">{t('membership.yearlyDetail')}</p>
               </>
             )}
           </div>
@@ -114,14 +114,14 @@ export function MembershipScreen() {
             disabled={loading}
             className="mt-6 w-full bg-primary text-primary-foreground py-4 rounded-2xl text-base font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
           >
-            {loading ? 'Redirecting…' : `Join for ${billing === 'monthly' ? '$10/month' : '$100/year'}`}
+            {loading ? 'Redirecting…' : t(billing === 'monthly' ? 'membership.joinMonthly' : 'membership.joinYearly')}
           </button>
-          <p className="text-xs text-muted-foreground mt-3">Cancel anytime. No commitment.</p>
+          <p className="text-xs text-muted-foreground mt-3">{t('membership.cancel')}</p>
         </div>
 
         {/* Perks list */}
         <div className="bg-card border border-border rounded-3xl p-6 md:p-8 space-y-4">
-          <h2 className="text-lg mb-2">What's included</h2>
+          <h2 className="text-lg mb-2">{t('membership.whatsIncluded')}</h2>
           {perks.map((perk) => (
             <div key={perk.text} className="flex items-start gap-3">
               <span className="text-xl leading-none mt-0.5">{perk.icon}</span>
@@ -132,9 +132,9 @@ export function MembershipScreen() {
 
         {/* Already a member? */}
         <p className="text-center text-sm text-muted-foreground">
-          Already a member?{' '}
+          {t('membership.alreadyMember')}{' '}
           <button onClick={() => navigate('/login')} className="text-primary underline underline-offset-2">
-            Log in
+            {t('membership.logIn')}
           </button>
         </p>
 
@@ -143,7 +143,7 @@ export function MembershipScreen() {
           onClick={() => navigate('/members')}
           className="w-full border border-border rounded-2xl py-3 text-sm text-muted-foreground hover:bg-muted/40 transition-colors"
         >
-          View perks & social events →
+          {t('membership.viewPerks')}
         </button>
       </div>
 

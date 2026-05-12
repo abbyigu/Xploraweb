@@ -4,9 +4,11 @@ import { SimpleFooter } from './SimpleFooter';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
+import { useTranslation } from 'react-i18next';
 
 function Paywall() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const previewPerks = [
     { title: "Secret dessert menu unlocked", venue: "Café Névé", image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
     { title: "First sip on us", venue: "Le Perché Rooftop", image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600" },
@@ -17,13 +19,12 @@ function Paywall() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">Xplora Perks</h1>
-          <p className="text-sm opacity-90">Insider access to places you won't find anywhere else</p>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('perks.title')}</h1>
+          <p className="text-sm opacity-90">{t('perks.subtitle')}</p>
         </div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 relative">
-        {/* Blurred preview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 blur-sm pointer-events-none select-none">
           {previewPerks.map((perk, i) => (
             <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
@@ -44,15 +45,15 @@ function Paywall() {
             <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
               <Lock className="w-8 h-8 text-primary" />
             </div>
-            <h2 className="text-xl mb-2">Members Only</h2>
+            <h2 className="text-xl mb-2">{t('perks.membersOnly')}</h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Xplora Perks are exclusive to members. Join to unlock insider access to hidden menus, skip-the-line passes, and more.
+              {t('perks.joinPrompt')}
             </p>
             <button onClick={() => navigate('/membership')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
-              Join — $10/month
+              {t('perks.join')}
             </button>
             <button onClick={() => navigate('/login')} className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Already a member? Log in
+              {t('perks.alreadyMember')}
             </button>
           </div>
         </div>
@@ -129,6 +130,7 @@ const STATIC_PERKS = [
 ];
 
 export function PerksScreen() {
+  const { t } = useTranslation();
   const [authStatus, setAuthStatus] = useState<'loading' | 'member' | 'guest'>('loading');
   const [businessPerks, setBusinessPerks] = useState<any[]>([]);
   const [buyingId, setBuyingId] = useState<string | null>(null);
@@ -204,17 +206,17 @@ export function PerksScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
           <div className="mb-4">
-            <h1 className="text-2xl md:text-3xl mb-1">Xplora Perks</h1>
-            <p className="text-sm md:text-base opacity-90">Insider access to places you won't find anywhere else</p>
+            <h1 className="text-2xl md:text-3xl mb-1">{t('perks.title')}</h1>
+            <p className="text-sm md:text-base opacity-90">{t('perks.subtitle')}</p>
           </div>
 
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 md:p-6 flex items-center justify-between max-w-2xl">
             <div>
-              <p className="text-sm md:text-base opacity-90">Active</p>
+              <p className="text-sm md:text-base opacity-90">{t('perks.active')}</p>
               <p className="text-2xl md:text-3xl font-serif">{unlockedPerks.length}</p>
             </div>
             <div>
-              <p className="text-sm md:text-base opacity-90">Coming Soon</p>
+              <p className="text-sm md:text-base opacity-90">{t('perks.comingSoon')}</p>
               <p className="text-2xl md:text-3xl font-serif">{lockedPerks.length}</p>
             </div>
             <Sparkles className="w-10 h-10 md:w-12 md:h-12 opacity-50" />
@@ -225,7 +227,7 @@ export function PerksScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 md:space-y-12">
         {unlockedPerks.length > 0 && (
           <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Ready for You</h2>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('perks.ready')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {unlockedPerks.map((perk) => (
                 <div
@@ -262,7 +264,7 @@ export function PerksScreen() {
                           disabled={buyingId === perk.rawId || perk.spots_remaining === 0}
                           className="bg-secondary text-secondary-foreground px-4 py-1.5 rounded-full text-xs font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
                         >
-                          {buyingId === perk.rawId ? '…' : perk.spots_remaining === 0 ? 'Sold out' : `Buy — $${((perk.price_cents || 0) / 100).toFixed(0)}`}
+                          {buyingId === perk.rawId ? '…' : perk.spots_remaining === 0 ? t('perks.soldOut') : `${t('perks.buy')}${((perk.price_cents || 0) / 100).toFixed(0)}`}
                         </button>
                       )}
                     </div>
@@ -275,7 +277,7 @@ export function PerksScreen() {
 
         {lockedPerks.length > 0 && (
           <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Unlock More</h2>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('perks.unlock')}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {lockedPerks.map((perk) => (
                 <div

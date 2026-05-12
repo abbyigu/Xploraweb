@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
 const KIT_FORM_UID = '361503f84f';
@@ -25,6 +26,7 @@ async function subscribeToNewsletter(email: string, firstName: string) {
 
 export function SignupScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [newsletter, setNewsletter] = useState(true);
   const [error, setError] = useState('');
@@ -35,7 +37,7 @@ export function SignupScreen() {
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('signup.passwordMismatch'));
       return;
     }
 
@@ -54,7 +56,6 @@ export function SignupScreen() {
       return;
     }
 
-    // Save initial profile (linked to the new user's ID)
     const userId = signUpData?.user?.id;
     if (userId) {
       await supabase.from('profiles').upsert({
@@ -82,8 +83,8 @@ export function SignupScreen() {
           <div className="flex justify-center mb-6">
             <XploraLogo variant="full" className="h-16" />
           </div>
-          <h1 className="text-3xl mb-2">Create Your Account</h1>
-          <p className="text-muted-foreground">Start exploring like a local</p>
+          <h1 className="text-3xl mb-2">{t('signup.title')}</h1>
+          <p className="text-muted-foreground">{t('signup.subtitle')}</p>
         </div>
 
         {error && (
@@ -94,7 +95,7 @@ export function SignupScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">Full Name</label>
+            <label className="block text-sm mb-2">{t('signup.fullName')}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -102,14 +103,14 @@ export function SignupScreen() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="Your full name"
+                placeholder={t('signup.fullNamePlaceholder')}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Email</label>
+            <label className="block text-sm mb-2">{t('signup.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -117,14 +118,14 @@ export function SignupScreen() {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
-                placeholder="you@example.com"
+                placeholder={t('signup.emailPlaceholder')}
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Password</label>
+            <label className="block text-sm mb-2">{t('signup.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -139,7 +140,7 @@ export function SignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">Confirm Password</label>
+            <label className="block text-sm mb-2">{t('signup.confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
@@ -160,9 +161,7 @@ export function SignupScreen() {
               onChange={(e) => setNewsletter(e.target.checked)}
               className="mt-1 rounded border-border accent-primary"
             />
-            <span className="text-sm text-muted-foreground">
-              Subscribe to the Xplora newsletter — slow travel tips, Quebec hidden gems &amp; exclusive deals. Unsubscribe anytime.
-            </span>
+            <span className="text-sm text-muted-foreground">{t('signup.newsletterConsent')}</span>
           </label>
 
           <button
@@ -170,13 +169,13 @@ export function SignupScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity mt-6 disabled:opacity-60"
           >
-            {loading ? 'Creating account...' : 'Create Account'}
+            {loading ? t('signup.creating') : t('signup.createAccount')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          Already have an account?{' '}
-          <Link to="/login" className="text-primary hover:underline">Sign in</Link>
+          {t('signup.hasAccount')}{' '}
+          <Link to="/login" className="text-primary hover:underline">{t('signup.signIn')}</Link>
         </p>
       </div>
     </div>

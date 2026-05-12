@@ -3,9 +3,11 @@ import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 export function BusinessLoginScreen() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -21,7 +23,7 @@ export function BusinessLoginScreen() {
     });
 
     if (signInError) {
-      setError('Invalid email or password.');
+      setError(t('business.invalidCredentials'));
       setLoading(false);
       return;
     }
@@ -38,10 +40,10 @@ export function BusinessLoginScreen() {
             <XploraLogo variant="full" className="h-14" />
           </div>
           <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs mb-3">
-            <Building2 className="w-3.5 h-3.5" /> Business Account
+            <Building2 className="w-3.5 h-3.5" /> {t('business.loginTitle')}
           </div>
-          <h1 className="text-2xl mb-1">Partner Sign In</h1>
-          <p className="text-sm text-muted-foreground">Manage your perks and offers</p>
+          <h1 className="text-2xl mb-1">{t('business.loginSubtitle')}</h1>
+          <p className="text-sm text-muted-foreground">{t('business.loginDesc')}</p>
         </div>
 
         {error && (
@@ -50,7 +52,7 @@ export function BusinessLoginScreen() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1.5">Email</label>
+            <label className="block text-sm mb-1.5">{t('business.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -65,7 +67,7 @@ export function BusinessLoginScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">Password</label>
+            <label className="block text-sm mb-1.5">{t('business.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -84,17 +86,17 @@ export function BusinessLoginScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60 text-sm"
           >
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? 'Signing in…' : t('business.signIn')}
           </button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground mt-6">
-          New partner?{' '}
-          <Link to="/business/signup" className="text-primary hover:underline">Create a business account</Link>
+          {t('business.newPartner')}{' '}
+          <Link to="/business/signup" className="text-primary hover:underline">{t('business.createBusinessAccount')}</Link>
         </p>
         <p className="text-center text-sm text-muted-foreground mt-2">
-          Looking for your personal account?{' '}
-          <Link to="/login" className="text-primary hover:underline">Member sign in</Link>
+          {t('business.lookingPersonal')}{' '}
+          <Link to="/login" className="text-primary hover:underline">{t('business.memberSignIn')}</Link>
         </p>
       </div>
     </div>

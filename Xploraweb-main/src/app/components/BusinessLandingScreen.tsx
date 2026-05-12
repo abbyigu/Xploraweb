@@ -4,6 +4,7 @@ import { ArrowRight, CheckCircle, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
+import { useTranslation } from 'react-i18next';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -33,7 +34,7 @@ function ExplorerBanner() {
           <span className="font-semibold text-white">
             {count !== null ? `${count.toLocaleString()}+` : '...'}
           </span>{' '}
-          explorers discovering Québec City
+          explorers
         </p>
       </div>
     </div>
@@ -41,6 +42,7 @@ function ExplorerBanner() {
 }
 
 export function BusinessLandingScreen() {
+  const { t } = useTranslation();
   const steps = [
     {
       step: '1',
@@ -90,10 +92,10 @@ export function BusinessLandingScreen() {
           </div>
           <div className="max-w-3xl mx-auto text-center space-y-5">
             <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-1.5 rounded-full text-sm">
-              <Building2 className="w-4 h-4" /> Partner Program
+              <Building2 className="w-4 h-4" /> {t('business.landingTitle')}
             </div>
             <h1 className="text-3xl md:text-5xl leading-tight">
-              Reach Québec City explorers<br />who actually show up
+              {t('business.landingSubtitle')}
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
               Xplora members are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
@@ -103,14 +105,14 @@ export function BusinessLandingScreen() {
                 to="/business/signup"
                 className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                Create Business Account
+                {t('business.createAccount')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
               <Link
                 to="/business/login"
                 className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
               >
-                Sign In
+                {t('business.signIn')}
               </Link>
             </div>
           </div>
@@ -122,8 +124,8 @@ export function BusinessLandingScreen() {
       {/* How it works */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl mb-3">How it works</h2>
-          <p className="text-muted-foreground">Up and running in minutes, not weeks</p>
+          <h2 className="text-3xl md:text-4xl mb-3">{t('business.howItWorks')}</h2>
+          <p className="text-muted-foreground">{t('business.howItWorksDesc')}</p>
         </div>
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((s) => (
@@ -166,7 +168,7 @@ export function BusinessLandingScreen() {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-12 md:items-center">
             <div className="flex-1 space-y-6">
-              <h2 className="text-3xl md:text-4xl">Why partner with Xplora?</h2>
+              <h2 className="text-3xl md:text-4xl">{t('business.whyPartner')}</h2>
               <ul className="space-y-3">
                 {benefits.map((b) => (
                   <li key={b} className="flex items-start gap-3 text-sm">
@@ -179,12 +181,12 @@ export function BusinessLandingScreen() {
                 to="/business/signup"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-2xl text-sm hover:opacity-90 transition-opacity"
               >
-                Get Started — It's Free
+                {t('business.getStarted')}
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
             <div className="flex-shrink-0 bg-card border border-border rounded-3xl p-8 w-full md:w-80 space-y-6">
-              <h3 className="text-lg">What kind of perk works?</h3>
+              <h3 className="text-lg">{t('business.whatKindOfPerk')}</h3>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 {[
                   '🍸 First drink on us',
@@ -207,14 +209,14 @@ export function BusinessLandingScreen() {
       {/* Who can partner */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
         <div className="text-center mb-10">
-          <h2 className="text-3xl md:text-4xl mb-3">Who we partner with</h2>
-          <p className="text-muted-foreground">Any Québec City business with a great offer</p>
+          <h2 className="text-3xl md:text-4xl mb-3">{t('business.whoWePartner')}</h2>
+          <p className="text-muted-foreground">{t('business.anyBusiness')}</p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {partnerTypes.map((t) => (
-            <div key={t.label} className="bg-card border border-border rounded-2xl p-5 text-center space-y-2">
-              <div className="text-3xl">{t.icon}</div>
-              <p className="text-sm text-muted-foreground">{t.label}</p>
+          {partnerTypes.map((pt) => (
+            <div key={pt.label} className="bg-card border border-border rounded-2xl p-5 text-center space-y-2">
+              <div className="text-3xl">{pt.icon}</div>
+              <p className="text-sm text-muted-foreground">{pt.label}</p>
             </div>
           ))}
         </div>
@@ -225,7 +227,7 @@ export function BusinessLandingScreen() {
         <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Discovery</p>
-            <h2 className="text-xl md:text-2xl mb-2">Explore by vibe or neighbourhood</h2>
+            <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
             <p className="text-sm text-muted-foreground max-w-lg">Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it.</p>
           </div>
           <div>
@@ -250,13 +252,13 @@ export function BusinessLandingScreen() {
       {/* Final CTA */}
       <div className="bg-primary text-primary-foreground py-16 md:py-20">
         <div className="max-w-2xl mx-auto px-6 md:px-8 text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl">Ready to reach Xplora members?</h2>
+          <h2 className="text-3xl md:text-4xl">{t('business.readyToReach')}</h2>
           <p className="opacity-80">Create your free business account and submit your first perk today.</p>
           <Link
             to="/business/signup"
             className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary rounded-2xl text-base font-medium hover:opacity-90 transition-opacity"
           >
-            Create Business Account
+            {t('business.createAccount')}
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

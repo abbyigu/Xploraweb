@@ -2,11 +2,13 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { MapPin, Compass, Users, Tag, ArrowRight } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
+import { useTranslation } from 'react-i18next';
 
 export function WelcomeScreen() {
   const [step, setStep] = useState(0);
   const [selectedCity, setSelectedCity] = useState('');
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const cities = [
     'Quebec City, QC',
@@ -19,18 +21,18 @@ export function WelcomeScreen() {
   const features = [
     {
       icon: Compass,
-      title: 'Curated Experiences',
-      description: 'Discover hidden gems and local favorites tailored to your interests',
+      title: t('welcome.curatedTitle'),
+      description: t('welcome.curatedDesc'),
     },
     {
       icon: Users,
-      title: 'Meet Locals',
-      description: 'Connect with people at 5 à 7 meetups and social events',
+      title: t('welcome.meetTitle'),
+      description: t('welcome.meetDesc'),
     },
     {
       icon: Tag,
-      title: 'Exclusive Deals',
-      description: 'Unlock special offers at restaurants, bars, and attractions',
+      title: t('welcome.dealsTitle'),
+      description: t('welcome.dealsDesc'),
     },
   ];
 
@@ -50,9 +52,9 @@ export function WelcomeScreen() {
             </div>
 
             <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl">Welcome to Xplora</h1>
+              <h1 className="text-4xl md:text-5xl">{t('welcome.title')}</h1>
               <p className="text-xl text-muted-foreground">
-                Your guide to authentic local experiences
+                {t('welcome.subtitle')}
               </p>
             </div>
 
@@ -77,7 +79,7 @@ export function WelcomeScreen() {
               onClick={() => setStep(1)}
               className="w-full bg-primary text-primary-foreground py-4 rounded-2xl text-lg hover:opacity-90 transition-opacity flex items-center justify-center gap-2 mt-8"
             >
-              Get Started
+              {t('welcome.getStarted')}
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
@@ -86,9 +88,9 @@ export function WelcomeScreen() {
         {step === 1 && (
           <div className="text-center space-y-8 animate-fade-in">
             <div className="space-y-4">
-              <h2 className="text-3xl md:text-4xl">Where are you exploring?</h2>
+              <h2 className="text-3xl md:text-4xl">{t('welcome.whereExploring')}</h2>
               <p className="text-lg text-muted-foreground">
-                Choose your city to get personalized recommendations
+                {t('welcome.cityPrompt')}
               </p>
             </div>
 
@@ -125,7 +127,7 @@ export function WelcomeScreen() {
                   : 'bg-muted text-muted-foreground cursor-not-allowed'
               }`}
             >
-              Start Exploring
+              {t('welcome.startExploring')}
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
