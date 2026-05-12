@@ -230,7 +230,7 @@ export function AccountScreen() {
                 {tab === 'profile' ? 'Profile & Settings' : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
-            {(profile as any).is_admin && (
+            {profile.email === 'arielb.simons@gmail.com' && (
               <button
                 onClick={() => setActiveTab('admin')}
                 className={`pb-3 px-1 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
@@ -552,7 +552,7 @@ export function AccountScreen() {
           );
         })()}
 
-        {activeTab === 'admin' && (profile as any).is_admin && (
+        {activeTab === 'admin' && profile.email === 'arielb.simons@gmail.com' && (
           <div className="space-y-4">
             <div
               className="bg-card border border-border rounded-2xl p-6 flex items-center justify-between cursor-pointer hover:bg-muted transition-colors"
