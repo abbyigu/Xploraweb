@@ -1,9 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
+import { supabase } from '../lib/supabase';
+
+interface Review {
+  id: string;
+  experience_id: string;
+  user_id: string;
+  rating: number;
+  comment: string | null;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewer_name: string | null;
+  created_at: string;
+}
 
 export function ExperienceDetailScreen() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +24,79 @@ export function ExperienceDetailScreen() {
   const exp = experiences.find(e => e.id === id);
   const { addItem, items } = useCart();
   const [photoIndex, setPhotoIndex] = useState(0);
+
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [userReview, setUserReview] = useState<Review | null>(null);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [rating, setRating] = useState(0);
+  const [hoverRating, setHoverRating] = useState(0);
+  const [comment, setComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewSubmitted, setReviewSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (!exp) return;
+    loadReviews();
+    checkPurchaseAndReview();
+  }, [exp?.id]);
+
+  async function loadReviews() {
+    const { data } = await supabase
+      .from('experience_reviews')
+      .select('*')
+      .eq('experience_id', exp!.id)
+      .eq('status', 'approved')
+      .order('created_at', { ascending: false });
+    if (data) setReviews(data);
+  }
+
+  async function checkPurchaseAndReview() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    setUserId(user.id);
+
+    const [{ data: booking }, { data: ownReview }] = await Promise.all([
+      supabase.from('bookings').select('id').eq('experience_id', exp!.id).eq('user_id', user.id).maybeSingle(),
+      supabase.from('experience_reviews').select('*').eq('experience_id', exp!.id).eq('user_id', user.id).maybeSingle(),
+    ]);
+
+    if (booking) setHasPurchased(true);
+    if (ownReview) setUserReview(ownReview);
+  }
+
+  async function submitReview() {
+    if (!userId || rating === 0) return;
+    setSubmitting(true);
+
+    const { data: profile } = await supabase
+      .from('profiles').select('name').eq('id', userId).single();
+
+    // 4+ stars publish immediately; 3 and below go to admin queue
+    const status = rating >= 4 ? 'approved' : 'pending';
+
+    const { data: inserted } = await supabase
+      .from('experience_reviews')
+      .insert({
+        experience_id: exp!.id,
+        user_id: userId,
+        rating,
+        comment: comment.trim() || null,
+        reviewer_name: profile?.name || 'Anonymous',
+        status,
+      })
+      .select()
+      .single();
+
+    if (inserted) {
+      setUserReview(inserted);
+      if (status === 'approved') {
+        setReviews(prev => [inserted, ...prev]);
+      }
+    }
+    setReviewSubmitted(true);
+    setSubmitting(false);
+  }
 
   if (!exp) {
     return (
@@ -40,6 +125,10 @@ export function ExperienceDetailScreen() {
 
   const prevPhoto = () => setPhotoIndex(i => (i - 1 + photos.length) % photos.length);
   const nextPhoto = () => setPhotoIndex(i => (i + 1) % photos.length);
+
+  const avgRating = reviews.length
+    ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+    : 0;
 
   return (
     <div className="min-h-screen pb-32 md:pb-12 bg-background">
@@ -110,6 +199,12 @@ export function ExperienceDetailScreen() {
                 )}
                 {exp.neighbourhood && (
                   <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{exp.neighbourhood}</span>
+                )}
+                {reviews.length > 0 && (
+                  <span className="flex items-center gap-1.5">
+                    <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    {avgRating.toFixed(1)} ({reviews.length})
+                  </span>
                 )}
               </div>
             </div>
@@ -221,6 +316,93 @@ export function ExperienceDetailScreen() {
                 </div>
               </div>
             )}
+
+            {/* Reviews */}
+            <div>
+              <h2 className="text-lg mb-4">
+                Reviews
+                {reviews.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    {avgRating.toFixed(1)} ★ · {reviews.length} review{reviews.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </h2>
+
+              {/* Approved reviews list */}
+              {reviews.length > 0 ? (
+                <div className="space-y-5 mb-6">
+                  {reviews.map(review => (
+                    <div key={review.id} className="border-b border-border pb-5 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="flex items-center gap-2">
+                          <div className="flex">
+                            {[1, 2, 3, 4, 5].map(s => (
+                              <Star key={s} className={`w-3.5 h-3.5 ${review.rating >= s ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30'}`} />
+                            ))}
+                          </div>
+                          <p className="text-sm font-medium">{review.reviewer_name}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(review.created_at).toLocaleDateString('en-CA', { month: 'short', year: 'numeric' })}
+                        </p>
+                      </div>
+                      {review.comment && (
+                        <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground mb-4">No reviews yet — be the first!</p>
+              )}
+
+              {/* Review form — only for users who booked and haven't reviewed yet */}
+              {hasPurchased && !userReview && !reviewSubmitted && (
+                <div className="bg-muted/40 rounded-2xl p-5">
+                  <p className="text-sm font-medium mb-3">Leave a review</p>
+                  <div className="flex gap-1 mb-4">
+                    {[1, 2, 3, 4, 5].map(s => (
+                      <button
+                        key={s}
+                        onMouseEnter={() => setHoverRating(s)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => setRating(s)}
+                      >
+                        <Star className={`w-8 h-8 transition-colors ${(hoverRating || rating) >= s ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30 hover:text-amber-300'}`} />
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={comment}
+                    onChange={e => setComment(e.target.value)}
+                    placeholder="Share your experience (optional)"
+                    className="w-full border border-border rounded-xl p-3 text-sm bg-background resize-none focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    rows={3}
+                  />
+                  <button
+                    onClick={submitReview}
+                    disabled={rating === 0 || submitting}
+                    className="mt-3 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
+                  >
+                    {submitting ? 'Submitting…' : 'Submit review'}
+                  </button>
+                </div>
+              )}
+
+              {/* Pending confirmation */}
+              {(reviewSubmitted || userReview?.status === 'pending') && (
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-700">
+                  Your review has been submitted and is pending approval. Thank you!
+                </div>
+              )}
+
+              {/* Already approved */}
+              {!reviewSubmitted && userReview?.status === 'approved' && (
+                <div className="bg-green-50 border border-green-200 rounded-2xl p-4 text-sm text-green-700">
+                  Your review is live — thank you for sharing!
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Booking panel — desktop sidebar */}
