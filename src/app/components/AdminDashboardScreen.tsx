@@ -6,7 +6,7 @@ import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
 import { SimpleFooter } from './SimpleFooter';
 
-const ADMIN_EMAIL = 'arielb.simons@gmail.com';
+const ADMIN_EMAIL = 'ariel.blouin@live.ca';
 
 interface Stats {
   total: number;
