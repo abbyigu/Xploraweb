@@ -1,11 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map } from 'lucide-react';
-import { AdminExperiencePanel } from './AdminExperiencePanel';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { XploraLogo } from './XploraLogo';
 import { useExperiences } from '../hooks/useExperiences';
+import { AdminExperiencePanel } from './AdminExperiencePanel';
+
+interface PendingReview {
+  id: string; experience_id: string; rating: number; comment: string | null;
+  reviewer_name: string | null; created_at: string; experience_name?: string;
+}
+interface ArchivedExp {
+  id: string; name: string; category: string; price_cents: number; archived_at: string;
+}
+function daysLeft(archivedAt: string): number {
+  const elapsed = (Date.now() - new Date(archivedAt).getTime()) / (1000 * 60 * 60 * 24);
+  return Math.max(0, Math.ceil(2 - elapsed));
+}
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -18,6 +30,9 @@ export function AccountScreen() {
     try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
   });
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved' | 'admin'>('profile');
+  const [adminTab, setAdminTab] = useState<'experiences' | 'reviews' | 'archive'>('experiences');
+  const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
+  const [archivedExps, setArchivedExps] = useState<ArchivedExp[]>([]);
   const [expandedExp, setExpandedExp] = useState<string | null>(null);
   const [profile, setProfile] = useState({
     name: '', email: '', location: 'Quebec City, QC', interests: [] as string[], avatar_url: null as string | null,
@@ -91,14 +106,52 @@ export function AccountScreen() {
       getProfile().then((data) => {
         if (data) {
           setProfile(data as typeof profile);
+          if ((data as any).is_admin) {
+            loadPendingReviews();
+            loadArchivedExps();
+          }
         } else {
-          // No profile row yet — pre-fill email from auth
           setProfile((p) => ({ ...p, email: user.email || '' }));
         }
         setLoading(false);
       });
     });
   }, []);
+
+  async function loadPendingReviews() {
+    const { data: reviews } = await supabase.from('experience_reviews').select('id, experience_id, rating, comment, reviewer_name, created_at').eq('status', 'pending').order('created_at', { ascending: true });
+    if (!reviews || reviews.length === 0) { setPendingReviews([]); return; }
+    const expIds = [...new Set(reviews.map((r: any) => r.experience_id))];
+    const { data: exps } = await supabase.from('xplora_experiences').select('id, name').in('id', expIds);
+    const expMap = Object.fromEntries((exps || []).map((e: any) => [e.id, e.name]));
+    setPendingReviews(reviews.map((r: any) => ({ ...r, experience_name: expMap[r.experience_id] || r.experience_id })));
+  }
+
+  async function loadArchivedExps() {
+    const { data } = await supabase.from('xplora_experiences').select('id, name, category, price_cents, archived_at').eq('status', 'archived').order('archived_at', { ascending: true });
+    if (data) setArchivedExps(data);
+  }
+
+  async function handleApprove(id: string) {
+    await supabase.from('experience_reviews').update({ status: 'approved' }).eq('id', id);
+    setPendingReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handleReject(id: string) {
+    await supabase.from('experience_reviews').update({ status: 'rejected' }).eq('id', id);
+    setPendingReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handleRestore(id: string) {
+    await supabase.from('xplora_experiences').update({ status: 'draft', archived_at: null }).eq('id', id);
+    loadArchivedExps();
+  }
+
+  async function handleDeleteNow(id: string) {
+    if (!confirm('Permanently delete this experience?')) return;
+    await supabase.from('xplora_experiences').delete().eq('id', id);
+    loadArchivedExps();
+  }
 
   const handleSaveProfile = async () => {
     await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
@@ -554,7 +607,93 @@ export function AccountScreen() {
         })()}
 
         {activeTab === 'admin' && (profile as any).is_admin && (
-          <AdminExperiencePanel />
+          <div className="space-y-6">
+            <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
+              {(['experiences', 'reviews', 'archive'] as const).map(t => (
+                <button key={t} onClick={() => setAdminTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${adminTab === t ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                  {t === 'reviews' && <MessageSquare className="w-3.5 h-3.5" />}
+                  {t === 'archive' && <Archive className="w-3.5 h-3.5" />}
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                  {t === 'reviews' && pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>}
+                  {t === 'archive' && archivedExps.length > 0 && <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{archivedExps.length}</span>}
+                </button>
+              ))}
+            </div>
+
+            {adminTab === 'experiences' && <AdminExperiencePanel />}
+
+            {adminTab === 'reviews' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg">Pending Reviews</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Reviews with 3 stars or below require approval before going live.</p>
+                </div>
+                {pendingReviews.length === 0 ? (
+                  <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                    <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">No reviews pending approval.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {pendingReviews.map(review => (
+                      <div key={review.id} className="bg-card border border-border rounded-2xl p-5">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <div className="flex">{[1,2,3,4,5].map(s => <Star key={s} className={`w-4 h-4 ${review.rating >= s ? 'text-amber-400 fill-amber-400' : 'text-muted-foreground/30'}`} />)}</div>
+                              <span className="text-sm font-medium">{review.reviewer_name}</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mb-2">{review.experience_name} · {new Date(review.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                            {review.comment ? <p className="text-sm leading-relaxed">"{review.comment}"</p> : <p className="text-sm text-muted-foreground italic">No comment left.</p>}
+                          </div>
+                          <div className="flex gap-2 flex-shrink-0">
+                            <button onClick={() => handleApprove(review.id)} className="flex items-center gap-1.5 px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-xl text-sm font-medium transition-colors"><Check className="w-4 h-4" /> Approve</button>
+                            <button onClick={() => handleReject(review.id)} className="flex items-center gap-1.5 px-3 py-2 bg-red-50 text-red-600 hover:bg-red-100 rounded-xl text-sm font-medium transition-colors"><X className="w-4 h-4" /> Reject</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {adminTab === 'archive' && (
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg">Archive</h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">Archived experiences are permanently deleted after 2 days.</p>
+                </div>
+                {archivedExps.length === 0 ? (
+                  <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                    <Archive className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                    <p className="text-sm text-muted-foreground">Nothing in the archive.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {archivedExps.map(exp => {
+                      const days = daysLeft(exp.archived_at);
+                      return (
+                        <div key={exp.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{exp.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{exp.price_cents === 0 ? 'Free' : `$${(exp.price_cents / 100).toFixed(0)}`}</p>
+                          </div>
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            <div className={`flex items-center gap-1 text-xs px-2 py-1 rounded-full ${days <= 0 ? 'bg-red-100 text-red-600' : 'bg-amber-50 text-amber-600'}`}>
+                              <Clock className="w-3 h-3" />{days <= 0 ? 'Deletes tonight' : `${days}d left`}
+                            </div>
+                            <button onClick={() => handleRestore(exp.id)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary" title="Restore to draft"><RotateCcw className="w-4 h-4" /></button>
+                            <button onClick={() => handleDeleteNow(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500" title="Delete now"><Trash2 className="w-4 h-4" /></button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         )}
       </div>
 

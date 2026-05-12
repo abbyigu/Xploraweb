@@ -25,6 +25,7 @@ const BusinessLandingScreen  = lazy(() => import('./components/BusinessLandingSc
 const BusinessSignupScreen   = lazy(() => import('./components/BusinessSignupScreen').then(m => ({ default: m.BusinessSignupScreen })));
 const BusinessLoginScreen    = lazy(() => import('./components/BusinessLoginScreen').then(m => ({ default: m.BusinessLoginScreen })));
 const BusinessDashboardScreen= lazy(() => import('./components/BusinessDashboardScreen').then(m => ({ default: m.BusinessDashboardScreen })));
+const AdminDashboardScreen   = lazy(() => import('./components/AdminDashboardScreen').then(m => ({ default: m.AdminDashboardScreen })));
 const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').then(m => ({ default: m.PrivacyScreen })));
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
 
@@ -69,6 +70,7 @@ export default function App() {
               <Route path="/business/signup" element={<BusinessSignupScreen />} />
               <Route path="/business/login" element={<BusinessLoginScreen />} />
               <Route path="/business/dashboard" element={<BusinessDashboardScreen />} />
+              <Route path="/dashboard" element={<AdminDashboardScreen />} />
               <Route path="/privacy" element={<PrivacyScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
             </Routes>

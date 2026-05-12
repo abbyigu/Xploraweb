@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
@@ -284,7 +284,7 @@ export function AccountScreen() {
                 {tab === 'profile' ? 'Profile & Settings' : tab.charAt(0).toUpperCase() + tab.slice(1)}
               </button>
             ))}
-            {profile.email === 'ariel.blouin@live.ca' && (
+            {(profile as any).is_admin && (
               <button
                 onClick={() => setActiveTab('admin')}
                 className={`pb-3 px-1 border-b-2 transition-colors whitespace-nowrap flex items-center gap-1.5 ${
