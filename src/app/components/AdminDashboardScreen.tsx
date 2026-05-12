@@ -59,8 +59,13 @@ export function AdminDashboardScreen() {
       if (!user || user.email !== ADMIN_EMAIL) { navigate('/login'); return; }
       setAuthorized(true);
       setAdminName(user.email);
-      await Promise.all([loadStats(), loadArchived(), loadPendingReviews()]);
-      setLoading(false);
+      try {
+        await Promise.all([loadStats(), loadArchived(), loadPendingReviews()]);
+      } catch (e) {
+        console.error('Admin init error:', e);
+      } finally {
+        setLoading(false);
+      }
     }
     init();
   }, []);
