@@ -24,6 +24,10 @@ const BLANK = {
   host_name: '', host_bio: '',
   highlights: '', includes: '', to_bring: '', languages: 'English, Français',
   itinerary: '', neighbourhood: '', vibes: '',
+  // French fields
+  name_fr: '', description_fr: '', long_description_fr: '',
+  highlights_fr: '', includes_fr: '', to_bring_fr: '',
+  itinerary_fr: '', host_bio_fr: '', badge_fr: '', difficulty_fr: '',
 };
 
 function staticToForm(exp: Product) {
@@ -47,6 +51,9 @@ function staticToForm(exp: Product) {
     itinerary: (exp.itinerary || []).join('\n'),
     neighbourhood: exp.neighbourhood || '',
     vibes: (exp.vibes || []).join(', '),
+    name_fr: '', description_fr: '', long_description_fr: '',
+    highlights_fr: '', includes_fr: '', to_bring_fr: '',
+    itinerary_fr: '', host_bio_fr: '', badge_fr: '', difficulty_fr: '',
   };
 }
 
@@ -55,6 +62,7 @@ export function AdminExperiencePanel() {
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [isStaticEdit, setIsStaticEdit] = useState(false);
+  const [langTab, setLangTab] = useState<'en' | 'fr'>('en');
   const [form, setForm] = useState({ ...BLANK });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -116,7 +124,7 @@ export function AdminExperiencePanel() {
 
   const openNew = () => {
     setForm({ ...BLANK }); setEditing(null); setIsStaticEdit(false);
-    setImageFile(null); setImagePreview(''); setShowForm(true);
+    setImageFile(null); setImagePreview(''); setLangTab('en'); setShowForm(true);
   };
 
   const openEdit = (exp: any) => {
@@ -142,9 +150,20 @@ export function AdminExperiencePanel() {
       itinerary: (exp.itinerary || []).join('\n'),
       neighbourhood: exp.neighbourhood || '',
       vibes: (exp.vibes || []).join(', '),
+      name_fr: exp.name_fr || '',
+      description_fr: exp.description_fr || '',
+      long_description_fr: exp.long_description_fr || '',
+      highlights_fr: (exp.highlights_fr || []).join('\n'),
+      includes_fr: (exp.includes_fr || []).join('\n'),
+      to_bring_fr: (exp.to_bring_fr || []).join('\n'),
+      itinerary_fr: (exp.itinerary_fr || []).join('\n'),
+      host_bio_fr: exp.host_bio_fr || '',
+      badge_fr: exp.badge_fr || '',
+      difficulty_fr: exp.difficulty_fr || '',
     });
     setEditing(exp.id);
     setIsStaticEdit(false);
+    setLangTab('en');
     setShowForm(true);
   };
 
@@ -215,6 +234,16 @@ export function AdminExperiencePanel() {
       itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
       neighbourhood: form.neighbourhood || null,
       vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
+      name_fr: form.name_fr || null,
+      description_fr: form.description_fr || null,
+      long_description_fr: form.long_description_fr || null,
+      highlights_fr: form.highlights_fr ? form.highlights_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      includes_fr: form.includes_fr ? form.includes_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      to_bring_fr: form.to_bring_fr ? form.to_bring_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      itinerary_fr: form.itinerary_fr ? form.itinerary_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      host_bio_fr: form.host_bio_fr || null,
+      badge_fr: form.badge_fr || null,
+      difficulty_fr: form.difficulty_fr || null,
     };
 
     let dbError: any;
@@ -271,7 +300,14 @@ export function AdminExperiencePanel() {
           </div>
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
+          {/* EN / FR tab switcher */}
+          <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
+            <button type="button" onClick={() => setLangTab('en')} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${langTab === 'en' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>🇨🇦 English</button>
+            <button type="button" onClick={() => setLangTab('fr')} className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-colors ${langTab === 'fr' ? 'bg-white shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>🇫🇷 Français</button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {langTab === 'en' ? (<>
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Name *</label>
               <input value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Experience name" />
@@ -281,6 +317,17 @@ export function AdminExperiencePanel() {
               <label className="text-xs text-muted-foreground">Short description <span className="text-primary">— shown on home page cards</span></label>
               <input value={form.description} onChange={set('description')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="One-liner shown on card" />
             </div>
+            </>) : (<>
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Nom (FR)</label>
+              <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom de l'expérience" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Description courte (FR) <span className="text-primary">— affichée sur les cartes</span></label>
+              <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Une ligne affichée sur la carte" />
+            </div>
+            </>)}
 
             <div>
               <label className="text-xs text-muted-foreground">Category</label>
@@ -308,6 +355,7 @@ export function AdminExperiencePanel() {
               <input type="number" min="0" value={form.spots} onChange={set('spots')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Leave blank for unlimited" />
             </div>
 
+            {langTab === 'en' ? (<>
             <div>
               <label className="text-xs text-muted-foreground">Difficulty</label>
               <select value={form.difficulty} onChange={set('difficulty')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
@@ -319,6 +367,17 @@ export function AdminExperiencePanel() {
               <label className="text-xs text-muted-foreground">Badge (optional)</label>
               <input value={form.badge} onChange={set('badge')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Popular, New, Free" />
             </div>
+            </>) : (<>
+            <div>
+              <label className="text-xs text-muted-foreground">Difficulté (FR)</label>
+              <input value={form.difficulty_fr} onChange={set('difficulty_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Facile, Modéré, Difficile" />
+            </div>
+
+            <div>
+              <label className="text-xs text-muted-foreground">Badge (FR, optionnel)</label>
+              <input value={form.badge_fr} onChange={set('badge_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Populaire, Nouveau, Gratuit" />
+            </div>
+            </>)}
 
             <div>
               <label className="text-xs text-muted-foreground">Neighbourhood</label>
@@ -404,6 +463,7 @@ export function AdminExperiencePanel() {
               )}
             </div>
 
+            {langTab === 'en' ? (<>
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Full description <span className="text-muted-foreground/60">— shown on detail page only, not on cards</span></label>
               <textarea value={form.long_description} onChange={set('long_description')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Full experience description (separate paragraphs with a blank line)" />
@@ -429,6 +489,43 @@ export function AdminExperiencePanel() {
               <textarea value={form.to_bring} onChange={set('to_bring')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Comfortable shoes&#10;Camera" />
             </div>
 
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Host bio</label>
+              <input value={form.host_bio} onChange={set('host_bio')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Short bio" />
+            </div>
+            </>) : (<>
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Description complète (FR) <span className="text-muted-foreground/60">— page de détail seulement</span></label>
+              <textarea value={form.long_description_fr} onChange={set('long_description_fr')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Description complète (séparez les paragraphes par une ligne vide)" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Points forts (FR) — un par ligne</label>
+              <textarea value={form.highlights_fr} onChange={set('highlights_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Gratuit et autoguidé&#10;Parcours curatif&#10;À votre rythme" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Arrêts de l'itinéraire (FR) — un par ligne</label>
+              <textarea value={form.itinerary_fr} onChange={set('itinerary_fr')} rows={5} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Place des Arts — Commencez à la galerie à ciel ouvert&#10;Rue Saint-Joseph — Parcourez l'artère créative" />
+            </div>
+
+            <div>
+              <label className="text-xs text-muted-foreground">Ce qui est inclus (FR) — un par ligne</label>
+              <textarea value={form.includes_fr} onChange={set('includes_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Carte numérique&#10;Guide PDF" />
+            </div>
+
+            <div>
+              <label className="text-xs text-muted-foreground">Quoi apporter (FR) — un par ligne</label>
+              <textarea value={form.to_bring_fr} onChange={set('to_bring_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Souliers confortables&#10;Appareil photo" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Bio de l'hôte (FR)</label>
+              <input value={form.host_bio_fr} onChange={set('host_bio_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Courte biographie" />
+            </div>
+            </>)}
+
+            {/* Language-neutral fields — always visible */}
             <div>
               <label className="text-xs text-muted-foreground">Meeting point</label>
               <input value={form.meeting_point} onChange={set('meeting_point')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Address or description" />
@@ -439,14 +536,9 @@ export function AdminExperiencePanel() {
               <input value={form.languages} onChange={set('languages')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="English, Français" />
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Host name</label>
               <input value={form.host_name} onChange={set('host_name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
-            </div>
-
-            <div>
-              <label className="text-xs text-muted-foreground">Host bio</label>
-              <input value={form.host_bio} onChange={set('host_bio')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Short bio" />
             </div>
           </div>
 
