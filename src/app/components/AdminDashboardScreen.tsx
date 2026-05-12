@@ -56,12 +56,13 @@ export function AdminDashboardScreen() {
 
   useEffect(() => {
     async function init() {
-      const { data: { user } } = await supabase.auth.getUser();
-      setDetectedEmail(user?.email ?? 'not logged in');
-      if (!user || user.email !== ADMIN_EMAIL) { setLoading(false); return; }
-      setAuthorized(true);
-      setAdminName(user.email);
       try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const email = session?.user?.email ?? null;
+        setDetectedEmail(email ?? 'not logged in');
+        if (!email || email !== ADMIN_EMAIL) { setLoading(false); return; }
+        setAuthorized(true);
+        setAdminName(email);
         await Promise.all([loadStats(), loadArchived(), loadPendingReviews()]);
       } catch (e) {
         console.error('Admin init error:', e);
