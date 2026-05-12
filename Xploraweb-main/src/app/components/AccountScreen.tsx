@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare, LayoutDashboard } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
@@ -608,16 +608,21 @@ export function AccountScreen() {
 
         {activeTab === 'admin' && (profile as any).is_admin && (
           <div className="space-y-6">
-            <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
-              {(['experiences', 'reviews', 'archive'] as const).map(t => (
-                <button key={t} onClick={() => setAdminTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${adminTab === t ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-                  {t === 'reviews' && <MessageSquare className="w-3.5 h-3.5" />}
-                  {t === 'archive' && <Archive className="w-3.5 h-3.5" />}
-                  {t.charAt(0).toUpperCase() + t.slice(1)}
-                  {t === 'reviews' && pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>}
-                  {t === 'archive' && archivedExps.length > 0 && <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{archivedExps.length}</span>}
-                </button>
-              ))}
+            <div className="flex items-center justify-between">
+              <div className="flex gap-1 bg-muted rounded-xl p-1">
+                {(['experiences', 'reviews', 'archive'] as const).map(t => (
+                  <button key={t} onClick={() => setAdminTab(t)} className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${adminTab === t ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {t === 'reviews' && <MessageSquare className="w-3.5 h-3.5" />}
+                    {t === 'archive' && <Archive className="w-3.5 h-3.5" />}
+                    {t.charAt(0).toUpperCase() + t.slice(1)}
+                    {t === 'reviews' && pendingReviews.length > 0 && <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>}
+                    {t === 'archive' && archivedExps.length > 0 && <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{archivedExps.length}</span>}
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => navigate('/dashboard')} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <LayoutDashboard className="w-4 h-4" /> Full dashboard
+              </button>
             </div>
 
             {adminTab === 'experiences' && <AdminExperiencePanel />}
