@@ -48,6 +48,7 @@ export function AdminDashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
+  const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews'>('experiences');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
@@ -56,7 +57,8 @@ export function AdminDashboardScreen() {
   useEffect(() => {
     async function init() {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user || user.email !== ADMIN_EMAIL) { navigate('/login'); return; }
+      setDetectedEmail(user?.email ?? 'not logged in');
+      if (!user || user.email !== ADMIN_EMAIL) { setLoading(false); return; }
       setAuthorized(true);
       setAdminName(user.email);
       try {
@@ -149,7 +151,13 @@ export function AdminDashboardScreen() {
     </div>
   );
 
-  if (!authorized) return null;
+  if (!authorized) return (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-2 text-center px-6">
+      <p className="text-muted-foreground text-sm">Not authorized.</p>
+      <p className="text-xs text-muted-foreground">Logged in as: <span className="font-mono text-foreground">{detectedEmail ?? '…'}</span></p>
+      <p className="text-xs text-muted-foreground">Expected: <span className="font-mono text-foreground">{ADMIN_EMAIL}</span></p>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background pb-12">
