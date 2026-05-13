@@ -30,6 +30,8 @@ const BusinessDashboardScreen= lazy(() => import('./components/BusinessDashboard
 const AdminDashboardScreen   = lazy(() => import('./components/AdminDashboardScreen').then(m => ({ default: m.AdminDashboardScreen })));
 const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').then(m => ({ default: m.PrivacyScreen })));
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
+const HowItWorksScreen       = lazy(() => import('./components/HowItWorksScreen').then(m => ({ default: m.HowItWorksScreen })));
+const ContactScreen          = lazy(() => import('./components/ContactScreen').then(m => ({ default: m.ContactScreen })));
 
 function AuthHandler() {
   const navigate = useNavigate();
@@ -89,6 +91,8 @@ export default function App() {
               <Route path="/dashboard" element={<AdminDashboardScreen />} />
               <Route path="/privacy" element={<PrivacyScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
+              <Route path="/how-it-works" element={<HowItWorksScreen />} />
+              <Route path="/contact" element={<ContactScreen />} />
             </Routes>
           </Suspense>
         </div>

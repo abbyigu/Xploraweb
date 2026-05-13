@@ -8,15 +8,11 @@ export function AboutScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
 
-      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground px-6 md:px-8 pt-12 pb-14 md:pt-20 md:pb-20">
-        <div className="max-w-3xl mx-auto text-center space-y-4">
-          <p className="text-xs uppercase tracking-widest opacity-60">Xplora</p>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">
-            {t('about.headline')}
-          </h1>
-          <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">
-            {t('about.subheadline')}
-          </p>
+      <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-1">Xplora</p>
+          <h1 className="text-2xl md:text-3xl mb-1">{t('about.headline')}</h1>
+          <p className="text-sm md:text-base opacity-90">{t('about.subheadline')}</p>
         </div>
       </div>
 

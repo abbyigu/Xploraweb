@@ -344,10 +344,34 @@ export function HomeScreen() {
         </div>
       </div>
 
+      {/* Vibe / neighbourhood discovery */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
+        <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('business.discovery')}</p>
+            <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
+            <div className="flex flex-wrap gap-2">
+              {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
+                <button key={v} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(v)}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize hover:bg-primary/20 transition-colors">{v}</button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
+            <div className="flex flex-wrap gap-2">
+              {['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'].map(n => (
+                <button key={n} onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)} className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors">{n}</button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Explorer count banner */}
       <ExplorerBanner />
-
-      <SearchHeader />
 
       {/* Experiences feed */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
