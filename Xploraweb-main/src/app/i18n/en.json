@@ -489,6 +489,7 @@
     "whoWePartner": "Who we partner with",
     "anyBusiness": "Any Québec City business with a great offer",
     "exploreBy": "Explore by vibe or neighbourhood",
+    "exploreByDesc": "Discover experiences that match your mood or your part of the city.",
     "readyToReach": "Ready to reach Xplora members?",
     "loginTitle": "Business Account",
     "loginSubtitle": "Partner Sign In",
@@ -654,5 +655,17 @@
     "outdoorsy": "Outdoorsy",
     "lateNight": "Late Night",
     "familyFriendly": "Family-Friendly"
+  },
+  "testimonials": {
+    "title": "What explorers are saying",
+    "1quote": "I discovered a hidden spot I didn't know about after 10 years here. Xplora really knows Québec.",
+    "1name": "Marie-Ève L.",
+    "1role": "Local, Limoilou",
+    "2quote": "We booked the Cartier neighbourhood tour for our anniversary. Perfect mix of history and great wine stops.",
+    "2name": "James & Sophie T.",
+    "2role": "Visitors from Toronto",
+    "3quote": "The self-guided walk was so well designed — like having a local friend show you around.",
+    "3name": "Andrés R.",
+    "3role": "Visitor, Montréal"
   }
 }

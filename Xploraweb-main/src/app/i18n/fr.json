@@ -489,6 +489,7 @@
     "whoWePartner": "Avec qui nous nous associons",
     "anyBusiness": "Toute entreprise de Québec avec une bonne offre",
     "exploreBy": "Explorer par ambiance ou quartier",
+    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquetez votre avantage pour que les bonnes personnes le trouvent.",
     "readyToReach": "Prêt à rejoindre les membres Xplora ?",
     "loginTitle": "Compte entreprise",
     "loginSubtitle": "Connexion partenaire",
@@ -654,5 +655,17 @@
     "outdoorsy": "Plein air",
     "lateNight": "Nuit tardive",
     "familyFriendly": "Famille"
+  },
+  "testimonials": {
+    "title": "Ce que disent les explorateurs",
+    "1quote": "J'ai découvert un endroit caché que je ne connaissais pas après 10 ans ici. Xplora connait vraiment Québec.",
+    "1name": "Marie-Ève L.",
+    "1role": "Locale, Limoilou",
+    "2quote": "On a réservé la visite du quartier Cartier pour notre anniversaire. Parfait mélange d'histoire et de bons arrêts vins.",
+    "2name": "James & Sophie T.",
+    "2role": "Visiteurs de Toronto",
+    "3quote": "Le parcours autonome était tellement bien conçu — comme si un ami local nous guidait.",
+    "3name": "Andrés R.",
+    "3role": "Visiteur, Montréal"
   }
 }

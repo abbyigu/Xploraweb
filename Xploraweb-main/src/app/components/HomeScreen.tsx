@@ -344,18 +344,33 @@ export function HomeScreen() {
         </div>
       </div>
 
+      {/* Explorer count banner */}
+      <ExplorerBanner />
+
       {/* Vibe / neighbourhood discovery */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
         <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('business.discovery')}</p>
             <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
+            <p className="text-sm text-muted-foreground">{t('business.exploreByDesc')}</p>
           </div>
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
             <div className="flex flex-wrap gap-2">
-              {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
-                <button key={v} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(v)}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize hover:bg-primary/20 transition-colors">{v}</button>
+              {([
+                ['cozy', 'vibes.cozy'],
+                ['adventurous', 'vibes.adventurous'],
+                ['foodie', 'vibes.foodie'],
+                ['romantic', 'vibes.romantic'],
+                ['hidden gem', 'vibes.hiddenGem'],
+                ['lively', 'vibes.lively'],
+                ['artsy', 'vibes.artsy'],
+                ['outdoorsy', 'vibes.outdoorsy'],
+                ['late night', 'vibes.lateNight'],
+                ['family-friendly', 'vibes.familyFriendly'],
+              ] as [string, string][]).map(([value, labelKey]) => (
+                <button key={value} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(value)}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors">{t(labelKey)}</button>
               ))}
             </div>
           </div>
@@ -370,8 +385,26 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {/* Explorer count banner */}
-      <ExplorerBanner />
+      {/* Testimonials */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10">
+        <h2 className="text-xl md:text-2xl mb-6">{t('testimonials.title')}</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {([1, 2, 3] as const).map(n => (
+            <div key={n} className="bg-card border border-border rounded-2xl p-6 space-y-3">
+              <div className="flex gap-0.5">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">"{t(`testimonials.${n}quote`)}"</p>
+              <div>
+                <p className="text-sm font-medium">{t(`testimonials.${n}name`)}</p>
+                <p className="text-xs text-muted-foreground">{t(`testimonials.${n}role`)}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Experiences feed */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
