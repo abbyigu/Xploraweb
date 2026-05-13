@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Private / authenticated-only pages
+Disallow: /dashboard
+Disallow: /business/dashboard
+Disallow: /account
+Disallow: /account-setup
+Disallow: /cart
+Disallow: /notifications
+Disallow: /reset-password
+Disallow: /forgot-password
+
+Sitemap: https://goxplora.ca/sitemap.xml

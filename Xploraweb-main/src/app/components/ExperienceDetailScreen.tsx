@@ -5,6 +5,7 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
 
 export function ExperienceDetailScreen() {
   const { t } = useTranslation();
@@ -43,8 +44,43 @@ export function ExperienceDetailScreen() {
   const prevPhoto = () => setPhotoIndex(i => (i - 1 + photos.length) % photos.length);
   const nextPhoto = () => setPhotoIndex(i => (i + 1) % photos.length);
 
+  const touristAttractionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristAttraction',
+    name: exp.name,
+    description: exp.description,
+    image: exp.image,
+    url: `https://goxplora.ca/experience/${exp.id}`,
+    touristType: 'Tourists, Locals',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: exp.neighbourhood ?? 'Québec City',
+      addressRegion: 'QC',
+      addressCountry: 'CA',
+    },
+    geo: {
+      '@type': 'GeoCoordinates',
+      latitude: 46.8139,
+      longitude: -71.2082,
+    },
+    ...(exp.price > 0 && {
+      offers: {
+        '@type': 'Offer',
+        price: (exp.price / 100).toFixed(2),
+        priceCurrency: 'CAD',
+        availability: 'https://schema.org/InStock',
+      },
+    }),
+  };
+
   return (
     <div className="min-h-screen pb-32 md:pb-12 bg-background">
+      <PageSEO
+        title={`${exp.name} in Québec City — Xplora`}
+        description={exp.description || `Book ${exp.name} in Québec City. ${exp.duration ? `Duration: ${exp.duration}.` : ''} ${exp.neighbourhood ? `Located in ${exp.neighbourhood}.` : ''} Curated by Xplora.`}
+        canonical={`/experience/${exp.id}`}
+        schema={touristAttractionSchema}
+      />
       {/* Photo gallery */}
       <div className="relative h-72 md:h-[480px] bg-muted">
         <img
