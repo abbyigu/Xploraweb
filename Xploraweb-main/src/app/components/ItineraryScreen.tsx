@@ -10,6 +10,9 @@ import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
 type Filter = 'all' | ExperienceCategory;
+type DurationBucket = 'self-guided' | 'under2h' | '2to3h' | 'halfday' | 'evening';
+type PriceBucket = 'free' | 'under25' | '25to50' | '50plus';
+type LangFilter = 'en' | 'fr';
 
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 const NEIGHBOURHOOD_OPTIONS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
@@ -19,6 +22,28 @@ const VIBE_KEY: Record<string, string> = {
   'hidden gem': 'hiddenGem', 'lively': 'lively', 'artsy': 'artsy', 'outdoorsy': 'outdoorsy',
   'late night': 'lateNight', 'family-friendly': 'familyFriendly',
 };
+
+function getDurationBucket(duration?: string): DurationBucket | null {
+  if (!duration) return null;
+  const d = duration.toLowerCase();
+  if (d.includes('own pace') || d.includes('self') || d.includes('autonome')) return 'self-guided';
+  if (d.includes('evening') || d.includes('soirée') || d.includes('night')) return 'evening';
+  if (d.includes('half') || d.includes('demi')) return 'halfday';
+  const hours = parseFloat(d);
+  if (!isNaN(hours)) {
+    if (hours <= 2) return 'under2h';
+    if (hours <= 3) return '2to3h';
+    return 'halfday';
+  }
+  return null;
+}
+
+function getPriceBucket(price: number): PriceBucket {
+  if (price === 0) return 'free';
+  if (price < 2500) return 'under25';
+  if (price < 5000) return '25to50';
+  return '50plus';
+}
 
 const CAT_TAGLINE_KEY: Record<string, string> = {
   xplorators: 'taglineXplorators',
@@ -53,6 +78,10 @@ export function ItineraryScreen() {
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(() => {
     return searchParams.get('neighbourhood');
   });
+  const [selectedDuration, setSelectedDuration] = useState<DurationBucket | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<PriceBucket | null>(null);
+  const [selectedLang, setSelectedLang] = useState<LangFilter | null>(null);
+  const [familyOnly, setFamilyOnly] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -82,10 +111,20 @@ export function ItineraryScreen() {
   function clearAll() {
     setSelectedVibes([]);
     setSelectedNeighbourhood(null);
+    setSelectedDuration(null);
+    setSelectedPrice(null);
+    setSelectedLang(null);
+    setFamilyOnly(false);
     setSearchParams({});
   }
 
-  const hasFilter = selectedVibes.length > 0 || selectedNeighbourhood !== null;
+  const hasFilter =
+    selectedVibes.length > 0 ||
+    selectedNeighbourhood !== null ||
+    selectedDuration !== null ||
+    selectedPrice !== null ||
+    selectedLang !== null ||
+    familyOnly;
 
   let filteredExperiences = experiences;
   if (selectedVibes.length > 0) {
@@ -96,6 +135,29 @@ export function ItineraryScreen() {
   if (selectedNeighbourhood) {
     filteredExperiences = filteredExperiences.filter(e =>
       e.neighbourhood?.toLowerCase() === selectedNeighbourhood.toLowerCase()
+    );
+  }
+  if (selectedDuration) {
+    filteredExperiences = filteredExperiences.filter(e =>
+      getDurationBucket(e.duration) === selectedDuration
+    );
+  }
+  if (selectedPrice) {
+    filteredExperiences = filteredExperiences.filter(e =>
+      getPriceBucket(e.price) === selectedPrice
+    );
+  }
+  if (selectedLang) {
+    filteredExperiences = filteredExperiences.filter(e => {
+      const langs = e.languages?.map(l => l.toLowerCase()) ?? [];
+      if (selectedLang === 'en') return langs.some(l => l.includes('english') || l.includes('anglais'));
+      if (selectedLang === 'fr') return langs.some(l => l.includes('français') || l.includes('french'));
+      return true;
+    });
+  }
+  if (familyOnly) {
+    filteredExperiences = filteredExperiences.filter(e =>
+      e.vibes?.some(v => v.toLowerCase() === 'family-friendly')
     );
   }
 
@@ -195,11 +257,11 @@ export function ItineraryScreen() {
         </div>
       </div>
 
-      {/* Vibe + neighbourhood filter section */}
+      {/* Filter section */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
-        <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-4">
+        <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-base md:text-lg">{t('itinerary.filterPrompt')}</h2>
+            <h2 className="text-base md:text-lg font-medium">{t('itinerary.filterPrompt')}</h2>
             {hasFilter && (
               <button
                 onClick={clearAll}
@@ -210,6 +272,94 @@ export function ItineraryScreen() {
             )}
           </div>
 
+          {/* Duration */}
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.duration')}</p>
+            <div className="flex flex-wrap gap-2">
+              {([
+                ['self-guided', t('itinerary.durationSelfGuided')],
+                ['under2h',     t('itinerary.durationUnder2h')],
+                ['2to3h',       t('itinerary.duration2to3h')],
+                ['halfday',     t('itinerary.durationHalfDay')],
+                ['evening',     t('itinerary.durationEvening')],
+              ] as [DurationBucket, string][]).map(([bucket, label]) => (
+                <button
+                  key={bucket}
+                  onClick={() => setSelectedDuration(prev => prev === bucket ? null : bucket)}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                    selectedDuration === bucket
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-primary/10 text-primary hover:bg-primary/20'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Price */}
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
+            <div className="flex flex-wrap gap-2">
+              {([
+                ['free',    t('itinerary.priceFree')],
+                ['under25', t('itinerary.priceUnder25')],
+                ['25to50',  t('itinerary.price25to50')],
+                ['50plus',  t('itinerary.price50plus')],
+              ] as [PriceBucket, string][]).map(([bucket, label]) => (
+                <button
+                  key={bucket}
+                  onClick={() => setSelectedPrice(prev => prev === bucket ? null : bucket)}
+                  className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                    selectedPrice === bucket
+                      ? 'bg-secondary text-secondary-foreground'
+                      : 'bg-secondary/10 text-secondary hover:bg-secondary/20'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Language + Family-friendly */}
+          <div className="flex flex-wrap gap-x-8 gap-y-4">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.language')}</p>
+              <div className="flex gap-2">
+                {([['en', t('itinerary.langEn')], ['fr', t('itinerary.langFr')]] as [LangFilter, string][]).map(([code, label]) => (
+                  <button
+                    key={code}
+                    onClick={() => setSelectedLang(prev => prev === code ? null : code)}
+                    className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                      selectedLang === code
+                        ? 'bg-foreground text-background'
+                        : 'bg-muted text-foreground hover:bg-muted/70'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.familyFriendly')}</p>
+              <button
+                onClick={() => setFamilyOnly(prev => !prev)}
+                className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
+                  familyOnly
+                    ? 'bg-xplora-accent-green text-white'
+                    : 'bg-xplora-accent-green/10 text-xplora-accent-green hover:bg-xplora-accent-green/20'
+                }`}
+              >
+                👨‍👩‍👧 {t('vibes.familyFriendly')}
+              </button>
+            </div>
+          </div>
+
+          {/* Vibe */}
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
             <div className="flex flex-wrap gap-2">
@@ -230,6 +380,7 @@ export function ItineraryScreen() {
             </div>
           </div>
 
+          {/* Neighbourhood */}
           <div>
             <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
             <div className="flex flex-wrap gap-2">
