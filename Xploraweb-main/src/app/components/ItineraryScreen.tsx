@@ -7,6 +7,7 @@ import { ExperienceCard } from './ExperienceCard';
 import { useExperiences } from '../hooks/useExperiences';
 import type { ExperienceCategory } from '../data/products';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
 
 type Filter = 'all' | ExperienceCategory;
 
@@ -148,6 +149,11 @@ export function ItineraryScreen() {
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
+      <PageSEO
+        title="Things to Do in Québec City — Xplora Experiences"
+        description="Browse guided tours, self-guided walks, and local activities in Québec City. Filter by neighbourhood, vibe, duration, and more. Book your next Québec City experience."
+        canonical="/itinerary"
+      />
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl mb-1">{t('itinerary.title')}</h1>

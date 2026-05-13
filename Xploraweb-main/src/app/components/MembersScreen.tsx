@@ -5,6 +5,7 @@ import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
 
 // ─── Paywall (shown when not logged in) ──────────────────────────────────────
 
@@ -19,6 +20,11 @@ function Paywall() {
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
+      <PageSEO
+        title="Xplora Members — Exclusive Québec City Perks & Experiences"
+        description="Unlock exclusive perks and insider access across Québec City. Xplora members get discounts, free drinks, skip-the-line privileges, and more at the best local venues."
+        canonical="/members"
+      />
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl mb-1">{t('members.sectionTitle')}</h1>

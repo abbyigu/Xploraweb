@@ -12,6 +12,29 @@ import { Footer } from './Footer';
 import { useState, useEffect } from 'react';
 import { supabase, getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
+
+const LOCAL_BUSINESS_SCHEMA = {
+  '@context': 'https://schema.org',
+  '@type': 'TouristInformationCenter',
+  name: 'Xplora',
+  description: 'Curated tours, local experiences, perks, and events in Québec City for visitors and residents.',
+  url: 'https://goxplora.ca',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Québec City',
+    addressRegion: 'QC',
+    addressCountry: 'CA',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 46.8139,
+    longitude: -71.2082,
+  },
+  areaServed: 'Québec City, Quebec, Canada',
+  priceRange: '$$',
+  knowsAbout: ['Québec City tours', 'Vieux-Québec experiences', 'self-guided tours Québec City', 'local activities Québec'],
+};
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -304,6 +327,12 @@ export function HomeScreen() {
   // Logged-out: show public landing
   return (
     <div className="min-h-screen pb-24 md:pb-8">
+      <PageSEO
+        title="Québec City Tours & Experiences — Xplora"
+        description="Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. Your insider guide to the city."
+        canonical="/"
+        schema={LOCAL_BUSINESS_SCHEMA}
+      />
 
       {/* Hero */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground min-h-[calc(100vh-64px)] flex flex-col justify-center">

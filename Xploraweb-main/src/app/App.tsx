@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +58,7 @@ function LanguageSync() {
 
 export default function App() {
   return (
+    <HelmetProvider>
     <CartProvider>
     <BrowserRouter>
       <AuthHandler />
@@ -97,5 +99,6 @@ export default function App() {
       <SpeedInsights />
     </BrowserRouter>
     </CartProvider>
+    </HelmetProvider>
   );
 }

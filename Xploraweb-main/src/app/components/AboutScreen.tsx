@@ -1,12 +1,18 @@
 import { Heart, Compass, Sparkles } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
 
 export function AboutScreen() {
   const { t } = useTranslation();
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
+      <PageSEO
+        title="About Xplora — Québec City's Local Experience Guide"
+        description="Xplora is Québec City's curated guide to local tours, experiences, and events. We help visitors and residents discover the best of Vieux-Québec and the city's hidden gems."
+        canonical="/about"
+      />
 
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground px-6 md:px-8 pt-12 pb-14 md:pt-20 md:pb-20">
         <div className="max-w-3xl mx-auto text-center space-y-4">

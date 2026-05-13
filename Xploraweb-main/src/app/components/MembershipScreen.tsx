@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { PageSEO } from './PageSEO';
 
 const PRICE_IDS = {
   monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
@@ -59,6 +60,11 @@ export function MembershipScreen() {
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
+      <PageSEO
+        title="Xplora Membership — Unlimited Québec City Experiences"
+        description="Join Xplora and unlock unlimited access to curated Québec City tours, local perks, and exclusive events. Monthly and yearly plans available."
+        canonical="/membership"
+      />
       <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground px-6 md:px-8 pt-8 pb-10 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-2xl lg:max-w-3xl mx-auto text-center">
           <div className="flex justify-center mb-3">
