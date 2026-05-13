@@ -343,7 +343,6 @@ export function HomeScreen() {
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
-              <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">{t('landing.subheadline')}</p>
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
