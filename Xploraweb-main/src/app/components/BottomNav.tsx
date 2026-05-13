@@ -14,7 +14,7 @@ export function BottomNav() {
   const navItems = [
     { path: '/',          icon: Home,         labelKey: 'nav.home',        badge: 0 },
     { path: '/itinerary', icon: Compass,      labelKey: 'nav.experiences', badge: 0 },
-    { path: '/members',   icon: Gift,         labelKey: 'nav.perks',       badge: 0 },
+    { path: '/perks',     icon: Gift,         labelKey: 'nav.perks',       badge: 0 },
     { path: '/cart',      icon: ShoppingCart, labelKey: 'nav.cart',        badge: count },
     { path: '/account',   icon: User,         labelKey: 'nav.account',     badge: 0 },
   ];

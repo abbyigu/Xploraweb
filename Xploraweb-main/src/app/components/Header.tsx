@@ -29,7 +29,7 @@ export function Header() {
   const navItems = [
     { path: '/',              labelKey: 'header.home' },
     { path: '/itinerary',    labelKey: 'header.experiences' },
-    { path: '/members',      labelKey: 'header.perks' },
+    { path: '/perks',        labelKey: 'header.perks' },
     { path: '/how-it-works', labelKey: 'header.howItWorks' },
     { path: '/about',        labelKey: 'header.about' },
     { path: '/contact',      labelKey: 'header.contact' },
