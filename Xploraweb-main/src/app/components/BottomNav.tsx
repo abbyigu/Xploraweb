@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Gift, Info, User, ShoppingCart, Languages } from 'lucide-react';
+import { Home, Compass, Gift, ShoppingCart, User, Languages } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../hooks/useLanguage';
@@ -12,29 +12,29 @@ export function BottomNav() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',        icon: Compass,      labelKey: 'nav.experiences', badge: 0 },
-    { path: '/members', icon: Gift,         labelKey: 'nav.perks',       badge: 0 },
-    { path: '/about',   icon: Info,         labelKey: 'nav.about',       badge: 0 },
-    { path: '/cart',    icon: ShoppingCart, labelKey: 'nav.cart',        badge: count },
-    { path: '/account', icon: User,         labelKey: 'nav.account',     badge: 0 },
+    { path: '/',          icon: Home,         labelKey: 'nav.home',        badge: 0 },
+    { path: '/itinerary', icon: Compass,      labelKey: 'nav.experiences', badge: 0 },
+    { path: '/members',   icon: Gift,         labelKey: 'nav.perks',       badge: 0 },
+    { path: '/cart',      icon: ShoppingCart, labelKey: 'nav.cart',        badge: count },
+    { path: '/account',   icon: User,         labelKey: 'nav.account',     badge: 0 },
   ];
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
-      <div className="max-w-md mx-auto flex justify-around items-center py-2 px-1">
+      <div className="max-w-md mx-auto flex justify-around items-center py-1 px-1">
         {navItems.map(({ path, icon: Icon, labelKey, badge }) => (
           <Link
             key={path}
             to={path}
-            className={`relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${
+            className={`relative flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] px-3 py-2.5 rounded-lg transition-all justify-center ${
               isActive(path)
                 ? 'text-white bg-primary shadow-sm'
                 : 'text-foreground hover:text-foreground hover:bg-muted/40'
             }`}
           >
-            <Icon className="w-4 h-4" />
+            <Icon className="w-5 h-5" />
             {badge > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-medium">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-medium">
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
@@ -45,9 +45,9 @@ export function BottomNav() {
         {/* Language toggle */}
         <button
           onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
-          className="relative flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-all text-muted-foreground hover:bg-muted/40"
+          className="relative flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] px-3 py-2.5 rounded-lg transition-all text-muted-foreground hover:bg-muted/40 justify-center"
         >
-          <Languages className="w-4 h-4" />
+          <Languages className="w-5 h-5" />
           <span className="text-[10px] font-medium">{language === 'fr' ? 'EN' : 'FR'}</span>
         </button>
       </div>

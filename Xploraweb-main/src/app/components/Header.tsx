@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Gift, Info, ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect } from 'react';
@@ -27,9 +27,12 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',        icon: Compass, labelKey: 'header.experiences' },
-    { path: '/members', icon: Gift,    labelKey: 'header.perks' },
-    { path: '/about',   icon: Info,    labelKey: 'header.about' },
+    { path: '/',              labelKey: 'header.home' },
+    { path: '/itinerary',    labelKey: 'header.experiences' },
+    { path: '/members',      labelKey: 'header.perks' },
+    { path: '/how-it-works', labelKey: 'header.howItWorks' },
+    { path: '/about',        labelKey: 'header.about' },
+    { path: '/contact',      labelKey: 'header.contact' },
   ];
 
   return (
@@ -40,27 +43,25 @@ export function Header() {
             <XploraLogo variant="full" className="h-28 block" />
           </div>
 
-          <nav className="flex items-center gap-1 md:gap-2 lg:gap-3">
-            {navItems.map(({ path, icon: Icon, labelKey }) => (
+          <nav className="flex items-center gap-0.5 lg:gap-1">
+            {navItems.map(({ path, labelKey }) => (
               <Link
                 key={path}
                 to={path}
-                className={`flex items-center gap-1.5 md:gap-2 px-3 md:px-5 lg:px-6 py-2 md:py-3 rounded-xl transition-all ${
+                className={`px-3 lg:px-4 py-2 rounded-xl transition-all text-sm lg:text-base whitespace-nowrap ${
                   isActive(path)
-                    ? 'bg-primary/15 border-2 border-primary text-foreground'
-                    : 'bg-white text-foreground hover:bg-muted/40'
+                    ? 'bg-primary/15 border-2 border-primary text-foreground font-medium'
+                    : 'text-foreground hover:bg-muted/40'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="text-xs md:text-sm lg:text-base">{t(labelKey)}</span>
+                {t(labelKey)}
               </Link>
             ))}
           </nav>
 
-          <div className="flex items-center gap-3 lg:gap-5">
-            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors">{t('header.forBusinesses')}</Link>
+          <div className="flex items-center gap-2 lg:gap-4">
+            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">{t('header.forBusinesses')}</Link>
 
-            {/* Language toggle */}
             <button
               onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
               className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
@@ -76,10 +77,7 @@ export function Header() {
                 </span>
               )}
             </Link>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">{t('header.exploring')}</p>
-              <p className="font-medium">{t('header.city')}</p>
-            </div>
+
             <Link to="/account">
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
