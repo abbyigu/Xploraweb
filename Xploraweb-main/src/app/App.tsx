@@ -13,6 +13,7 @@ const HomeScreen             = lazy(() => import('./components/HomeScreen').then
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
 const ExperienceDetailScreen = lazy(() => import('./components/ExperienceDetailScreen').then(m => ({ default: m.ExperienceDetailScreen })));
 const MembersScreen          = lazy(() => import('./components/MembersScreen').then(m => ({ default: m.MembersScreen })));
+const PerksScreen            = lazy(() => import('./components/PerksScreen').then(m => ({ default: m.PerksScreen })));
 const WelcomeScreen          = lazy(() => import('./components/WelcomeScreen').then(m => ({ default: m.WelcomeScreen })));
 const SignupScreen            = lazy(() => import('./components/SignupScreen').then(m => ({ default: m.SignupScreen })));
 const LoginScreen             = lazy(() => import('./components/LoginScreen').then(m => ({ default: m.LoginScreen })));
@@ -83,6 +84,7 @@ export default function App() {
               <Route path="/itinerary" element={<ItineraryScreen />} />
               <Route path="/experience/:id" element={<ExperienceDetailScreen />} />
               <Route path="/members" element={<MembersScreen />} />
+              <Route path="/perks" element={<PerksScreen />} />
               <Route path="/notifications" element={<NotificationsScreen />} />
               <Route path="/cart" element={<CartScreen />} />
               <Route path="/membership" element={<MembershipScreen />} />
