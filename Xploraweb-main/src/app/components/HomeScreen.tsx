@@ -36,9 +36,9 @@ const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 function useVibeKey(): string {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return 'business.vibeMorning';
-  if (hour >= 12 && hour < 18) return 'business.vibeAfternoon';
-  return 'business.vibeEvening';
+  if (hour >= 5 && hour < 12) return 'search.vibeMorning';
+  if (hour >= 12 && hour < 18) return 'search.vibeAfternoon';
+  return 'search.vibeEvening';
 }
 
 function ExplorerBanner() {
