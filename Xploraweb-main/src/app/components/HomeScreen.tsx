@@ -65,13 +65,7 @@ function ExplorerBanner() {
             </div>
           ))}
         </div>
-        <p className="text-sm text-white/90">
-          Join{' '}
-          <span className="font-semibold text-white">
-            {count !== null ? `${count.toLocaleString()}+` : '...'}
-          </span>{' '}
-          {t('home.explorers')}
-        </p>
+        <p className="text-sm font-semibold text-white">{t('home.explorers')}</p>
       </div>
     </div>
   );
