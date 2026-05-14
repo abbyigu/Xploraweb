@@ -227,7 +227,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
           </div>
 
           {loading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
               {[1, 2, 3].map(i => (
                 <div key={i} className="w-[260px] md:w-auto flex-shrink-0 md:flex-shrink h-64 bg-muted rounded-2xl animate-pulse" />
               ))}
@@ -235,7 +235,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
           ) : experiences.length === 0 ? (
             <p className="text-muted-foreground text-sm">No featured experiences yet.</p>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
               {experiences.map(exp => (
                 <FeaturedCard key={exp.id} exp={exp} />
               ))}
@@ -247,7 +247,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
         {reviews.length > 0 && (
           <section>
             <h2 className="text-xl md:text-2xl mb-6">{t('home.whatPeopleSay')}</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
               {reviews.map(r => (
                 <ReviewCard key={r.id} review={r} />
               ))}
