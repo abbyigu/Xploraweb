@@ -38,7 +38,8 @@ export function useFeaturedExperiences() {
       .select('id, name, name_fr, description, description_fr, price_cents, image_url, duration, badge, badge_fr, neighbourhood, category')
       .eq('status', 'active')
       .eq('featured', true)
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: false })
+      .limit(3);
 
     const exps: FeaturedExperience[] = (rows ?? []).map((row: any) => ({
       id: row.id,
