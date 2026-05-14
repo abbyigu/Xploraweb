@@ -1,18 +1,14 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
-import { useRef } from 'react';
+import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Clock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { SearchHeader } from './SearchHeader';
-import { ExperienceCard } from './ExperienceCard';
-import { DealCard } from './DealCard';
-import { EXPERIENCE_CATEGORIES } from '../data/products';
-import { useExperiences } from '../hooks/useExperiences';
-import { perks } from '../data/mockData';
 import { Footer } from './Footer';
+import { PageSEO } from './PageSEO';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+import { useFeaturedExperiences } from '../hooks/useFeaturedExperiences';
 import { useState, useEffect } from 'react';
 import { supabase, getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-import { PageSEO } from './PageSEO';
 
 const LOCAL_BUSINESS_SCHEMA = {
   '@context': 'https://schema.org',
@@ -38,52 +34,11 @@ const LOCAL_BUSINESS_SCHEMA = {
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
-function CardCarousel({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const scroll = (dir: 'left' | 'right') => {
-    ref.current?.scrollBy({ left: dir === 'right' ? 200 : -200, behavior: 'smooth' });
-  };
-  return (
-    <div className="relative group">
-      {/* Desktop: side arrows on hover */}
-      <button
-        onClick={() => scroll('left')}
-        className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-
-      <div
-        ref={ref}
-        className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible scrollbar-hide"
-      >
-        {children}
-      </div>
-
-      <button
-        onClick={() => scroll('right')}
-        className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-
-      {/* Mobile: always-visible prev/next buttons below cards */}
-      <div className="flex md:hidden justify-end gap-2 mt-2 pr-1">
-        <button
-          onClick={() => scroll('left')}
-          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => scroll('right')}
-          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
+function useVibeKey(): string {
+  const hour = new Date().getHours();
+  if (hour >= 5 && hour < 12) return 'business.vibeMorning';
+  if (hour >= 12 && hour < 18) return 'business.vibeAfternoon';
+  return 'business.vibeEvening';
 }
 
 function ExplorerBanner() {
@@ -120,10 +75,200 @@ function ExplorerBanner() {
   );
 }
 
+function VibeSection() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const vibeKey = useVibeKey();
+
+  const vibes: [string, string][] = [
+    ['cozy', 'vibes.cozy'],
+    ['adventurous', 'vibes.adventurous'],
+    ['foodie', 'vibes.foodie'],
+    ['romantic', 'vibes.romantic'],
+    ['hidden gem', 'vibes.hiddenGem'],
+    ['lively', 'vibes.lively'],
+    ['artsy', 'vibes.artsy'],
+    ['outdoorsy', 'vibes.outdoorsy'],
+    ['late night', 'vibes.lateNight'],
+    ['family-friendly', 'vibes.familyFriendly'],
+  ];
+
+  const neighbourhoods = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12">
+      <h2 className="text-xl md:text-2xl mb-6">{t(vibeKey)}</h2>
+      <div className="space-y-5">
+        <div className="flex flex-wrap gap-2">
+          {vibes.map(([value, labelKey]) => (
+            <button
+              key={value}
+              onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(value)}`)}
+              className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
+            >
+              {t(labelKey)}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {neighbourhoods.map(n => (
+            <button
+              key={n}
+              onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)}
+              className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors"
+            >
+              {n}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeaturedCard({ exp }: { exp: { id: string; name: string; description: string; price: number; image: string; duration?: string; badge?: string; neighbourhood?: string } }) {
+  const navigate = useNavigate();
+  return (
+    <div
+      className="flex flex-col bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow cursor-pointer w-[260px] md:w-auto flex-shrink-0 md:flex-shrink"
+      onClick={() => navigate(`/experience/${exp.id}`)}
+    >
+      <div className="relative h-44 md:h-52">
+        <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
+        {exp.badge && (
+          <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-full">
+            {exp.badge}
+          </span>
+        )}
+        {exp.duration && (
+          <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
+            <Clock className="w-3 h-3" /> {exp.duration}
+          </span>
+        )}
+      </div>
+      <div className="p-4 md:p-5 flex flex-col gap-1.5">
+        <h3 className="text-base md:text-lg font-medium leading-snug">{exp.name}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2">{exp.description}</p>
+        <p className="text-sm font-semibold mt-1">
+          {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function ReviewCard({ review }: { review: { rating: number; comment: string | null; reviewer_name: string | null; experience_name: string } }) {
+  return (
+    <div className="bg-card border border-border rounded-2xl p-5 space-y-3 w-[280px] md:w-auto flex-shrink-0 md:flex-shrink">
+      <div className="flex items-center gap-1.5">
+        <div className="flex gap-0.5">
+          {[1, 2, 3, 4, 5].map(s => (
+            <Star key={s} className={`w-4 h-4 ${review.rating >= s ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`} />
+          ))}
+        </div>
+        <span className="text-xs text-muted-foreground ml-1">{review.experience_name}</span>
+      </div>
+      {review.comment && (
+        <p className="text-sm text-muted-foreground leading-relaxed">"{review.comment}"</p>
+      )}
+      <p className="text-sm font-medium">{review.reviewer_name ?? 'Anonymous'}</p>
+    </div>
+  );
+}
+
+function MembershipBanner() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  return (
+    <div
+      className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
+      onClick={() => navigate('/membership')}
+    >
+      <div>
+        <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
+        <h2 className="text-xl md:text-2xl mb-2">{t('home.becomeMember')}</h2>
+        <ul className="space-y-1 text-sm opacity-90">
+          <li>🎟️ {t('home.earlyAccess')}</li>
+          <li>👫 {t('home.guestPass')}</li>
+          <li>🍸 {t('home.fiveASept')}</li>
+        </ul>
+      </div>
+      <div className="text-center md:text-right flex-shrink-0">
+        <p className="text-3xl font-serif">$10</p>
+        <p className="text-sm opacity-80">{t('home.perMonth')}</p>
+        <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
+          {t('home.learnMore')}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function SharedContent({ showMembership }: { showMembership: boolean }) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { experiences, reviews, loading } = useFeaturedExperiences();
+
+  return (
+    <>
+      <VibeSection />
+
+      {/* Featured experiences */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10 space-y-10">
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl md:text-2xl">{t('home.featuredExperiences')}</h2>
+            <button
+              onClick={() => navigate('/itinerary')}
+              className="text-sm text-primary font-medium hover:underline"
+            >
+              {t('home.exploreMore')}
+            </button>
+          </div>
+
+          {loading ? (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-[260px] md:w-auto flex-shrink-0 md:flex-shrink h-64 bg-muted rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : experiences.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No featured experiences yet.</p>
+          ) : (
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+              {experiences.map(exp => (
+                <FeaturedCard key={exp.id} exp={exp} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Reviews */}
+        {reviews.length > 0 && (
+          <section>
+            <h2 className="text-xl md:text-2xl mb-6">{t('home.whatPeopleSay')}</h2>
+            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+              {reviews.map(r => (
+                <ReviewCard key={r.id} review={r} />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Membership banner */}
+        {showMembership && (
+          <section>
+            <MembershipBanner />
+          </section>
+        )}
+      </div>
+    </>
+  );
+}
+
 export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { experiences } = useExperiences();
   const [authState, setAuthState] = useState<{
     loading: boolean;
     loggedIn: boolean;
@@ -155,15 +300,13 @@ export function HomeScreen() {
     );
   }
 
-  // Logged-in welcome screen
+  // Logged-in
   if (authState.loggedIn) {
     const isBusiness = authState.accountType === 'business';
     const firstName = authState.name.split(' ')[0] || 'there';
 
     return (
       <div className="min-h-screen pb-24 md:pb-8">
-
-        {/* Hero / greeting */}
         {isBusiness ? (
           <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
             <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
@@ -196,135 +339,13 @@ export function HomeScreen() {
         )}
 
         <ExplorerBanner />
-
-        {isBusiness && (
-          <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
-            <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">Discovery</p>
-                <h2 className="text-xl md:text-2xl mb-2">Explore by vibe or neighbourhood</h2>
-                <p className="text-sm text-muted-foreground max-w-lg">Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it.</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Vibe</p>
-                <div className="flex flex-wrap gap-2">
-                  {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
-                    <button key={v} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(v)}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize hover:bg-primary/20 transition-colors">{v}</button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">Neighbourhood</p>
-                <div className="flex flex-wrap gap-2">
-                  {['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'].map(n => (
-                    <button key={n} onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)} className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors">{n}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Shared content for all logged-in users */}
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
-          <section>
-            <h2 className="text-xl md:text-2xl mb-6 md:mb-8">{t('home.experiences')}</h2>
-            <div className="space-y-10">
-              {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
-                const items = experiences.filter(e => e.category === cat.id);
-                if (!items.length) return null;
-                return (
-                  <div key={cat.id}>
-                    <div className="mb-3">
-                      <h3 className="text-lg font-medium">{cat.name}</h3>
-                      <p className="text-sm text-muted-foreground">{cat.tagline}</p>
-                    </div>
-                    <CardCarousel>
-                      {items.slice(0, 3).map(exp => (
-                        <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                          <ExperienceCard exp={exp} />
-                        </div>
-                      ))}
-                    </CardCarousel>
-                    <button
-                      onClick={() => navigate(`/itinerary?category=${cat.id}`)}
-                      className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-                    >
-                      Explore more →
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Membership banner — regular users only */}
-          {!isBusiness && (
-            <section>
-              <div
-                className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
-                onClick={() => navigate('/membership')}
-              >
-                <div>
-                  <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
-                  <h2 className="text-xl md:text-2xl mb-2">{t('home.becomeMember')}</h2>
-                  <ul className="space-y-1 text-sm opacity-90">
-                    <li>🎟️ {t('home.earlyAccess')}</li>
-                    <li>👫 {t('home.guestPass')}</li>
-                    <li>🍸 {t('home.fiveASept')}</li>
-                  </ul>
-                </div>
-                <div className="text-center md:text-right flex-shrink-0">
-                  <p className="text-3xl font-serif">$10</p>
-                  <p className="text-sm opacity-80">{t('home.perMonth')}</p>
-                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">{t('home.learnMore')}</button>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {(() => {
-            const nightCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploranights')!;
-            const items = experiences.filter(e => e.category === 'xploranights');
-            return items.length ? (
-              <section>
-                <div className="mb-3">
-                  <h3 className="text-lg font-medium">{nightCat.name}</h3>
-                  <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
-                </div>
-                <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                  {items.slice(0, 3).map(exp => (
-                    <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                      <ExperienceCard exp={exp} />
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={() => navigate(`/itinerary?category=xploranights`)}
-                  className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-                >
-                  Explore more →
-                </button>
-              </section>
-            ) : null;
-          })()}
-
-          <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-              {perks.map((perk) => (
-                <DealCard key={perk.id} {...perk} />
-              ))}
-            </div>
-          </section>
-        </div>
-
+        <SharedContent showMembership={!isBusiness} />
         <Footer />
       </div>
     );
   }
 
-  // Logged-out: show public landing
+  // Logged-out
   return (
     <div className="min-h-screen pb-24 md:pb-8">
       <PageSEO
@@ -334,17 +355,14 @@ export function HomeScreen() {
         schema={LOCAL_BUSINESS_SCHEMA}
       />
 
-      {/* Hero */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground min-h-[calc(100vh-64px)] flex flex-col justify-center">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-2 md:py-4 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
             <XploraLogo variant="full" className="h-36 md:h-52" />
-
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
             </div>
-
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
               <Link
                 to="/signup"
@@ -360,7 +378,6 @@ export function HomeScreen() {
                 {t('landing.signIn')}
               </Link>
             </div>
-
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
               <span>·</span>
@@ -372,162 +389,8 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {/* Explorer count banner */}
       <ExplorerBanner />
-
-      {/* Vibe / neighbourhood discovery */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
-        <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('business.discovery')}</p>
-            <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
-            <p className="text-sm text-muted-foreground">{t('business.exploreByDesc')}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
-            <div className="flex flex-wrap gap-2">
-              {([
-                ['cozy', 'vibes.cozy'],
-                ['adventurous', 'vibes.adventurous'],
-                ['foodie', 'vibes.foodie'],
-                ['romantic', 'vibes.romantic'],
-                ['hidden gem', 'vibes.hiddenGem'],
-                ['lively', 'vibes.lively'],
-                ['artsy', 'vibes.artsy'],
-                ['outdoorsy', 'vibes.outdoorsy'],
-                ['late night', 'vibes.lateNight'],
-                ['family-friendly', 'vibes.familyFriendly'],
-              ] as [string, string][]).map(([value, labelKey]) => (
-                <button key={value} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(value)}`)} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors">{t(labelKey)}</button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
-            <div className="flex flex-wrap gap-2">
-              {['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'].map(n => (
-                <button key={n} onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)} className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors">{n}</button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Testimonials */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10">
-        <h2 className="text-xl md:text-2xl mb-6">{t('testimonials.title')}</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {([1, 2, 3] as const).map(n => (
-            <div key={n} className="bg-card border border-border rounded-2xl p-6 space-y-3">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">"{t(`testimonials.${n}quote`)}"</p>
-              <div>
-                <p className="text-sm font-medium">{t(`testimonials.${n}name`)}</p>
-                <p className="text-xs text-muted-foreground">{t(`testimonials.${n}role`)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Experiences feed */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
-        <section>
-          <h2 className="text-xl md:text-2xl mb-6 md:mb-8">{t('home.experiences')}</h2>
-          <div className="space-y-10">
-            {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
-              const items = experiences.filter(e => e.category === cat.id);
-              if (!items.length) return null;
-              return (
-                <div key={cat.id}>
-                  <div className="mb-3">
-                    <h3 className="text-lg font-medium">{cat.name}</h3>
-                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
-                  </div>
-                  <CardCarousel>
-                    {items.slice(0, 3).map(exp => (
-                      <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                        <ExperienceCard exp={exp} />
-                      </div>
-                    ))}
-                  </CardCarousel>
-                  <button
-                    onClick={() => navigate(`/itinerary?category=${cat.id}`)}
-                    className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-                  >
-                    Explore more →
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Membership banner */}
-        <section>
-          <div
-            className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
-            onClick={() => navigate('/membership')}
-          >
-            <div>
-              <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
-              <h2 className="text-xl md:text-2xl mb-2">Become a Member</h2>
-              <ul className="space-y-1 text-sm opacity-90">
-                <li>🎟️ 48h early access to all experiences</li>
-                <li>👫 1 free guest pass every month</li>
-                <li>🍸 Monthly members-only 5 à 7</li>
-              </ul>
-            </div>
-            <div className="text-center md:text-right flex-shrink-0">
-              <p className="text-3xl font-serif">$10</p>
-              <p className="text-sm opacity-80">/month</p>
-              <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
-                Learn more
-              </button>
-            </div>
-          </div>
-        </section>
-
-        {(() => {
-          const nightCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploranights')!;
-          const items = experiences.filter(e => e.category === 'xploranights');
-          return items.length ? (
-            <section>
-              <div className="mb-3">
-                <h3 className="text-lg font-medium">{nightCat.name}</h3>
-                <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
-              </div>
-              <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                {items.slice(0, 3).map(exp => (
-                  <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                    <ExperienceCard exp={exp} />
-                  </div>
-                ))}
-              </div>
-              <button
-                onClick={() => navigate(`/itinerary?category=xploranights`)}
-                className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-              >
-                Explore more →
-              </button>
-            </section>
-          ) : null;
-        })()}
-
-        <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-            {perks.map((perk) => (
-              <DealCard key={perk.id} {...perk} />
-            ))}
-          </div>
-        </section>
-      </div>
-
+      <SharedContent showMembership={true} />
       <Footer />
     </div>
   );
