@@ -130,29 +130,29 @@ function FeaturedCard({ exp }: { exp: { id: string; name: string; description: s
   const navigate = useNavigate();
   return (
     <div
-      className="flex flex-col bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow cursor-pointer w-[260px] md:w-auto flex-shrink-0 md:flex-shrink"
+      className="flex items-center gap-4 bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow cursor-pointer p-3"
       onClick={() => navigate(`/experience/${exp.id}`)}
     >
-      <div className="relative h-44 md:h-52">
+      <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
         <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
-        {exp.badge && (
-          <span className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs px-2.5 py-1 rounded-full">
-            {exp.badge}
-          </span>
-        )}
-        {exp.duration && (
-          <span className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm text-xs px-2.5 py-1 rounded-full flex items-center gap-1">
-            <Clock className="w-3 h-3" /> {exp.duration}
-          </span>
-        )}
       </div>
-      <div className="p-4 md:p-5 flex flex-col gap-1.5">
-        <h3 className="text-base md:text-lg font-medium leading-snug">{exp.name}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">{exp.description}</p>
+      <div className="flex-1 min-w-0">
+        <h3 className="text-sm font-medium leading-snug truncate">{exp.name}</h3>
+        {exp.duration && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+            <Clock className="w-3 h-3" /> {exp.duration}
+          </p>
+        )}
+        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{exp.description}</p>
         <p className="text-sm font-semibold mt-1">
           {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}
         </p>
       </div>
+      {exp.badge && (
+        <span className="flex-shrink-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+          {exp.badge}
+        </span>
+      )}
     </div>
   );
 }
@@ -235,7 +235,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
           ) : experiences.length === 0 ? (
             <p className="text-muted-foreground text-sm">No featured experiences yet.</p>
           ) : (
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+            <div className="flex flex-col gap-3">
               {experiences.map(exp => (
                 <FeaturedCard key={exp.id} exp={exp} />
               ))}
