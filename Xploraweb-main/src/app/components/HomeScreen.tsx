@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router';
-import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Clock } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { MapPin, Star, Users, Clock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { SearchHeader } from './SearchHeader';
 import { Footer } from './Footer';
@@ -327,20 +327,6 @@ export function HomeScreen() {
                   <h1 className="text-3xl md:text-5xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
                   <p className="text-base md:text-lg opacity-80">{t('home.businessDesc')}</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-                  <button
-                    onClick={() => navigate('/business/dashboard')}
-                    className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                  >
-                    <LayoutDashboard className="w-5 h-5" /> {t('home.dashboard')}
-                  </button>
-                  <button
-                    onClick={() => navigate('/account')}
-                    className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <User className="w-5 h-5" /> {t('home.account')}
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -372,21 +358,6 @@ export function HomeScreen() {
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-              <Link
-                to="/signup"
-                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                {t('landing.joinXplora')}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
-              >
-                {t('landing.signIn')}
-              </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
