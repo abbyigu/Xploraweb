@@ -235,25 +235,21 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
           ) : experiences.length === 0 ? (
             <p className="text-muted-foreground text-sm">No featured experiences yet.</p>
           ) : (
-            <div className="flex flex-col gap-3">
-              {experiences.map(exp => (
-                <FeaturedCard key={exp.id} exp={exp} />
-              ))}
+            <div className="flex flex-col gap-6">
+              {experiences.map(exp => {
+                const expReviews = reviews.filter(r => r.experience_id === exp.id);
+                return (
+                  <div key={exp.id} className="flex flex-col gap-2">
+                    <FeaturedCard exp={exp} />
+                    {expReviews.map(r => (
+                      <ReviewCard key={r.id} review={r} />
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
-
-        {/* Reviews */}
-        {reviews.length > 0 && (
-          <section>
-            <h2 className="text-xl md:text-2xl mb-6">{t('home.whatPeopleSay')}</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-              {reviews.map(r => (
-                <ReviewCard key={r.id} review={r} />
-              ))}
-            </div>
-          </section>
-        )}
 
         {/* Membership banner */}
         {showMembership && (
