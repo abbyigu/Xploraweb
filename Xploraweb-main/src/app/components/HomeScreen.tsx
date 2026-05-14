@@ -351,7 +351,7 @@ export function HomeScreen() {
         schema={LOCAL_BUSINESS_SCHEMA}
       />
 
-      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground min-h-[calc(100vh-64px)] flex flex-col justify-center">
+      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-2 md:py-4 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
             <XploraLogo variant="full" className="h-36 md:h-52" />
