@@ -1,5 +1,5 @@
-import { useNavigate } from 'react-router';
-import { MapPin, Star, Users, Clock } from 'lucide-react';
+import { useNavigate, Link } from 'react-router';
+import { MapPin, Star, Users, Clock, ArrowRight } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
 import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
@@ -352,6 +352,21 @@ export function HomeScreen() {
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto">
+              <Link
+                to="/itinerary"
+                className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+              >
+                {t('landing.exploreExperiences')}
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                to="/signup"
+                className="px-8 py-4 bg-white/50 backdrop-blur-sm text-foreground border border-white/70 rounded-2xl text-base hover:bg-white/70 transition-colors flex items-center justify-center"
+              >
+                {t('landing.bookNow')}
+              </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
