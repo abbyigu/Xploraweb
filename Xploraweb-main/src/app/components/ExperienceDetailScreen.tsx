@@ -1,21 +1,73 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 import { analytics } from '../lib/analytics';
+import { supabase } from '../lib/supabase';
+
+interface Testimonial {
+  rating: number;
+  comment: string;
+  reviewer_name: string | null;
+}
+
+const CAT_TYPE_LABEL: Record<string, string> = {
+  xplorators: 'Self-guided walk',
+  xploratorsplus: 'Premium route',
+  xploratours: 'Guided tour',
+  xploranights: 'Evening event',
+};
+
+function StarRating({ rating }: { rating: number }) {
+  return (
+    <div className="flex gap-0.5">
+      {[1, 2, 3, 4, 5].map(s => (
+        <Star key={s} className={`w-4 h-4 ${rating >= s ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`} aria-hidden="true" />
+      ))}
+    </div>
+  );
+}
 
 export function ExperienceDetailScreen() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { experiences } = useExperiences();
+  const { experiences, loading: expLoading } = useExperiences();
   const exp = experiences.find(e => e.id === id);
   const { addItem, items } = useCart();
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [testimonial, setTestimonial] = useState<Testimonial | null>(null);
+
+  useEffect(() => {
+    if (exp) analytics.viewItem({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
+  }, [exp?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from('experience_reviews')
+      .select('rating, comment, reviewer_name')
+      .eq('experience_id', id)
+      .eq('status', 'approved')
+      .not('comment', 'is', null)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .then(({ data }) => {
+        if (data && data.length > 0 && data[0].comment) setTestimonial(data[0] as Testimonial);
+      });
+  }, [id]);
+
+  if (expLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!exp) {
     return (
@@ -30,11 +82,38 @@ export function ExperienceDetailScreen() {
 
   const photos = exp.images && exp.images.length > 0 ? exp.images : [exp.image];
   const inCart = items.some(i => i.id === exp.id);
+  const isFree = exp.price === 0;
+  const isSelfGuided = exp.category === 'xplorators';
+  const langLabel = exp.languages?.map(l => {
+    const lower = l.toLowerCase();
+    if (lower.includes('english') || lower.includes('anglais')) return 'EN';
+    if (lower.includes('français') || lower.includes('french')) return 'FR';
+    return l.slice(0, 2).toUpperCase();
+  }).join(' · ');
 
-  // Fire view_item once when experience loads
-  useEffect(() => {
-    if (exp) analytics.viewItem({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
-  }, [exp?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  const touristAttractionSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'TouristAttraction',
+    name: exp.name,
+    description: exp.description,
+    image: exp.image,
+    url: `https://goxplora.ca/experience/${exp.id}`,
+    touristType: 'Tourists, Locals',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: exp.neighbourhood ?? 'Québec City',
+      addressRegion: 'QC',
+      addressCountry: 'CA',
+    },
+    ...(exp.price > 0 && {
+      offers: {
+        '@type': 'Offer',
+        price: (exp.price / 100).toFixed(2),
+        priceCurrency: 'CAD',
+        availability: 'https://schema.org/InStock',
+      },
+    }),
+  };
 
   const purchaseAndAdd = () => {
     if (inCart) return;
@@ -51,35 +130,6 @@ export function ExperienceDetailScreen() {
   const prevPhoto = () => setPhotoIndex(i => (i - 1 + photos.length) % photos.length);
   const nextPhoto = () => setPhotoIndex(i => (i + 1) % photos.length);
 
-  const touristAttractionSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'TouristAttraction',
-    name: exp.name,
-    description: exp.description,
-    image: exp.image,
-    url: `https://goxplora.ca/experience/${exp.id}`,
-    touristType: 'Tourists, Locals',
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: exp.neighbourhood ?? 'Québec City',
-      addressRegion: 'QC',
-      addressCountry: 'CA',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 46.8139,
-      longitude: -71.2082,
-    },
-    ...(exp.price > 0 && {
-      offers: {
-        '@type': 'Offer',
-        price: (exp.price / 100).toFixed(2),
-        priceCurrency: 'CAD',
-        availability: 'https://schema.org/InStock',
-      },
-    }),
-  };
-
   return (
     <div className="min-h-screen pb-32 md:pb-12 bg-background">
       <PageSEO
@@ -88,13 +138,10 @@ export function ExperienceDetailScreen() {
         canonical={`/experience/${exp.id}`}
         schema={touristAttractionSchema}
       />
-      {/* Photo gallery */}
-      <div className="relative h-72 md:h-[480px] bg-muted">
-        <img
-          src={photos[photoIndex]}
-          alt={exp.name}
-          className="w-full h-full object-cover"
-        />
+
+      {/* Photo hero */}
+      <div className="relative h-64 sm:h-80 md:h-[420px] bg-muted">
+        <img src={photos[photoIndex]} alt={exp.name} className="w-full h-full object-cover" />
         {photos.length > 1 && (
           <>
             <button onClick={prevPhoto} aria-label={t('a11y.prevPhoto')} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
@@ -103,17 +150,6 @@ export function ExperienceDetailScreen() {
             <button onClick={nextPhoto} aria-label={t('a11y.nextPhoto')} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
               <Next className="w-5 h-5" aria-hidden="true" />
             </button>
-            <div role="group" aria-label={t('a11y.photoOf', { current: photoIndex + 1, total: photos.length })} className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-              {photos.map((_, i) => (
-                <button
-                  key={i}
-                  onClick={() => setPhotoIndex(i)}
-                  aria-label={t('a11y.photoOf', { current: i + 1, total: photos.length })}
-                  aria-pressed={i === photoIndex}
-                  className={`w-2 h-2 rounded-full transition-colors ${i === photoIndex ? 'bg-white' : 'bg-white/50'}`}
-                />
-              ))}
-            </div>
           </>
         )}
         <button
@@ -128,63 +164,122 @@ export function ExperienceDetailScreen() {
             {exp.badge}
           </span>
         )}
+        {/* Photo count pill */}
+        {photos.length > 1 && (
+          <span className="absolute bottom-4 right-4 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full backdrop-blur-sm">
+            {photoIndex + 1} / {photos.length}
+          </span>
+        )}
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 md:px-8 py-8">
-        <div className="md:grid md:grid-cols-3 md:gap-12">
+      {/* Thumbnail strip */}
+      {photos.length > 1 && (
+        <div className="bg-muted/30 border-b border-border">
+          <div className="max-w-3xl mx-auto px-4 py-2 flex gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            {photos.map((photo, i) => (
+              <button
+                key={i}
+                onClick={() => setPhotoIndex(i)}
+                aria-label={t('a11y.photoOf', { current: i + 1, total: photos.length })}
+                aria-pressed={i === photoIndex}
+                className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
+                  i === photoIndex ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-90'
+                }`}
+              >
+                <img src={photo} alt="" className="w-full h-full object-cover" aria-hidden="true" />
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="max-w-3xl mx-auto px-6 md:px-8 py-6 md:py-8">
+        <div className="md:grid md:grid-cols-3 md:gap-10">
+
           {/* Main content */}
           <div className="md:col-span-2 space-y-8">
-            {/* Header */}
+
+            {/* Strong opening: what, how long, who */}
             <div>
               {exp.category && (
-                <p className="text-xs uppercase tracking-widest text-secondary mb-2">
-                  {exp.category === 'xplorators' ? 'Xplora-tors'
-                    : exp.category === 'xplorastories' ? 'Xplora-stories'
-                    : exp.category === 'xploratours' ? 'Xplora-tours'
-                    : 'Xplora Nights'}
+                <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-2">
+                  {CAT_TYPE_LABEL[exp.category] ?? exp.category}
                 </p>
               )}
-              <h1 className="text-2xl md:text-3xl mb-3">{exp.name}</h1>
-              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                {exp.duration && (
-                  <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" />{exp.duration}</span>
-                )}
-                {exp.spots && (
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4" />{t('experienceDetail.upTo')} {exp.spots} {t('experienceDetail.people')}</span>
-                )}
-                {exp.difficulty && (
-                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{exp.difficulty}</span>
-                )}
-                {exp.languages && (
-                  <span className="flex items-center gap-1.5"><Globe className="w-4 h-4" />{exp.languages.join(' · ')}</span>
-                )}
-                {exp.neighbourhood && (
-                  <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" />{exp.neighbourhood}</span>
-                )}
-              </div>
+              <h1 className="text-2xl md:text-3xl font-semibold mb-2 leading-tight">{exp.name}</h1>
+              <p className="text-base text-muted-foreground leading-relaxed">{exp.description}</p>
             </div>
 
-            {/* Host */}
-            {exp.hostName && (
-              <div className="flex items-center gap-4 py-6 border-t border-b border-border">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg flex-shrink-0">
-                  {exp.hostName[0]}
+            {/* At a glance — practical details high on page */}
+            <div className="bg-muted/40 border border-border rounded-2xl p-5 space-y-3">
+              <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">{t('experienceDetail.atAGlance')}</p>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-lg leading-none mt-0.5">💰</span>
+                  <div>
+                    <p className="font-medium">
+                      {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)} ${t('experienceDetail.perPerson')}`}
+                    </p>
+                    {isFree && <p className="text-xs text-muted-foreground">{isSelfGuided ? 'No booking needed' : 'Free'}</p>}
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{t('experienceDetail.hostedBy')} {exp.hostName}</p>
-                  {exp.hostBio && <p className="text-sm text-muted-foreground mt-0.5">{exp.hostBio}</p>}
+                {exp.duration && (
+                  <div className="flex items-start gap-2">
+                    <Clock className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                    <div>
+                      <p className="font-medium">{exp.duration}</p>
+                    </div>
+                  </div>
+                )}
+                {langLabel && (
+                  <div className="flex items-start gap-2">
+                    <Globe className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                    <div>
+                      <p className="font-medium">{langLabel}</p>
+                    </div>
+                  </div>
+                )}
+                {exp.spots && (
+                  <div className="flex items-start gap-2">
+                    <Users className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                    <div>
+                      <p className="font-medium">{t('experienceDetail.upTo')} {exp.spots} {t('experienceDetail.people')}</p>
+                    </div>
+                  </div>
+                )}
+                {exp.meetingPoint && (
+                  <div className="flex items-start gap-2 col-span-2">
+                    <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                    <div>
+                      <a
+                        href={`https://maps.google.com/?q=${encodeURIComponent(exp.meetingPoint)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium hover:text-primary transition-colors"
+                      >
+                        {exp.meetingPoint.split('—')[0].trim()}
+                      </a>
+                      {exp.meetingPoint.includes('—') && (
+                        <p className="text-xs text-muted-foreground">{exp.meetingPoint.split('—')[1].trim()}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+                <div className="flex items-start gap-2 col-span-2">
+                  <RotateCcw className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                  <p className="text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Highlights */}
             {exp.highlights && exp.highlights.length > 0 && (
               <div>
-                <h2 className="text-lg mb-3">{t('experienceDetail.highlights')}</h2>
+                <h2 className="text-lg font-medium mb-3">{t('experienceDetail.highlights')}</h2>
                 <ul className="space-y-2">
                   {exp.highlights.map((h, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
-                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                      <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
                       <span>{h}</span>
                     </li>
                   ))}
@@ -192,16 +287,26 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
-            {/* What's included + What to bring — side by side */}
+            {/* Testimonial */}
+            {testimonial && (
+              <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">{t('experienceDetail.testimonialLabel')}</p>
+                <StarRating rating={testimonial.rating} />
+                <p className="text-sm leading-relaxed">"{testimonial.comment}"</p>
+                <p className="text-sm font-medium text-muted-foreground">— {testimonial.reviewer_name ?? 'Anonymous'}</p>
+              </div>
+            )}
+
+            {/* What's included + What to bring */}
             {((exp.includes && exp.includes.length > 0) || (exp.toBring && exp.toBring.length > 0)) && (
               <div className="grid grid-cols-2 gap-6">
                 {exp.includes && exp.includes.length > 0 && (
                   <div>
-                    <h2 className="text-lg mb-3">{t('experienceDetail.whatsIncluded')}</h2>
+                    <h2 className="text-base font-medium mb-3">{t('experienceDetail.whatsIncluded')}</h2>
                     <ul className="space-y-2">
                       {exp.includes.map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -210,7 +315,7 @@ export function ExperienceDetailScreen() {
                 )}
                 {exp.toBring && exp.toBring.length > 0 && (
                   <div>
-                    <h2 className="text-lg mb-3">{t('experienceDetail.whatToBring')}</h2>
+                    <h2 className="text-base font-medium mb-3">{t('experienceDetail.whatToBring')}</h2>
                     <ul className="space-y-2">
                       {exp.toBring.map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -224,10 +329,10 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
-            {/* Itinerary — xplorators only */}
+            {/* Itinerary — self-guided only */}
             {exp.category === 'xplorators' && exp.itinerary && exp.itinerary.length > 0 && (
               <div>
-                <h2 className="text-lg mb-3">{t('experienceDetail.itinerary')}</h2>
+                <h2 className="text-base font-medium mb-3">{t('experienceDetail.itinerary')}</h2>
                 <ol className="space-y-3">
                   {exp.itinerary.map((stop, i) => (
                     <li key={i} className="flex items-start gap-3 text-sm">
@@ -239,10 +344,10 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
-            {/* Description */}
+            {/* About */}
             {exp.longDescription && (
               <div>
-                <h2 className="text-lg mb-3">{t('experienceDetail.about')}</h2>
+                <h2 className="text-base font-medium mb-3">{t('experienceDetail.about')}</h2>
                 <div className="space-y-3">
                   {exp.longDescription.split('\n\n').map((para, i) => (
                     <p key={i} className="text-sm text-muted-foreground leading-relaxed">{para}</p>
@@ -251,84 +356,96 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
-            {/* Meeting point */}
-            {exp.meetingPoint && (
-              <div>
-                <h2 className="text-lg mb-3">{t('experienceDetail.meetingPoint')}</h2>
-                <div className="bg-muted/40 rounded-2xl p-4 flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm">{exp.meetingPoint}</p>
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(exp.meetingPoint)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs text-primary hover:underline mt-1 inline-block"
-                    >
-                      {t('experienceDetail.getDirections')}
-                    </a>
-                  </div>
+            {/* Host */}
+            {exp.hostName && (
+              <div className="flex items-center gap-4 py-5 border-t border-border">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg flex-shrink-0">
+                  {exp.hostName[0]}
                 </div>
+                <div>
+                  <p className="font-medium text-sm">{t('experienceDetail.hostedBy')} {exp.hostName}</p>
+                  {exp.hostBio && <p className="text-sm text-muted-foreground mt-0.5">{exp.hostBio}</p>}
+                </div>
+              </div>
+            )}
+
+            {/* Xplorators upsell */}
+            {isSelfGuided && (
+              <div className="bg-muted/40 rounded-2xl p-5 space-y-2">
+                <p className="text-sm text-muted-foreground">{t('experienceDetail.groupPrompt')}</p>
+                <button onClick={() => navigate('/itinerary?category=xploratours')} className="text-sm text-primary font-medium hover:underline">
+                  {t('experienceDetail.toursLink')}
+                </button>
               </div>
             )}
           </div>
 
-          {/* Booking panel — desktop sidebar */}
+          {/* Booking sidebar — desktop */}
           <div className="hidden md:block md:col-span-1">
-            <div className="sticky top-24 bg-card border border-border rounded-3xl p-6 shadow-sm">
-              {exp.price === 0 ? (
-                <>
-                  <p className="text-3xl font-medium mb-1">{t('experienceDetail.free')}</p>
-                  <p className="text-sm text-muted-foreground mb-6">{t('experienceDetail.selfGuided')}</p>
-                  <button
-                    onClick={purchaseAndAdd}
-                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
-                  >
-                    {inCart ? <><Check className="w-4 h-4" /> {t('experienceDetail.savedRoute')}</> : t('experienceDetail.getRoute')}
-                  </button>
-                  <div className="mt-5 pt-5 border-t border-border">
-                    <p className="text-xs text-muted-foreground text-center mb-3">{t('experienceDetail.groupPrompt')}</p>
-                    <button onClick={() => navigate('/itinerary?category=xploratours')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
-                      {t('experienceDetail.toursLink')}
-                    </button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <p className="text-3xl font-medium mb-1">${(exp.price / 100).toFixed(0)}<span className="text-base text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span></p>
-                  {exp.spots && <p className="text-sm text-muted-foreground mb-6">{exp.spots} {t('experienceDetail.spotsAvailable')}</p>}
-                  <button
-                    onClick={purchaseAndAdd}
-                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
-                  >
-                    {inCart ? <><Check className="w-4 h-4" /> {t('experienceDetail.addedToCart')}</> : <><ShoppingCart className="w-4 h-4" /> {t('experienceDetail.bookExperience')}</>}
-                  </button>
-                  {inCart && (
-                    <button onClick={() => navigate('/cart')} className="w-full mt-3 py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
-                      {t('experienceDetail.viewCart')}
-                    </button>
-                  )}
-                  <p className="text-xs text-muted-foreground text-center mt-4">{t('experienceDetail.noCharge')}</p>
-                </>
+            <div className="sticky top-24 bg-card border border-border rounded-3xl p-6 shadow-sm space-y-4">
+              <div>
+                <p className="text-3xl font-semibold">
+                  {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
+                  {!isFree && <span className="text-base text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
+                </p>
+                {exp.spots && !isFree && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{exp.spots} {t('experienceDetail.spotsAvailable')}</p>
+                )}
+                {isFree && isSelfGuided && (
+                  <p className="text-sm text-muted-foreground mt-0.5">{t('experienceDetail.selfGuided')}</p>
+                )}
+              </div>
+
+              <button
+                onClick={purchaseAndAdd}
+                className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
+                  inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                }`}
+              >
+                {inCart
+                  ? <><Check className="w-4 h-4" aria-hidden="true" /> {isSelfGuided ? t('experienceDetail.savedRoute') : t('experienceDetail.addedToCart')}</>
+                  : isSelfGuided
+                  ? t('experienceDetail.getRoute')
+                  : <><ShoppingCart className="w-4 h-4" aria-hidden="true" /> {t('experienceDetail.bookExperience')}</>
+                }
+              </button>
+
+              {inCart && !isFree && (
+                <button onClick={() => navigate('/cart')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
+                  {t('experienceDetail.viewCart')}
+                </button>
               )}
+
+              <div className="pt-1 space-y-1.5 text-xs text-muted-foreground">
+                {!isFree && <p className="text-center">{t('experienceDetail.noCharge')}</p>}
+                <p className="flex items-center gap-1.5 justify-center">
+                  <RotateCcw className="w-3 h-3" aria-hidden="true" />
+                  {t('experienceDetail.cancelPolicy')}
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Booking bar — mobile sticky bottom */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-border px-6 py-4 flex items-center justify-between z-40">
+      {/* Mobile sticky booking bar */}
+      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border px-5 py-3 flex items-center justify-between z-40">
         <div>
-          <p className="text-xl font-medium">{exp.price === 0 ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}<span className="text-sm text-muted-foreground font-normal">{exp.price > 0 ? ` ${t('experienceDetail.perPerson')}` : ''}</span></p>
-          <p className="text-xs text-muted-foreground">{exp.price === 0 ? t('experienceDetail.selfGuided').split(' — ')[0] : `${exp.spots} spots left`}</p>
+          <p className="text-xl font-semibold">
+            {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
+            {!isFree && <span className="text-sm text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
+          </p>
+          <p className="text-xs text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
         </div>
         <button
           onClick={() => { if (!inCart) purchaseAndAdd(); else navigate('/cart'); }}
-          className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+          className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${
+            inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+          }`}
         >
-          {exp.price === 0
-            ? (inCart ? <><Check className="w-4 h-4" /> {t('experienceDetail.saved')}</> : t('experienceDetail.getRoute'))
-            : (inCart ? <><Check className="w-4 h-4" /> {t('experienceDetail.inCart')}</> : <><ShoppingCart className="w-4 h-4" /> {t('experienceDetail.book')}</>)
+          {isSelfGuided
+            ? (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.saved')}</> : t('experienceDetail.getRoute'))
+            : (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.inCart')}</> : <><ShoppingCart className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.book')}</>)
           }
         </button>
       </div>
