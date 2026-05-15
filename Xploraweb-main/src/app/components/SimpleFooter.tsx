@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { XploraLogo } from './XploraLogo';
 import { useTranslation } from 'react-i18next';
 
@@ -11,12 +12,12 @@ export function SimpleFooter() {
             <XploraLogo variant="icon" className="h-8 w-8 rounded-full" />
             <span className="text-sm text-muted-foreground">{t('footer.copyright')}</span>
           </div>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.about')}</a>
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.joinUs')}</a>
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.privacy')}</a>
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.terms')}</a>
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.contact')}</a>
+          <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
+            <Link to="/about" className="hover:text-foreground transition-colors">{t('footer.about')}</Link>
+            <Link to="/faq" className="hover:text-foreground transition-colors">{t('footer.faq')}</Link>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">{t('footer.privacy')}</Link>
+            <Link to="/terms" className="hover:text-foreground transition-colors">{t('footer.terms')}</Link>
+            <a href="mailto:hello@goxplora.ca" className="hover:text-foreground transition-colors">{t('footer.contact')}</a>
           </div>
         </div>
       </div>
