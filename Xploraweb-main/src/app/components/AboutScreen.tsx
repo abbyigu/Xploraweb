@@ -1,94 +1,168 @@
-import { Heart, Compass, Sparkles } from 'lucide-react';
+import { useState } from 'react';
+import { ArrowRight, BadgeCheck, MapPin, Globe, Calendar, Sparkles } from 'lucide-react';
+import { Link } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
+// TODO: Replace with real team data — add photos to /public/team/
+const TEAM: { name: string; role: string; bio: string; photo: string; initials: string }[] = [
+  {
+    name: 'TODO: Name',
+    role: 'TODO: Role',
+    bio: 'TODO: One sentence about this person and their connection to Québec City.',
+    photo: '/team/founder-1.jpg',
+    initials: 'AB',
+  },
+  // Uncomment and fill in for a second person:
+  // {
+  //   name: 'TODO: Name',
+  //   role: 'TODO: Role',
+  //   bio: 'TODO: One sentence about this person and their connection to Québec City.',
+  //   photo: '/team/founder-2.jpg',
+  //   initials: 'XY',
+  // },
+];
+
+function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
+  const [imgFailed, setImgFailed] = useState(false);
+
+  return (
+    <div className="flex items-start gap-5">
+      <div className="flex-shrink-0">
+        {!imgFailed ? (
+          <img
+            src={member.photo}
+            alt={member.name}
+            onError={() => setImgFailed(true)}
+            className="w-16 h-16 rounded-2xl object-cover bg-xplora-icon-bg"
+          />
+        ) : (
+          <div className="w-16 h-16 rounded-2xl bg-xplora-icon-bg flex items-center justify-center text-xplora-primary font-medium text-lg">
+            {member.initials}
+          </div>
+        )}
+      </div>
+      <div className="space-y-0.5">
+        <p className="font-medium text-foreground text-sm">{member.name}</p>
+        <p className="text-xs text-xplora-primary uppercase tracking-wide">{member.role}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed pt-1">{member.bio}</p>
+      </div>
+    </div>
+  );
+}
+
 export function AboutScreen() {
   const { t } = useTranslation();
+
+  const stats = [
+    { icon: Calendar, value: t('about.stat1Value'), label: t('about.stat1Label') },
+    { icon: Sparkles, value: t('about.stat2Value'), label: t('about.stat2Label') },
+    { icon: Globe, value: t('about.stat3Value'), label: t('about.stat3Label') },
+    { icon: MapPin, value: t('about.stat4Value'), label: t('about.stat4Label') },
+  ];
+
+  const trustPoints = [
+    t('about.trust1'),
+    t('about.trust2'),
+    t('about.trust3'),
+    t('about.trust4'),
+  ];
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
         title="About Xplora — Québec City's Local Experience Guide"
-        description="Xplora is Québec City's curated guide to local tours, experiences, and events. We help visitors and residents discover the best of Vieux-Québec and the city's hidden gems."
+        description="Xplora is built by locals who know Québec City deeply. Learn who we are, what drives us, and why we only recommend what we'd show a friend."
         canonical="/about"
       />
 
-      <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-xs uppercase tracking-widest opacity-60 mb-1">Xplora</p>
-          <h1 className="text-2xl md:text-3xl mb-1">{t('about.headline')}</h1>
-          <p className="text-sm md:text-base opacity-90">{t('about.subheadline')}</p>
+      {/* Hero */}
+      <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-10 rounded-b-[3rem] md:rounded-none">
+        <div className="max-w-3xl mx-auto space-y-2">
+          <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
+          <h1 className="text-2xl md:text-3xl lg:text-4xl">{t('about.headline')}</h1>
+          <p className="text-sm md:text-base opacity-80 max-w-xl">{t('about.subheadline')}</p>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-6 md:px-8 py-16 space-y-20">
+      <div className="max-w-3xl mx-auto px-6 md:px-8 py-12 space-y-14">
 
-        <section className="flex flex-col sm:flex-row gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start">
-          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-xplora-icon-bg flex items-center justify-center">
-            <Compass className="w-7 h-7 text-xplora-primary" />
-          </div>
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">{t('about.mission')}</p>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl">{t('about.title')}</h2>
-            <p className="text-muted-foreground leading-relaxed text-base">
-              Xplora exists to connect people with the best of Québec City — the spots worth finding, the events worth showing up for, and the experiences that don't make it onto generic travel lists. Whether you're here for a week or have lived here for years, we make it easier to explore with intention.
-            </p>
-          </div>
+        {/* Origin story */}
+        <section className="space-y-4">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{t('about.storyLabel')}</p>
+          <p className="text-lg md:text-xl leading-relaxed text-foreground">
+            {t('about.story')}
+          </p>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            {t('about.storyDetail')}
+          </p>
         </section>
+
+        {/* Stats bar */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {stats.map((s) => (
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center gap-1">
+              <s.icon className="w-4 h-4 text-xplora-primary mb-1" />
+              <span className="text-xl font-medium text-foreground">{s.value}</span>
+              <span className="text-xs text-muted-foreground leading-tight">{s.label}</span>
+            </div>
+          ))}
+        </div>
 
         <div className="border-t border-border" />
 
-        <section className="flex flex-col sm:flex-row gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start">
-          <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-xplora-accent-teal/10 flex items-center justify-center">
-            <Sparkles className="w-7 h-7 text-xplora-accent-teal" />
+        {/* Team */}
+        <section className="space-y-6">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('about.teamLabel')}</p>
+            <h2 className="text-xl md:text-2xl">{t('about.teamTitle')}</h2>
           </div>
-          <div className="space-y-3">
-            <p className="text-xs uppercase tracking-widest text-muted-foreground">Our Vision</p>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl">A city most people never fully discover</h2>
-            <p className="text-muted-foreground leading-relaxed text-base">
-              Every city has a version of itself that most people never find. Our vision is a Québec City where tourists go beyond the Old Port, where newcomers find their spots fast, and where long-time locals keep being surprised. Xplora is how that happens.
-            </p>
-          </div>
-        </section>
-
-        <div className="border-t border-border" />
-
-        <section className="space-y-8">
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 md:gap-12 lg:gap-16 items-start">
-            <div className="flex-shrink-0 w-14 h-14 rounded-2xl bg-xplora-accent-green/10 flex items-center justify-center">
-              <Heart className="w-7 h-7 text-xplora-accent-green" />
-            </div>
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground">Our Values</p>
-              <h2 className="text-2xl md:text-3xl lg:text-4xl">What we stand for</h2>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {[
-              {
-                title: t('about.localFirst'),
-                body: 'Every experience, partner, and perk is rooted in Québec City. We lift up the businesses and people that make this city worth exploring.',
-              },
-              {
-                title: t('about.realOverPolished'),
-                body: 'We skip the tourist-trap energy. Xplora is for people who want the honest, lived-in version of the city — whether they just arrived or have been here for years.',
-              },
-              {
-                title: t('about.discovery'),
-                body: "We're not a feed. Every experience and perk on Xplora is hand-picked — no sponsored results, no generic lists.",
-              },
-              {
-                title: t('about.showUp'),
-                body: 'Belonging is built by presence. We design everything — events, itineraries, perks — to give you a reason to actually get out the door.',
-              },
-            ].map((v) => (
-              <div key={v.title} className="bg-card border border-border rounded-2xl p-6 space-y-2">
-                <h3 className="text-base font-medium text-foreground">{v.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{v.body}</p>
-              </div>
+          <div className="space-y-8">
+            {TEAM.map((member) => (
+              <TeamCard key={member.name} member={member} />
             ))}
+          </div>
+        </section>
+
+        <div className="border-t border-border" />
+
+        {/* Trust signals */}
+        <section className="space-y-5">
+          <div>
+            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('about.trustLabel')}</p>
+            <h2 className="text-xl md:text-2xl">{t('about.trustTitle')}</h2>
+          </div>
+          <ul className="space-y-3">
+            {trustPoints.map((point) => (
+              <li key={point} className="flex items-start gap-3">
+                <BadgeCheck className="w-5 h-5 text-xplora-primary flex-shrink-0 mt-0.5" />
+                <span className="text-sm md:text-base text-muted-foreground leading-relaxed">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <div className="border-t border-border" />
+
+        {/* CTA */}
+        <section className="bg-card border border-border rounded-3xl p-8 text-center space-y-4">
+          <h2 className="text-xl md:text-2xl">{t('about.ctaTitle')}</h2>
+          <p className="text-sm text-muted-foreground max-w-sm mx-auto">{t('about.ctaBody')}</p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <Link
+              to="/itinerary"
+              className="px-7 py-3.5 bg-[#12343B] text-white rounded-2xl text-sm font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+            >
+              {t('about.ctaExperiences')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <Link
+              to="/contact"
+              className="px-7 py-3.5 bg-white/60 backdrop-blur-sm text-foreground border border-border rounded-2xl text-sm hover:bg-white/80 transition-colors flex items-center justify-center"
+            >
+              {t('about.ctaContact')}
+            </Link>
           </div>
         </section>
 
