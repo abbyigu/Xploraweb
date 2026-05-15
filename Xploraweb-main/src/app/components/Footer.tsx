@@ -24,6 +24,7 @@ export function Footer() {
             </div>
             <div className="flex flex-wrap justify-center gap-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-foreground transition-colors">{t('footer.about')}</Link>
+              <Link to="/faq" className="hover:text-foreground transition-colors">{t('footer.faq')}</Link>
               <Link to="/business" className="hover:text-foreground transition-colors font-medium text-secondary">{t('footer.forBusinesses')}</Link>
               <Link to="/privacy" className="hover:text-foreground transition-colors">{t('footer.privacy')}</Link>
               <Link to="/terms" className="hover:text-foreground transition-colors">{t('footer.terms')}</Link>
