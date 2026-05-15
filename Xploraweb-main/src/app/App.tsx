@@ -9,6 +9,18 @@ import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 import './i18n';
 
+function SkipLink() {
+  const { t } = useTranslation();
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-[100] focus:bg-white focus:text-primary focus:px-4 focus:py-2 focus:rounded-lg focus:shadow-lg focus:font-medium focus:outline-2 focus:outline-primary"
+    >
+      {t('a11y.skipToContent')}
+    </a>
+  );
+}
+
 const HomeScreen             = lazy(() => import('./components/HomeScreen').then(m => ({ default: m.HomeScreen })));
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
 const ExperienceDetailScreen = lazy(() => import('./components/ExperienceDetailScreen').then(m => ({ default: m.ExperienceDetailScreen })));
@@ -52,7 +64,10 @@ function LanguageSync() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
       supabase.from('profiles').select('language').eq('id', user.id).single().then(({ data }) => {
-        if (data?.language) i18n.changeLanguage(data.language);
+        if (data?.language) {
+          i18n.changeLanguage(data.language);
+          document.documentElement.lang = data.language;
+        }
       });
     });
   }, []);
@@ -67,7 +82,9 @@ export default function App() {
       <AuthHandler />
       <LanguageSync />
       <div className="min-h-screen bg-background">
+        <SkipLink />
         <Header />
+        <main id="main-content" tabIndex={-1} className="outline-none">
         <div className="md:max-w-none max-w-md mx-auto relative">
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
             <Routes>
@@ -100,6 +117,7 @@ export default function App() {
             </Routes>
           </Suspense>
         </div>
+        </main>
         <BottomNav />
       </div>
       <SpeedInsights />

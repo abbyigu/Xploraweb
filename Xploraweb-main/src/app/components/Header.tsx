@@ -43,11 +43,12 @@ export function Header() {
             <XploraLogo variant="full" className="h-28 block" />
           </div>
 
-          <nav className="flex items-center gap-0.5 lg:gap-1">
+          <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-0.5 lg:gap-1">
             {navItems.map(({ path, labelKey }) => (
               <Link
                 key={path}
                 to={path}
+                aria-current={isActive(path) ? 'page' : undefined}
                 className={`px-3 lg:px-4 py-2 rounded-xl transition-all text-sm lg:text-base whitespace-nowrap ${
                   isActive(path)
                     ? 'bg-primary/15 border-2 border-primary text-foreground font-medium'
@@ -64,25 +65,26 @@ export function Header() {
 
             <button
               onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+              aria-label={language === 'fr' ? t('a11y.switchToEn') : t('a11y.switchToFr')}
               className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
             >
-              {language === 'fr' ? 'EN' : 'FR'}
+              <span aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
             </button>
 
-            <Link to="/cart" className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
-              <ShoppingCart className="w-5 h-5" />
+            <Link to="/cart" aria-label={t('a11y.cart')} className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
+              <ShoppingCart className="w-5 h-5" aria-hidden="true" />
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
+                <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
                   {count > 9 ? '9+' : count}
                 </span>
               )}
             </Link>
 
-            <Link to="/account">
+            <Link to="/account" aria-label={t('a11y.account')}>
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
-                  ? <img src={avatar.url} alt="Profile" className="w-full h-full object-cover" />
-                  : <span className="text-sm">{avatar.name ? getInitials(avatar.name) : '?'}</span>
+                  ? <img src={avatar.url} alt="" aria-hidden="true" className="w-full h-full object-cover" />
+                  : <span aria-hidden="true" className="text-sm">{avatar.name ? getInitials(avatar.name) : '?'}</span>
                 }
               </div>
             </Link>

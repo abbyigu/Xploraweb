@@ -20,21 +20,22 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
+    <nav aria-label={t('nav.mainNav', 'Main navigation')} className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
       <div className="max-w-md mx-auto flex justify-around items-center py-1 px-1">
         {navItems.map(({ path, icon: Icon, labelKey, badge }) => (
           <Link
             key={path}
             to={path}
+            aria-current={isActive(path) ? 'page' : undefined}
             className={`relative flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] px-3 py-2.5 rounded-lg transition-all justify-center ${
               isActive(path)
                 ? 'text-white bg-primary shadow-sm'
                 : 'text-foreground hover:text-foreground hover:bg-muted/40'
             }`}
           >
-            <Icon className="w-5 h-5" />
+            <Icon className="w-5 h-5" aria-hidden="true" />
             {badge > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-medium">
+              <span aria-hidden="true" className="absolute top-1 right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-medium">
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
@@ -45,10 +46,11 @@ export function BottomNav() {
         {/* Language toggle */}
         <button
           onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+          aria-label={language === 'fr' ? t('a11y.switchToEn') : t('a11y.switchToFr')}
           className="relative flex flex-col items-center gap-0.5 min-w-[44px] min-h-[44px] px-3 py-2.5 rounded-lg transition-all text-muted-foreground hover:bg-muted/40 justify-center"
         >
-          <Languages className="w-5 h-5" />
-          <span className="text-[10px] font-medium">{language === 'fr' ? 'EN' : 'FR'}</span>
+          <Languages className="w-5 h-5" aria-hidden="true" />
+          <span aria-hidden="true" className="text-[10px] font-medium">{language === 'fr' ? 'EN' : 'FR'}</span>
         </button>
       </div>
     </nav>
