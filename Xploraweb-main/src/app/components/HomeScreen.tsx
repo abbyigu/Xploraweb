@@ -1,11 +1,13 @@
-import { Link, useNavigate } from 'react-router';
-import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Clock } from 'lucide-react';
-import { XploraLogo } from './XploraLogo';
+import { useNavigate } from 'react-router';
+import { MapPin, Star, Users, Clock } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
+import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useFeaturedExperiences } from '../hooks/useFeaturedExperiences';
+import { DealCard } from './DealCard';
+import { perks } from '../data/mockData';
 import { useState, useEffect } from 'react';
 import { supabase, getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
@@ -36,9 +38,9 @@ const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 function useVibeKey(): string {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return 'business.vibeMorning';
-  if (hour >= 12 && hour < 18) return 'business.vibeAfternoon';
-  return 'business.vibeEvening';
+  if (hour >= 5 && hour < 12) return 'search.vibeMorning';
+  if (hour >= 12 && hour < 18) return 'search.vibeAfternoon';
+  return 'search.vibeEvening';
 }
 
 function ExplorerBanner() {
@@ -63,13 +65,7 @@ function ExplorerBanner() {
             </div>
           ))}
         </div>
-        <p className="text-sm text-white/90">
-          Join{' '}
-          <span className="font-semibold text-white">
-            {count !== null ? `${count.toLocaleString()}+` : '...'}
-          </span>{' '}
-          {t('home.explorers')}
-        </p>
+        <p className="text-sm font-semibold text-white">{t('home.explorers')}</p>
       </div>
     </div>
   );
@@ -243,11 +239,9 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
           )}
         </section>
 
-        {/* Reviews */}
         {reviews.length > 0 && (
           <section>
-            <h2 className="text-xl md:text-2xl mb-6">{t('home.whatPeopleSay')}</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
+            <div className="flex flex-col gap-3">
               {reviews.map(r => (
                 <ReviewCard key={r.id} review={r} />
               ))}
@@ -261,6 +255,16 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
             <MembershipBanner />
           </section>
         )}
+
+        {/* Perks */}
+        <section>
+          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+            {perks.map((perk) => (
+              <DealCard key={perk.id} {...perk} />
+            ))}
+          </div>
+        </section>
       </div>
     </>
   );
@@ -317,20 +321,6 @@ export function HomeScreen() {
                   <h1 className="text-3xl md:text-5xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
                   <p className="text-base md:text-lg opacity-80">{t('home.businessDesc')}</p>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-                  <button
-                    onClick={() => navigate('/business/dashboard')}
-                    className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                  >
-                    <LayoutDashboard className="w-5 h-5" /> {t('home.dashboard')}
-                  </button>
-                  <button
-                    onClick={() => navigate('/account')}
-                    className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <User className="w-5 h-5" /> {t('home.account')}
-                  </button>
-                </div>
               </div>
             </div>
           </div>
@@ -355,28 +345,13 @@ export function HomeScreen() {
         schema={LOCAL_BUSINESS_SCHEMA}
       />
 
-      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground min-h-[calc(100vh-64px)] flex flex-col justify-center">
+      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-2 md:py-4 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
             <XploraLogo variant="full" className="h-36 md:h-52" />
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-              <Link
-                to="/signup"
-                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                {t('landing.joinXplora')}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/login"
-                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
-              >
-                {t('landing.signIn')}
-              </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
