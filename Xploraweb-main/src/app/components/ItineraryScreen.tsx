@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
-import { Compass, Users, Moon, Sparkles } from 'lucide-react';
+import { Compass, Users, Moon, Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
@@ -52,6 +52,13 @@ const CAT_TAGLINE_KEY: Record<string, string> = {
   xploranights: 'taglineXploranights',
 };
 
+const CAT_TYPE_KEY: Record<string, string> = {
+  xplorators: 'typeSelfGuided',
+  xploratorsplus: 'typePremium',
+  xploratours: 'typeGuided',
+  xploranights: 'typeNights',
+};
+
 const TIER_META: Record<ExperienceCategory, {
   icon: React.ElementType;
   accent: string;
@@ -82,6 +89,7 @@ export function ItineraryScreen() {
   const [selectedPrice, setSelectedPrice] = useState<PriceBucket | null>(null);
   const [selectedLang, setSelectedLang] = useState<LangFilter | null>(null);
   const [familyOnly, setFamilyOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -180,19 +188,33 @@ export function ItineraryScreen() {
             if (!items.length) return null;
             const meta = TIER_META[cat.id];
             const Icon = meta.icon;
+            const visible = items.slice(0, 3);
+            const remaining = items.length - visible.length;
             return (
               <section key={cat.id}>
-                <div className="flex items-start gap-3 mb-5">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.pill}`}>
-                    <Icon className="w-5 h-5" />
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.pill}`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground leading-none mb-0.5">
+                        {t(`itinerary.${CAT_TYPE_KEY[cat.id]}`)}
+                      </p>
+                      <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
-                    <p className="text-sm text-muted-foreground">{t(`itinerary.${CAT_TAGLINE_KEY[cat.id]}`, cat.tagline)}</p>
-                  </div>
+                  {remaining > 0 && (
+                    <button
+                      onClick={() => setFilter(cat.id)}
+                      className="text-sm text-primary font-medium hover:underline flex-shrink-0"
+                    >
+                      {t('itinerary.seeAll', { count: items.length })}
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {items.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+                  {visible.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
                 </div>
               </section>
             );
@@ -257,19 +279,49 @@ export function ItineraryScreen() {
         </div>
       </div>
 
-      {/* Filter section */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
+      {/* Filter toggle + panel */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-5">
+        <div className="flex items-center gap-3 mb-1">
+          <button
+            onClick={() => setShowFilters(f => !f)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
+              showFilters || hasFilter
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-card border-border hover:bg-muted/50'
+            }`}
+          >
+            <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
+            {t('itinerary.filters')}
+            {hasFilter && !showFilters && (
+              <span className="bg-white/30 text-current text-xs px-1.5 py-0.5 rounded-full leading-none">
+                {[selectedVibes.length, selectedNeighbourhood ? 1 : 0, selectedDuration ? 1 : 0, selectedPrice ? 1 : 0, selectedLang ? 1 : 0, familyOnly ? 1 : 0].reduce((a, b) => a + b, 0)}
+              </span>
+            )}
+          </button>
+          {hasFilter && (
+            <button
+              onClick={clearAll}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-3 h-3" aria-hidden="true" />
+              {t('itinerary.clearAll')}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {showFilters && (
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-3">
         <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-5">
           <div className="flex items-center justify-between">
             <h2 className="text-base md:text-lg font-medium">{t('itinerary.filterPrompt')}</h2>
-            {hasFilter && (
-              <button
-                onClick={clearAll}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
-              >
-                {t('itinerary.clearAll')}
-              </button>
-            )}
+            <button
+              onClick={() => setShowFilters(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              aria-label={t('itinerary.hideFilters')}
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Duration */}
@@ -402,6 +454,7 @@ export function ItineraryScreen() {
           </div>
         </div>
       </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
         {renderContent()}

@@ -32,8 +32,11 @@
     "joinUs": "Join Us"
   },
   "landing": {
-    "headline": "Discover local. Live more.",
-    "subheadline": "Curated tours, insider perks, and self-guided walks — all in one place.",
+    "headline": "Your insider guide to Québec City",
+    "subheadline": "Curated tours, local perks, and self-guided walks — for visitors and locals who want more than a map.",
+    "proof1Label": "avg rating",
+    "proof2Label": "guests hosted",
+    "proof3Label": "Local-curated picks",
     "joinXplora": "Join Xplora",
     "signIn": "Sign In",
     "exploreExperiences": "Explore experiences",
@@ -123,7 +126,15 @@
     "taglineXplorators": "Explore at your pace · Self-guided",
     "taglineXploratorsPlus": "Go deeper · Stories, context & local access",
     "taglineXploratours": "Experience together",
-    "taglineXploranights": "The nights worth going out for"
+    "taglineXploranights": "The nights worth going out for",
+    "typeSelfGuided": "Self-guided walks",
+    "typeGuided": "Guided tours",
+    "typeNights": "Evening events",
+    "typePremium": "Premium routes",
+    "filters": "Filters",
+    "hideFilters": "Hide filters",
+    "seeAll": "See all {{count}} →",
+    "activeFilters": "{{count}} active"
   },
   "howItWorks": {
     "title": "How it works",
@@ -169,9 +180,11 @@
   },
   "experienceCard": {
     "book": "View details",
-    "added": "Added",
+    "added": "In cart",
     "spots": "spots",
-    "free": "Free"
+    "free": "Free",
+    "startExploring": "Start exploring",
+    "bookPaid": "Book"
   },
   "experienceDetail": {
     "notFound": "Experience not found.",

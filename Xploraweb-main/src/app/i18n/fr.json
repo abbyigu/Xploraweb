@@ -32,8 +32,11 @@
     "joinUs": "Rejoins-nous"
   },
   "landing": {
-    "headline": "Découvre local. Vis plus.",
-    "subheadline": "Visites guidées, avantages exclusifs et balades autonomes — au même endroit.",
+    "headline": "Ton guide insider de Québec",
+    "subheadline": "Visites guidées, avantages locaux et balades autonomes — pour les visiteurs et les locaux qui veulent plus qu'une carte.",
+    "proof1Label": "note moyenne",
+    "proof2Label": "participants accueillis",
+    "proof3Label": "Sélections locales",
     "joinXplora": "Rejoindre Xplora",
     "signIn": "Connexion",
     "exploreExperiences": "Explorer les expériences",
@@ -123,7 +126,15 @@
     "taglineXplorators": "Explorez à votre rythme · Autoguidé",
     "taglineXploratorsPlus": "Allez plus loin · Récits, contexte et accès local",
     "taglineXploratours": "Vivre ensemble",
-    "taglineXploranights": "Les soirées qui valent le déplacement"
+    "taglineXploranights": "Les soirées qui valent le déplacement",
+    "typeSelfGuided": "Balades autonomes",
+    "typeGuided": "Visites guidées",
+    "typeNights": "Événements en soirée",
+    "typePremium": "Parcours premium",
+    "filters": "Filtres",
+    "hideFilters": "Masquer les filtres",
+    "seeAll": "Voir les {{count}} →",
+    "activeFilters": "{{count}} actif"
   },
   "howItWorks": {
     "title": "Comment ça marche",
@@ -169,9 +180,11 @@
   },
   "experienceCard": {
     "book": "Voir les détails",
-    "added": "Ajouté",
+    "added": "Dans le panier",
     "spots": "places",
-    "free": "Gratuit"
+    "free": "Gratuit",
+    "startExploring": "Commencer",
+    "bookPaid": "Réserver"
   },
   "experienceDetail": {
     "notFound": "Expérience introuvable.",
