@@ -36,6 +36,9 @@ function mapRow(row: any): Product {
     itinerary: pickArr(row.itinerary_fr, row.itinerary),
     neighbourhood: row.neighbourhood || undefined,
     vibes: row.vibes || undefined,
+    eventDate: row.event_date || undefined,
+    eventTime: row.event_time || undefined,
+    eventType: row.event_type || undefined,
   };
 }
 
@@ -44,9 +47,8 @@ export function useExperiences() {
   const [loading, setLoading] = useState(true);
 
   const reload = async () => {
-    const [xploraRes, allNamesRes, perksRes] = await Promise.all([
+    const [xploraRes, perksRes] = await Promise.all([
       supabase.from('xplora_experiences').select('*').eq('status', 'active').order('created_at', { ascending: false }),
-      supabase.from('xplora_experiences').select('name'),
       supabase.from('business_perks').select('*').eq('type', 'xplora_experience').eq('status', 'active').order('created_at', { ascending: false }),
     ]);
 
@@ -65,8 +67,9 @@ export function useExperiences() {
       category: row.category,
     }));
 
-    const allDbNames = new Set((allNamesRes.data || []).map((r: any) => r.name?.toLowerCase()));
-    const unpromoted = staticExperiences.filter(e => !allDbNames.has(e.name.toLowerCase()));
+    // Only suppress static entries if an active DB record covers them
+    const activeDbNames = new Set([...fromXplora, ...fromPerks].map(e => e.name.toLowerCase()));
+    const unpromoted = staticExperiences.filter(e => !activeDbNames.has(e.name.toLowerCase()));
     setExperiences([...fromXplora, ...fromPerks, ...unpromoted]);
     setLoading(false);
   };

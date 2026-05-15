@@ -4,8 +4,9 @@ import { Compass, Users, Moon, Sparkles, SlidersHorizontal, X } from 'lucide-rea
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
+import { EventCard } from './EventCard';
 import { useExperiences } from '../hooks/useExperiences';
-import type { ExperienceCategory } from '../data/products';
+import type { ExperienceCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
@@ -13,6 +14,28 @@ type Filter = 'all' | ExperienceCategory;
 type DurationBucket = 'self-guided' | 'under2h' | '2to3h' | 'halfday' | 'evening';
 type PriceBucket = 'free' | 'under25' | '25to50' | '50plus';
 type LangFilter = 'en' | 'fr';
+type EventTimeBucket = 'today' | 'weekend' | 'month';
+
+function getEventTimeBucket(dateStr?: string): EventTimeBucket | 'future' | null {
+  if (!dateStr) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const event = new Date(dateStr + 'T00:00:00');
+  const diffDays = Math.round((event.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  if (diffDays < 0) return null;
+  if (diffDays === 0) return 'today';
+  const dow = event.getDay();
+  if (diffDays <= 7 && (dow === 0 || dow === 6)) return 'weekend';
+  if (event.getFullYear() === today.getFullYear() && event.getMonth() === today.getMonth()) return 'month';
+  return 'future';
+}
+
+function sortByDate(a: Product, b: Product): number {
+  if (!a.eventDate && !b.eventDate) return 0;
+  if (!a.eventDate) return 1;
+  if (!b.eventDate) return -1;
+  return a.eventDate.localeCompare(b.eventDate);
+}
 
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 const NEIGHBOURHOOD_OPTIONS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
@@ -90,6 +113,7 @@ export function ItineraryScreen() {
   const [selectedLang, setSelectedLang] = useState<LangFilter | null>(null);
   const [familyOnly, setFamilyOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -169,6 +193,54 @@ export function ItineraryScreen() {
     );
   }
 
+  function renderNightsSection(items: Product[], isFullPage = false) {
+    const sorted = [...items].sort(sortByDate);
+    const filtered = eventTimeFilter
+      ? sorted.filter(e => {
+          const bucket = getEventTimeBucket(e.eventDate);
+          if (eventTimeFilter === 'today') return bucket === 'today';
+          if (eventTimeFilter === 'weekend') return bucket === 'weekend' || bucket === 'today';
+          if (eventTimeFilter === 'month') return bucket !== null && bucket !== 'future';
+          return true;
+        })
+      : sorted;
+
+    const timeBuckets: { key: EventTimeBucket; label: string }[] = [
+      { key: 'today',   label: t('events.today') },
+      { key: 'weekend', label: t('events.thisWeekend') },
+      { key: 'month',   label: t('events.thisMonth') },
+    ];
+
+    return (
+      <div className="space-y-4">
+        {isFullPage && (
+          <div className="flex flex-wrap gap-2">
+            {timeBuckets.map(({ key, label }) => (
+              <button
+                key={key}
+                onClick={() => setEventTimeFilter(prev => prev === key ? null : key)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+                  eventTimeFilter === key
+                    ? 'bg-[#12343B] text-white border-[#12343B]'
+                    : 'bg-card border-border text-foreground hover:bg-muted/50'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
+        {filtered.length === 0 ? (
+          <p className="text-muted-foreground text-sm py-8 text-center">{t('events.noUpcoming')}</p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {filtered.map(exp => <EventCard key={exp.id} exp={exp} />)}
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function renderContent() {
     if (hasFilter) {
       if (filteredExperiences.length === 0) {
@@ -180,6 +252,10 @@ export function ItineraryScreen() {
         </div>
       );
     }
+    if (filter === 'xploranights') {
+      const nightsItems = experiences.filter(e => e.category === 'xploranights');
+      return renderNightsSection(nightsItems, true);
+    }
     if (filter === 'all') {
       return (
         <>
@@ -188,7 +264,8 @@ export function ItineraryScreen() {
             if (!items.length) return null;
             const meta = TIER_META[cat.id];
             const Icon = meta.icon;
-            const visible = items.slice(0, 3);
+            const isNights = cat.id === 'xploranights';
+            const visible = isNights ? [...items].sort(sortByDate).slice(0, 3) : items.slice(0, 3);
             const remaining = items.length - visible.length;
             return (
               <section key={cat.id}>
@@ -213,9 +290,15 @@ export function ItineraryScreen() {
                     </button>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {visible.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
-                </div>
+                {isNights ? (
+                  <div className="flex flex-col gap-3">
+                    {visible.map(exp => <EventCard key={exp.id} exp={exp} />)}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                    {visible.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+                  </div>
+                )}
               </section>
             );
           })}

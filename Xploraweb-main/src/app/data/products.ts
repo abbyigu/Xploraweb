@@ -33,6 +33,10 @@ export interface Product {
   itinerary?: string[];
   neighbourhood?: string;
   vibes?: string[];
+  // event-specific (xploranights)
+  eventDate?: string;   // ISO date: '2026-05-15'
+  eventTime?: string;   // display string: '8:00 PM'
+  eventType?: 'recurring' | 'seasonal' | 'one-time';
 }
 
 export const experiences: Product[] = [
@@ -247,7 +251,7 @@ export const experiences: Product[] = [
   {
     id: 'exp-6',
     name: 'Nightlife Tour',
-    description: 'Best bars, clubs, and late-night eats',
+    description: 'Best bars, clubs, and late-night eats in Old Quebec and Saint-Roch',
     price: 6000,
     image: 'https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
@@ -256,11 +260,16 @@ export const experiences: Product[] = [
     spots: 5,
     difficulty: 'Easy',
     category: 'xploranights',
+    eventDate: '2026-05-15',
+    eventTime: '9:00 PM',
+    eventType: 'one-time',
+    meetingPoint: 'Place D\'Youville — corner entrance, Old Quebec',
+    languages: ['English', 'Français'],
   },
   {
     id: 'exp-8',
     name: 'Rooftop 5 à 7',
-    description: 'Members-only evening on the best rooftop in the city',
+    description: 'Members-only drinks and views on the best rooftop terrace in the city',
     price: 4500,
     image: 'https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
     type: 'experience',
@@ -269,6 +278,11 @@ export const experiences: Product[] = [
     spots: 20,
     difficulty: 'Easy',
     category: 'xploranights',
+    eventDate: '2026-05-16',
+    eventTime: '5:00 PM',
+    eventType: 'recurring',
+    meetingPoint: 'Le Perché Rooftop — 263 Rue Saint-Vallier O, Saint-Roch',
+    languages: ['English', 'Français'],
   },
   {
     id: 'exp-11',
@@ -282,6 +296,11 @@ export const experiences: Product[] = [
     spots: 10,
     difficulty: 'Easy',
     category: 'xploranights',
+    eventDate: '2026-05-22',
+    eventTime: '7:30 PM',
+    eventType: 'seasonal',
+    meetingPoint: 'Chez Maurice — 575 Grande Allée Est, Montcalm',
+    languages: ['English'],
   },
 ];
 

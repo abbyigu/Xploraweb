@@ -186,6 +186,16 @@
     "startExploring": "Commencer",
     "bookPaid": "Réserver"
   },
+  "events": {
+    "today": "Aujourd'hui",
+    "thisWeekend": "Ce week-end",
+    "thisMonth": "Ce mois-ci",
+    "recurring": "Récurrent",
+    "seasonal": "Saisonnier",
+    "one-time": "Unique",
+    "noUpcoming": "Aucun événement à venir dans cette période — revenez bientôt.",
+    "fewSpots": "Seulement {{count}} places restantes"
+  },
   "experienceDetail": {
     "notFound": "Expérience introuvable.",
     "back": "← Retour",

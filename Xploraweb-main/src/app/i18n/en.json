@@ -186,6 +186,16 @@
     "startExploring": "Start exploring",
     "bookPaid": "Book"
   },
+  "events": {
+    "today": "Today",
+    "thisWeekend": "This weekend",
+    "thisMonth": "This month",
+    "recurring": "Recurring",
+    "seasonal": "Seasonal",
+    "one-time": "One time",
+    "noUpcoming": "No upcoming events in this window — check back soon.",
+    "fewSpots": "Only {{count}} spots left"
+  },
   "experienceDetail": {
     "notFound": "Experience not found.",
     "back": "← Back to Explore",
