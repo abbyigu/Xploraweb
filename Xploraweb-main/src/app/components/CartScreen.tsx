@@ -5,6 +5,7 @@ import { SimpleFooter } from './SimpleFooter';
 import { useNavigate } from 'react-router';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { analytics } from '../lib/analytics';
 
 export function CartScreen() {
   const { items, removeItem, updateQuantity, clearCart, total, count } = useCart();
@@ -40,6 +41,8 @@ export function CartScreen() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Checkout failed');
       if (data.url) {
+        analytics.beginCheckout(items, total);
+        analytics.stagePurchase(items, total);
         clearCart();
         window.location.href = data.url;
       }

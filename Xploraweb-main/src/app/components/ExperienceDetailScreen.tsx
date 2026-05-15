@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
@@ -6,6 +6,7 @@ import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
+import { analytics } from '../lib/analytics';
 
 export function ExperienceDetailScreen() {
   const { t } = useTranslation();
@@ -30,8 +31,14 @@ export function ExperienceDetailScreen() {
   const photos = exp.images && exp.images.length > 0 ? exp.images : [exp.image];
   const inCart = items.some(i => i.id === exp.id);
 
+  // Fire view_item once when experience loads
+  useEffect(() => {
+    if (exp) analytics.viewItem({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
+  }, [exp?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const purchaseAndAdd = () => {
     if (inCart) return;
+    analytics.addToCart({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
     addItem(exp);
     try {
       const existing: string[] = JSON.parse(localStorage.getItem('xplora_purchased') || '[]');
