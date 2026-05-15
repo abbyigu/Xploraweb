@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, BadgeCheck, MapPin, Globe, Calendar, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
