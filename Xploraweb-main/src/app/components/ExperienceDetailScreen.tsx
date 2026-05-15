@@ -90,24 +90,31 @@ export function ExperienceDetailScreen() {
         />
         {photos.length > 1 && (
           <>
-            <button onClick={prevPhoto} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
-              <Prev className="w-5 h-5" />
+            <button onClick={prevPhoto} aria-label={t('a11y.prevPhoto')} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
+              <Prev className="w-5 h-5" aria-hidden="true" />
             </button>
-            <button onClick={nextPhoto} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
-              <Next className="w-5 h-5" />
+            <button onClick={nextPhoto} aria-label={t('a11y.nextPhoto')} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow">
+              <Next className="w-5 h-5" aria-hidden="true" />
             </button>
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+            <div role="group" aria-label={t('a11y.photoOf', { current: photoIndex + 1, total: photos.length })} className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
               {photos.map((_, i) => (
-                <button key={i} onClick={() => setPhotoIndex(i)} className={`w-2 h-2 rounded-full transition-colors ${i === photoIndex ? 'bg-white' : 'bg-white/50'}`} />
+                <button
+                  key={i}
+                  onClick={() => setPhotoIndex(i)}
+                  aria-label={t('a11y.photoOf', { current: i + 1, total: photos.length })}
+                  aria-pressed={i === photoIndex}
+                  className={`w-2 h-2 rounded-full transition-colors ${i === photoIndex ? 'bg-white' : 'bg-white/50'}`}
+                />
               ))}
             </div>
           </>
         )}
         <button
           onClick={() => navigate(-1)}
+          aria-label={t('a11y.goBack')}
           className="absolute top-4 left-4 bg-white/80 backdrop-blur-sm rounded-full p-2 hover:bg-white transition-colors shadow"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="w-5 h-5" aria-hidden="true" />
         </button>
         {exp.badge && (
           <span className="absolute top-4 right-4 bg-primary text-primary-foreground text-xs px-3 py-1.5 rounded-full">

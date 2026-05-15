@@ -669,5 +669,19 @@
     "3quote": "The self-guided walk was so well designed — like having a local friend show you around.",
     "3name": "Andrés R.",
     "3role": "Visitor, Montréal"
+  },
+  "a11y": {
+    "skipToContent": "Skip to main content",
+    "cart": "Shopping cart",
+    "account": "Your account",
+    "switchToFr": "Passer au français",
+    "switchToEn": "Switch to English",
+    "prevPhoto": "Previous photo",
+    "nextPhoto": "Next photo",
+    "goBack": "Go back",
+    "photoOf": "Photo {{current}} of {{total}}",
+    "removeItem": "Remove {{name}} from cart",
+    "decreaseQty": "Decrease quantity of {{name}}",
+    "increaseQty": "Increase quantity of {{name}}"
   }
 }

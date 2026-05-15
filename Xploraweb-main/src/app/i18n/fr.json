@@ -658,6 +658,20 @@
     "lateNight": "Nuit tardive",
     "familyFriendly": "Famille"
   },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "cart": "Panier",
+    "account": "Ton compte",
+    "switchToFr": "Passer au français",
+    "switchToEn": "Switch to English",
+    "prevPhoto": "Photo précédente",
+    "nextPhoto": "Photo suivante",
+    "goBack": "Retour",
+    "photoOf": "Photo {{current}} sur {{total}}",
+    "removeItem": "Retirer {{name}} du panier",
+    "decreaseQty": "Diminuer la quantité de {{name}}",
+    "increaseQty": "Augmenter la quantité de {{name}}"
+  },
   "testimonials": {
     "title": "Ce que disent les explorateurs",
     "1quote": "J'ai découvert un endroit caché que je ne connaissais pas après 10 ans ici. Xplora connait vraiment Québec.",

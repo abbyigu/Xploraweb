@@ -96,18 +96,18 @@ export function CartScreen() {
                   <h3 className="text-base leading-snug">{item.name}</h3>
                   <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
                 </div>
-                <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0 p-1">
-                  <Trash2 className="w-4 h-4" />
+                <button onClick={() => removeItem(item.id)} aria-label={t('a11y.removeItem', { name: item.name })} className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0 p-1">
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                    <Minus className="w-3 h-3" />
+                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label={t('a11y.decreaseQty', { name: item.name })} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                    <Minus className="w-3 h-3" aria-hidden="true" />
                   </button>
-                  <span className="text-sm w-4 text-center">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
-                    <Plus className="w-3 h-3" />
+                  <span className="text-sm w-4 text-center" aria-live="polite">{item.quantity}</span>
+                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label={t('a11y.increaseQty', { name: item.name })} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                    <Plus className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </div>
                 <span className="font-medium">${((item.price * item.quantity) / 100).toFixed(2)}</span>
