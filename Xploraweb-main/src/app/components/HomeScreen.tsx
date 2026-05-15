@@ -365,7 +365,7 @@ export function HomeScreen() {
                 to="/signup"
                 className="px-8 py-4 bg-white/50 backdrop-blur-sm text-foreground border border-white/70 rounded-2xl text-base hover:bg-white/70 transition-colors flex items-center justify-center"
               >
-                {t('landing.bookNow')}
+                {t('landing.bookTour')}
               </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
