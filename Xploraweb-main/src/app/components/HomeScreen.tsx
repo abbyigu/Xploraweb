@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router';
 import { MapPin, Star, Users, Clock } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
+import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { ImageWithFallback } from './figma/ImageWithFallback';
@@ -314,7 +315,7 @@ export function HomeScreen() {
           <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
             <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
               <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
-                <img src="/logo.png" alt="Xplora" className="h-28 md:h-40 object-contain" />
+                <XploraLogo variant="full" className="h-28 md:h-40" />
                 <div className="space-y-2">
                   <p className="text-xs uppercase tracking-widest opacity-60">{t('home.welcomeBack')}</p>
                   <h1 className="text-3xl md:text-5xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
@@ -347,7 +348,7 @@ export function HomeScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-2 md:py-4 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
-            <img src="/logo.png" alt="Xplora" className="h-36 md:h-52 object-contain" />
+            <XploraLogo variant="full" className="h-36 md:h-52" />
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
