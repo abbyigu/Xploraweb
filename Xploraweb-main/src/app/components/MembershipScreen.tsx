@@ -5,6 +5,7 @@ import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
+import { analytics } from '../lib/analytics';
 
 const PRICE_IDS = {
   monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
@@ -47,6 +48,9 @@ export function MembershipScreen() {
 
       const data = await res.json();
       if (data.url) {
+        const price = billing === 'yearly' ? 9600 : 1000;
+        analytics.beginCheckout([{ id: `membership_${billing}`, name: `Xplora Membership (${billing})`, price, quantity: 1 }], price);
+        analytics.stageSubscribe(billing);
         window.location.href = data.url;
       } else {
         setError(data.error || 'Something went wrong.');

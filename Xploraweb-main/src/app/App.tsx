@@ -1,12 +1,13 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
+import { analytics } from './lib/analytics';
 import './i18n';
 
 function SkipLink() {
@@ -58,6 +59,25 @@ function AuthHandler() {
   return null;
 }
 
+function AnalyticsHandler() {
+  const location = useLocation();
+
+  // Page view on every route change
+  useEffect(() => {
+    analytics.pageView(location.pathname + location.search);
+  }, [location.pathname, location.search]);
+
+  // Flush purchase/subscribe events after Stripe redirect
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.has('checkout_success') || params.has('subscribed') || params.has('booking')) {
+      analytics.flushPending();
+    }
+  }, [location.search]);
+
+  return null;
+}
+
 function LanguageSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
@@ -81,6 +101,7 @@ export default function App() {
     <BrowserRouter>
       <AuthHandler />
       <LanguageSync />
+      <AnalyticsHandler />
       <div className="min-h-screen bg-background">
         <SkipLink />
         <Header />
