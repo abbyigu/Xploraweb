@@ -5,8 +5,13 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SUPABASE_URL = 'https://qnalvzgqrfjbuoqsffbs.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_CCDW9tXRVNYA66aqo190bw_hIVgo8Nt';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
+  process.exit(1);
+}
 const BASE_URL = 'https://goxplora.ca';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
