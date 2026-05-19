@@ -289,7 +289,7 @@ export function HomeScreen() {
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span>4.9/5 rating</span>
+                <span>4.9/5 · 47 reviews</span>
               </div>
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 <Users className="w-4 h-4" />
@@ -297,7 +297,7 @@ export function HomeScreen() {
               </div>
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 <MapPin className="w-4 h-4" />
-                <span>30+ bookings this week</span>
+                <span>50+ curated experiences</span>
               </div>
             </div>
           </div>

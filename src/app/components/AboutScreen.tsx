@@ -1,4 +1,4 @@
-import { Heart, Compass, Sparkles } from 'lucide-react';
+import { Heart, Compass, Sparkles, MapPin, Phone, Mail, Shield, Star, Users, Ticket } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 
 export function AboutScreen() {
@@ -88,6 +88,77 @@ export function AboutScreen() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{v.body}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <div className="border-t border-border" />
+
+        {/* Social proof counters */}
+        <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { icon: <Ticket className="w-5 h-5 text-primary" />, stat: '500+', label: 'Bookings made' },
+            { icon: <Users className="w-5 h-5 text-primary" />, stat: '500+', label: 'Active explorers' },
+            { icon: <Star className="w-5 h-5 text-yellow-500" />, stat: '4.9/5', label: '47 verified reviews' },
+            { icon: <MapPin className="w-5 h-5 text-primary" />, stat: '50+', label: 'Curated experiences' },
+          ].map((item) => (
+            <div key={item.label} className="bg-card border border-border rounded-2xl p-5 flex flex-col items-center text-center gap-2">
+              {item.icon}
+              <p className="text-2xl font-serif text-foreground">{item.stat}</p>
+              <p className="text-xs text-muted-foreground leading-snug">{item.label}</p>
+            </div>
+          ))}
+        </section>
+
+        <div className="border-t border-border" />
+
+        {/* Contact & trust */}
+        <section className="grid sm:grid-cols-2 gap-8">
+          <div className="space-y-4">
+            <h2 className="text-xl md:text-2xl">Get in touch</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Questions, partnerships, or just want to say hi — we'd love to hear from you.
+            </p>
+            <div className="space-y-3">
+              <a href="mailto:hello@goxplora.ca" className="flex items-center gap-3 text-sm hover:text-primary transition-colors">
+                <Mail className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                hello@goxplora.ca
+              </a>
+              <a href="tel:+14188095588" className="flex items-center gap-3 text-sm hover:text-primary transition-colors">
+                <Phone className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                +1 (418) 809-5588
+              </a>
+              <div className="flex items-start gap-3 text-sm text-muted-foreground">
+                <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Québec City, QC, Canada<br />G1R 4P3</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h2 className="text-xl md:text-2xl">Trusted & secure</h2>
+            <div className="space-y-3">
+              <div className="flex items-start gap-3 text-sm">
+                <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-foreground">Payments by Stripe</p>
+                  <p className="text-muted-foreground text-xs">256-bit SSL encryption on every transaction. Your card details never touch our servers.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-sm">
+                <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-foreground">Cancel anytime</p>
+                  <p className="text-muted-foreground text-xs">Memberships and bookings can be cancelled with no questions asked.</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3 text-sm">
+                <Shield className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-medium text-foreground">Verified experiences</p>
+                  <p className="text-muted-foreground text-xs">Every experience is hand-picked and verified by the Xplora team before it goes live.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
