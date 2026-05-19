@@ -273,9 +273,9 @@ export function HomeScreen() {
 
       {/* Hero */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground flex flex-col justify-center">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24 w-full">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-24 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
-            <XploraLogo variant="full" className="h-36 md:h-52" />
+            <XploraLogo variant="full" className="h-20 md:h-52" />
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">
@@ -285,6 +285,26 @@ export function HomeScreen() {
                 Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
               </p>
             </div>
+
+            {/* Destination photo tiles — mobile only */}
+            <div className="md:hidden flex gap-2 w-full overflow-x-auto pb-1 -mx-6 px-6 [&::-webkit-scrollbar]:hidden">
+              {[
+                { label: 'Old Port', img: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+                { label: 'Saint-Roch', img: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+                { label: 'Petit-Champlain', img: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+              ].map(({ label, img }) => (
+                <button
+                  key={label}
+                  onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+                  className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden"
+                >
+                  <img src={img} alt={label} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span className="absolute bottom-1.5 left-0 right-0 text-white text-[10px] font-medium text-center leading-tight px-1">{label}</span>
+                </button>
+              ))}
+            </div>
+
             {/* Social proof */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
