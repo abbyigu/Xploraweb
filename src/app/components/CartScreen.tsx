@@ -93,6 +93,17 @@ export function CartScreen() {
                   <span className="text-xs uppercase tracking-wide text-muted-foreground">{item.type}</span>
                   <h3 className="text-base leading-snug">{item.name}</h3>
                   <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
+                  {(item.selectedDate || item.selectedTime) && (
+                    <p className="text-xs text-primary mt-1">
+                      {item.selectedDate && new Date(item.selectedDate + 'T00:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {item.selectedDate && item.selectedTime && ' · '}
+                      {item.selectedTime && (() => {
+                        const [h, m] = item.selectedTime!.split(':').map(Number);
+                        const ampm = h >= 12 ? 'pm' : 'am';
+                        return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
+                      })()}
+                    </p>
+                  )}
                 </div>
                 <button onClick={() => removeItem(item.id)} className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0 p-1">
                   <Trash2 className="w-4 h-4" />

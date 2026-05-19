@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next, Calendar } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
@@ -41,6 +41,8 @@ export function ExperienceDetailScreen() {
   const { addItem, items } = useCart();
   const [photoIndex, setPhotoIndex] = useState(0);
   const [testimonial, setTestimonial] = useState<Testimonial | null>(null);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   useEffect(() => {
     if (exp) analytics.viewItem({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
@@ -115,10 +117,36 @@ export function ExperienceDetailScreen() {
     }),
   };
 
+  const today = new Date().toISOString().split('T')[0];
+  const isPaid = exp.price > 0;
+  const canBook = !isPaid || (selectedDate !== '' && selectedTime !== '');
+
+  const hasAdminDates = exp.availableDates && exp.availableDates.length > 0;
+  const hasAdminTimes = exp.availableTimes && exp.availableTimes.length > 0;
+
+  const DEFAULT_TIME_SLOTS = [
+    '08:00', '09:00', '10:00', '11:00', '12:00',
+    '13:00', '14:00', '15:00', '16:00', '17:00',
+    '18:00', '19:00', '20:00',
+  ];
+  const TIME_SLOTS = hasAdminTimes ? exp.availableTimes! : DEFAULT_TIME_SLOTS;
+
+  const formatTime = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'pm' : 'am';
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
+  };
+  const formatDate = (iso: string) =>
+    new Date(iso + 'T00:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' });
+
   const purchaseAndAdd = () => {
-    if (inCart) return;
+    if (inCart || !canBook) return;
     analytics.addToCart({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
-    addItem(exp);
+    addItem({
+      ...exp,
+      ...(selectedDate && { selectedDate }),
+      ...(selectedTime && { selectedTime }),
+    });
     try {
       const existing: string[] = JSON.parse(localStorage.getItem('xplora_purchased') || '[]');
       if (!existing.includes(exp.id)) {
@@ -396,10 +424,57 @@ export function ExperienceDetailScreen() {
                 )}
               </div>
 
+              {/* Date & time picker — paid only, hidden once in cart */}
+              {isPaid && !inCart && (
+                <div className="space-y-2.5">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                      <Calendar className="w-3.5 h-3.5" aria-hidden="true" /> Date
+                    </label>
+                    {hasAdminDates ? (
+                      <select
+                        value={selectedDate}
+                        onChange={e => { setSelectedDate(e.target.value); setSelectedTime(''); }}
+                        className="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        <option value="">Choose a date</option>
+                        {exp.availableDates!.filter(d => d >= today).map(d => (
+                          <option key={d} value={d}>{formatDate(d)}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type="date"
+                        min={today}
+                        value={selectedDate}
+                        onChange={e => setSelectedDate(e.target.value)}
+                        className="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5" aria-hidden="true" /> Start time
+                    </label>
+                    <select
+                      value={selectedTime}
+                      onChange={e => setSelectedTime(e.target.value)}
+                      className="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Select a time</option>
+                      {TIME_SLOTS.map(slot => (
+                        <option key={slot} value={slot}>{formatTime(slot)}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={purchaseAndAdd}
+                disabled={!inCart && !canBook}
                 className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
-                  inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                  inCart ? 'bg-green-500 text-white' : canBook ? 'bg-[#12343B] text-white hover:bg-[#12343B]/90' : 'bg-[#12343B]/40 text-white cursor-not-allowed'
                 }`}
               >
                 {inCart
@@ -409,6 +484,9 @@ export function ExperienceDetailScreen() {
                   : <><ShoppingCart className="w-4 h-4" aria-hidden="true" /> {t('experienceDetail.bookExperience')}</>
                 }
               </button>
+              {!inCart && isPaid && !canBook && (
+                <p className="text-xs text-muted-foreground text-center -mt-1">Pick a date and time to continue</p>
+              )}
 
               {inCart && !isFree && (
                 <button onClick={() => navigate('/cart')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
@@ -429,25 +507,62 @@ export function ExperienceDetailScreen() {
       </div>
 
       {/* Mobile sticky booking bar */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border px-5 py-3 flex items-center justify-between z-40">
-        <div>
-          <p className="text-xl font-semibold">
-            {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
-            {!isFree && <span className="text-sm text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
-          </p>
-          <p className="text-xs text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
+      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border z-40">
+        {isPaid && !inCart && (
+          <div className="flex gap-2 px-4 pt-3">
+            {hasAdminDates ? (
+              <select
+                value={selectedDate}
+                onChange={e => { setSelectedDate(e.target.value); setSelectedTime(''); }}
+                className="flex-1 border border-border rounded-xl px-2.5 py-2 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              >
+                <option value="">Date</option>
+                {exp.availableDates!.filter(d => d >= today).map(d => (
+                  <option key={d} value={d}>{formatDate(d)}</option>
+                ))}
+              </select>
+            ) : (
+              <input
+                type="date"
+                min={today}
+                value={selectedDate}
+                onChange={e => setSelectedDate(e.target.value)}
+                className="flex-1 border border-border rounded-xl px-2.5 py-2 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            )}
+            <select
+              value={selectedTime}
+              onChange={e => setSelectedTime(e.target.value)}
+              className="flex-1 border border-border rounded-xl px-2.5 py-2 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">Time</option>
+              {TIME_SLOTS.map(slot => (
+                <option key={slot} value={slot}>{formatTime(slot)}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="px-5 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-xl font-semibold">
+              {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
+              {!isFree && <span className="text-sm text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
+            </p>
+            <p className="text-xs text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
+          </div>
+          <button
+            onClick={() => { if (!inCart && canBook) purchaseAndAdd(); else if (inCart) navigate('/cart'); }}
+            disabled={!inCart && !canBook}
+            className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${
+              inCart ? 'bg-green-500 text-white' : canBook ? 'bg-[#12343B] text-white hover:bg-[#12343B]/90' : 'bg-[#12343B]/40 text-white cursor-not-allowed'
+            }`}
+          >
+            {isSelfGuided
+              ? (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.saved')}</> : t('experienceDetail.getRoute'))
+              : (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.inCart')}</> : <><ShoppingCart className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.book')}</>)
+            }
+          </button>
         </div>
-        <button
-          onClick={() => { if (!inCart) purchaseAndAdd(); else navigate('/cart'); }}
-          className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${
-            inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
-          }`}
-        >
-          {isSelfGuided
-            ? (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.saved')}</> : t('experienceDetail.getRoute'))
-            : (inCart ? <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.inCart')}</> : <><ShoppingCart className="w-4 h-4" aria-hidden="true" />{t('experienceDetail.book')}</>)
-          }
-        </button>
       </div>
 
       <SimpleFooter />
