@@ -491,8 +491,6 @@ export function HomeScreen() {
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm opacity-70 pt-2">
                 <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
                 <span>·</span>
-                <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> {t('home.launching')}</span>
-                <span>·</span>
                 <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
               </div>
             </div>
