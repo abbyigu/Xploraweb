@@ -1,8 +1,8 @@
-import { Link, useLocation } from 'react-router';
-import { ShoppingCart } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router';
+import { ShoppingCart, Search } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../hooks/useLanguage';
@@ -13,10 +13,22 @@ function getInitials(name: string): string {
 
 export function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { count } = useCart();
   const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    if (!q) return;
+    navigate(`/itinerary?q=${encodeURIComponent(q)}`);
+    setSearchQuery('');
+    searchRef.current?.blur();
+  }
 
   useEffect(() => {
     getProfile().then((data) => {
@@ -59,6 +71,21 @@ export function Header() {
               </Link>
             ))}
           </nav>
+
+          {/* Search */}
+          <form onSubmit={handleSearch} className="flex items-center">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+              <input
+                ref={searchRef}
+                type="search"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder={t('header.search', 'Search experiences…')}
+                className="pl-9 pr-4 py-2 text-sm rounded-xl border border-border bg-muted/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary w-44 lg:w-56 transition-all"
+              />
+            </div>
+          </form>
 
           <div className="flex items-center gap-2 lg:gap-4">
             <Link to="/business" className="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">{t('header.forBusinesses')}</Link>
