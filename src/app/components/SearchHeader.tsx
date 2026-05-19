@@ -39,7 +39,7 @@ export function SearchHeader({ greeting }: { greeting?: string } = {}) {
             type="search"
             value={query}
             onChange={e => setQuery(e.target.value)}
-            placeholder="Search experiences, neighbourhoods…"
+            placeholder="Search Québec City experiences…"
             className="w-full pl-9 pr-4 py-3 text-sm rounded-xl border-0 bg-white/90 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all"
           />
         </form>

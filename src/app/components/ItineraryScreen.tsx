@@ -117,7 +117,7 @@ export function ItineraryScreen() {
                 setTextQuery(e.target.value);
                 navigate(e.target.value.trim() ? `/itinerary?q=${encodeURIComponent(e.target.value.trim())}` : '/itinerary', { replace: true });
               }}
-              placeholder="Search experiences, neighbourhoods…"
+              placeholder="Search Québec City experiences…"
               className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border-0 bg-white/90 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all"
             />
             {textQuery && (
@@ -190,7 +190,8 @@ export function ItineraryScreen() {
           ) : (
             <div className="text-center py-16 text-muted-foreground">
               <p className="text-lg mb-2">No experiences found</p>
-              <p className="text-sm mb-6">Try a different vibe or neighbourhood</p>
+              <p className="text-sm mb-1">Xplora is currently Québec City only.</p>
+              <p className="text-sm mb-6 opacity-70">Try searching for a neighbourhood, vibe, or experience type.</p>
               <button onClick={clearFilters}
                 className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
                 See all experiences
