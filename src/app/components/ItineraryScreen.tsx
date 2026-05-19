@@ -254,6 +254,7 @@ export function ItineraryScreen() {
   const [textQuery, setTextQuery] = useState<string>(() => searchParams.get('q') ?? '');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const [freeOnly, setFreeOnly] = useState(false);
   const [quickViewExp, setQuickViewExp] = useState<Product | null>(null);
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [showComparePanel, setShowComparePanel] = useState(false);
@@ -284,6 +285,7 @@ export function ItineraryScreen() {
     filters.difficulty !== 'any',
     filters.tags.length > 0,
     filters.sort !== 'recommended',
+    freeOnly,
   ].filter(Boolean).length;
 
   const clearAll = () => {
@@ -291,6 +293,7 @@ export function ItineraryScreen() {
     setSelectedNeighbourhood(null);
     setTextQuery('');
     setFilters(DEFAULT_FILTERS);
+    setFreeOnly(false);
     navigate('/itinerary', { replace: true });
   };
 
@@ -313,6 +316,7 @@ export function ItineraryScreen() {
     base = base.filter(e => matchesDuration(e, filters.duration));
     base = base.filter(e => matchesDifficulty(e, filters.difficulty));
     if (filters.tags.length > 0) base = base.filter(e => filters.tags.some(t => e.vibes?.map(v => v.toLowerCase()).includes(t)));
+    if (freeOnly) base = base.filter(e => !e.price || e.price === 0);
     return sortExperiences(base, filters.sort);
   })();
 
@@ -410,7 +414,7 @@ export function ItineraryScreen() {
               return (
                 <button
                   key={cat.id}
-                  onClick={() => { setFilter(cat.id); navigate(`/itinerary?category=${cat.id}`, { replace: true }); }}
+                  onClick={() => { setFilter(cat.id); setFreeOnly(false); navigate(`/itinerary?category=${cat.id}`, { replace: true }); }}
                   className={`flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
                     filter === cat.id ? 'bg-white text-foreground shadow-sm' : 'bg-white/20 hover:bg-white/30'
                   }`}
@@ -421,6 +425,15 @@ export function ItineraryScreen() {
                 </button>
               );
             })}
+            {/* Free quick filter */}
+            <button
+              onClick={() => { setFreeOnly(v => !v); setFilter('all'); navigate('/itinerary', { replace: true }); }}
+              className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium transition-all whitespace-nowrap ${
+                freeOnly ? 'bg-green-500 text-white shadow-sm' : 'bg-white/20 hover:bg-white/30'
+              }`}
+            >
+              Free ✓
+            </button>
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Clock, MapPin, Users, Check, Eye, Flame } from 'lucide-react';
+import { Clock, MapPin, Users, Check, Eye, Flame, Crown } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useNavigate } from 'react-router';
 import type { Product } from '../data/products';
@@ -109,9 +109,17 @@ export function ExperienceCard({ exp, onQuickView, compareSelected, onCompareTog
 
         {/* Urgency */}
         {exp.weeklyBookings && (
-          <div className="hidden md:flex items-center gap-1 text-xs text-orange-600 font-medium mb-2">
+          <div className="hidden md:flex items-center gap-1 text-xs text-orange-600 font-medium mb-1">
             <Flame className="w-3 h-3" />
             {exp.weeklyBookings} booked this week
+          </div>
+        )}
+
+        {/* Member pricing */}
+        {exp.price > 0 && (
+          <div className="hidden md:flex items-center gap-1 text-xs text-secondary font-medium mb-2">
+            <Crown className="w-3 h-3" />
+            Members ${Math.floor(exp.price * 0.75 / 100)}
           </div>
         )}
 

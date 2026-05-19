@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star } from 'lucide-react';
+import { Star, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
@@ -8,6 +8,81 @@ const PRICE_IDS = {
   monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
   yearly: 'price_1TTkTaLXjgh0xxiruBF7GyMg',
 };
+
+const SAMPLE_EXPERIENCES = [
+  { name: 'Xploratours · Maguire', price: 35 },
+  { name: 'Urban Explorer', price: 40 },
+  { name: 'Old Port Food & History Walk', price: 45 },
+  { name: 'Jazz & Cocktails Evening', price: 55 },
+];
+
+function ROICalculator({ billing }: { billing: 'monthly' | 'yearly' }) {
+  const [bookings, setBookings] = useState(2);
+  const avgPrice = 44; // avg of sample experiences
+  const memberCost = billing === 'monthly' ? 10 : Math.round(100 / 12);
+  const savingsPerBooking = Math.round(avgPrice * 0.25);
+  const totalSavings = savingsPerBooking * bookings;
+  const net = totalSavings - memberCost;
+  const breaksEven = Math.ceil(memberCost / savingsPerBooking);
+
+  return (
+    <div className="space-y-5">
+      {/* Booking selector */}
+      <div>
+        <p className="text-sm font-medium mb-3">How many paid experiences per month?</p>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4].map(n => (
+            <button
+              key={n}
+              onClick={() => setBookings(n)}
+              className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                bookings === n ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/40'
+              }`}
+            >
+              {n}×
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Breakdown */}
+      <div className="bg-muted/40 rounded-2xl p-4 space-y-2.5">
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Avg. experience price</span>
+          <span className="font-medium">${avgPrice}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Your member price (25% off)</span>
+          <span className="font-medium text-primary">${Math.round(avgPrice * 0.75)}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-muted-foreground">Savings × {bookings} booking{bookings > 1 ? 's' : ''}</span>
+          <span className="font-medium text-green-600">−${totalSavings} saved</span>
+        </div>
+        <div className="border-t border-border pt-2.5 flex justify-between text-sm">
+          <span className="text-muted-foreground">Membership cost</span>
+          <span className="font-medium">−${memberCost}/month</span>
+        </div>
+        <div className="flex justify-between text-base font-semibold">
+          <span>Net savings</span>
+          <span className={net >= 0 ? 'text-green-600' : 'text-muted-foreground'}>
+            {net >= 0 ? `+$${net}/month` : `-$${Math.abs(net)}/month`}
+          </span>
+        </div>
+      </div>
+
+      {/* Verdict */}
+      <div className={`rounded-2xl px-4 py-3 text-sm ${net >= 0 ? 'bg-green-50 text-green-800' : 'bg-muted/60 text-muted-foreground'}`}>
+        {net > 0
+          ? `✓ At ${bookings} booking${bookings > 1 ? 's' : ''}/month, you come out $${net} ahead. Membership pays for itself.`
+          : net === 0
+          ? `You break even at ${bookings} booking/month.`
+          : `You'd need ${breaksEven} booking${breaksEven > 1 ? 's' : ''}/month to break even — the membership still includes early access, a guest pass, and the monthly 5 à 7.`
+        }
+      </div>
+    </div>
+  );
+}
 
 const perks = [
   { icon: '🎟️', text: 'Early access to all experiences (48h priority)' },
@@ -128,6 +203,16 @@ export function MembershipScreen() {
               <span className="text-sm md:text-base text-foreground">{perk.text}</span>
             </div>
           ))}
+        </div>
+
+        {/* ROI Calculator */}
+        <div className="bg-card border border-border rounded-3xl p-6 md:p-8">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="w-4 h-4 text-primary" />
+            <h2 className="text-lg">Does it pay off?</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-5">Members save 25% on every paid experience. Here's what that looks like.</p>
+          <ROICalculator billing={billing} />
         </div>
 
         {/* Already a member? */}
