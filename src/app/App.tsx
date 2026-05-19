@@ -1,8 +1,10 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
+import { Breadcrumbs } from './components/Breadcrumbs';
+import { CookieConsent } from './components/CookieConsent';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 
@@ -40,13 +42,38 @@ function AuthHandler() {
   return null;
 }
 
+function useAnalyticsConsent(): boolean {
+  const [allowed, setAllowed] = useState(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('xplora-consent') || 'null');
+      return stored?.analytics === true;
+    } catch { return false; }
+  });
+
+  useEffect(() => {
+    const handler = () => {
+      try {
+        const stored = JSON.parse(localStorage.getItem('xplora-consent') || 'null');
+        setAllowed(stored?.analytics === true);
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('xplora-consent-update', handler);
+    return () => window.removeEventListener('xplora-consent-update', handler);
+  }, []);
+
+  return allowed;
+}
+
 export default function App() {
+  const analyticsAllowed = useAnalyticsConsent();
+
   return (
     <CartProvider>
     <BrowserRouter>
       <AuthHandler />
       <div className="min-h-screen bg-background">
         <Header />
+        <Breadcrumbs />
         <div className="md:max-w-none max-w-md mx-auto relative">
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
             <Routes>
@@ -78,7 +105,8 @@ export default function App() {
         </div>
         <BottomNav />
       </div>
-      <SpeedInsights />
+      {analyticsAllowed && <SpeedInsights />}
+      <CookieConsent />
     </BrowserRouter>
     </CartProvider>
   );
