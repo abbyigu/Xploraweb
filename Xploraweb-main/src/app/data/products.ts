@@ -33,6 +33,8 @@ export interface Product {
   itinerary?: string[];
   neighbourhood?: string;
   vibes?: string[];
+  availableDates?: string[]; // ISO dates e.g. ["2026-06-15", "2026-06-22"]
+  availableTimes?: string[]; // 24-h e.g. ["10:00", "14:00", "18:00"]
   // event-specific (xploranights)
   eventDate?: string;   // ISO date: '2026-05-15'
   eventTime?: string;   // display string: '8:00 PM'

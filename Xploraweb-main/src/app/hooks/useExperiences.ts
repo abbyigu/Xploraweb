@@ -36,6 +36,8 @@ function mapRow(row: any): Product {
     itinerary: pickArr(row.itinerary_fr, row.itinerary),
     neighbourhood: row.neighbourhood || undefined,
     vibes: row.vibes || undefined,
+    availableDates: row.available_dates || undefined,
+    availableTimes: row.available_times || undefined,
     eventDate: row.event_date || undefined,
     eventTime: row.event_time || undefined,
     eventType: row.event_type || undefined,

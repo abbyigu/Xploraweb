@@ -8,6 +8,8 @@ export interface CartItem {
   quantity: number;
   image?: string;
   type: 'experience' | 'merch' | 'membership';
+  selectedDate?: string; // ISO date e.g. "2026-06-15"
+  selectedTime?: string; // e.g. "14:00"
 }
 
 interface CartContextType {

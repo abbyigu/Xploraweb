@@ -24,6 +24,7 @@ const BLANK = {
   host_name: '', host_bio: '',
   highlights: '', includes: '', to_bring: '', languages: 'English, Français',
   itinerary: '', neighbourhood: '', vibes: '',
+  available_dates: '', available_times: '',
   // French fields
   name_fr: '', description_fr: '', long_description_fr: '',
   highlights_fr: '', includes_fr: '', to_bring_fr: '',
@@ -150,6 +151,8 @@ export function AdminExperiencePanel() {
       itinerary: (exp.itinerary || []).join('\n'),
       neighbourhood: exp.neighbourhood || '',
       vibes: (exp.vibes || []).join(', '),
+      available_dates: (exp.available_dates || []).join('\n'),
+      available_times: (exp.available_times || []).join(', '),
       name_fr: exp.name_fr || '',
       description_fr: exp.description_fr || '',
       long_description_fr: exp.long_description_fr || '',
@@ -234,6 +237,8 @@ export function AdminExperiencePanel() {
       itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
       neighbourhood: form.neighbourhood || null,
       vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
+      available_dates: form.available_dates ? form.available_dates.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      available_times: form.available_times ? form.available_times.split(',').map(s => s.trim()).filter(Boolean) : null,
       name_fr: form.name_fr || null,
       description_fr: form.description_fr || null,
       long_description_fr: form.long_description_fr || null,
@@ -540,6 +545,38 @@ export function AdminExperiencePanel() {
               <label className="text-xs text-muted-foreground">Host name</label>
               <input value={form.host_name} onChange={set('host_name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
             </div>
+
+            {/* Schedule — only for paid / guided categories */}
+            {form.category !== 'xplorators' && (
+              <div className="md:col-span-2 border-t border-border pt-4 space-y-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Schedule</p>
+                <p className="text-xs text-muted-foreground -mt-1">
+                  Set specific dates and times that guests can choose when booking. Leave blank to allow any date/time.
+                </p>
+
+                <div>
+                  <label className="text-xs text-muted-foreground">Available dates — one per line (YYYY-MM-DD)</label>
+                  <textarea
+                    value={form.available_dates}
+                    onChange={set('available_dates')}
+                    rows={4}
+                    className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none font-mono"
+                    placeholder={"2026-06-14\n2026-06-21\n2026-06-28"}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs text-muted-foreground">Available time slots — comma-separated (24h format)</label>
+                  <input
+                    value={form.available_times}
+                    onChange={set('available_times')}
+                    className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary font-mono"
+                    placeholder="10:00, 14:00, 18:00"
+                  />
+                  <p className="text-xs text-muted-foreground/60 mt-1">These slots apply to all dates above.</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}

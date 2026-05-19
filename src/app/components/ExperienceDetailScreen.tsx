@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star, Calendar } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
@@ -24,6 +24,8 @@ export function ExperienceDetailScreen() {
   const exp = experiences.find(e => e.id === id);
   const { addItem, items } = useCart();
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [selectedTime, setSelectedTime] = useState('');
 
   const [reviews, setReviews] = useState<Review[]>([]);
   const [userReview, setUserReview] = useState<Review | null>(null);
@@ -114,13 +116,32 @@ export function ExperienceDetailScreen() {
 
   const purchaseAndAdd = () => {
     if (inCart) return;
-    addItem(exp);
+    addItem({
+      ...exp,
+      ...(selectedDate && { selectedDate }),
+      ...(selectedTime && { selectedTime }),
+    });
     try {
       const existing: string[] = JSON.parse(localStorage.getItem('xplora_purchased') || '[]');
       if (!existing.includes(exp.id)) {
         localStorage.setItem('xplora_purchased', JSON.stringify([...existing, exp.id]));
       }
     } catch { /* ignore */ }
+  };
+
+  const today = new Date().toISOString().split('T')[0];
+  const isPaid = exp.price > 0;
+  const canBook = !isPaid || (selectedDate !== '' && selectedTime !== '');
+
+  const TIME_SLOTS = [
+    '08:00', '09:00', '10:00', '11:00', '12:00',
+    '13:00', '14:00', '15:00', '16:00', '17:00',
+    '18:00', '19:00', '20:00',
+  ];
+  const formatTime = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    const ampm = h >= 12 ? 'pm' : 'am';
+    return `${h % 12 || 12}:${m.toString().padStart(2, '0')} ${ampm}`;
   };
 
   const prevPhoto = () => setPhotoIndex(i => (i - 1 + photos.length) % photos.length);
@@ -428,13 +449,51 @@ export function ExperienceDetailScreen() {
               ) : (
                 <>
                   <p className="text-3xl font-medium mb-1">${(exp.price / 100).toFixed(0)}<span className="text-base text-muted-foreground font-normal"> / person</span></p>
-                  {exp.spots && <p className="text-sm text-muted-foreground mb-6">{exp.spots} spots available</p>}
+                  {exp.spots && <p className="text-sm text-muted-foreground mb-4">{exp.spots} spots available</p>}
+
+                  {/* Date & time picker */}
+                  {!inCart && (
+                    <div className="space-y-3 mb-5">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5" /> Date
+                        </label>
+                        <input
+                          type="date"
+                          min={today}
+                          value={selectedDate}
+                          onChange={e => setSelectedDate(e.target.value)}
+                          className="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5" /> Start time
+                        </label>
+                        <select
+                          value={selectedTime}
+                          onChange={e => setSelectedTime(e.target.value)}
+                          className="w-full border border-border rounded-xl px-3 py-2.5 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+                        >
+                          <option value="">Select a time</option>
+                          {TIME_SLOTS.map(t => (
+                            <option key={t} value={t}>{formatTime(t)}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     onClick={purchaseAndAdd}
-                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+                    disabled={!canBook && !inCart}
+                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : canBook ? 'bg-primary text-primary-foreground hover:opacity-90' : 'bg-primary/40 text-primary-foreground cursor-not-allowed'}`}
                   >
                     {inCart ? <><Check className="w-4 h-4" /> Added to cart</> : <><ShoppingCart className="w-4 h-4" /> Book this experience</>}
                   </button>
+                  {!inCart && !canBook && (
+                    <p className="text-xs text-muted-foreground text-center mt-2">Pick a date and time to continue</p>
+                  )}
                   {inCart && (
                     <button onClick={() => navigate('/cart')} className="w-full mt-3 py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
                       View cart →
@@ -449,20 +508,44 @@ export function ExperienceDetailScreen() {
       </div>
 
       {/* Booking bar — mobile sticky bottom */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-border px-6 py-4 flex items-center justify-between z-40">
-        <div>
-          <p className="text-xl font-medium">{exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}<span className="text-sm text-muted-foreground font-normal">{exp.price > 0 ? ' / person' : ''}</span></p>
-          <p className="text-xs text-muted-foreground">{exp.price === 0 ? 'Self-guided' : `${exp.spots} spots left`}</p>
+      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-border z-40">
+        {isPaid && !inCart && (
+          <div className="flex gap-2 px-4 pt-3">
+            <input
+              type="date"
+              min={today}
+              value={selectedDate}
+              onChange={e => setSelectedDate(e.target.value)}
+              className="flex-1 border border-border rounded-xl px-2.5 py-2 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+            <select
+              value={selectedTime}
+              onChange={e => setSelectedTime(e.target.value)}
+              className="flex-1 border border-border rounded-xl px-2.5 py-2 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="">Time</option>
+              {TIME_SLOTS.map(t => (
+                <option key={t} value={t}>{formatTime(t)}</option>
+              ))}
+            </select>
+          </div>
+        )}
+        <div className="px-6 py-3 flex items-center justify-between">
+          <div>
+            <p className="text-xl font-medium">{exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}<span className="text-sm text-muted-foreground font-normal">{exp.price > 0 ? ' / person' : ''}</span></p>
+            <p className="text-xs text-muted-foreground">{exp.price === 0 ? 'Self-guided' : `${exp.spots} spots left`}</p>
+          </div>
+          <button
+            onClick={() => { if (!inCart && canBook) purchaseAndAdd(); else if (inCart) navigate('/cart'); }}
+            disabled={!inCart && !canBook}
+            className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : canBook ? 'bg-primary text-primary-foreground hover:opacity-90' : 'bg-primary/40 text-primary-foreground cursor-not-allowed'}`}
+          >
+            {exp.price === 0
+              ? (inCart ? <><Check className="w-4 h-4" /> Saved</> : 'Get route')
+              : (inCart ? <><Check className="w-4 h-4" /> In cart</> : <><ShoppingCart className="w-4 h-4" /> Book</>)
+            }
+          </button>
         </div>
-        <button
-          onClick={() => { if (!inCart) purchaseAndAdd(); else navigate('/cart'); }}
-          className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
-        >
-          {exp.price === 0
-            ? (inCart ? <><Check className="w-4 h-4" /> Saved</> : 'Get route')
-            : (inCart ? <><Check className="w-4 h-4" /> In cart</> : <><ShoppingCart className="w-4 h-4" /> Book</>)
-          }
-        </button>
       </div>
 
       <SimpleFooter />
