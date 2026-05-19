@@ -105,6 +105,9 @@ export default function App() {
       <AnalyticsHandler />
       <div className="min-h-screen bg-background">
         <SkipLink />
+        <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">
+          🎉 Xplora launches in June — be among the first to explore Québec City differently.
+        </div>
         <Header />
         <main id="main-content" tabIndex={-1} className="outline-none">
         <div className="md:max-w-none max-w-md mx-auto relative">
