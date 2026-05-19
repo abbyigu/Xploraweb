@@ -78,6 +78,21 @@
     "t3role": "Visitor, Montréal",
     "emailUs": "hello@goxplora.ca"
   },
+  "trust": {
+    "photosLabel": "Experiences in Québec City",
+    "ratingScore": "4.9",
+    "ratingLabel": "avg. rating · verified guest reviews",
+    "reviewsTitle": "What explorers say",
+    "whyTitle": "Why Xplora?",
+    "diff1": "Curated by locals",
+    "diff1Desc": "Every pick is vetted by people who actually live here — not crowdsourced",
+    "diff2": "4.9★ avg. rating",
+    "diff2Desc": "Verified reviews from real guests",
+    "diff3": "Bilingual EN / FR",
+    "diff3Desc": "All experiences available in English and French",
+    "diff4": "Cancel anytime",
+    "diff4Desc": "Full refund if the experience is cancelled"
+  },
   "home": {
     "welcomeBack": "Welcome back",
     "hey": "Hey",
