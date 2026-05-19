@@ -98,8 +98,8 @@ export function MembersScreen() {
   const [tab, setTab] = useState<'perks' | 'social'>('perks');
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) { setAuthStatus('guest'); return; }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) { setAuthStatus('guest'); return; }
       const { data: bPerks } = await supabase
         .from('business_perks').select('*').eq('status', 'active').order('created_at', { ascending: false });
       if (bPerks) setBusinessPerks(bPerks);

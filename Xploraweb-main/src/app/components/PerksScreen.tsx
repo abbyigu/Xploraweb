@@ -136,8 +136,8 @@ export function PerksScreen() {
   const [buyingId, setBuyingId] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) {
         setAuthStatus('guest');
         return;
       }
