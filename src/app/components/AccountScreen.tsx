@@ -477,9 +477,10 @@ export function AccountScreen() {
                     {bookedExps.map((exp) => {
                       const isOpen = expandedExp === exp.id;
                       const categoryLabel =
-                        exp.category === 'xplorators' ? 'Xplora-tors' :
-                        exp.category === 'xploratours' ? 'Xplora-tours' :
-                        exp.category === 'xploranights' ? 'Xplora Nights' : '';
+                        exp.category === 'xplorators' ? 'Solo' :
+                        exp.category === 'xploratorsplus' ? 'Solo+' :
+                        exp.category === 'xploratours' ? 'Tours' :
+                        exp.category === 'xploranights' ? 'Nights' : '';
 
                       return (
                         <div key={exp.id} className="bg-card border border-border rounded-2xl overflow-hidden">

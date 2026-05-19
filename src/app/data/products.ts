@@ -1,10 +1,10 @@
 export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' | 'xploratorsplus';
 
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
-  { id: 'xplorators',    name: 'Xplorators',    tagline: 'Explore at your pace · Self-guided' },
-  { id: 'xploratours',   name: 'Xploratours',   tagline: 'Experience together' },
-  { id: 'xploranights',  name: 'Xplora Nights', tagline: 'The nights worth going out for' },
-  { id: 'xploratorsplus', name: 'Xplorators+',  tagline: 'Go deeper · Stories, context & local access' },
+  { id: 'xplorators',    name: 'Solo',    tagline: 'Self-guided · Explore at your own pace' },
+  { id: 'xploratours',   name: 'Tours',   tagline: 'Guided group experiences' },
+  { id: 'xploranights',  name: 'Nights',  tagline: 'The nights worth going out for' },
+  { id: 'xploratorsplus', name: 'Solo+',  tagline: 'Self-guided · With stories & local context' },
 ];
 
 export interface Product {

@@ -196,11 +196,10 @@ export function ExperienceDetailScreen() {
             <div>
               {exp.category && (
                 <p className="text-xs uppercase tracking-widest text-secondary mb-2">
-                  {exp.category === 'xplorators' ? 'Xplora-tors'
-                    : exp.category === 'xploratorsplus' ? 'Xplorators+'
-                    : exp.category === 'xplorastories' ? 'Xplora-stories'
-                    : exp.category === 'xploratours' ? 'Xplora-tours'
-                    : exp.category === 'xploranights' ? 'Xplora Nights'
+                  {exp.category === 'xplorators' ? 'Solo'
+                    : exp.category === 'xploratorsplus' ? 'Solo+'
+                    : exp.category === 'xploratours' ? 'Tours'
+                    : exp.category === 'xploranights' ? 'Nights'
                     : exp.category}
                 </p>
               )}
