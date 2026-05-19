@@ -20,6 +20,8 @@ const CAT_TYPE_LABEL: Record<string, string> = {
   xploratorsplus: 'Premium route',
   xploratours: 'Guided tour',
   xploranights: 'Evening event',
+  limoilou: 'Neighbourhood route',
+  cartier: 'Neighbourhood route',
 };
 
 function StarRating({ rating }: { rating: number }) {
