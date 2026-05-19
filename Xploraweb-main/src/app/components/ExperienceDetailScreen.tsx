@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next, Calendar } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next, Calendar, Minus, Plus } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
@@ -43,6 +43,7 @@ export function ExperienceDetailScreen() {
   const [testimonial, setTestimonial] = useState<Testimonial | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedTime, setSelectedTime] = useState('');
+  const [guestCount, setGuestCount] = useState(1);
 
   useEffect(() => {
     if (exp) analytics.viewItem({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
@@ -119,6 +120,8 @@ export function ExperienceDetailScreen() {
 
   const today = new Date().toISOString().split('T')[0];
   const isPaid = exp.price > 0;
+  const maxGuests = exp.spots ?? 10;
+  const liveTotal = exp.price * guestCount;
   const canBook = !isPaid || (selectedDate !== '' && selectedTime !== '');
 
   const hasAdminDates = exp.availableDates && exp.availableDates.length > 0;
@@ -144,6 +147,7 @@ export function ExperienceDetailScreen() {
     analytics.addToCart({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
     addItem({
       ...exp,
+      quantity: guestCount,
       ...(selectedDate && { selectedDate }),
       ...(selectedTime && { selectedTime }),
     });
@@ -412,15 +416,24 @@ export function ExperienceDetailScreen() {
           <div className="hidden md:block md:col-span-1">
             <div className="sticky top-24 bg-card border border-border rounded-3xl p-6 shadow-sm space-y-4">
               <div>
-                <p className="text-3xl font-semibold">
-                  {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
-                  {!isFree && <span className="text-base text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
-                </p>
-                {exp.spots && !isFree && (
-                  <p className="text-sm text-muted-foreground mt-0.5">{exp.spots} {t('experienceDetail.spotsAvailable')}</p>
-                )}
-                {isFree && isSelfGuided && (
-                  <p className="text-sm text-muted-foreground mt-0.5">{t('experienceDetail.selfGuided')}</p>
+                {isFree ? (
+                  <>
+                    <p className="text-3xl font-semibold">{t('experienceDetail.free')}</p>
+                    {isSelfGuided && <p className="text-sm text-muted-foreground mt-0.5">{t('experienceDetail.selfGuided')}</p>}
+                  </>
+                ) : (
+                  <>
+                    <p className="text-3xl font-semibold">
+                      ${(liveTotal / 100).toFixed(0)}
+                      {guestCount === 1 && <span className="text-base text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
+                    </p>
+                    {guestCount > 1 && (
+                      <p className="text-sm text-muted-foreground mt-0.5">${(exp.price / 100).toFixed(0)} × {guestCount} guests</p>
+                    )}
+                    {exp.spots && (
+                      <p className="text-sm text-muted-foreground mt-0.5">{exp.spots} {t('experienceDetail.spotsAvailable')}</p>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -467,6 +480,38 @@ export function ExperienceDetailScreen() {
                       ))}
                     </select>
                   </div>
+                </div>
+              )}
+
+              {/* Guest count stepper — paid only, hidden once in cart */}
+              {isPaid && !inCart && (
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1.5 flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" aria-hidden="true" /> Guests
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => setGuestCount(c => Math.max(1, c - 1))}
+                      disabled={guestCount <= 1}
+                      aria-label="Remove guest"
+                      className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40"
+                    >
+                      <Minus className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                    <span className="text-base font-medium w-6 text-center" aria-live="polite">{guestCount}</span>
+                    <button
+                      onClick={() => setGuestCount(c => Math.min(maxGuests, c + 1))}
+                      disabled={guestCount >= maxGuests}
+                      aria-label="Add guest"
+                      className="w-9 h-9 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40"
+                    >
+                      <Plus className="w-4 h-4" aria-hidden="true" />
+                    </button>
+                    <span className="ml-auto text-sm font-semibold">${(liveTotal / 100).toFixed(0)}</span>
+                  </div>
+                  {guestCount > 1 && (
+                    <p className="text-xs text-muted-foreground mt-1 text-right">${(exp.price / 100).toFixed(0)} × {guestCount}</p>
+                  )}
                 </div>
               )}
 
@@ -542,13 +587,30 @@ export function ExperienceDetailScreen() {
             </select>
           </div>
         )}
+        {isPaid && !inCart && (
+          <div className="flex items-center gap-3 px-4 pt-2">
+            <span className="text-xs text-muted-foreground flex items-center gap-1"><Users className="w-3.5 h-3.5" aria-hidden="true" /> Guests</span>
+            <button onClick={() => setGuestCount(c => Math.max(1, c - 1))} disabled={guestCount <= 1} aria-label="Remove guest" className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40">
+              <Minus className="w-3 h-3" aria-hidden="true" />
+            </button>
+            <span className="text-sm font-medium w-4 text-center" aria-live="polite">{guestCount}</span>
+            <button onClick={() => setGuestCount(c => Math.min(maxGuests, c + 1))} disabled={guestCount >= maxGuests} aria-label="Add guest" className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40">
+              <Plus className="w-3 h-3" aria-hidden="true" />
+            </button>
+          </div>
+        )}
         <div className="px-5 py-3 flex items-center justify-between">
           <div>
-            <p className="text-xl font-semibold">
-              {isFree ? t('experienceDetail.free') : `$${(exp.price / 100).toFixed(0)}`}
-              {!isFree && <span className="text-sm text-muted-foreground font-normal"> {t('experienceDetail.perPerson')}</span>}
-            </p>
-            <p className="text-xs text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
+            {isFree ? (
+              <p className="text-xl font-semibold">{t('experienceDetail.free')}</p>
+            ) : (
+              <>
+                <p className="text-xl font-semibold">${(liveTotal / 100).toFixed(0)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {guestCount > 1 ? `$${(exp.price / 100).toFixed(0)} × ${guestCount}` : t('experienceDetail.perPerson')}
+                </p>
+              </>
+            )}
           </div>
           <button
             onClick={() => { if (!inCart && canBook) purchaseAndAdd(); else if (inCart) navigate('/cart'); }}
