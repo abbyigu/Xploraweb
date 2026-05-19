@@ -469,30 +469,73 @@ export function HomeScreen() {
       />
 
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-2 md:py-4 w-full">
-          <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
-            <XploraLogo variant="full" className="h-36 md:h-52" />
-            <div className="space-y-3">
-              <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">{t('landing.headline')}</h1>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto">
-              <Link
-                to="/itinerary"
-                className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
-              >
-                {t('landing.exploreExperiences')}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-10 w-full">
+          <div className="flex flex-col md:flex-row md:items-center md:gap-12">
 
+            {/* Brand + CTA */}
+            <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4 flex-1">
+              <XploraLogo variant="full" className="h-36 md:h-44" />
+              <div className="space-y-3">
+                <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl leading-tight">{t('landing.headline')}</h1>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto md:w-full">
+                <Link
+                  to="/itinerary"
+                  className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+                >
+                  {t('landing.exploreExperiences')}
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </div>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm opacity-70 pt-2">
+                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> {t('home.launching')}</span>
+                <span>·</span>
+                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
+              </div>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> {t('home.launching')}</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
+
+            {/* Photo collage — desktop only */}
+            <div className="hidden md:grid grid-cols-2 gap-2 flex-shrink-0 w-[400px] h-[380px] rounded-3xl overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=760&w=480"
+                alt="Vieux-Québec streets"
+                className="col-span-1 row-span-2 w-full h-full object-cover"
+                loading="eager"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=374&w=480"
+                alt="Walking tour Québec City"
+                className="w-full h-full object-cover rounded-tr-3xl"
+                loading="eager"
+              />
+              <img
+                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=374&w=480"
+                alt="Montmorency Falls Québec"
+                className="w-full h-full object-cover rounded-br-3xl"
+                loading="eager"
+              />
             </div>
+          </div>
+
+          {/* Photo strip — mobile only */}
+          <div className="md:hidden flex gap-3 overflow-x-auto mt-6 pb-2 -mx-6 px-6 scrollbar-hide">
+            {[
+              { src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Vieux-Québec streets' },
+              { src: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Walking tour Québec City' },
+              { src: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Local guide Québec City' },
+              { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Montmorency Falls Québec' },
+            ].map((p) => (
+              <img
+                key={p.alt}
+                src={p.src}
+                alt={p.alt}
+                className="flex-shrink-0 w-40 h-28 rounded-2xl object-cover"
+                loading="eager"
+              />
+            ))}
           </div>
         </div>
       </div>
