@@ -101,6 +101,7 @@ export function ItineraryScreen() {
     const cat = searchParams.get('category');
     return (cat as ExperienceCategory) || 'all';
   });
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get('q') ?? '');
   const [selectedVibes, setSelectedVibes] = useState<string[]>(() => {
     const v = searchParams.get('vibe');
     return v ? [v.toLowerCase()] : [];
@@ -119,9 +120,11 @@ export function ItineraryScreen() {
     const cat = searchParams.get('category');
     const v = searchParams.get('vibe');
     const n = searchParams.get('neighbourhood');
+    const q = searchParams.get('q');
     if (cat) setFilter(cat as ExperienceCategory);
     if (v) { setSelectedVibes([v.toLowerCase()]); setSelectedNeighbourhood(null); }
     if (n) { setSelectedNeighbourhood(n); setSelectedVibes([]); }
+    if (q !== null) setSearchQuery(q);
   }, [searchParams]);
 
   const activeCat = EXPERIENCE_CATEGORIES.find(c => c.id === filter);
@@ -147,10 +150,12 @@ export function ItineraryScreen() {
     setSelectedPrice(null);
     setSelectedLang(null);
     setFamilyOnly(false);
+    setSearchQuery('');
     setSearchParams({});
   }
 
   const hasFilter =
+    searchQuery.trim().length > 0 ||
     selectedVibes.length > 0 ||
     selectedNeighbourhood !== null ||
     selectedDuration !== null ||
@@ -159,6 +164,14 @@ export function ItineraryScreen() {
     familyOnly;
 
   let filteredExperiences = experiences;
+  if (searchQuery.trim()) {
+    const q = searchQuery.trim().toLowerCase();
+    filteredExperiences = filteredExperiences.filter(e =>
+      e.name.toLowerCase().includes(q) ||
+      e.description.toLowerCase().includes(q) ||
+      e.neighbourhood?.toLowerCase().includes(q)
+    );
+  }
   if (selectedVibes.length > 0) {
     filteredExperiences = filteredExperiences.filter(e =>
       e.vibes?.some(v => selectedVibes.includes(v.toLowerCase()))
