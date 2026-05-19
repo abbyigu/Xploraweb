@@ -485,10 +485,10 @@
     "notif3Time": "Il y a 2 jours"
   },
   "search": {
-    "vibeMorning": "Quelle est ton ambiance ce matin ?",
-    "vibeAfternoon": "Quelle est ton ambiance cet après-midi ?",
-    "vibeEvening": "Quelle est ton ambiance ce soir ?",
-    "vibeNow": "Quelle est ton ambiance en ce moment ?",
+    "vibeMorning": "Quelle est votre ambiance ce matin ?",
+    "vibeAfternoon": "Quelle est votre ambiance cet après-midi ?",
+    "vibeEvening": "Quelle est votre ambiance ce soir ?",
+    "vibeNow": "Quelle est votre ambiance en ce moment ?",
     "dateNight": "🍷 Soirée en amoureux",
     "chillSolo": "🌿 Solo tranquille",
     "withFriends": "🎉 Entre amis",
