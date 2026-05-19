@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Compass, Users, Moon, Sparkles, X } from 'lucide-react';
+import { Compass, Users, Moon, Sparkles, X, Search } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
@@ -106,6 +106,27 @@ export function ItineraryScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
           <h1 className="text-2xl md:text-3xl mb-1">Experiences</h1>
+
+          {/* Search bar */}
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+            <input
+              type="search"
+              value={textQuery}
+              onChange={e => {
+                setTextQuery(e.target.value);
+                navigate(e.target.value.trim() ? `/itinerary?q=${encodeURIComponent(e.target.value.trim())}` : '/itinerary', { replace: true });
+              }}
+              placeholder="Search experiences, neighbourhoods…"
+              className="w-full pl-9 pr-4 py-2.5 text-sm rounded-xl border-0 bg-white/90 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all"
+            />
+            {textQuery && (
+              <button onClick={clearFilters} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
           <p className="text-sm md:text-base opacity-90 mb-5">
             {isFiltered
               ? `Showing results for "${filterLabel}"`
