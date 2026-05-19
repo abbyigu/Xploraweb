@@ -500,20 +500,20 @@ export function HomeScreen() {
             {/* Photo collage — desktop only */}
             <div className="hidden md:grid grid-cols-2 gap-2 flex-shrink-0 w-[400px] h-[380px] rounded-3xl overflow-hidden">
               <img
-                src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=760&w=480"
-                alt="Vieux-Québec streets"
+                src="/hero/petit-champlain.jpg"
+                alt="Rue du Petit-Champlain, Québec City"
                 className="col-span-1 row-span-2 w-full h-full object-cover"
                 loading="eager"
               />
               <img
-                src="https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=374&w=480"
-                alt="Walking tour Québec City"
+                src="/hero/chateau-night.jpg"
+                alt="Château Frontenac at night"
                 className="w-full h-full object-cover rounded-tr-3xl"
                 loading="eager"
               />
               <img
-                src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=374&w=480"
-                alt="Montmorency Falls Québec"
+                src="/hero/chateau-dusk.jpg"
+                alt="Château Frontenac at dusk"
                 className="w-full h-full object-cover rounded-br-3xl"
                 loading="eager"
               />
@@ -523,10 +523,9 @@ export function HomeScreen() {
           {/* Photo strip — mobile only */}
           <div className="md:hidden flex gap-3 overflow-x-auto mt-6 pb-2 -mx-6 px-6 scrollbar-hide">
             {[
-              { src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Vieux-Québec streets' },
-              { src: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Walking tour Québec City' },
-              { src: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Local guide Québec City' },
-              { src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=200&w=280', alt: 'Montmorency Falls Québec' },
+              { src: '/hero/petit-champlain.jpg', alt: 'Rue du Petit-Champlain, Québec City' },
+              { src: '/hero/chateau-night.jpg',   alt: 'Château Frontenac at night' },
+              { src: '/hero/chateau-dusk.jpg',    alt: 'Château Frontenac at dusk' },
             ].map((p) => (
               <img
                 key={p.alt}
