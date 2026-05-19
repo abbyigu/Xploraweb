@@ -112,12 +112,12 @@ function TrustSection() {
   ];
 
   return (
-    <div className="space-y-8 py-8">
+    <div className="space-y-8 py-8 text-center">
 
       {/* ── Photo carousel ── */}
       <div className="relative">
         <p className="sr-only">{t('trust.photosLabel')}</p>
-        <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-1 pl-6 md:pl-8 scrollbar-hide">
+        <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-1 px-6 md:px-8 scrollbar-hide justify-start">
           {TRUST_PHOTOS.map((photo, i) => (
             <div
               key={i}
@@ -130,18 +130,14 @@ function TrustSection() {
               />
             </div>
           ))}
-          {/* trailing spacer so last card doesn't flush against edge */}
-          <div className="flex-shrink-0 w-6 md:w-8" aria-hidden="true" />
         </div>
-        {/* right-edge fade hint */}
-        <div
-          className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none"
-          aria-hidden="true"
-        />
+        {/* edge fades */}
+        <div className="absolute left-0 top-0 bottom-1 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" aria-hidden="true" />
+        <div className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" aria-hidden="true" />
       </div>
 
       {/* ── Aggregate rating ── */}
-      <div className="px-6 md:px-8 flex items-center gap-2">
+      <div className="px-6 md:px-8 flex items-center justify-center gap-2">
         <div className="flex gap-0.5" aria-hidden="true">
           {[1, 2, 3, 4, 5].map((s) => (
             <Star key={s} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
@@ -155,11 +151,11 @@ function TrustSection() {
       <div className="space-y-4">
         <h2 className="text-base font-medium px-6 md:px-8">{t('trust.reviewsTitle')}</h2>
         <div className="relative">
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 pl-6 md:pl-8 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 px-6 md:px-8 scrollbar-hide">
             {reviews.map((r, i) => (
               <div
                 key={i}
-                className="flex-shrink-0 snap-start w-72 bg-card border border-border rounded-2xl p-4 space-y-3"
+                className="flex-shrink-0 snap-start w-72 bg-card border border-border rounded-2xl p-4 space-y-3 text-left"
               >
                 <div className="flex gap-0.5" aria-hidden="true">
                   {[1, 2, 3, 4, 5].map((s) => (
@@ -173,12 +169,9 @@ function TrustSection() {
                 </div>
               </div>
             ))}
-            <div className="flex-shrink-0 w-6 md:w-8" aria-hidden="true" />
           </div>
-          <div
-            className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none"
-            aria-hidden="true"
-          />
+          <div className="absolute left-0 top-0 bottom-1 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" aria-hidden="true" />
+          <div className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" aria-hidden="true" />
         </div>
       </div>
 
@@ -187,7 +180,7 @@ function TrustSection() {
         <h2 className="text-base font-medium">{t('trust.whyTitle')}</h2>
         <div className="grid grid-cols-2 gap-3">
           {diffs.map((d, i) => (
-            <div key={i} className="bg-card border border-border rounded-2xl p-4 space-y-2">
+            <div key={i} className="bg-card border border-border rounded-2xl p-4 space-y-2 flex flex-col items-center">
               {d.icon}
               <p className="text-sm font-medium leading-snug">{d.title}</p>
               <p className="text-xs text-muted-foreground leading-relaxed">{d.desc}</p>
