@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star, Calendar } from 'lucide-react';
+import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star, Calendar, Flame, ChevronDown, Bookmark } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
@@ -36,6 +36,14 @@ export function ExperienceDetailScreen() {
   const [comment, setComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [reviewSubmitted, setReviewSubmitted] = useState(false);
+  const [isSaved, setIsSaved] = useState(() => {
+    if (!exp || exp.price !== 0) return false;
+    try {
+      const saved = JSON.parse(localStorage.getItem('xplora_saved_routes') || '[]');
+      return saved.includes(exp.id);
+    } catch { return false; }
+  });
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   useEffect(() => {
     if (!exp) return;
@@ -129,6 +137,15 @@ export function ExperienceDetailScreen() {
     } catch { /* ignore */ }
   };
 
+  const saveRoute = () => {
+    if (isSaved) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem('xplora_saved_routes') || '[]');
+      localStorage.setItem('xplora_saved_routes', JSON.stringify([...saved, exp.id]));
+    } catch { /* ignore */ }
+    setIsSaved(true);
+  };
+
   const today = new Date().toISOString().split('T')[0];
   const isPaid = exp.price > 0;
   const canBook = !isPaid || (selectedDate !== '' && selectedTime !== '');
@@ -187,6 +204,21 @@ export function ExperienceDetailScreen() {
           </span>
         )}
       </div>
+
+      {/* Desktop thumbnail strip */}
+      {photos.length > 1 && (
+        <div className="hidden md:flex gap-2 max-w-3xl mx-auto px-8 pt-3">
+          {photos.map((photo, i) => (
+            <button
+              key={i}
+              onClick={() => setPhotoIndex(i)}
+              className={`w-20 h-14 rounded-xl overflow-hidden flex-shrink-0 transition-all ${i === photoIndex ? 'ring-2 ring-primary ring-offset-1' : 'opacity-55 hover:opacity-80'}`}
+            >
+              <img src={photo} alt="" className="w-full h-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
 
       <div className="max-w-3xl mx-auto px-6 md:px-8 py-8">
         <div className="md:grid md:grid-cols-3 md:gap-12">
@@ -337,6 +369,31 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
+            {/* FAQ */}
+            {exp.faqs && exp.faqs.length > 0 && (
+              <div>
+                <h2 className="text-lg mb-3">FAQ</h2>
+                <div className="space-y-2">
+                  {exp.faqs.map((faq, i) => (
+                    <div key={i} className="border border-border rounded-2xl overflow-hidden">
+                      <button
+                        onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                        className="w-full flex items-center justify-between px-5 py-4 text-sm font-medium text-left hover:bg-muted/30 transition-colors"
+                      >
+                        {faq.q}
+                        <ChevronDown className={`w-4 h-4 flex-shrink-0 ml-3 transition-transform ${openFaq === i ? 'rotate-180' : ''}`} />
+                      </button>
+                      {openFaq === i && (
+                        <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
+                          {faq.a}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Reviews */}
             <div>
               <h2 className="text-lg mb-4">
@@ -431,24 +488,44 @@ export function ExperienceDetailScreen() {
               {exp.price === 0 ? (
                 <>
                   <p className="text-3xl font-medium mb-1">Free</p>
-                  <p className="text-sm text-muted-foreground mb-6">Self-guided — go at your own pace</p>
+                  <p className="text-sm text-muted-foreground mb-4">Self-guided — go at your own pace</p>
+                  {exp.weeklyBookings && (
+                    <div className="flex items-center gap-1.5 text-xs text-orange-600 font-medium mb-4">
+                      <Flame className="w-3.5 h-3.5" />
+                      {exp.weeklyBookings} people saved this week
+                    </div>
+                  )}
                   <button
-                    onClick={purchaseAndAdd}
-                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${inCart ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+                    onClick={saveRoute}
+                    className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${isSaved ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
                   >
-                    {inCart ? <><Check className="w-4 h-4" /> Saved to my routes</> : 'Get the route'}
+                    {isSaved ? <><Check className="w-4 h-4" /> Route saved</> : <><Bookmark className="w-4 h-4" /> Save this route</>}
                   </button>
+                  {isSaved && (
+                    <button onClick={() => navigate('/account')} className="w-full mt-2 py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
+                      View my saved routes →
+                    </button>
+                  )}
                   <div className="mt-5 pt-5 border-t border-border">
-                    <p className="text-xs text-muted-foreground text-center mb-3">Want to explore with a group?</p>
+                    <p className="text-xs text-muted-foreground text-center mb-3">Prefer a guided experience with a group?</p>
                     <button onClick={() => navigate('/itinerary?category=xploratours')} className="w-full py-2.5 rounded-2xl border border-border text-sm hover:bg-muted/40 transition-colors">
-                      Xplora-tours — Experience together →
+                      See guided Tours →
                     </button>
                   </div>
                 </>
               ) : (
                 <>
                   <p className="text-3xl font-medium mb-1">${(exp.price / 100).toFixed(0)}<span className="text-base text-muted-foreground font-normal"> / person</span></p>
-                  {exp.spots && <p className="text-sm text-muted-foreground mb-4">{exp.spots} spots available</p>}
+                  {exp.weeklyBookings && (
+                    <div className="flex items-center gap-1.5 text-xs text-orange-600 font-medium mb-2">
+                      <Flame className="w-3.5 h-3.5" />
+                      {exp.weeklyBookings} people booked this week
+                    </div>
+                  )}
+                  {exp.spots && exp.spots <= 5
+                    ? <p className="text-sm text-red-600 font-medium mb-4">⚡ Only {exp.spots} spots left</p>
+                    : exp.spots ? <p className="text-sm text-muted-foreground mb-4">{exp.spots} spots available</p> : null
+                  }
 
                   {/* Date & time picker */}
                   {!inCart && (
@@ -532,18 +609,28 @@ export function ExperienceDetailScreen() {
         <div className="px-6 py-3 flex items-center justify-between">
           <div>
             <p className="text-xl font-medium">{exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}<span className="text-sm text-muted-foreground font-normal">{exp.price > 0 ? ' / person' : ''}</span></p>
-            <p className="text-xs text-muted-foreground">{exp.price === 0 ? 'Self-guided' : `${exp.spots} spots left`}</p>
+            <p className="text-xs text-muted-foreground">
+              {exp.price === 0 ? 'Self-guided · go at your own pace'
+                : exp.spots && exp.spots <= 5 ? `⚡ Only ${exp.spots} spots left`
+                : exp.spots ? `${exp.spots} spots available` : ''}
+            </p>
           </div>
-          <button
-            onClick={() => { if (!inCart && canBook) purchaseAndAdd(); else if (inCart) navigate('/cart'); }}
-            disabled={!inCart && !canBook}
-            className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : canBook ? 'bg-primary text-primary-foreground hover:opacity-90' : 'bg-primary/40 text-primary-foreground cursor-not-allowed'}`}
-          >
-            {exp.price === 0
-              ? (inCart ? <><Check className="w-4 h-4" /> Saved</> : 'Get route')
-              : (inCart ? <><Check className="w-4 h-4" /> In cart</> : <><ShoppingCart className="w-4 h-4" /> Book</>)
-            }
-          </button>
+          {exp.price === 0 ? (
+            <button
+              onClick={saveRoute}
+              className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${isSaved ? 'bg-green-500 text-white' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
+            >
+              {isSaved ? <><Check className="w-4 h-4" /> Saved</> : <><Bookmark className="w-4 h-4" /> Save route</>}
+            </button>
+          ) : (
+            <button
+              onClick={() => { if (!inCart && canBook) purchaseAndAdd(); else if (inCart) navigate('/cart'); }}
+              disabled={!inCart && !canBook}
+              className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${inCart ? 'bg-green-500 text-white' : canBook ? 'bg-primary text-primary-foreground hover:opacity-90' : 'bg-primary/40 text-primary-foreground cursor-not-allowed'}`}
+            >
+              {inCart ? <><Check className="w-4 h-4" /> In cart</> : <><ShoppingCart className="w-4 h-4" /> Book</>}
+            </button>
+          )}
         </div>
       </div>
 
