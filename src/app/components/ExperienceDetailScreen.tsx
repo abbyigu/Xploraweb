@@ -584,7 +584,7 @@ export function ExperienceDetailScreen() {
       </div>
 
       {/* Booking bar — mobile sticky bottom */}
-      <div className="md:hidden fixed bottom-16 left-0 right-0 bg-white border-t border-border z-40">
+      <div className="md:hidden fixed bottom-[72px] left-0 right-0 bg-white border-t border-border z-40">
         {isPaid && !inCart && (
           <div className="flex gap-2 px-4 pt-3">
             <input
