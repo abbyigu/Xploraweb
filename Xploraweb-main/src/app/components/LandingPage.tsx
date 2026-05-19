@@ -119,7 +119,14 @@ export function LandingPage() {
             <span className="font-semibold text-white">
               {explorerCount !== null ? `${explorerCount.toLocaleString()}+` : '...'}
             </span>{' '}
-            {t('home.explorers')}
+            <a
+              href="https://xplora.kit.com/e3bd366421"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-white underline underline-offset-2 hover:opacity-80 transition-opacity"
+            >
+              {t('home.explorers')}
+            </a>
           </p>
         </div>
       </div>

@@ -66,7 +66,14 @@ function ExplorerBanner() {
             </div>
           ))}
         </div>
-        <p className="text-sm font-semibold text-white">{t('home.explorers')}</p>
+        <a
+          href="https://xplora.kit.com/e3bd366421"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-semibold text-white underline underline-offset-2 hover:opacity-80 transition-opacity"
+        >
+          {t('home.explorers')}
+        </a>
       </div>
     </div>
   );
