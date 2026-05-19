@@ -361,12 +361,7 @@ export function HomeScreen() {
                 {t('landing.exploreExperiences')}
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                to="/signup"
-                className="px-8 py-4 bg-white/50 backdrop-blur-sm text-foreground border border-white/70 rounded-2xl text-base hover:bg-white/70 transition-colors flex items-center justify-center"
-              >
-                {t('landing.bookTour')}
-              </Link>
+
             </div>
             <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
               <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
