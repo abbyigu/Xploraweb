@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, Tag, Crown, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
 import { SimpleFooter } from './SimpleFooter';
+import { experiences as staticExperiences } from '../data/products';
 
 const ADMIN_EMAIL = 'ariel.blouin@live.ca';
 
@@ -49,7 +50,7 @@ export function AdminDashboardScreen() {
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews'>('experiences');
+  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews' | 'pricing'>('experiences');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
@@ -226,6 +227,13 @@ export function AdminDashboardScreen() {
                 <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{stats.archived}</span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('pricing')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'pricing' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Tag className="w-3.5 h-3.5" />
+              Pricing
+            </button>
           </div>
 
           {activeTab === 'experiences' && (
@@ -289,6 +297,8 @@ export function AdminDashboardScreen() {
             </div>
           )}
 
+          {activeTab === 'pricing' && <PricingPanel />}
+
           {activeTab === 'archive' && (
             <div className="space-y-4">
               <div>
@@ -335,6 +345,145 @@ export function AdminDashboardScreen() {
         </div>
       </div>
       <SimpleFooter />
+    </div>
+  );
+}
+
+function PricingPanel() {
+  const paid = staticExperiences.filter(e => e.type === 'experience' && e.price > 0);
+  const free = staticExperiences.filter(e => e.type === 'experience' && e.price === 0);
+  const avgPrice = paid.length ? Math.round(paid.reduce((s, e) => s + e.price, 0) / paid.length) : 0;
+  const minPrice = paid.length ? Math.min(...paid.map(e => e.price)) : 0;
+  const maxPrice = paid.length ? Math.max(...paid.map(e => e.price)) : 0;
+  const memberMonthly = 1000; // $10/month in cents
+
+  const [deals, setDeals] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('xplora_deals') || '[]'); } catch { return []; }
+  });
+
+  const toggleDeal = (id: string) => {
+    const next = deals.includes(id) ? deals.filter(d => d !== id) : [...deals, id];
+    setDeals(next);
+    localStorage.setItem('xplora_deals', JSON.stringify(next));
+  };
+
+  const memberPrice = (cents: number) => Math.round(cents * 0.75 / 100);
+  const savingsAt = (bookings: number) => Math.round((avgPrice * 0.25 * bookings) / 100);
+
+  const CATEGORY_LABEL: Record<string, string> = {
+    xplorators: 'Solo', xploratorsplus: 'Solo+', xploratours: 'Tours', xploranights: 'Nights',
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Stats overview */}
+      <div>
+        <h3 className="text-lg mb-4">Pricing overview</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Free experiences</p>
+            <p className="text-3xl font-serif text-green-600">{free.length}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Avg. paid price</p>
+            <p className="text-3xl font-serif">${(avgPrice / 100).toFixed(0)}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Price range</p>
+            <p className="text-2xl font-serif">${(minPrice / 100).toFixed(0)}–${(maxPrice / 100).toFixed(0)}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Member break-even</p>
+            <p className="text-3xl font-serif">{Math.ceil(memberMonthly / (avgPrice * 0.25))}×</p>
+            <p className="text-xs text-muted-foreground mt-0.5">bookings to save $10</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Member pricing summary */}
+      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Crown className="w-4 h-4 text-primary" />
+          <h4 className="text-sm font-medium">Member discount (25% off all paid experiences)</h4>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[1, 2, 3].map(n => (
+            <div key={n} className="bg-white rounded-xl px-4 py-3 text-center">
+              <p className="text-xs text-muted-foreground">{n} booking{n > 1 ? 's' : ''}/month</p>
+              <p className={`text-lg font-semibold mt-0.5 ${savingsAt(n) >= 10 ? 'text-green-600' : 'text-foreground'}`}>
+                {savingsAt(n) >= 10 ? `+$${savingsAt(n) - 10} net` : savingsAt(n) === 10 ? 'Break-even' : `-$${10 - savingsAt(n)}`}
+              </p>
+              <p className="text-xs text-muted-foreground">saves ${savingsAt(n)}, costs $10</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Deals management */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-lg">Deals</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Toggled deals show a "Deal" badge on listing cards. Stored locally — connect Supabase to persist.
+            </p>
+          </div>
+          {deals.length > 0 && (
+            <span className="bg-secondary/20 text-secondary text-xs px-2.5 py-1 rounded-full font-medium">
+              {deals.length} active
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          {paid.map(exp => {
+            const isDeal = deals.includes(exp.id);
+            return (
+              <div key={exp.id} className={`flex items-center gap-4 rounded-xl border p-4 transition-colors ${isDeal ? 'bg-secondary/5 border-secondary/30' : 'bg-card border-border'}`}>
+                <img src={exp.image} alt={exp.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{exp.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {exp.category ? CATEGORY_LABEL[exp.category] : '—'} ·{' '}
+                    <span className="font-medium text-foreground">${(exp.price / 100).toFixed(0)}</span>
+                    <span className="mx-1.5 text-muted-foreground/40">→</span>
+                    <span className="text-primary">Members ${memberPrice(exp.price)}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {isDeal && (
+                    <span className="hidden sm:flex items-center gap-1 text-xs text-secondary font-medium">
+                      <Tag className="w-3 h-3" /> Deal active
+                    </span>
+                  )}
+                  <button
+                    onClick={() => toggleDeal(exp.id)}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${isDeal ? 'bg-secondary' : 'bg-muted'}`}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isDeal ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Free experiences list */}
+      <div>
+        <h3 className="text-lg mb-3">Free experiences</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {free.map(exp => (
+            <div key={exp.id} className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-xl p-3">
+              <DollarSign className="w-4 h-4 text-green-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{exp.name}</p>
+                <p className="text-xs text-muted-foreground">{exp.category ? CATEGORY_LABEL[exp.category] : '—'} · {exp.neighbourhood || 'No location'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
