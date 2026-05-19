@@ -1,4 +1,5 @@
-import { lazy, Suspense, useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState, Component } from 'react';
+import type { ReactNode } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
 import { BottomNav } from './components/BottomNav';
@@ -30,6 +31,27 @@ const BusinessDashboardScreen= lazy(() => import('./components/BusinessDashboard
 const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').then(m => ({ default: m.PrivacyScreen })));
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
 const AdminDashboardScreen   = lazy(() => import('./components/AdminDashboardScreen').then(m => ({ default: m.AdminDashboardScreen })));
+
+class RouteErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
+  state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
+          <p className="text-lg font-medium">Something went wrong loading this page.</p>
+          <button
+            onClick={() => { this.setState({ hasError: false }); window.location.reload(); }}
+            className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm"
+          >
+            Reload
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 function AuthHandler() {
   const navigate = useNavigate();
@@ -75,6 +97,7 @@ export default function App() {
         <Header />
         <Breadcrumbs />
         <div className="md:max-w-none max-w-md mx-auto relative">
+          <RouteErrorBoundary>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
             <Routes>
               <Route path="/" element={<HomeScreen />} />
@@ -102,6 +125,7 @@ export default function App() {
               <Route path="/dashboard" element={<AdminDashboardScreen />} />
             </Routes>
           </Suspense>
+          </RouteErrorBoundary>
         </div>
         <BottomNav />
       </div>

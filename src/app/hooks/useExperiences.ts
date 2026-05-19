@@ -35,29 +35,34 @@ export function useExperiences() {
   const [loading, setLoading] = useState(true);
 
   const reload = async () => {
-    const [xploraRes, perksRes] = await Promise.all([
-      supabase.from('xplora_experiences').select('*').eq('status', 'active').order('created_at', { ascending: false }),
-      supabase.from('business_perks').select('*').eq('type', 'xplora_experience').eq('status', 'active').order('created_at', { ascending: false }),
-    ]);
+    try {
+      const [xploraRes, perksRes] = await Promise.all([
+        supabase.from('xplora_experiences').select('*').eq('status', 'active').order('created_at', { ascending: false }),
+        supabase.from('business_perks').select('*').eq('type', 'xplora_experience').eq('status', 'active').order('created_at', { ascending: false }),
+      ]);
 
-    const fromXplora = (xploraRes.data || []).map(mapRow);
-    const fromPerks = (perksRes.data || []).map((row: any): Product => ({
-      id: row.id,
-      name: row.title,
-      description: row.description || '',
-      price: row.price_cents ?? 0,
-      image: row.image_url || 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
-      type: 'experience' as const,
-      badge: undefined,
-      duration: row.timing || undefined,
-      spots: row.spots_total || undefined,
-      difficulty: undefined,
-      category: row.category,
-    }));
+      const fromXplora = (xploraRes.data || []).map(mapRow);
+      const fromPerks = (perksRes.data || []).map((row: any): Product => ({
+        id: row.id,
+        name: row.title,
+        description: row.description || '',
+        price: row.price_cents ?? 0,
+        image: row.image_url || 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
+        type: 'experience' as const,
+        badge: undefined,
+        duration: row.timing || undefined,
+        spots: row.spots_total || undefined,
+        difficulty: undefined,
+        category: row.category,
+      }));
 
-    const dynamic = [...fromXplora, ...fromPerks];
-    setExperiences(dynamic.length > 0 ? [...dynamic, ...staticExperiences] : staticExperiences);
-    setLoading(false);
+      const dynamic = [...fromXplora, ...fromPerks];
+      setExperiences(dynamic.length > 0 ? [...dynamic, ...staticExperiences] : staticExperiences);
+    } catch {
+      // Network or Supabase error — fall back to static data so the page still renders
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { reload(); }, []);
