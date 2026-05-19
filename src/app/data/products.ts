@@ -1,10 +1,10 @@
 export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' | 'xploratorsplus';
 
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
-  { id: 'xplorators',    name: 'Xplorators',    tagline: 'Explore at your pace · Self-guided' },
-  { id: 'xploratours',   name: 'Xploratours',   tagline: 'Experience together' },
-  { id: 'xploranights',  name: 'Xplora Nights', tagline: 'The nights worth going out for' },
-  { id: 'xploratorsplus', name: 'Xplorators+',  tagline: 'Go deeper · Stories, context & local access' },
+  { id: 'xplorators',    name: 'Solo',    tagline: 'Self-guided · Explore at your own pace' },
+  { id: 'xploratours',   name: 'Tours',   tagline: 'Guided group experiences' },
+  { id: 'xploranights',  name: 'Nights',  tagline: 'The nights worth going out for' },
+  { id: 'xploratorsplus', name: 'Solo+',  tagline: 'Self-guided · With stories & local context' },
 ];
 
 export interface Product {
@@ -21,6 +21,7 @@ export interface Product {
   spots?: number;
   difficulty?: string;
   category?: ExperienceCategory;
+  weeklyBookings?: number;
   // detail page fields
   longDescription?: string;
   includes?: string[];
@@ -33,6 +34,8 @@ export interface Product {
   itinerary?: string[];
   neighbourhood?: string;
   vibes?: string[];
+  faqs?: { q: string; a: string }[];
+  title?: string;
 }
 
 export const experiences: Product[] = [
@@ -75,8 +78,15 @@ export const experiences: Product[] = [
       'Your phone for the map',
       'A sense of curiosity',
     ],
+    weeklyBookings: 12,
     meetingPoint: 'Start anywhere on the route — fully flexible',
     languages: ['English', 'Français'],
+    faqs: [
+      { q: 'Do I need to book in advance?', a: 'No — just save the route and go whenever you like. There\'s no set time and no group to meet.' },
+      { q: 'How long does this route take?', a: 'Most people take 2–3 hours, but you can stretch it into a half-day if you stop for coffee and wander.' },
+      { q: 'Is this suitable for kids?', a: 'Yes — the route is on flat, paved streets and mostly accessible. The staircase section (Escalier Casse-Cou) can be skipped.' },
+      { q: 'What if I want a guide?', a: 'Check out the Xploratours version of this route — a local host leads a small group through the same area with stories, context, and a tasting stop.' },
+    ],
     itinerary: [
       'Place des Arts, Saint-Roch — Start at this open-air gallery anchoring the creative quarter',
       'Rue Saint-Joseph Est — Walk the main artery of Saint-Roch, lined with indie cafés and boutiques',
@@ -169,8 +179,15 @@ export const experiences: Product[] = [
       'Your phone for the map',
       'An appetite — seriously',
     ],
+    weeklyBookings: 9,
     meetingPoint: 'Start at either end of Avenue Maguire — fully flexible',
     languages: ['English', 'Français'],
+    faqs: [
+      { q: 'Do I need to book in advance?', a: 'Nope. Save the route and head out whenever — there\'s no time slot and no group.' },
+      { q: 'How long is the route?', a: 'About 1.5 hours at a relaxed pace, or a full morning if you stop for a bagel and a coffee.' },
+      { q: 'Is parking available nearby?', a: 'There\'s street parking on the side streets off Maguire. On weekday mornings it\'s usually easy to find a spot.' },
+      { q: 'Can I do this with kids?', a: 'Yes — the route is flat and stroller-friendly. The bakery stop is a hit with kids.' },
+    ],
     itinerary: [
       'Boulangerie artisanale — Start your morning here; the counter opens early and the lineup moves fast',
       'Avenue Maguire main strip — Walk the length of the street; take your time at the window displays',
@@ -190,6 +207,7 @@ export const experiences: Product[] = [
     type: 'experience',
     duration: 'Half Day',
     spots: 6,
+    weeklyBookings: 8,
     difficulty: 'Moderate',
     category: 'xploratours',
     neighbourhood: 'Vieux-Québec',
@@ -251,8 +269,16 @@ export const experiences: Product[] = [
       'Comfortable walking shoes',
       'Light layer (mornings can be cool)',
     ],
+    weeklyBookings: 6,
     meetingPoint: 'Corner of Avenue Maguire & Rue du Chalutier — details sent on booking',
     languages: ['English', 'Français'],
+    faqs: [
+      { q: 'What\'s the group size?', a: 'Max 8 people — small enough that you can actually hear the host and ask questions.' },
+      { q: 'Is the tasting stop included in the price?', a: 'Yes — one tasting stop (usually bagels or a pastry) is included. Anything extra you buy along the way is on you.' },
+      { q: 'What if it rains?', a: 'The tour runs rain or shine. Dress for the weather — we walk the whole route regardless.' },
+      { q: 'Can I cancel or reschedule?', a: 'Yes — cancel up to 48 hours before for a full refund. Within 48 hours we\'ll offer a credit toward another date.' },
+      { q: 'Is this tour in English or French?', a: 'We offer it in both — select your preferred language when booking, or message us and we\'ll match your host.' },
+    ],
     itinerary: [
       'Meet at the corner — quick intro, no fluff',
       'Boulangerie stop — first tasting, story of the baker',
@@ -294,8 +320,15 @@ export const experiences: Product[] = [
       'Walking shoes',
       'An appetite',
     ],
+    weeklyBookings: 4,
     meetingPoint: 'Start anywhere on the route — route begins at the north end of Avenue Maguire',
     languages: ['English', 'Français'],
+    faqs: [
+      { q: 'Do I need headphones?', a: 'Yes — earbuds work great. The audio is optimised for headphones so you can hear it clearly while walking in the city.' },
+      { q: 'How is this different from the free Maguire route?', a: 'The free route gives you the stops. Solo+ adds audio narration at each stop — the history, the people, the stories behind what you\'re looking at — plus 3 insider locations not on the free map.' },
+      { q: 'Can I pause and come back?', a: 'Yes — your route saves on your device. Come back the next morning and pick up where you left off.' },
+      { q: 'What\'s the member price?', a: 'Members get Solo+ at $10 instead of $15. That\'s applied automatically at checkout if your membership is active.' },
+    ],
     itinerary: [
       'North end of Maguire — audio intro sets the scene; 2-minute listen before you start walking',
       'First bagel stop — extended audio on the history of this block and who used to live here',
@@ -345,7 +378,8 @@ export const experiences: Product[] = [
     type: 'experience',
     badge: 'Popular',
     duration: 'Evening',
-    spots: 10,
+    spots: 3,
+    weeklyBookings: 14,
     difficulty: 'Easy',
     category: 'xploranights',
     neighbourhood: 'Saint-Roch',
