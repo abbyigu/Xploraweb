@@ -506,7 +506,7 @@ export function HomeScreen() {
                 loading="eager"
               />
               <img
-                src="/hero/chateau-night.jpg"
+                src="/hero/chateau-night.webp"
                 alt="Château Frontenac at night"
                 className="w-full h-full object-cover rounded-tr-3xl"
                 loading="eager"
