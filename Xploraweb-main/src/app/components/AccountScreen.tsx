@@ -99,8 +99,8 @@ export function AccountScreen() {
   ];
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) {
         setIsGuest(true);
         setLoading(false);
         return;
@@ -113,7 +113,7 @@ export function AccountScreen() {
             loadArchivedExps();
           }
         } else {
-          setProfile((p) => ({ ...p, email: user.email || '' }));
+          setProfile((p) => ({ ...p, email: session.user.email || '' }));
         }
         setLoading(false);
       });

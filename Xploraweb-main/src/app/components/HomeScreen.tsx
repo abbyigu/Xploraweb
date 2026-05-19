@@ -403,8 +403,8 @@ export function HomeScreen() {
   }>({ loading: true, loggedIn: false, name: '', accountType: '' });
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) {
         setAuthState({ loading: false, loggedIn: false, name: '', accountType: '' });
         return;
       }

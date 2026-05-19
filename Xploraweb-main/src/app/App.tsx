@@ -82,9 +82,9 @@ function AnalyticsHandler() {
 function LanguageSync() {
   const { i18n } = useTranslation();
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user) return;
-      supabase.from('profiles').select('language').eq('id', user.id).single().then(({ data }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) return;
+      supabase.from('profiles').select('language').eq('id', session.user.id).single().then(({ data }) => {
         if (data?.language) {
           i18n.changeLanguage(data.language);
           document.documentElement.lang = data.language;
