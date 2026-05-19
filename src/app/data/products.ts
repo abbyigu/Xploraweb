@@ -30,6 +30,7 @@ export interface Product {
   languages?: string[];
   hostName?: string;
   hostBio?: string;
+  hostId?: string;
   highlights?: string[];
   itinerary?: string[];
   neighbourhood?: string;
@@ -201,6 +202,9 @@ export const experiences: Product[] = [
   {
     id: 'exp-3',
     name: 'Urban Explorer',
+    hostName: 'Marc Bouchard',
+    hostBio: 'Architecture & neighbourhood specialist',
+    hostId: 'host-marc',
     description: 'Architecture and city secrets',
     price: 4000,
     image: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -216,6 +220,9 @@ export const experiences: Product[] = [
   {
     id: 'exp-7',
     name: 'Saint-Roch Neighbourhood Walk',
+    hostName: 'Isabelle Roy',
+    hostBio: 'Art & architecture guide · Limoilou & Saint-Roch',
+    hostId: 'host-isabelle',
     description: 'Explore the creative heart of Québec City together',
     price: 3000,
     image: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -230,6 +237,9 @@ export const experiences: Product[] = [
   {
     id: 'exp-10',
     name: 'Old Port Food & History Walk',
+    hostName: 'Sophie Tremblay',
+    hostBio: 'Food & culture guide · Old Port',
+    hostId: 'host-sophie',
     description: 'Taste local flavours while uncovering 400 years of history',
     price: 4500,
     image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -270,6 +280,9 @@ export const experiences: Product[] = [
       'Light layer (mornings can be cool)',
     ],
     weeklyBookings: 6,
+    hostName: 'Marc Bouchard',
+    hostBio: 'Grew up on Maguire · 6 years guiding',
+    hostId: 'host-marc',
     meetingPoint: 'Corner of Avenue Maguire & Rue du Chalutier — details sent on booking',
     languages: ['English', 'Français'],
     faqs: [
@@ -372,6 +385,9 @@ export const experiences: Product[] = [
   {
     id: 'exp-11',
     name: 'Jazz & Cocktails Evening',
+    hostName: 'Jean-François Côté',
+    hostBio: 'Nightlife curator · Saint-Roch',
+    hostId: 'host-jf',
     description: 'Live jazz, craft cocktails, and the best hidden bars in the city',
     price: 5500,
     image: 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',

@@ -220,7 +220,7 @@ export function HomeScreen() {
                 <div className="text-center md:text-right flex-shrink-0">
                   <p className="text-3xl font-serif">$10</p>
                   <p className="text-sm opacity-80">/month</p>
-                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">Learn more</button>
+                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">Join — $10/month</button>
                 </div>
               </div>
             </section>
@@ -381,7 +381,7 @@ export function HomeScreen() {
               <p className="text-3xl font-serif">$10</p>
               <p className="text-sm opacity-80">/month</p>
               <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
-                Learn more
+                Join — $10/month
               </button>
             </div>
           </div>

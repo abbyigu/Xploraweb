@@ -1,16 +1,19 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Gift, Info, User, ShoppingCart } from 'lucide-react';
+import { Compass, Gift, Search, User, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export function BottomNav() {
   const location = useLocation();
   const { count } = useCart();
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) =>
+    path === '/itinerary'
+      ? location.pathname === '/itinerary'
+      : location.pathname === path;
 
   const navItems = [
     { path: '/',           icon: Compass,      label: 'Xperiences', badge: 0 },
     { path: '/members',    icon: Gift,         label: 'Perks',      badge: 0 },
-    { path: '/about',      icon: Info,         label: 'About',      badge: 0 },
+    { path: '/itinerary',  icon: Search,       label: 'Search',     badge: 0 },
     { path: '/cart',       icon: ShoppingCart, label: 'Cart',       badge: count },
     { path: '/account',    icon: User,         label: 'Account',    badge: 0 },
   ];

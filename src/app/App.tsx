@@ -31,6 +31,7 @@ const BusinessDashboardScreen= lazy(() => import('./components/BusinessDashboard
 const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').then(m => ({ default: m.PrivacyScreen })));
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
 const AdminDashboardScreen   = lazy(() => import('./components/AdminDashboardScreen').then(m => ({ default: m.AdminDashboardScreen })));
+const HostProfileScreen      = lazy(() => import('./components/HostProfileScreen').then(m => ({ default: m.HostProfileScreen })));
 
 class RouteErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
@@ -123,6 +124,7 @@ export default function App() {
               <Route path="/privacy" element={<PrivacyScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
               <Route path="/dashboard" element={<AdminDashboardScreen />} />
+              <Route path="/host/:id" element={<HostProfileScreen />} />
             </Routes>
           </Suspense>
           </RouteErrorBoundary>
