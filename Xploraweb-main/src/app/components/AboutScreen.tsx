@@ -5,23 +5,14 @@ import { SimpleFooter } from './SimpleFooter';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
-// TODO: Replace with real team data — add photos to /public/team/
 const TEAM: { name: string; role: string; bio: string; photo: string; initials: string }[] = [
   {
-    name: 'TODO: Name',
-    role: 'TODO: Role',
-    bio: 'TODO: One sentence about this person and their connection to Québec City.',
+    name: 'Ariel',
+    role: 'Founder',
+    bio: 'Hi, I\'m Ariel — founder of Xplora ✨ Growing up, exploring local cafés, hidden gems, and small towns was a family tradition. Those experiences inspired me to create Xplora — a platform designed to help people slow down, discover local culture, and experience Québec City more meaningfully.',
     photo: '/team/founder-1.jpg',
     initials: 'AB',
   },
-  // Uncomment and fill in for a second person:
-  // {
-  //   name: 'TODO: Name',
-  //   role: 'TODO: Role',
-  //   bio: 'TODO: One sentence about this person and their connection to Québec City.',
-  //   photo: '/team/founder-2.jpg',
-  //   initials: 'XY',
-  // },
 ];
 
 function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
