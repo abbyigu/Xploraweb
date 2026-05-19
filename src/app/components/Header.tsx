@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Compass, Gift, Info, ShoppingCart, Search } from 'lucide-react';
+import { Compass, Gift, Info, ShoppingCart, Search, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect, useRef } from 'react';
@@ -9,6 +9,10 @@ function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
 }
 
+function getLang(): 'en' | 'fr' {
+  return (localStorage.getItem('xplora-lang') as 'en' | 'fr') || 'en';
+}
+
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -16,6 +20,14 @@ export function Header() {
   const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
   const [searchQuery, setSearchQuery] = useState('');
   const searchRef = useRef<HTMLInputElement>(null);
+  const [lang, setLang] = useState<'en' | 'fr'>(getLang);
+
+  function toggleLang() {
+    const next = lang === 'en' ? 'fr' : 'en';
+    setLang(next);
+    localStorage.setItem('xplora-lang', next);
+    document.documentElement.lang = next;
+  }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -80,8 +92,24 @@ export function Header() {
             </div>
           </form>
 
-          <div className="flex items-center gap-3 lg:gap-5">
-            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors">For Businesses</Link>
+          <div className="flex items-center gap-2 lg:gap-3">
+            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">For Businesses</Link>
+
+            {/* Location chip */}
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-muted/40 text-sm font-medium whitespace-nowrap">
+              <MapPin className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+              <span>Québec City</span>
+            </div>
+
+            {/* Language toggle */}
+            <button
+              onClick={toggleLang}
+              className="px-3 py-1.5 rounded-full border border-border bg-muted/40 text-sm font-medium hover:bg-muted/70 transition-colors"
+              aria-label={lang === 'en' ? 'Switch to French' : 'Passer en anglais'}
+            >
+              {lang === 'en' ? 'FR' : 'EN'}
+            </button>
+
             <Link to="/cart" className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
               <ShoppingCart className="w-5 h-5" />
               {count > 0 && (
@@ -90,10 +118,6 @@ export function Header() {
                 </span>
               )}
             </Link>
-            <div className="text-right">
-              <p className="text-sm text-muted-foreground">Exploring</p>
-              <p className="font-medium">Québec City, QC</p>
-            </div>
             <Link to="/account">
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
