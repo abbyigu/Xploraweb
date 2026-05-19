@@ -112,7 +112,7 @@ function TrustSection() {
   ];
 
   return (
-    <div className="space-y-8 py-8 text-center">
+    <div className="max-w-7xl mx-auto space-y-8 py-8 text-center">
 
       {/* ── Photo carousel ── */}
       <div className="relative">
@@ -214,10 +214,10 @@ function VibeSection() {
   const neighbourhoods = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12">
+    <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12 text-center">
       <h2 className="text-xl md:text-2xl mb-6">{t(vibeKey)}</h2>
       <div className="space-y-5">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
           {vibes.map(([value, labelKey]) => (
             <button
               key={value}
@@ -228,7 +228,7 @@ function VibeSection() {
             </button>
           ))}
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
           {neighbourhoods.map(n => (
             <button
               key={n}
@@ -334,7 +334,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
       {/* Featured experiences */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10 space-y-10">
         <section>
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col items-center gap-2 mb-6 text-center">
             <h2 className="text-xl md:text-2xl">{t('home.featuredExperiences')}</h2>
             <button
               onClick={() => navigate('/itinerary')}
@@ -380,7 +380,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
 
         {/* Perks */}
         <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6">{t('home.perks')}</h2>
+          <h2 className="text-xl md:text-2xl mb-4 md:mb-6 text-center">{t('home.perks')}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
             {perks.map((perk) => (
               <DealCard key={perk.id} {...perk} />
