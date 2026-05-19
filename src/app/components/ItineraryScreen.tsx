@@ -36,11 +36,15 @@ export function ItineraryScreen() {
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(() => {
     return searchParams.get('neighbourhood');
   });
+  const [textQuery, setTextQuery] = useState<string>(() => searchParams.get('q') ?? '');
 
   useEffect(() => {
     const cat = searchParams.get('category');
     const vibe = searchParams.get('vibe');
     const neighbourhood = searchParams.get('neighbourhood');
+    const q = searchParams.get('q') ?? '';
+
+    setTextQuery(q);
 
     if (cat && !vibe && !neighbourhood) {
       setFilter(cat as ExperienceCategory);
@@ -55,39 +59,47 @@ export function ItineraryScreen() {
       setSelectedNeighbourhood(neighbourhood);
       setSelectedVibes([]);
     }
-    if (!cat && !vibe && !neighbourhood) {
+    if (!cat && !vibe && !neighbourhood && !q) {
       setFilter('all');
       setSelectedVibes([]);
       setSelectedNeighbourhood(null);
     }
   }, [searchParams]);
 
-  const isFiltered = selectedVibes.length > 0 || selectedNeighbourhood !== null;
+  const isFiltered = selectedVibes.length > 0 || selectedNeighbourhood !== null || textQuery.length > 0;
 
   const clearFilters = () => {
     setSelectedVibes([]);
     setSelectedNeighbourhood(null);
+    setTextQuery('');
     navigate('/itinerary', { replace: true });
   };
 
-  const filteredExperiences = isFiltered
-    ? experiences.filter(e => {
-        const vibeMatch = selectedVibes.length === 0 || selectedVibes.some(v =>
-          e.vibes?.some(ev => ev.toLowerCase() === v)
-        );
-        const neighbourhoodMatch = !selectedNeighbourhood ||
-          e.neighbourhood?.toLowerCase() === selectedNeighbourhood.toLowerCase();
-        return vibeMatch && neighbourhoodMatch;
-      })
-    : filter === 'all'
-      ? experiences
-      : experiences.filter(e => e.category === filter);
+  const filteredExperiences = (() => {
+    let base = filter === 'all' ? experiences : experiences.filter(e => e.category === filter);
+    if (selectedVibes.length > 0) {
+      base = base.filter(e => selectedVibes.some(v => e.vibes?.some(ev => ev.toLowerCase() === v)));
+    }
+    if (selectedNeighbourhood) {
+      base = base.filter(e => e.neighbourhood?.toLowerCase() === selectedNeighbourhood.toLowerCase());
+    }
+    if (textQuery) {
+      const q = textQuery.toLowerCase();
+      base = base.filter(e =>
+        e.title?.toLowerCase().includes(q) ||
+        e.description?.toLowerCase().includes(q) ||
+        e.neighbourhood?.toLowerCase().includes(q) ||
+        e.vibes?.some(v => v.toLowerCase().includes(q))
+      );
+    }
+    return base;
+  })();
 
   const activeCat = EXPERIENCE_CATEGORIES.find(c => c.id === filter);
 
-  const filterLabel = selectedVibes.length > 0
+  const filterLabel = textQuery || (selectedVibes.length > 0
     ? selectedVibes.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ')
-    : selectedNeighbourhood;
+    : selectedNeighbourhood);
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">

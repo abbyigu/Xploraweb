@@ -285,12 +285,20 @@ export function HomeScreen() {
                 Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
               </p>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> Launching June 2026</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Locals & Visitors</span>
+            {/* Social proof */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span>4.9/5 rating</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <Users className="w-4 h-4" />
+                <span>500+ explorers</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <MapPin className="w-4 h-4" />
+                <span>30+ bookings this week</span>
+              </div>
             </div>
           </div>
         </div>
