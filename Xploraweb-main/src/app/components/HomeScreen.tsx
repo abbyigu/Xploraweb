@@ -1,5 +1,6 @@
+import React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { MapPin, Star, Users, Clock, ArrowRight } from 'lucide-react';
+import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages, BadgeCheck } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
 import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
@@ -67,6 +68,134 @@ function ExplorerBanner() {
         </div>
         <p className="text-sm font-semibold text-white">{t('home.explorers')}</p>
       </div>
+    </div>
+  );
+}
+
+const TRUST_PHOTOS = [
+  {
+    src: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
+    alt: 'Walking tour Québec City',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
+    alt: 'Québec City experience',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
+    alt: 'Local guide Québec City',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
+    alt: 'Vieux-Québec streets',
+  },
+  {
+    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
+    alt: 'Québec City landscape',
+  },
+];
+
+function TrustSection() {
+  const { t } = useTranslation();
+
+  const reviews = [
+    { quote: t('landing.t1quote'), author: t('landing.t1author'), role: t('landing.t1role') },
+    { quote: t('landing.t2quote'), author: t('landing.t2author'), role: t('landing.t2role') },
+    { quote: t('landing.t3quote'), author: t('landing.t3author'), role: t('landing.t3role') },
+  ];
+
+  const diffs: { icon: React.ReactNode; title: string; desc: string }[] = [
+    { icon: <MapPinned className="w-5 h-5 text-primary" />, title: t('trust.diff1'), desc: t('trust.diff1Desc') },
+    { icon: <BadgeCheck className="w-5 h-5 text-primary" />, title: t('trust.diff2'), desc: t('trust.diff2Desc') },
+    { icon: <Languages className="w-5 h-5 text-primary" />, title: t('trust.diff3'), desc: t('trust.diff3Desc') },
+    { icon: <ShieldCheck className="w-5 h-5 text-primary" />, title: t('trust.diff4'), desc: t('trust.diff4Desc') },
+  ];
+
+  return (
+    <div className="space-y-8 py-8">
+
+      {/* ── Photo carousel ── */}
+      <div className="relative">
+        <p className="sr-only">{t('trust.photosLabel')}</p>
+        <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-1 pl-6 md:pl-8 scrollbar-hide">
+          {TRUST_PHOTOS.map((photo, i) => (
+            <div
+              key={i}
+              className="flex-shrink-0 snap-start w-44 h-60 rounded-2xl overflow-hidden bg-muted"
+            >
+              <ImageWithFallback
+                src={photo.src}
+                alt={photo.alt}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          ))}
+          {/* trailing spacer so last card doesn't flush against edge */}
+          <div className="flex-shrink-0 w-6 md:w-8" aria-hidden="true" />
+        </div>
+        {/* right-edge fade hint */}
+        <div
+          className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none"
+          aria-hidden="true"
+        />
+      </div>
+
+      {/* ── Aggregate rating ── */}
+      <div className="px-6 md:px-8 flex items-center gap-2">
+        <div className="flex gap-0.5" aria-hidden="true">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <Star key={s} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+          ))}
+        </div>
+        <span className="text-sm font-semibold">{t('trust.ratingScore')}</span>
+        <span className="text-sm text-muted-foreground">· {t('trust.ratingLabel')}</span>
+      </div>
+
+      {/* ── Review quote strip ── */}
+      <div className="space-y-4">
+        <h2 className="text-base font-medium px-6 md:px-8">{t('trust.reviewsTitle')}</h2>
+        <div className="relative">
+          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 pl-6 md:pl-8 scrollbar-hide">
+            {reviews.map((r, i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 snap-start w-72 bg-card border border-border rounded-2xl p-4 space-y-3"
+              >
+                <div className="flex gap-0.5" aria-hidden="true">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star key={s} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
+                  ))}
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">"{r.quote}"</p>
+                <div>
+                  <p className="text-sm font-medium">{r.author}</p>
+                  <p className="text-xs text-muted-foreground">{r.role}</p>
+                </div>
+              </div>
+            ))}
+            <div className="flex-shrink-0 w-6 md:w-8" aria-hidden="true" />
+          </div>
+          <div
+            className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+
+      {/* ── Why Xplora? differentiators ── */}
+      <div className="px-6 md:px-8 space-y-4">
+        <h2 className="text-base font-medium">{t('trust.whyTitle')}</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {diffs.map((d, i) => (
+            <div key={i} className="bg-card border border-border rounded-2xl p-4 space-y-2">
+              {d.icon}
+              <p className="text-sm font-medium leading-snug">{d.title}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{d.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
     </div>
   );
 }
@@ -329,6 +458,7 @@ export function HomeScreen() {
         )}
 
         <ExplorerBanner />
+        {!isBusiness && <TrustSection />}
         <SharedContent showMembership={!isBusiness} />
         <Footer />
       </div>
@@ -375,6 +505,7 @@ export function HomeScreen() {
       </div>
 
       <ExplorerBanner />
+      <TrustSection />
       <SharedContent showMembership={true} />
       <Footer />
     </div>

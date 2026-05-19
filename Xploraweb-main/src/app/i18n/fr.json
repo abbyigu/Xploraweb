@@ -78,6 +78,21 @@
     "t3role": "Visiteur, Montréal",
     "emailUs": "hello@goxplora.ca"
   },
+  "trust": {
+    "photosLabel": "Expériences à Québec",
+    "ratingScore": "4,9",
+    "ratingLabel": "note moyenne · avis vérifiés",
+    "reviewsTitle": "Ce que disent les explorateurs",
+    "whyTitle": "Pourquoi Xplora?",
+    "diff1": "Sélectionné par des locaux",
+    "diff1Desc": "Chaque choix est validé par des gens qui vivent vraiment ici — pas du crowdsourcing",
+    "diff2": "Note moyenne 4,9★",
+    "diff2Desc": "Avis vérifiés de vrais visiteurs",
+    "diff3": "Bilingue EN / FR",
+    "diff3Desc": "Toutes les expériences disponibles en anglais et en français",
+    "diff4": "Annulation gratuite",
+    "diff4Desc": "Remboursement complet si l'expérience est annulée"
+  },
   "home": {
     "welcomeBack": "Bon retour",
     "hey": "Bonjour",
