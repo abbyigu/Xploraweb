@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, CalendarCheck } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
@@ -37,6 +37,20 @@ interface PendingReview {
   experience_name?: string;
 }
 
+interface Booking {
+  id: string;
+  booking_code: string;
+  experience_title: string;
+  client_name: string;
+  client_email: string;
+  amount_paid_cents: number;
+  status: string;
+  created_at: string;
+  guest_count?: number | null;
+  selected_date?: string | null;
+  selected_time?: string | null;
+}
+
 function daysLeft(archivedAt: string): number {
   const diff = Date.now() - new Date(archivedAt).getTime();
   const elapsed = diff / (1000 * 60 * 60 * 24);
@@ -49,10 +63,11 @@ export function AdminDashboardScreen() {
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews'>('experiences');
+  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews' | 'bookings'>('experiences');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
     async function init() {
@@ -64,7 +79,7 @@ export function AdminDashboardScreen() {
         if (!profile?.is_admin) { setLoading(false); return; }
         setAuthorized(true);
         setAdminName(user.email ?? '');
-        await Promise.all([loadStats(), loadArchived(), loadPendingReviews()]);
+        await Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadBookings()]);
       } catch (e) {
         console.error('Admin init error:', e);
       } finally {
@@ -119,6 +134,15 @@ export function AdminDashboardScreen() {
 
     const expMap = Object.fromEntries((exps || []).map(e => [e.id, e.name]));
     setPendingReviews(reviews.map(r => ({ ...r, experience_name: expMap[r.experience_id] || r.experience_id })));
+  }
+
+  async function loadBookings() {
+    const { data } = await supabase
+      .from('bookings')
+      .select('id, booking_code, experience_title, client_name, client_email, amount_paid_cents, status, created_at, guest_count, selected_date, selected_time')
+      .order('created_at', { ascending: false })
+      .limit(100);
+    if (data) setBookings(data);
   }
 
   async function handleApprove(id: string) {
@@ -217,6 +241,16 @@ export function AdminDashboardScreen() {
               )}
             </button>
             <button
+              onClick={() => setActiveTab('bookings')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'bookings' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <CalendarCheck className="w-3.5 h-3.5" />
+              Bookings
+              {bookings.length > 0 && (
+                <span className="bg-primary/10 text-primary text-xs px-1.5 py-0.5 rounded-full">{bookings.length}</span>
+              )}
+            </button>
+            <button
               onClick={() => setActiveTab('archive')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'archive' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
@@ -280,6 +314,54 @@ export function AdminDashboardScreen() {
                           >
                             <X className="w-4 h-4" /> Reject
                           </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === 'bookings' && (
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg">Bookings</h3>
+                <p className="text-xs text-muted-foreground mt-0.5">All confirmed experience bookings.</p>
+              </div>
+
+              {bookings.length === 0 ? (
+                <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                  <CalendarCheck className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">No bookings yet.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {bookings.map(b => (
+                    <div key={b.id} className="bg-card border border-border rounded-2xl p-5">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-sm font-medium">{b.experience_title}</span>
+                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${b.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
+                              {b.status}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {b.client_name} · {b.client_email}
+                          </p>
+                          {(b.selected_date || b.selected_time || b.guest_count) && (
+                            <p className="text-xs text-primary mt-1">
+                              {[b.selected_date, b.selected_time, b.guest_count ? `${b.guest_count} guest${b.guest_count > 1 ? 's' : ''}` : null].filter(Boolean).join(' · ')}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="text-sm font-medium">${(b.amount_paid_cents / 100).toFixed(2)}</p>
+                          <p className="text-xs text-muted-foreground font-mono mt-0.5">{b.booking_code}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {new Date(b.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
                         </div>
                       </div>
                     </div>
