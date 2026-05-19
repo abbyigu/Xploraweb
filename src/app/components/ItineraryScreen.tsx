@@ -4,6 +4,8 @@ import { Compass, Users, Moon, Sparkles, X, Search, SlidersHorizontal, ChevronDo
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
+import { QuickViewModal } from './QuickViewModal';
+import { CompareBar, ComparePanel } from './ComparePanel';
 import { useExperiences } from '../hooks/useExperiences';
 import type { ExperienceCategory } from '../data/products';
 import type { Product } from '../data/products';
@@ -252,6 +254,17 @@ export function ItineraryScreen() {
   const [textQuery, setTextQuery] = useState<string>(() => searchParams.get('q') ?? '');
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [showFilters, setShowFilters] = useState(false);
+  const [quickViewExp, setQuickViewExp] = useState<Product | null>(null);
+  const [compareList, setCompareList] = useState<Product[]>([]);
+  const [showComparePanel, setShowComparePanel] = useState(false);
+
+  const toggleCompare = (exp: Product) => {
+    setCompareList(prev =>
+      prev.some(e => e.id === exp.id)
+        ? prev.filter(e => e.id !== exp.id)
+        : prev.length < 3 ? [...prev, exp] : prev
+    );
+  };
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -426,7 +439,15 @@ export function ItineraryScreen() {
         {hasAnyFilter || activeFilterCount > 0 ? (
           filteredExperiences.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {filteredExperiences.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+              {filteredExperiences.map(exp => (
+                <ExperienceCard
+                  key={exp.id}
+                  exp={exp}
+                  onQuickView={() => setQuickViewExp(exp)}
+                  compareSelected={compareList.some(e => e.id === exp.id)}
+                  onCompareToggle={() => toggleCompare(exp)}
+                />
+              ))}
             </div>
           ) : (
             <div className="text-center py-16 text-muted-foreground">
@@ -460,7 +481,15 @@ export function ItineraryScreen() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {items.map(exp => <ExperienceCard key={exp.id} exp={exp} />)}
+                  {items.map(exp => (
+                    <ExperienceCard
+                      key={exp.id}
+                      exp={exp}
+                      onQuickView={() => setQuickViewExp(exp)}
+                      compareSelected={compareList.some(e => e.id === exp.id)}
+                      onCompareToggle={() => toggleCompare(exp)}
+                    />
+                  ))}
                 </div>
               </section>
             );
@@ -468,13 +497,38 @@ export function ItineraryScreen() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {sortExperiences(experiences.filter(e => e.category === filter), filters.sort).map(exp => (
-              <ExperienceCard key={exp.id} exp={exp} />
+              <ExperienceCard
+                key={exp.id}
+                exp={exp}
+                onQuickView={() => setQuickViewExp(exp)}
+                compareSelected={compareList.some(e => e.id === exp.id)}
+                onCompareToggle={() => toggleCompare(exp)}
+              />
             ))}
           </div>
         )}
       </div>
 
       <SimpleFooter />
+
+      {/* Quick-view modal */}
+      {quickViewExp && (
+        <QuickViewModal exp={quickViewExp} onClose={() => setQuickViewExp(null)} />
+      )}
+
+      {/* Compare bar + panel */}
+      <CompareBar
+        selected={compareList}
+        onToggle={toggleCompare}
+        onOpenPanel={() => setShowComparePanel(true)}
+      />
+      {showComparePanel && compareList.length >= 2 && (
+        <ComparePanel
+          selected={compareList}
+          onClose={() => setShowComparePanel(false)}
+          onRemove={toggleCompare}
+        />
+      )}
     </div>
   );
 }
