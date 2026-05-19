@@ -5,6 +5,19 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
+import { hosts } from '../data/hosts';
+
+function HostPhoto({ hostId, name }: { hostId?: string; name: string }) {
+  const host = hostId ? hosts.find(h => h.id === hostId) : null;
+  if (host?.photo) {
+    return <img src={host.photo} alt={name} className="w-12 h-12 rounded-full object-cover flex-shrink-0 ring-2 ring-primary/10" />;
+  }
+  return (
+    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg flex-shrink-0">
+      {name[0]}
+    </div>
+  );
+}
 
 interface Review {
   id: string;
@@ -263,13 +276,22 @@ export function ExperienceDetailScreen() {
 
             {/* Host */}
             {exp.hostName && (
-              <div className="flex items-center gap-4 py-6 border-t border-b border-border">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-lg flex-shrink-0">
-                  {exp.hostName[0]}
-                </div>
-                <div>
-                  <p className="font-medium">Hosted by {exp.hostName}</p>
-                  {exp.hostBio && <p className="text-sm text-muted-foreground mt-0.5">{exp.hostBio}</p>}
+              <div className="py-6 border-t border-b border-border">
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Your guide</p>
+                <div className="flex items-center gap-4">
+                  <HostPhoto hostId={exp.hostId} name={exp.hostName} />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium">{exp.hostName}</p>
+                    {exp.hostBio && <p className="text-sm text-muted-foreground mt-0.5">{exp.hostBio}</p>}
+                    {exp.hostId && (
+                      <button
+                        onClick={() => navigate(`/host/${exp.hostId}`)}
+                        className="text-xs text-primary hover:underline mt-1 inline-block"
+                      >
+                        View full profile →
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

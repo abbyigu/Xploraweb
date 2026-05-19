@@ -70,7 +70,7 @@ export function SearchHeader({ greeting }: { greeting?: string } = {}) {
           <div className="flex flex-wrap gap-2">
             {VIBES.map(v => (
               <button key={v} onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(v)}`)}
-                className="px-3 py-1.5 bg-white/90 text-primary rounded-full text-sm capitalize hover:bg-white transition-colors">
+                className="px-4 py-2.5 min-h-[44px] bg-white/90 text-foreground rounded-full text-sm capitalize hover:bg-white transition-colors font-medium">
                 {v}
               </button>
             ))}
@@ -81,7 +81,7 @@ export function SearchHeader({ greeting }: { greeting?: string } = {}) {
           <div className="flex flex-wrap gap-2">
             {NEIGHBOURHOODS.map(n => (
               <button key={n} onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)}
-                className="px-3 py-1.5 bg-white/90 text-secondary rounded-full text-sm hover:bg-white transition-colors">
+                className="px-4 py-2.5 min-h-[44px] bg-white/90 text-foreground rounded-full text-sm font-medium hover:bg-white transition-colors">
                 {n}
               </button>
             ))}
