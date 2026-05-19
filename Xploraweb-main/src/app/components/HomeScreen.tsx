@@ -97,6 +97,7 @@ const TRUST_PHOTOS = [
 
 function TrustSection() {
   const { t } = useTranslation();
+  const vibeKey = useVibeKey();
 
   const reviews = [
     { quote: t('landing.t1quote'), author: t('landing.t1author'), role: t('landing.t1role') },
@@ -113,6 +114,9 @@ function TrustSection() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 py-8 text-center">
+
+      {/* ── Vibe heading ── */}
+      <h2 className="text-xl md:text-2xl px-6 md:px-8">{t(vibeKey)}</h2>
 
       {/* ── Photo carousel ── */}
       <div className="relative">
