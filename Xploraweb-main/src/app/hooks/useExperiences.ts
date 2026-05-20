@@ -69,10 +69,12 @@ export function useExperiences() {
       category: row.category,
     }));
 
-    // Only suppress static entries if an active DB record covers them
-    const activeDbNames = new Set([...fromXplora, ...fromPerks].map(e => e.name.toLowerCase()));
+    // Only suppress static entries if an active DB record covers them AND has a valid category
+    const VALID_CATEGORIES = new Set(['xplorators','xploratours','xploranights','xploratorsplus','limoilou','cartier']);
+    const promoted = [...fromXplora, ...fromPerks].filter(e => e.category && VALID_CATEGORIES.has(e.category));
+    const activeDbNames = new Set(promoted.map(e => e.name.toLowerCase()));
     const unpromoted = staticExperiences.filter(e => !activeDbNames.has(e.name.toLowerCase()));
-    setExperiences([...fromXplora, ...fromPerks, ...unpromoted]);
+    setExperiences([...promoted, ...unpromoted]);
     setLoading(false);
   };
 
