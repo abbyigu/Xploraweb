@@ -275,8 +275,9 @@ export function ItineraryScreen() {
           {EXPERIENCE_CATEGORIES.map(cat => {
             const items = experiences.filter(e => e.category === cat.id);
             if (!items.length) return null;
-            const meta = TIER_META[cat.id];
-            const Icon = meta.icon;
+            const meta = TIER_META[cat.id as ExperienceCategory];
+            const Icon = meta?.icon;
+            if (!meta || !Icon) return null;
             const isNights = cat.id === 'xploranights';
             const visible = isNights ? [...items].sort(sortByDate).slice(0, 3) : items.slice(0, 3);
             const remaining = items.length - visible.length;
@@ -356,8 +357,9 @@ export function ItineraryScreen() {
               {t('itinerary.all')}
             </button>
             {EXPERIENCE_CATEGORIES.map(cat => {
-              const meta = TIER_META[cat.id];
-              const Icon = meta.icon;
+              const meta = TIER_META[cat.id as ExperienceCategory];
+              const Icon = meta?.icon;
+              if (!meta || !Icon) return null;
               return (
                 <button
                   key={cat.id}
