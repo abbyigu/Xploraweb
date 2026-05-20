@@ -1,4 +1,4 @@
-import { Link, useLocation, useParams } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { ChevronRight } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 
@@ -6,16 +6,24 @@ type Crumb = { label: string; href?: string };
 
 function useCrumbs(): Crumb[] {
   const { pathname } = useLocation();
-  const { id } = useParams<{ id?: string }>();
   const { experiences } = useExperiences();
 
   if (pathname === '/') return [];
 
-  if (pathname.startsWith('/experience/') && id) {
+  const segments = pathname.split('/');
+
+  if (pathname.startsWith('/experience/') && segments[2]) {
+    const id = segments[2];
     const exp = experiences.find(e => String(e.id) === id);
     return [
       { label: 'Experiences', href: '/itinerary' },
-      { label: exp?.title ?? 'Experience' },
+      { label: exp?.name ?? 'Experience' },
+    ];
+  }
+
+  if (pathname.startsWith('/host/') && segments[2]) {
+    return [
+      { label: 'Hosts' },
     ];
   }
 

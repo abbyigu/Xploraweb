@@ -94,11 +94,11 @@ export default function App() {
     <CartProvider>
     <BrowserRouter>
       <AuthHandler />
+      <RouteErrorBoundary>
       <div className="min-h-screen bg-background">
         <Header />
         <Breadcrumbs />
         <div className="md:max-w-none max-w-md mx-auto relative">
-          <RouteErrorBoundary>
           <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
             <Routes>
               <Route path="/" element={<HomeScreen />} />
@@ -127,12 +127,12 @@ export default function App() {
               <Route path="/host/:id" element={<HostProfileScreen />} />
             </Routes>
           </Suspense>
-          </RouteErrorBoundary>
         </div>
         <BottomNav />
       </div>
-      {analyticsAllowed && <SpeedInsights />}
       <CookieConsent />
+      </RouteErrorBoundary>
+      {analyticsAllowed && <SpeedInsights />}
     </BrowserRouter>
     </CartProvider>
   );
