@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages, BadgeCheck } from 'lucide-react';
+import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
 import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { useFeaturedExperiences } from '../hooks/useFeaturedExperiences';
+import { useFeaturedExperiences, FeaturedExperience } from '../hooks/useFeaturedExperiences';
 import { DealCard } from './DealCard';
 import { perks } from '../data/mockData';
 import { useState, useEffect } from 'react';
@@ -113,7 +113,7 @@ function TrustSection() {
 
   const diffs: { icon: React.ReactNode; title: string; desc: string }[] = [
     { icon: <MapPinned className="w-5 h-5 text-primary" />, title: t('trust.diff1'), desc: t('trust.diff1Desc') },
-    { icon: <BadgeCheck className="w-5 h-5 text-primary" />, title: t('trust.diff2'), desc: t('trust.diff2Desc') },
+    { icon: <Users className="w-5 h-5 text-primary" />, title: t('trust.diff2'), desc: t('trust.diff2Desc') },
     { icon: <Languages className="w-5 h-5 text-primary" />, title: t('trust.diff3'), desc: t('trust.diff3Desc') },
     { icon: <ShieldCheck className="w-5 h-5 text-primary" />, title: t('trust.diff4'), desc: t('trust.diff4Desc') },
   ];
@@ -251,6 +251,107 @@ function VibeSection() {
   );
 }
 
+function FeaturedExperienceCard({ exp }: { exp: FeaturedExperience }) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  return (
+    <div
+      className="bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow cursor-pointer flex flex-col"
+      onClick={() => navigate(`/experience/${exp.id}`)}
+    >
+      <div className="relative h-44 overflow-hidden">
+        <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
+        {exp.neighbourhood && (
+          <span className="absolute top-3 left-3 bg-white/90 text-foreground text-xs px-2.5 py-1 rounded-full backdrop-blur-sm font-medium flex items-center gap-1">
+            <MapPin className="w-3 h-3" />{exp.neighbourhood}
+          </span>
+        )}
+        {exp.badge && (
+          <span className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
+            {exp.badge}
+          </span>
+        )}
+      </div>
+      <div className="p-4 flex flex-col flex-1 gap-2">
+        <h3 className="text-sm font-medium leading-snug">{exp.name}</h3>
+        {exp.duration && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Clock className="w-3 h-3 flex-shrink-0" />{exp.duration}
+          </p>
+        )}
+        <div className="mt-auto flex items-center justify-between pt-2">
+          <p className="text-sm font-semibold">
+            {exp.price === 0 ? t('common.free') : `${t('landing.from')} $${(exp.price / 100).toFixed(0)}`}
+          </p>
+          <button
+            className="px-3 py-1.5 bg-[#12343B] text-white rounded-xl text-xs font-medium hover:bg-[#12343B]/90 transition-colors"
+            onClick={(e) => { e.stopPropagation(); navigate(`/experience/${exp.id}`); }}
+          >
+            {t('experienceCard.book')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeaturedSection() {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { experiences, loading } = useFeaturedExperiences();
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 md:px-8 py-10 md:py-14">
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <h2 className="text-2xl md:text-3xl">{t('landing.featuredTitle')}</h2>
+          <p className="text-sm text-muted-foreground mt-1">{t('landing.featuredSub')}</p>
+        </div>
+        <button
+          onClick={() => navigate('/itinerary')}
+          className="hidden md:flex items-center gap-2 text-sm text-primary hover:underline"
+        >
+          {t('landing.seeAll')} <ArrowRight className="w-4 h-4" />
+        </button>
+      </div>
+
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="h-64 bg-muted rounded-2xl animate-pulse" />
+          ))}
+        </div>
+      ) : experiences.length > 0 ? (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {experiences.map(exp => (
+              <FeaturedExperienceCard key={exp.id} exp={exp} />
+            ))}
+          </div>
+          <div className="mt-6 flex justify-center md:hidden">
+            <button
+              onClick={() => navigate('/itinerary')}
+              className="flex items-center gap-2 text-sm text-primary hover:underline"
+            >
+              {t('home.exploreMore')}
+            </button>
+          </div>
+        </>
+      ) : (
+        <div className="text-center py-10">
+          <p className="text-muted-foreground text-sm mb-5">{t('landing.subheadline')}</p>
+          <button
+            onClick={() => navigate('/itinerary')}
+            className="px-6 py-3 bg-[#12343B] text-white rounded-2xl text-sm font-medium hover:bg-[#12343B]/90 transition-colors inline-flex items-center gap-2"
+          >
+            {t('landing.exploreExperiences')} <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function FeaturedCard({ exp }: { exp: { id: string; name: string; description: string; price: number; image: string; duration?: string; badge?: string; neighbourhood?: string } }) {
   const navigate = useNavigate();
   return (
@@ -329,15 +430,15 @@ function MembershipBanner() {
   );
 }
 
-function SharedContent({ showMembership }: { showMembership: boolean }) {
+function SharedContent({ showMembership, showFeatured = true }: { showMembership: boolean; showFeatured?: boolean }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { experiences, reviews, loading } = useFeaturedExperiences();
 
   return (
     <>
-      {/* Featured experiences */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10 space-y-10">
+        {showFeatured && (
         <section>
           <div className="flex flex-col items-center gap-2 mb-6 text-center">
             <h2 className="text-xl md:text-2xl">{t('home.featuredExperiences')}</h2>
@@ -365,6 +466,7 @@ function SharedContent({ showMembership }: { showMembership: boolean }) {
             </div>
           )}
         </section>
+        )}
 
         {reviews.length > 0 && (
           <section>
@@ -483,6 +585,7 @@ export function HomeScreen() {
               <div className="space-y-3">
                 <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl leading-tight">{t('landing.headline')}</h1>
+                <p className="text-sm md:text-base opacity-75 max-w-sm mx-auto md:mx-0">{t('landing.heroSub')}</p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto md:w-full">
                 <Link
@@ -543,9 +646,10 @@ export function HomeScreen() {
       </div>
 
       <ExplorerBanner />
-      <VibeSection />
+      <FeaturedSection />
       <TrustSection />
-      <SharedContent showMembership={true} />
+      <VibeSection />
+      <SharedContent showMembership={true} showFeatured={false} />
       <Footer />
     </div>
   );
