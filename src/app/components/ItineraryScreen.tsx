@@ -408,9 +408,9 @@ export function ItineraryScreen() {
               All
             </button>
             {EXPERIENCE_CATEGORIES.map(cat => {
-              const meta = TIER_META[cat.id];
-              if (!meta) return null;
-              const Icon = meta.icon;
+              const meta = TIER_META[cat.id as ExperienceCategory];
+              const Icon = meta?.icon;
+              if (!meta || !Icon) return null;
               return (
                 <button
                   key={cat.id}
@@ -479,9 +479,9 @@ export function ItineraryScreen() {
               filters.sort
             );
             if (!items.length) return null;
-            const meta = TIER_META[cat.id];
-            if (!meta) return null;
-            const Icon = meta.icon;
+            const meta = TIER_META[cat.id as ExperienceCategory];
+            const Icon = meta?.icon;
+            if (!meta || !Icon) return null;
             return (
               <section key={cat.id}>
                 <div className="flex items-start gap-3 mb-5">
