@@ -7,7 +7,7 @@ import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
-import { analytics } from './lib/analytics';
+import { analytics, initGtag } from './lib/analytics';
 import './i18n';
 
 function SkipLink() {
@@ -95,6 +95,14 @@ function LanguageSync() {
   return null;
 }
 
+function GtagLoader() {
+  useEffect(() => {
+    const id = requestIdleCallback(() => initGtag(), { timeout: 3000 });
+    return () => cancelIdleCallback(id);
+  }, []);
+  return null;
+}
+
 export default function App() {
   return (
     <HelmetProvider>
@@ -103,6 +111,7 @@ export default function App() {
       <AuthHandler />
       <LanguageSync />
       <AnalyticsHandler />
+      <GtagLoader />
       <div className="min-h-screen bg-background">
         <SkipLink />
         <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">

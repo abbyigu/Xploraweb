@@ -5,6 +5,21 @@ declare global {
   }
 }
 
+const GTAG_ID = 'G-JF6LR3L9HH';
+
+export function initGtag() {
+  if (typeof window === 'undefined') return;
+  if (document.querySelector(`script[src*="${GTAG_ID}"]`)) return;
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function gtag() { window.dataLayer.push(arguments as unknown as Record<string, unknown>); };
+  window.gtag('js', new Date());
+  window.gtag('config', GTAG_ID);
+  const script = document.createElement('script');
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GTAG_ID}`;
+  script.async = true;
+  document.head.appendChild(script);
+}
+
 type CartItem = { id: string; name: string; price: number; quantity: number; category?: string };
 type Experience = { id: string; name: string; price: number; category?: string };
 
