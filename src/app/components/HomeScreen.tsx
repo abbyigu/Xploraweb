@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Compass, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, MapPin, Star, Users, LayoutDashboard, User, Compass, ChevronLeft, ChevronRight, Play, X } from 'lucide-react';
 import { useRef } from 'react';
 import { XploraLogo } from './XploraLogo';
 import { SearchHeader } from './SearchHeader';
@@ -91,6 +91,41 @@ function ExplorerBanner() {
   );
 }
 
+function HowItWorksStrip() {
+  return (
+    <div className="border-t-4 border-primary bg-card">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-5">
+        <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary whitespace-nowrap hidden md:block">
+            How it works
+          </span>
+          {[
+            { n: 1, title: 'Pick your vibe', desc: 'Tell us your mood & neighbourhood' },
+            { n: 2, title: 'Book in seconds', desc: 'Instant confirmation, free cancellation' },
+            { n: 3, title: 'Show up & explore', desc: 'Your guide handles everything else' },
+          ].map(({ n, title, desc }) => (
+            <div key={n} className="flex items-start gap-3 flex-1">
+              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                {n}
+              </div>
+              <div>
+                <div className="text-sm font-semibold">{title}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
+              </div>
+            </div>
+          ))}
+          <Link
+            to="/how-it-works"
+            className="text-sm text-primary font-semibold hover:underline whitespace-nowrap md:ml-auto"
+          >
+            See full details →
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
@@ -99,6 +134,14 @@ export function HomeScreen() {
     name: string;
     accountType: string;
     isAdmin: boolean;
+  }>({ loading: true, loggedIn: false, name: '', accountType: '', isAdmin: false });
+  const [showFab, setShowFab] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('hiw_fab_dismissed')) return;
+    const timer = setTimeout(() => setShowFab(true), 8000);
+    return () => clearTimeout(timer);
+  }, []);
   }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
 
   useEffect(() => {
@@ -273,6 +316,41 @@ export function HomeScreen() {
               </p>
             </div>
 
+            {/* Destination photo tiles — mobile only */}
+            <div className="md:hidden flex gap-2 w-full overflow-x-auto pb-1 -mx-6 px-6 [&::-webkit-scrollbar]:hidden">
+              {[
+                { label: 'Old Port', img: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+                { label: 'Saint-Roch', img: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+                { label: 'Petit-Champlain', img: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
+              ].map(({ label, img }) => (
+                <button
+                  key={label}
+                  onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+                  className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden"
+                >
+                  <img src={img} alt={label} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span className="absolute bottom-1.5 left-0 right-0 text-white text-[10px] font-medium text-center leading-tight px-1">{label}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto">
+              <Link
+                to="/itinerary"
+                className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+              >
+                Browse experiences
+                <ArrowRight className="w-5 h-5" />
+              </Link>
+              <Link
+                to="/how-it-works"
+                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base font-medium hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                See how it works
+              </Link>
             {/* Social proof */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
@@ -288,12 +366,24 @@ export function HomeScreen() {
                 <span>50+ curated experiences</span>
               </div>
             </div>
+
+            {/* Trust row */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm pt-1">
+              <span className="text-yellow-500 tracking-wide">★★★★★</span>
+              <span className="opacity-80">4.9 · Free cancellation · 48h</span>
+              <span className="opacity-40">|</span>
+              <span className="opacity-70">1,200+ guests hosted</span>
+            </div>
+            <Link to="/login" className="text-sm opacity-60 hover:opacity-80 transition-opacity underline underline-offset-2">
+              Already a member? Sign in
+            </Link>
           </div>
         </div>
       </div>
 
       {/* Explorer count banner */}
       <ExplorerBanner />
+      <HowItWorksStrip />
 
       <SearchHeader />
 
@@ -392,6 +482,28 @@ export function HomeScreen() {
       </div>
 
       <Footer />
+
+      {showFab && !authState.loggedIn && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+          <Link
+            to="/how-it-works"
+            className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
+            New here? Learn how it works
+          </Link>
+          <button
+            onClick={() => {
+              setShowFab(false);
+              sessionStorage.setItem('hiw_fab_dismissed', '1');
+            }}
+            aria-label="Dismiss"
+            className="w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
