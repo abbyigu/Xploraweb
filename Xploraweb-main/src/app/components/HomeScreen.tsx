@@ -533,33 +533,17 @@ export function HomeScreen() {
     );
   }
 
-  // Logged-in
+  // Logged-in (same layout for all account types)
   if (authState.loggedIn) {
-    const isBusiness = authState.accountType === 'business';
     const firstName = authState.name.split(' ')[0] || 'there';
 
     return (
       <div className="min-h-screen pb-24 md:pb-8">
-        {isBusiness ? (
-          <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
-            <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
-              <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
-                <XploraLogo variant="full" className="h-28 md:h-40" />
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest opacity-60">{t('home.welcomeBack')}</p>
-                  <h1 className="text-3xl md:text-5xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
-                  <p className="text-base md:text-lg opacity-80">{t('home.businessDesc')}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <SearchHeader greeting={`Hey ${firstName} 👋`} />
-        )}
-
+        <SearchHeader greeting={`Hey ${firstName} 👋`} />
         <ExplorerBanner />
-        {!isBusiness && <><VibeSection /><TrustSection /></>}
-        <SharedContent showMembership={!isBusiness} />
+        <VibeSection />
+        <TrustSection />
+        <SharedContent showMembership={true} />
         <Footer />
       </div>
     );
