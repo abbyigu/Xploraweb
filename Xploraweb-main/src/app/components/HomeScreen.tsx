@@ -533,10 +533,52 @@ export function HomeScreen() {
     );
   }
 
-  // Logged-in (same layout for all account types)
+  // Logged-in
   if (authState.loggedIn) {
+    const isBusiness = authState.accountType === 'business';
     const firstName = authState.name.split(' ')[0] || 'there';
 
+    // Business: photo hero → vibe → shared content → footer
+    if (isBusiness) {
+      return (
+        <div className="min-h-screen pb-24 md:pb-8">
+          {/* Hero images */}
+          <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
+            <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-10 w-full">
+              <div className="flex flex-col md:flex-row md:items-center md:gap-12">
+                <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-3 flex-1">
+                  <XploraLogo variant="full" className="h-28 md:h-36" />
+                  <p className="text-xs uppercase tracking-widest opacity-60">{t('home.welcomeBack')}</p>
+                  <h1 className="text-2xl md:text-4xl leading-tight">{t('home.hey')} {firstName} 👋</h1>
+                </div>
+                {/* Desktop photo collage */}
+                <div className="hidden md:grid grid-cols-2 gap-2 flex-shrink-0 w-[400px] h-[320px] rounded-3xl overflow-hidden">
+                  <img src="/hero/petit-champlain.jpg" alt="Rue du Petit-Champlain" className="col-span-1 row-span-2 w-full h-full object-cover" loading="eager" />
+                  <img src="/hero/chateau-night.webp" alt="Château Frontenac at night" className="w-full h-full object-cover rounded-tr-3xl" loading="eager" />
+                  <img src="/hero/chateau-dusk.jpg" alt="Château Frontenac at dusk" className="w-full h-full object-cover rounded-br-3xl" loading="eager" />
+                </div>
+              </div>
+              {/* Mobile photo strip */}
+              <div className="md:hidden flex gap-3 overflow-x-auto mt-5 pb-2 -mx-6 px-6 scrollbar-hide">
+                {[
+                  { src: '/hero/petit-champlain.jpg', alt: 'Rue du Petit-Champlain' },
+                  { src: '/hero/chateau-night.jpg',   alt: 'Château Frontenac at night' },
+                  { src: '/hero/chateau-dusk.jpg',    alt: 'Château Frontenac at dusk' },
+                ].map((p) => (
+                  <img key={p.alt} src={p.src} alt={p.alt} className="flex-shrink-0 w-40 h-28 rounded-2xl object-cover" loading="eager" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <VibeSection />
+          <SharedContent showMembership={false} />
+          <Footer />
+        </div>
+      );
+    }
+
+    // Regular user
     return (
       <div className="min-h-screen pb-24 md:pb-8">
         <SearchHeader greeting={`Hey ${firstName} 👋`} />
