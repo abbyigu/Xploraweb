@@ -142,7 +142,6 @@ export function HomeScreen() {
     const timer = setTimeout(() => setShowFab(true), 8000);
     return () => clearTimeout(timer);
   }, []);
-  }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -305,19 +304,18 @@ export function HomeScreen() {
       <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground flex flex-col justify-center">
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-24 w-full">
           <div className="flex flex-col items-center text-center space-y-4 max-w-3xl mx-auto">
-            <XploraLogo variant="full" className="h-20 md:h-52" />
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl leading-tight">
-                Your guide to the best<br />of Québec City
+                Discover local.<br />Live more.
               </h1>
               <p className="text-base md:text-lg opacity-80 max-w-xl mx-auto">
-                Curated experiences, insider perks, and local events — whether you're visiting for a weekend or calling Québec City home.
+                Self-guided tours through Québec City's most vibrant neighbourhoods. No tourist traps — just real local experiences.
               </p>
             </div>
 
-            {/* Destination photo tiles — mobile only */}
-            <div className="md:hidden flex gap-2 w-full overflow-x-auto pb-1 -mx-6 px-6 [&::-webkit-scrollbar]:hidden">
+            {/* Destination photo tiles */}
+            <div className="flex gap-2 w-full overflow-x-auto pb-1 -mx-6 px-6 [&::-webkit-scrollbar]:hidden md:justify-center">
               {[
                 { label: 'Old Port', img: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
                 { label: 'Saint-Roch', img: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
@@ -341,18 +339,13 @@ export function HomeScreen() {
                 to="/itinerary"
                 className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
               >
-                Browse experiences
+                Start self-guided exploring
                 <ArrowRight className="w-5 h-5" />
               </Link>
-              <Link
-                to="/how-it-works"
-                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base font-medium hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-              >
-                <Play className="w-4 h-4 fill-current" />
-                See how it works
-              </Link>
+            </div>
+
             {/* Social proof */}
-            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <div className="flex flex-wrap items-center justify-center gap-3">
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
                 <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 <span>4.9/5 · 47 reviews</span>
@@ -367,13 +360,6 @@ export function HomeScreen() {
               </div>
             </div>
 
-            {/* Trust row */}
-            <div className="flex flex-wrap items-center justify-center gap-3 text-sm pt-1">
-              <span className="text-yellow-500 tracking-wide">★★★★★</span>
-              <span className="opacity-80">4.9 · Free cancellation · 48h</span>
-              <span className="opacity-40">|</span>
-              <span className="opacity-70">1,200+ guests hosted</span>
-            </div>
             <Link to="/login" className="text-sm opacity-60 hover:opacity-80 transition-opacity underline underline-offset-2">
               Already a member? Sign in
             </Link>
@@ -381,11 +367,32 @@ export function HomeScreen() {
         </div>
       </div>
 
-      {/* Explorer count banner */}
-      <ExplorerBanner />
-      <HowItWorksStrip />
-
       <SearchHeader />
+
+      {/* Neighbourhood vibe section */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pt-8 pb-0">
+        <h2 className="text-xl md:text-2xl mb-4">Explore by neighbourhood</h2>
+        <div className="grid grid-cols-3 gap-3 md:gap-4">
+          {[
+            { label: 'Old Port', sub: 'History & waterfront', img: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
+            { label: 'Saint-Roch', sub: 'Art, coffee & cool', img: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
+            { label: 'Petit-Champlain', sub: 'Cobblestones & charm', img: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
+          ].map(({ label, sub, img }) => (
+            <button
+              key={label}
+              onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+              className="relative rounded-2xl overflow-hidden aspect-[3/4] md:aspect-[4/5] group"
+            >
+              <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-left">
+                <p className="text-white font-semibold text-sm md:text-base leading-tight">{label}</p>
+                <p className="text-white/70 text-xs md:text-sm mt-0.5 hidden md:block">{sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Experiences feed */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
