@@ -583,7 +583,6 @@ export function HomeScreen() {
       <div className="min-h-screen pb-24 md:pb-8">
         <SearchHeader greeting={`Hey ${firstName} 👋`} />
         <ExplorerBanner />
-        <VibeSection />
         <TrustSection />
         <SharedContent showMembership={true} />
         <Footer />
