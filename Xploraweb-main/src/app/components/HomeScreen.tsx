@@ -646,9 +646,9 @@ export function HomeScreen() {
       </div>
 
       <ExplorerBanner />
+      <VibeSection />
       <FeaturedSection />
       <TrustSection />
-      <VibeSection />
       <SharedContent showMembership={true} showFeatured={false} />
       <Footer />
     </div>
