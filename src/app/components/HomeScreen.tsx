@@ -130,7 +130,6 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const [authState, setAuthState] = useState<{
-    loading: boolean;
     loggedIn: boolean;
     name: string;
     accountType: string;
@@ -143,16 +142,13 @@ export function HomeScreen() {
     const timer = setTimeout(() => setShowFab(true), 8000);
     return () => clearTimeout(timer);
   }, []);
+  }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
-        setAuthState({ loading: false, loggedIn: false, name: '', accountType: '', isAdmin: false });
-        return;
-      }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) return;
       const profile = await getProfile();
       setAuthState({
-        loading: false,
         loggedIn: true,
         name: profile?.name || '',
         accountType: (profile as any)?.account_type || '',
@@ -160,14 +156,6 @@ export function HomeScreen() {
       });
     });
   }, []);
-
-  if (authState.loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   // Logged-in welcome screen
   if (authState.loggedIn) {
@@ -225,7 +213,7 @@ export function HomeScreen() {
                       <p className="text-sm text-muted-foreground">{cat.tagline}</p>
                     </div>
                     <CardCarousel>
-                      {items.slice(0, 3).map(exp => (
+                      {items.slice(0, 5).map(exp => (
                         <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                           <ExperienceCard exp={exp} />
                         </div>
@@ -278,7 +266,7 @@ export function HomeScreen() {
                   <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                  {items.slice(0, 3).map(exp => (
+                  {items.slice(0, 5).map(exp => (
                     <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                       <ExperienceCard exp={exp} />
                     </div>
@@ -363,6 +351,20 @@ export function HomeScreen() {
                 <Play className="w-4 h-4 fill-current" />
                 See how it works
               </Link>
+            {/* Social proof */}
+            <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                <span>4.9/5 · 47 reviews</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <Users className="w-4 h-4" />
+                <span>500+ explorers</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
+                <MapPin className="w-4 h-4" />
+                <span>50+ curated experiences</span>
+              </div>
             </div>
 
             {/* Trust row */}
@@ -400,7 +402,7 @@ export function HomeScreen() {
                     <p className="text-sm text-muted-foreground">{cat.tagline}</p>
                   </div>
                   <CardCarousel>
-                    {items.slice(0, 3).map(exp => (
+                    {items.slice(0, 5).map(exp => (
                       <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                         <ExperienceCard exp={exp} />
                       </div>
@@ -453,7 +455,7 @@ export function HomeScreen() {
                 <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
               </div>
               <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                {items.slice(0, 3).map(exp => (
+                {items.slice(0, 5).map(exp => (
                   <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                     <ExperienceCard exp={exp} />
                   </div>
