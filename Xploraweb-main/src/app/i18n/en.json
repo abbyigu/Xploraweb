@@ -80,7 +80,20 @@
     "t3quote": "The self-guided route was so well put together — felt like having a local friend show us around.",
     "t3author": "Andrés R.",
     "t3role": "Visitor, Montréal",
-    "emailUs": "hello@goxplora.ca"
+    "emailUs": "hello@goxplora.ca",
+    "seeHowItWorks": "See how it works",
+    "alreadyMember": "Already a member? Sign in",
+    "freeCancellation": "Free cancellation · 48h",
+    "trustedGuests": "1,200+ guests hosted",
+    "howItWorksStrip": "How it works",
+    "step1Title": "Pick your vibe",
+    "step1Desc": "Tell us your mood & neighbourhood",
+    "step2Title": "Book in seconds",
+    "step2Desc": "Instant confirmation, free cancellation",
+    "step3Title": "Show up & explore",
+    "step3Desc": "Your guide handles everything else",
+    "watchOverview": "See full details →",
+    "newHereFab": "New here? Learn how it works"
   },
   "trust": {
     "photosLabel": "Experiences in Québec City",

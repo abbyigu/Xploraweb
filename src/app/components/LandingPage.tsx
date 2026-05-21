@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { useState, useEffect } from 'react';
-import { ArrowRight, MapPin, Sparkles, Users, Calendar, Star, Building2 } from 'lucide-react';
+import { ArrowRight, Sparkles, Calendar, Star, Building2, Play, X } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { Footer } from './Footer';
@@ -10,12 +10,19 @@ const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 export function LandingPage() {
   const [explorerCount, setExplorerCount] = useState<number | null>(null);
+  const [showFab, setShowFab] = useState(false);
 
   useEffect(() => {
     supabase
       .from('profiles')
       .select('*', { count: 'exact', head: true })
       .then(({ count }) => { if (count !== null) setExplorerCount(count); });
+  }, []);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('hiw_fab_dismissed')) return;
+    const timer = setTimeout(() => setShowFab(true), 8000);
+    return () => clearTimeout(timer);
   }, []);
 
   const memberBenefits = [
@@ -76,21 +83,33 @@ export function LandingPage() {
               </p>
             </div>
 
-            <button
-              onClick={() => document.getElementById('experiences')?.scrollIntoView({ behavior: 'smooth' })}
-              className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center gap-2"
-            >
-              Explore Now
-              <ArrowRight className="w-5 h-5" />
-            </button>
-
-            <div className="flex flex-wrap items-center justify-center gap-4 text-sm opacity-70 pt-2">
-              <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Star className="w-4 h-4" /> Launching June 2026</span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> Locals & Visitors</span>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
+              <button
+                onClick={() => document.getElementById('experiences')?.scrollIntoView({ behavior: 'smooth' })}
+                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              >
+                Explore Now
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <Link
+                to="/how-it-works"
+                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
+              >
+                <Play className="w-4 h-4 fill-current" />
+                See how it works
+              </Link>
             </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm pt-2">
+              <span className="text-yellow-500 tracking-wide">★★★★★</span>
+              <span className="opacity-80">4.9 · Free cancellation · 48h</span>
+              <span className="opacity-40">|</span>
+              <span className="opacity-70">1,200+ guests hosted</span>
+            </div>
+
+            <Link to="/login" className="text-sm opacity-60 hover:opacity-80 transition-opacity underline underline-offset-2 pt-1">
+              Already a member? Sign in
+            </Link>
           </div>
         </div>
       </div>
@@ -118,7 +137,39 @@ export function LandingPage() {
         </div>
       </div>
 
-      {/* How it works */}
+      {/* How it works — thin strip directly below fold */}
+      <div className="border-t-4 border-primary bg-card">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-5">
+          <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary whitespace-nowrap hidden md:block">
+              How it works
+            </span>
+            {[
+              { n: 1, title: 'Pick your vibe', desc: 'Tell us your mood & neighbourhood' },
+              { n: 2, title: 'Book in seconds', desc: 'Instant confirmation, free cancellation' },
+              { n: 3, title: 'Show up & explore', desc: 'Your guide handles everything else' },
+            ].map(({ n, title, desc }) => (
+              <div key={n} className="flex items-start gap-3 flex-1">
+                <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                  {n}
+                </div>
+                <div>
+                  <div className="text-sm font-semibold">{title}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
+                </div>
+              </div>
+            ))}
+            <Link
+              to="/how-it-works"
+              className="text-sm text-primary font-semibold hover:underline whitespace-nowrap md:ml-auto"
+            >
+              See full details →
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* How it works — full section */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl mb-3">Stop searching. Start exploring.</h2>
@@ -253,6 +304,29 @@ export function LandingPage() {
       </div>
 
       <Footer />
+
+      {/* Floating "How it works" FAB — appears after 8s on first visit */}
+      {showFab && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+          <Link
+            to="/how-it-works"
+            className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
+            New here? Learn how it works
+          </Link>
+          <button
+            onClick={() => {
+              setShowFab(false);
+              sessionStorage.setItem('hiw_fab_dismissed', '1');
+            }}
+            aria-label="Dismiss"
+            className="w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

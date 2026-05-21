@@ -80,7 +80,20 @@
     "t3quote": "Le parcours autonome était tellement bien conçu — comme si un ami local nous guidait.",
     "t3author": "Andrés R.",
     "t3role": "Visiteur, Montréal",
-    "emailUs": "hello@goxplora.ca"
+    "emailUs": "hello@goxplora.ca",
+    "seeHowItWorks": "Comment ça marche",
+    "alreadyMember": "Déjà membre ? Se connecter",
+    "freeCancellation": "Annulation gratuite · 48h",
+    "trustedGuests": "1 200+ participants accueillis",
+    "howItWorksStrip": "Comment ça marche",
+    "step1Title": "Choisissez votre vibe",
+    "step1Desc": "Dites-nous votre humeur & quartier",
+    "step2Title": "Réservez en secondes",
+    "step2Desc": "Confirmation instantanée, annulation gratuite",
+    "step3Title": "Venez & explorez",
+    "step3Desc": "Votre guide s'occupe du reste",
+    "watchOverview": "Voir tous les détails →",
+    "newHereFab": "Nouveau ? Apprenez comment ça marche"
   },
   "trust": {
     "photosLabel": "Expériences à Québec",
