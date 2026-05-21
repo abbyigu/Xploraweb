@@ -95,22 +95,17 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const [authState, setAuthState] = useState<{
-    loading: boolean;
     loggedIn: boolean;
     name: string;
     accountType: string;
     isAdmin: boolean;
-  }>({ loading: true, loggedIn: false, name: '', accountType: '', isAdmin: false });
+  }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
-      if (!user) {
-        setAuthState({ loading: false, loggedIn: false, name: '', accountType: '', isAdmin: false });
-        return;
-      }
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session?.user) return;
       const profile = await getProfile();
       setAuthState({
-        loading: false,
         loggedIn: true,
         name: profile?.name || '',
         accountType: (profile as any)?.account_type || '',
@@ -118,14 +113,6 @@ export function HomeScreen() {
       });
     });
   }, []);
-
-  if (authState.loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
 
   // Logged-in welcome screen
   if (authState.loggedIn) {
@@ -183,7 +170,7 @@ export function HomeScreen() {
                       <p className="text-sm text-muted-foreground">{cat.tagline}</p>
                     </div>
                     <CardCarousel>
-                      {items.slice(0, 3).map(exp => (
+                      {items.slice(0, 5).map(exp => (
                         <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                           <ExperienceCard exp={exp} />
                         </div>
@@ -236,7 +223,7 @@ export function HomeScreen() {
                   <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
                 </div>
                 <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                  {items.slice(0, 3).map(exp => (
+                  {items.slice(0, 5).map(exp => (
                     <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                       <ExperienceCard exp={exp} />
                     </div>
@@ -286,25 +273,6 @@ export function HomeScreen() {
               </p>
             </div>
 
-            {/* Destination photo tiles — mobile only */}
-            <div className="md:hidden flex gap-2 w-full overflow-x-auto pb-1 -mx-6 px-6 [&::-webkit-scrollbar]:hidden">
-              {[
-                { label: 'Old Port', img: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
-                { label: 'Saint-Roch', img: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
-                { label: 'Petit-Champlain', img: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=300' },
-              ].map(({ label, img }) => (
-                <button
-                  key={label}
-                  onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
-                  className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden"
-                >
-                  <img src={img} alt={label} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span className="absolute bottom-1.5 left-0 right-0 text-white text-[10px] font-medium text-center leading-tight px-1">{label}</span>
-                </button>
-              ))}
-            </div>
-
             {/* Social proof */}
             <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
               <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm font-medium">
@@ -344,7 +312,7 @@ export function HomeScreen() {
                     <p className="text-sm text-muted-foreground">{cat.tagline}</p>
                   </div>
                   <CardCarousel>
-                    {items.slice(0, 3).map(exp => (
+                    {items.slice(0, 5).map(exp => (
                       <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                         <ExperienceCard exp={exp} />
                       </div>
@@ -397,7 +365,7 @@ export function HomeScreen() {
                 <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
               </div>
               <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                {items.slice(0, 3).map(exp => (
+                {items.slice(0, 5).map(exp => (
                   <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
                     <ExperienceCard exp={exp} />
                   </div>
