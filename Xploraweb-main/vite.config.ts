@@ -38,6 +38,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/') || id.includes('node_modules/scheduler/')) return 'vendor-react';
           if (id.includes('@supabase/')) return 'vendor-supabase';
           if (id.includes('node_modules/react-router') || id.includes('node_modules/react-router-dom')) return 'vendor-router';
           if (id.includes('node_modules/i18next') || id.includes('node_modules/react-i18next')) return 'vendor-i18n';

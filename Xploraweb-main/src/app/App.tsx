@@ -5,6 +5,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from
 import { useTranslation } from 'react-i18next';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
+import { HomeScreen } from './components/HomeScreen';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 import { analytics, initGtag } from './lib/analytics';
@@ -21,8 +22,6 @@ function SkipLink() {
     </a>
   );
 }
-
-const HomeScreen             = lazy(() => import('./components/HomeScreen').then(m => ({ default: m.HomeScreen })));
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
 const ExperienceDetailScreen = lazy(() => import('./components/ExperienceDetailScreen').then(m => ({ default: m.ExperienceDetailScreen })));
 const MembersScreen          = lazy(() => import('./components/MembersScreen').then(m => ({ default: m.MembersScreen })));

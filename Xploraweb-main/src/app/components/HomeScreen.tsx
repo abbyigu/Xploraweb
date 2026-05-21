@@ -648,6 +648,7 @@ export function HomeScreen() {
                 alt="Rue du Petit-Champlain, Québec City"
                 className="col-span-1 row-span-2 w-full h-full object-cover"
                 loading="eager"
+                fetchPriority="high"
               />
               <img
                 src="/hero/chateau-night.webp"
@@ -670,13 +671,14 @@ export function HomeScreen() {
               { src: '/hero/petit-champlain.jpg', alt: 'Rue du Petit-Champlain, Québec City' },
               { src: '/hero/chateau-night.jpg',   alt: 'Château Frontenac at night' },
               { src: '/hero/chateau-dusk.jpg',    alt: 'Château Frontenac at dusk' },
-            ].map((p) => (
+            ].map((p, i) => (
               <img
                 key={p.alt}
                 src={p.src}
                 alt={p.alt}
                 className="flex-shrink-0 w-40 h-28 rounded-2xl object-cover"
                 loading="eager"
+                fetchPriority={i === 0 ? 'high' : 'auto'}
               />
             ))}
           </div>
