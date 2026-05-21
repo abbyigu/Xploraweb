@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router';
-import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages } from 'lucide-react';
+import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages, Play, X } from 'lucide-react';
 import { SearchHeader } from './SearchHeader';
 import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
@@ -499,6 +499,42 @@ function SharedContent({ showMembership, showFeatured = true }: { showMembership
   );
 }
 
+function HowItWorksStrip() {
+  const { t } = useTranslation();
+  return (
+    <div className="border-t-4 border-primary bg-card">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-5">
+        <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary whitespace-nowrap hidden md:block">
+            {t('landing.howItWorksStrip')}
+          </span>
+          {[
+            { n: 1, title: t('landing.step1Title'), desc: t('landing.step1Desc') },
+            { n: 2, title: t('landing.step2Title'), desc: t('landing.step2Desc') },
+            { n: 3, title: t('landing.step3Title'), desc: t('landing.step3Desc') },
+          ].map(({ n, title, desc }) => (
+            <div key={n} className="flex items-start gap-3 flex-1">
+              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
+                {n}
+              </div>
+              <div>
+                <div className="text-sm font-semibold">{title}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
+              </div>
+            </div>
+          ))}
+          <Link
+            to="/how-it-works"
+            className="text-sm text-primary font-semibold hover:underline whitespace-nowrap md:ml-auto"
+          >
+            {t('landing.watchOverview')}
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -508,6 +544,13 @@ export function HomeScreen() {
     name: string;
     accountType: string;
   }>({ loading: true, loggedIn: false, name: '', accountType: '' });
+  const [showFab, setShowFab] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('hiw_fab_dismissed')) return;
+    const timer = setTimeout(() => setShowFab(true), 8000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
@@ -579,12 +622,23 @@ export function HomeScreen() {
                   {t('landing.exploreExperiences')}
                   <ArrowRight className="w-5 h-5" />
                 </Link>
+                <Link
+                  to="/how-it-works"
+                  className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base font-medium hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Play className="w-4 h-4 fill-current" />
+                  {t('landing.seeHowItWorks')}
+                </Link>
               </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm opacity-70 pt-2">
-                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> Québec City</span>
-                <span>·</span>
-                <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {t('home.audience')}</span>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm pt-2">
+                <span className="text-yellow-500 tracking-wide">★★★★★</span>
+                <span className="opacity-80">4.9 · {t('landing.freeCancellation')}</span>
+                <span className="opacity-40">|</span>
+                <span className="opacity-70">{t('landing.trustedGuests')}</span>
               </div>
+              <Link to="/login" className="text-sm opacity-60 hover:opacity-80 transition-opacity underline underline-offset-2">
+                {t('landing.alreadyMember')}
+              </Link>
             </div>
 
             {/* Photo collage — desktop only */}
@@ -630,11 +684,34 @@ export function HomeScreen() {
       </div>
 
       <ExplorerBanner />
+      <HowItWorksStrip />
       <VibeSection />
       <FeaturedSection />
       <TrustSection />
       <SharedContent showMembership={true} showFeatured={false} />
       <Footer />
+
+      {showFab && !authState.loggedIn && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
+          <Link
+            to="/how-it-works"
+            className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+          >
+            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
+            {t('landing.newHereFab')}
+          </Link>
+          <button
+            onClick={() => {
+              setShowFab(false);
+              sessionStorage.setItem('hiw_fab_dismissed', '1');
+            }}
+            aria-label="Dismiss"
+            className="w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
+          >
+            <X className="w-3 h-3" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
