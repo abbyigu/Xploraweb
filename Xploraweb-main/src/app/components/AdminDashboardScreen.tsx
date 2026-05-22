@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, CalendarCheck } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, Tag, Crown, DollarSign } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
+import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { SimpleFooter } from './SimpleFooter';
+import { experiences as staticExperiences } from '../data/products';
 
 const ADMIN_EMAIL = 'ariel.blouin@live.ca';
 
@@ -37,20 +39,6 @@ interface PendingReview {
   experience_name?: string;
 }
 
-interface Booking {
-  id: string;
-  booking_code: string;
-  experience_title: string;
-  client_name: string;
-  client_email: string;
-  amount_paid_cents: number;
-  status: string;
-  created_at: string;
-  guest_count?: number | null;
-  selected_date?: string | null;
-  selected_time?: string | null;
-}
-
 function daysLeft(archivedAt: string): number {
   const diff = Date.now() - new Date(archivedAt).getTime();
   const elapsed = diff / (1000 * 60 * 60 * 24);
@@ -63,11 +51,10 @@ export function AdminDashboardScreen() {
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews' | 'bookings'>('experiences');
+  const [activeTab, setActiveTab] = useState<'outings' | 'neighbourhoods' | 'archive' | 'reviews' | 'pricing'>('outings');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
 
   useEffect(() => {
     async function init() {
@@ -79,7 +66,7 @@ export function AdminDashboardScreen() {
         if (!profile?.is_admin) { setLoading(false); return; }
         setAuthorized(true);
         setAdminName(user.email ?? '');
-        await Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadBookings()]);
+        await Promise.all([loadStats(), loadArchived(), loadPendingReviews()]);
       } catch (e) {
         console.error('Admin init error:', e);
       } finally {
@@ -134,15 +121,6 @@ export function AdminDashboardScreen() {
 
     const expMap = Object.fromEntries((exps || []).map(e => [e.id, e.name]));
     setPendingReviews(reviews.map(r => ({ ...r, experience_name: expMap[r.experience_id] || r.experience_id })));
-  }
-
-  async function loadBookings() {
-    const { data } = await supabase
-      .from('bookings')
-      .select('id, booking_code, experience_title, client_name, client_email, amount_paid_cents, status, created_at, guest_count, selected_date, selected_time')
-      .order('created_at', { ascending: false })
-      .limit(100);
-    if (data) setBookings(data);
   }
 
   async function handleApprove(id: string) {
@@ -225,10 +203,16 @@ export function AdminDashboardScreen() {
         <div>
           <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit mb-6">
             <button
-              onClick={() => setActiveTab('experiences')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'experiences' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setActiveTab('outings')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'outings' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              Experiences
+              Outings
+            </button>
+            <button
+              onClick={() => setActiveTab('neighbourhoods')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'neighbourhoods' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Neighbourhoods
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
@@ -241,16 +225,6 @@ export function AdminDashboardScreen() {
               )}
             </button>
             <button
-              onClick={() => setActiveTab('bookings')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'bookings' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              <CalendarCheck className="w-3.5 h-3.5" />
-              Bookings
-              {bookings.length > 0 && (
-                <span className="bg-primary/10 text-primary text-xs px-1.5 py-0.5 rounded-full">{bookings.length}</span>
-              )}
-            </button>
-            <button
               onClick={() => setActiveTab('archive')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'archive' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
@@ -260,10 +234,21 @@ export function AdminDashboardScreen() {
                 <span className="bg-amber-100 text-amber-700 text-xs px-1.5 py-0.5 rounded-full">{stats.archived}</span>
               )}
             </button>
+            <button
+              onClick={() => setActiveTab('pricing')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'pricing' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <Tag className="w-3.5 h-3.5" />
+              Pricing
+            </button>
           </div>
 
-          {activeTab === 'experiences' && (
+          {activeTab === 'outings' && (
             <AdminExperiencePanel onStatsChange={loadStats} />
+          )}
+
+          {activeTab === 'neighbourhoods' && (
+            <AdminNeighbourhoodsPanel />
           )}
 
           {activeTab === 'reviews' && (
@@ -323,53 +308,7 @@ export function AdminDashboardScreen() {
             </div>
           )}
 
-          {activeTab === 'bookings' && (
-            <div className="space-y-4">
-              <div>
-                <h3 className="text-lg">Bookings</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">All confirmed experience bookings.</p>
-              </div>
-
-              {bookings.length === 0 ? (
-                <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
-                  <CalendarCheck className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No bookings yet.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {bookings.map(b => (
-                    <div key={b.id} className="bg-card border border-border rounded-2xl p-5">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-medium">{b.experience_title}</span>
-                            <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${b.status === 'confirmed' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
-                              {b.status}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            {b.client_name} · {b.client_email}
-                          </p>
-                          {(b.selected_date || b.selected_time || b.guest_count) && (
-                            <p className="text-xs text-primary mt-1">
-                              {[b.selected_date, b.selected_time, b.guest_count ? `${b.guest_count} guest${b.guest_count > 1 ? 's' : ''}` : null].filter(Boolean).join(' · ')}
-                            </p>
-                          )}
-                        </div>
-                        <div className="text-right flex-shrink-0">
-                          <p className="text-sm font-medium">${(b.amount_paid_cents / 100).toFixed(2)}</p>
-                          <p className="text-xs text-muted-foreground font-mono mt-0.5">{b.booking_code}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {new Date(b.created_at).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          {activeTab === 'pricing' && <PricingPanel />}
 
           {activeTab === 'archive' && (
             <div className="space-y-4">
@@ -417,6 +356,145 @@ export function AdminDashboardScreen() {
         </div>
       </div>
       <SimpleFooter />
+    </div>
+  );
+}
+
+function PricingPanel() {
+  const paid = staticExperiences.filter(e => e.type === 'experience' && e.price > 0);
+  const free = staticExperiences.filter(e => e.type === 'experience' && e.price === 0);
+  const avgPrice = paid.length ? Math.round(paid.reduce((s, e) => s + e.price, 0) / paid.length) : 0;
+  const minPrice = paid.length ? Math.min(...paid.map(e => e.price)) : 0;
+  const maxPrice = paid.length ? Math.max(...paid.map(e => e.price)) : 0;
+  const memberMonthly = 1000; // $10/month in cents
+
+  const [deals, setDeals] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('xplora_deals') || '[]'); } catch { return []; }
+  });
+
+  const toggleDeal = (id: string) => {
+    const next = deals.includes(id) ? deals.filter(d => d !== id) : [...deals, id];
+    setDeals(next);
+    localStorage.setItem('xplora_deals', JSON.stringify(next));
+  };
+
+  const memberPrice = (cents: number) => Math.round(cents * 0.75 / 100);
+  const savingsAt = (bookings: number) => Math.round((avgPrice * 0.25 * bookings) / 100);
+
+  const CATEGORY_LABEL: Record<string, string> = {
+    xplorators: 'Solo', xploratorsplus: 'Solo+', xploratours: 'Tours', xploranights: 'Nights',
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Stats overview */}
+      <div>
+        <h3 className="text-lg mb-4">Pricing overview</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Free experiences</p>
+            <p className="text-3xl font-serif text-green-600">{free.length}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Avg. paid price</p>
+            <p className="text-3xl font-serif">${(avgPrice / 100).toFixed(0)}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Price range</p>
+            <p className="text-2xl font-serif">${(minPrice / 100).toFixed(0)}–${(maxPrice / 100).toFixed(0)}</p>
+          </div>
+          <div className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground mb-1">Member break-even</p>
+            <p className="text-3xl font-serif">{Math.ceil(memberMonthly / (avgPrice * 0.25))}×</p>
+            <p className="text-xs text-muted-foreground mt-0.5">bookings to save $10</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Member pricing summary */}
+      <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Crown className="w-4 h-4 text-primary" />
+          <h4 className="text-sm font-medium">Member discount (25% off all paid experiences)</h4>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[1, 2, 3].map(n => (
+            <div key={n} className="bg-white rounded-xl px-4 py-3 text-center">
+              <p className="text-xs text-muted-foreground">{n} booking{n > 1 ? 's' : ''}/month</p>
+              <p className={`text-lg font-semibold mt-0.5 ${savingsAt(n) >= 10 ? 'text-green-600' : 'text-foreground'}`}>
+                {savingsAt(n) >= 10 ? `+$${savingsAt(n) - 10} net` : savingsAt(n) === 10 ? 'Break-even' : `-$${10 - savingsAt(n)}`}
+              </p>
+              <p className="text-xs text-muted-foreground">saves ${savingsAt(n)}, costs $10</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Deals management */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h3 className="text-lg">Deals</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Toggled deals show a "Deal" badge on listing cards. Stored locally — connect Supabase to persist.
+            </p>
+          </div>
+          {deals.length > 0 && (
+            <span className="bg-secondary/20 text-secondary text-xs px-2.5 py-1 rounded-full font-medium">
+              {deals.length} active
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          {paid.map(exp => {
+            const isDeal = deals.includes(exp.id);
+            return (
+              <div key={exp.id} className={`flex items-center gap-4 rounded-xl border p-4 transition-colors ${isDeal ? 'bg-secondary/5 border-secondary/30' : 'bg-card border-border'}`}>
+                <img src={exp.image} alt={exp.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{exp.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {exp.category ? CATEGORY_LABEL[exp.category] : '—'} ·{' '}
+                    <span className="font-medium text-foreground">${(exp.price / 100).toFixed(0)}</span>
+                    <span className="mx-1.5 text-muted-foreground/40">→</span>
+                    <span className="text-primary">Members ${memberPrice(exp.price)}</span>
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {isDeal && (
+                    <span className="hidden sm:flex items-center gap-1 text-xs text-secondary font-medium">
+                      <Tag className="w-3 h-3" /> Deal active
+                    </span>
+                  )}
+                  <button
+                    onClick={() => toggleDeal(exp.id)}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${isDeal ? 'bg-secondary' : 'bg-muted'}`}
+                  >
+                    <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isDeal ? 'translate-x-5' : 'translate-x-0.5'}`} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Free experiences list */}
+      <div>
+        <h3 className="text-lg mb-3">Free experiences</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {free.map(exp => (
+            <div key={exp.id} className="flex items-center gap-3 bg-green-50 border border-green-100 rounded-xl p-3">
+              <DollarSign className="w-4 h-4 text-green-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-sm font-medium truncate">{exp.name}</p>
+                <p className="text-xs text-muted-foreground">{exp.category ? CATEGORY_LABEL[exp.category] : '—'} · {exp.neighbourhood || 'No location'}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

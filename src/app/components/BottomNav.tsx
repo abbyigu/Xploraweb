@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Gift, Search, User, ShoppingCart } from 'lucide-react';
+import { Compass, MapPin, Search, User, ShoppingCart } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 
 export function BottomNav() {
@@ -11,11 +11,11 @@ export function BottomNav() {
       : location.pathname === path;
 
   const navItems = [
-    { path: '/',           icon: Compass,      label: 'Xperiences', badge: 0 },
-    { path: '/members',    icon: Gift,         label: 'Perks',      badge: 0 },
-    { path: '/itinerary',  icon: Search,       label: 'Search',     badge: 0 },
-    { path: '/cart',       icon: ShoppingCart, label: 'Cart',       badge: count },
-    { path: '/account',    icon: User,         label: 'Account',    badge: 0 },
+    { path: '/',               icon: Compass,      label: 'Xperiences',     badge: 0 },
+    { path: '/neighbourhoods', icon: MapPin,        label: 'Neighbourhoods', badge: 0 },
+    { path: '/itinerary',      icon: Search,       label: 'Search',         badge: 0 },
+    { path: '/cart',           icon: ShoppingCart, label: 'Cart',           badge: count },
+    { path: '/account',        icon: User,         label: 'Account',        badge: 0 },
   ];
 
   return (

@@ -4,6 +4,7 @@ import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Tras
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
+import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { SimpleFooter } from './SimpleFooter';
 import { experiences as staticExperiences } from '../data/products';
 
@@ -50,7 +51,7 @@ export function AdminDashboardScreen() {
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'experiences' | 'archive' | 'reviews' | 'pricing'>('experiences');
+  const [activeTab, setActiveTab] = useState<'outings' | 'neighbourhoods' | 'archive' | 'reviews' | 'pricing'>('outings');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
@@ -202,10 +203,16 @@ export function AdminDashboardScreen() {
         <div>
           <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit mb-6">
             <button
-              onClick={() => setActiveTab('experiences')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'experiences' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setActiveTab('outings')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'outings' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              Experiences
+              Outings
+            </button>
+            <button
+              onClick={() => setActiveTab('neighbourhoods')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'neighbourhoods' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Neighbourhoods
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
@@ -236,8 +243,12 @@ export function AdminDashboardScreen() {
             </button>
           </div>
 
-          {activeTab === 'experiences' && (
+          {activeTab === 'outings' && (
             <AdminExperiencePanel onStatsChange={loadStats} />
+          )}
+
+          {activeTab === 'neighbourhoods' && (
+            <AdminNeighbourhoodsPanel />
           )}
 
           {activeTab === 'reviews' && (

@@ -1,535 +1,128 @@
-import React from 'react';
-import { useNavigate, Link } from 'react-router';
-import { MapPin, Star, Users, Clock, ArrowRight, ShieldCheck, MapPinned, Languages, Play, X } from 'lucide-react';
-import { SearchHeader } from './SearchHeader';
+import { Link, useNavigate } from 'react-router';
+import { ArrowRight, LayoutDashboard, User, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
 import { XploraLogo } from './XploraLogo';
-import { Footer } from './Footer';
-import { PageSEO } from './PageSEO';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { useFeaturedExperiences, FeaturedExperience } from '../hooks/useFeaturedExperiences';
+import { SearchHeader } from './SearchHeader';
+import { ExperienceCard } from './ExperienceCard';
 import { DealCard } from './DealCard';
+import { EXPERIENCE_CATEGORIES } from '../data/products';
+import { useExperiences } from '../hooks/useExperiences';
 import { perks } from '../data/mockData';
-import { useState, useEffect } from 'react';
+import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
-import { useTranslation } from 'react-i18next';
-
-const LOCAL_BUSINESS_SCHEMA = {
-  '@context': 'https://schema.org',
-  '@type': 'TouristInformationCenter',
-  name: 'Xplora',
-  description: 'Curated tours, local experiences, perks, and events in Québec City for visitors and residents.',
-  url: 'https://goxplora.ca',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Québec City',
-    addressRegion: 'QC',
-    addressCountry: 'CA',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 46.8139,
-    longitude: -71.2082,
-  },
-  areaServed: 'Québec City, Quebec, Canada',
-  priceRange: '$$',
-  knowsAbout: ['Québec City tours', 'Vieux-Québec experiences', 'self-guided tours Québec City', 'local activities Québec'],
-};
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
-function useVibeKey(): string {
-  const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) return 'search.vibeMorning';
-  if (hour >= 12 && hour < 18) return 'search.vibeAfternoon';
-  return 'search.vibeEvening';
-}
+const NBHD_DATA = [
+  { label: 'Old Port',        sub: 'History & waterfront',  img: '/nbhd/old-port.jpeg' },
+  { label: 'Saint-Roch',      sub: 'Art, coffee & cool',    img: '/nbhd/saint-roch.webp' },
+  { label: 'Petit-Champlain', sub: 'Cobblestones & charm',  img: '/nbhd/champlain.jpeg' },
+  { label: 'Montcalm',        sub: 'Parks & grand avenues', img: '/nbhd/montcalm.jpg' },
+  { label: 'Limoilou',        sub: 'Murals & local eats',   img: '/nbhd/limoilou.jpeg' },
+  { label: 'Maguire',         sub: 'Boutiques & terrasses', img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
+];
 
-function ExplorerBanner() {
-  const { t } = useTranslation();
-  const [count, setCount] = useState<number | null>(null);
-  useEffect(() => {
-    supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true })
-      .then(({ count }) => { if (count !== null) setCount(count); });
-  }, []);
-  return (
-    <div className="bg-[#12343B] text-white py-4 px-6">
-      <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
-        <div className="flex -space-x-2">
-          {AVATAR_SEEDS.map((seed) => (
-            <div
-              key={seed}
-              className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold border-2 border-[#12343B]"
-            >
-              {seed[0]}
-            </div>
-          ))}
-        </div>
-        <a
-          href="https://xplora.kit.com/e3bd366421"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-semibold text-white underline underline-offset-2 hover:opacity-80 transition-opacity"
-        >
-          {t('home.explorers')}
-        </a>
-      </div>
-    </div>
-  );
-}
+const VIBE_CHIPS = [
+  { emoji: '🌅', label: 'Morning wander' },
+  { emoji: '🍷', label: 'Evening out' },
+  { emoji: '☕', label: 'Solo & slow' },
+  { emoji: '👫', label: 'With someone' },
+  { emoji: '📍', label: 'Old Port' },
+  { emoji: '🏙️', label: 'Saint-Roch' },
+  { emoji: '🪨', label: 'Petit-Champlain' },
+  { emoji: '🏘️', label: 'Montcalm' },
+  { emoji: '🌿', label: 'Limoilou' },
+  { emoji: '🌙', label: 'Night owl' },
+  { emoji: '🎨', label: 'Art & culture' },
+  { emoji: '🍕', label: 'Foodie trail' },
+];
 
-const TRUST_PHOTOS = [
+const VALUE_PILLARS = [
   {
-    src: 'https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
-    alt: 'Walking tour Québec City',
+    label: 'Self-guided',
+    desc: 'Go at your pace, on your terms.',
+    icon: (
+      <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
+      </svg>
+    ),
   },
   {
-    src: 'https://images.unsplash.com/photo-1758346972493-86586fc8e5d0?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
-    alt: 'Québec City experience',
+    label: 'Local first',
+    desc: 'Routes built by people who live here.',
+    icon: (
+      <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
+      </svg>
+    ),
   },
   {
-    src: 'https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
-    alt: 'Local guide Québec City',
+    label: 'Curated',
+    desc: 'Every stop is handpicked, not crowdsourced.',
+    icon: (
+      <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
+      </svg>
+    ),
   },
   {
-    src: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
-    alt: 'Vieux-Québec streets',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=crop&h=320&w=240',
-    alt: 'Québec City landscape',
+    label: 'Community',
+    desc: 'Supporting local businesses along the way.',
+    icon: (
+      <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
+      </svg>
+    ),
   },
 ];
 
-function TrustSection() {
-  const { t } = useTranslation();
-
-  const reviews = [
-    { quote: t('landing.t1quote'), author: t('landing.t1author'), role: t('landing.t1role') },
-    { quote: t('landing.t2quote'), author: t('landing.t2author'), role: t('landing.t2role') },
-    { quote: t('landing.t3quote'), author: t('landing.t3author'), role: t('landing.t3role') },
-  ];
-
-  const diffs: { icon: React.ReactNode; title: string; desc: string }[] = [
-    { icon: <MapPinned className="w-5 h-5 text-primary" />, title: t('trust.diff1'), desc: t('trust.diff1Desc') },
-    { icon: <Users className="w-5 h-5 text-primary" />, title: t('trust.diff2'), desc: t('trust.diff2Desc') },
-    { icon: <Languages className="w-5 h-5 text-primary" />, title: t('trust.diff3'), desc: t('trust.diff3Desc') },
-    { icon: <ShieldCheck className="w-5 h-5 text-primary" />, title: t('trust.diff4'), desc: t('trust.diff4Desc') },
-  ];
-
-  return (
-    <div className="max-w-7xl mx-auto space-y-8 py-8 text-center">
-
-      {/* ── Photo carousel ── */}
-      <div className="relative">
-        <p className="sr-only">{t('trust.photosLabel')}</p>
-        <div className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-1 px-6 md:px-8 scrollbar-hide justify-start">
-          {TRUST_PHOTOS.map((photo, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0 snap-start w-44 h-60 rounded-2xl overflow-hidden bg-muted"
-            >
-              <ImageWithFallback
-                src={photo.src}
-                alt={photo.alt}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
-        {/* edge fades */}
-        <div className="absolute left-0 top-0 bottom-1 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" aria-hidden="true" />
-        <div className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" aria-hidden="true" />
-      </div>
-
-      {/* ── Aggregate rating ── */}
-      <div className="px-6 md:px-8 flex items-center justify-center gap-2">
-        <div className="flex gap-0.5" aria-hidden="true">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <Star key={s} className="w-4 h-4 text-yellow-400 fill-yellow-400" />
-          ))}
-        </div>
-        <span className="text-sm font-semibold">{t('trust.ratingScore')}</span>
-        <span className="text-sm text-muted-foreground">· {t('trust.ratingLabel')}</span>
-      </div>
-
-      {/* ── Review quote strip ── */}
-      <div className="space-y-4">
-        <h2 className="text-base font-medium px-6 md:px-8">{t('trust.reviewsTitle')}</h2>
-        <div className="relative">
-          <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory pb-1 px-6 md:px-8 scrollbar-hide">
-            {reviews.map((r, i) => (
-              <div
-                key={i}
-                className="flex-shrink-0 snap-start w-72 bg-card border border-border rounded-2xl p-4 space-y-3 text-left"
-              >
-                <div className="flex gap-0.5" aria-hidden="true">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-3.5 h-3.5 text-yellow-400 fill-yellow-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-muted-foreground leading-relaxed">"{r.quote}"</p>
-                <div>
-                  <p className="text-sm font-medium">{r.author}</p>
-                  <p className="text-xs text-muted-foreground">{r.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="absolute left-0 top-0 bottom-1 w-8 bg-gradient-to-r from-background to-transparent pointer-events-none" aria-hidden="true" />
-          <div className="absolute right-0 top-0 bottom-1 w-16 bg-gradient-to-l from-background to-transparent pointer-events-none" aria-hidden="true" />
-        </div>
-      </div>
-
-      {/* ── Why Xplora? differentiators ── */}
-      <div className="px-6 md:px-8 space-y-4">
-        <h2 className="text-base font-medium">{t('trust.whyTitle')}</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {diffs.map((d, i) => (
-            <div key={i} className="bg-card border border-border rounded-2xl p-4 space-y-2 flex flex-col items-center">
-              {d.icon}
-              <p className="text-sm font-medium leading-snug">{d.title}</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">{d.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-    </div>
-  );
+function getVibeLabel() {
+  const h = new Date().getHours();
+  if (h < 12) return "What's your vibe this morning?";
+  if (h < 17) return "What's your vibe this afternoon?";
+  if (h < 21) return "What's your vibe this evening?";
+  return "What's your vibe tonight?";
 }
 
-function VibeSection() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const vibeKey = useVibeKey();
-
-  const vibes: [string, string][] = [
-    ['cozy', 'vibes.cozy'],
-    ['adventurous', 'vibes.adventurous'],
-    ['foodie', 'vibes.foodie'],
-    ['romantic', 'vibes.romantic'],
-    ['hidden gem', 'vibes.hiddenGem'],
-    ['lively', 'vibes.lively'],
-    ['artsy', 'vibes.artsy'],
-    ['outdoorsy', 'vibes.outdoorsy'],
-    ['late night', 'vibes.lateNight'],
-    ['family-friendly', 'vibes.familyFriendly'],
-  ];
-
-  const neighbourhoods = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
-
+function CardCarousel({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const scroll = (dir: 'left' | 'right') => {
+    ref.current?.scrollBy({ left: dir === 'right' ? 200 : -200, behavior: 'smooth' });
+  };
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12 text-center">
-      <h2 className="text-xl md:text-2xl mb-6">{t(vibeKey)}</h2>
-      <div className="space-y-5">
-        <div className="flex flex-wrap gap-2 justify-center">
-          {vibes.map(([value, labelKey]) => (
-            <button
-              key={value}
-              onClick={() => navigate(`/itinerary?vibe=${encodeURIComponent(value)}`)}
-              className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors"
-            >
-              {t(labelKey)}
-            </button>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-2 justify-center">
-          {neighbourhoods.map(n => (
-            <button
-              key={n}
-              onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(n)}`)}
-              className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors"
-            >
-              {n}
-            </button>
-          ))}
-        </div>
+    <div className="relative group">
+      <button
+        onClick={() => scroll('left')}
+        className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
+      >
+        <ChevronLeft className="w-5 h-5" />
+      </button>
+      <div
+        ref={ref}
+        className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible scrollbar-hide"
+      >
+        {children}
       </div>
-    </div>
-  );
-}
-
-function FeaturedExperienceCard({ exp }: { exp: FeaturedExperience }) {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  return (
-    <div
-      className="bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow cursor-pointer flex flex-col"
-      onClick={() => navigate(`/experience/${exp.id}`)}
-    >
-      <div className="relative h-44 overflow-hidden">
-        <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
-        {exp.neighbourhood && (
-          <span className="absolute top-3 left-3 bg-white/90 text-foreground text-xs px-2.5 py-1 rounded-full backdrop-blur-sm font-medium flex items-center gap-1">
-            <MapPin className="w-3 h-3" />{exp.neighbourhood}
-          </span>
-        )}
-        {exp.badge && (
-          <span className="absolute top-3 right-3 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-            {exp.badge}
-          </span>
-        )}
-      </div>
-      <div className="p-4 flex flex-col flex-1 gap-2">
-        <h3 className="text-sm font-medium leading-snug">{exp.name}</h3>
-        {exp.duration && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <Clock className="w-3 h-3 flex-shrink-0" />{exp.duration}
-          </p>
-        )}
-        <div className="mt-auto flex items-center justify-between pt-2">
-          <p className="text-sm font-semibold">
-            {exp.price === 0 ? t('common.free') : `${t('landing.from')} $${(exp.price / 100).toFixed(0)}`}
-          </p>
-          <button
-            className="px-3 py-1.5 bg-[#12343B] text-white rounded-xl text-xs font-medium hover:bg-[#12343B]/90 transition-colors"
-            onClick={(e) => { e.stopPropagation(); navigate(`/experience/${exp.id}`); }}
-          >
-            {t('experienceCard.book')}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FeaturedSection() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { experiences, loading } = useFeaturedExperiences();
-
-  return (
-    <div className="max-w-7xl mx-auto px-6 md:px-8 py-10 md:py-14">
-      <div className="flex items-end justify-between mb-6">
-        <div>
-          <h2 className="text-2xl md:text-3xl">{t('landing.featuredTitle')}</h2>
-          <p className="text-sm text-muted-foreground mt-1">{t('landing.featuredSub')}</p>
-        </div>
+      <button
+        onClick={() => scroll('right')}
+        className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
+      >
+        <ChevronRight className="w-5 h-5" />
+      </button>
+      <div className="flex md:hidden justify-end gap-2 mt-2 pr-1">
         <button
-          onClick={() => navigate('/itinerary')}
-          className="hidden md:flex items-center gap-2 text-sm text-primary hover:underline"
+          onClick={() => scroll('left')}
+          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
         >
-          {t('landing.seeAll')} <ArrowRight className="w-4 h-4" />
+          <ChevronLeft className="w-4 h-4" />
         </button>
-      </div>
-
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-64 bg-muted rounded-2xl animate-pulse" />
-          ))}
-        </div>
-      ) : experiences.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {experiences.map(exp => (
-              <FeaturedExperienceCard key={exp.id} exp={exp} />
-            ))}
-          </div>
-          <div className="mt-6 flex justify-center md:hidden">
-            <button
-              onClick={() => navigate('/itinerary')}
-              className="flex items-center gap-2 text-sm text-primary hover:underline"
-            >
-              {t('home.exploreMore')}
-            </button>
-          </div>
-        </>
-      ) : (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground text-sm mb-5">{t('landing.subheadline')}</p>
-          <button
-            onClick={() => navigate('/itinerary')}
-            className="px-6 py-3 bg-[#12343B] text-white rounded-2xl text-sm font-medium hover:bg-[#12343B]/90 transition-colors inline-flex items-center gap-2"
-          >
-            {t('landing.exploreExperiences')} <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function FeaturedCard({ exp }: { exp: { id: string; name: string; description: string; price: number; image: string; duration?: string; badge?: string; neighbourhood?: string } }) {
-  const navigate = useNavigate();
-  return (
-    <div
-      className="flex items-center gap-4 bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow cursor-pointer p-3"
-      onClick={() => navigate(`/experience/${exp.id}`)}
-    >
-      <div className="relative w-20 h-20 flex-shrink-0 rounded-xl overflow-hidden">
-        <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <h3 className="text-sm font-medium leading-snug truncate">{exp.name}</h3>
-        {exp.duration && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-            <Clock className="w-3 h-3" /> {exp.duration}
-          </p>
-        )}
-        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{exp.description}</p>
-        <p className="text-sm font-semibold mt-1">
-          {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)}`}
-        </p>
-      </div>
-      {exp.badge && (
-        <span className="flex-shrink-0 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full">
-          {exp.badge}
-        </span>
-      )}
-    </div>
-  );
-}
-
-function ReviewCard({ review }: { review: { rating: number; comment: string | null; reviewer_name: string | null; experience_name: string } }) {
-  return (
-    <div className="bg-card border border-border rounded-2xl p-5 space-y-3 w-[280px] md:w-auto flex-shrink-0 md:flex-shrink">
-      <div className="flex items-center gap-1.5">
-        <div className="flex gap-0.5">
-          {[1, 2, 3, 4, 5].map(s => (
-            <Star key={s} className={`w-4 h-4 ${review.rating >= s ? 'text-yellow-400 fill-yellow-400' : 'text-muted-foreground/30'}`} />
-          ))}
-        </div>
-        <span className="text-xs text-muted-foreground ml-1">{review.experience_name}</span>
-      </div>
-      {review.comment && (
-        <p className="text-sm text-muted-foreground leading-relaxed">"{review.comment}"</p>
-      )}
-      <p className="text-sm font-medium">{review.reviewer_name ?? 'Anonymous'}</p>
-    </div>
-  );
-}
-
-function MembershipBanner() {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  return (
-    <div
-      className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
-      onClick={() => navigate('/membership')}
-    >
-      <div>
-        <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
-        <h2 className="text-xl md:text-2xl mb-2">{t('home.becomeMember')}</h2>
-        <ul className="space-y-1 text-sm opacity-90">
-          <li>🎟️ {t('home.earlyAccess')}</li>
-          <li>👫 {t('home.guestPass')}</li>
-          <li>🍸 {t('home.fiveASept')}</li>
-        </ul>
-      </div>
-      <div className="text-center md:text-right flex-shrink-0">
-        <p className="text-3xl font-serif">$10</p>
-        <p className="text-sm opacity-80">{t('home.perMonth')}</p>
-        <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">
-          {t('home.learnMore')}
+        <button
+          onClick={() => scroll('right')}
+          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
+        >
+          <ChevronRight className="w-4 h-4" />
         </button>
-      </div>
-    </div>
-  );
-}
-
-function SharedContent({ showMembership, showFeatured = true }: { showMembership: boolean; showFeatured?: boolean }) {
-  const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { experiences, reviews, loading } = useFeaturedExperiences();
-
-  return (
-    <>
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-8 md:pb-10 space-y-10">
-        {showFeatured && (
-        <section>
-          <div className="flex flex-col items-center gap-2 mb-6 text-center">
-            <h2 className="text-xl md:text-2xl">{t('home.featuredExperiences')}</h2>
-            <button
-              onClick={() => navigate('/itinerary')}
-              className="text-sm text-primary font-medium hover:underline"
-            >
-              {t('home.exploreMore')}
-            </button>
-          </div>
-
-          {loading ? (
-            <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 scrollbar-hide">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="w-[260px] md:w-auto flex-shrink-0 md:flex-shrink h-64 bg-muted rounded-2xl animate-pulse" />
-              ))}
-            </div>
-          ) : experiences.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No featured experiences yet.</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {experiences.map(exp => (
-                <FeaturedCard key={exp.id} exp={exp} />
-              ))}
-            </div>
-          )}
-        </section>
-        )}
-
-        {reviews.length > 0 && (
-          <section>
-            <div className="flex flex-col gap-3">
-              {reviews.map(r => (
-                <ReviewCard key={r.id} review={r} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Membership banner */}
-        {showMembership && (
-          <section>
-            <MembershipBanner />
-          </section>
-        )}
-
-        {/* Perks */}
-        <section>
-          <h2 className="text-xl md:text-2xl mb-4 md:mb-6 text-center">{t('home.perks')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-            {perks.map((perk) => (
-              <DealCard key={perk.id} {...perk} />
-            ))}
-          </div>
-        </section>
-      </div>
-    </>
-  );
-}
-
-function HowItWorksStrip() {
-  const { t } = useTranslation();
-  return (
-    <div className="border-t-4 border-primary bg-card">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-5">
-        <div className="flex flex-col md:flex-row md:items-center gap-5 md:gap-8">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary whitespace-nowrap hidden md:block">
-            {t('landing.howItWorksStrip')}
-          </span>
-          {[
-            { n: 1, title: t('landing.step1Title'), desc: t('landing.step1Desc') },
-            { n: 2, title: t('landing.step2Title'), desc: t('landing.step2Desc') },
-            { n: 3, title: t('landing.step3Title'), desc: t('landing.step3Desc') },
-          ].map(({ n, title, desc }) => (
-            <div key={n} className="flex items-start gap-3 flex-1">
-              <div className="w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-bold flex-shrink-0 mt-0.5">
-                {n}
-              </div>
-              <div>
-                <div className="text-sm font-semibold">{title}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{desc}</div>
-              </div>
-            </div>
-          ))}
-          <Link
-            to="/how-it-works"
-            className="text-sm text-primary font-semibold hover:underline whitespace-nowrap md:ml-auto"
-          >
-            {t('landing.watchOverview')}
-          </Link>
-        </div>
       </div>
     </div>
   );
@@ -537,14 +130,18 @@ function HowItWorksStrip() {
 
 export function HomeScreen() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { experiences } = useExperiences();
   const [authState, setAuthState] = useState<{
-    loading: boolean;
     loggedIn: boolean;
     name: string;
     accountType: string;
-  }>({ loading: true, loggedIn: false, name: '', accountType: '' });
+    isAdmin: boolean;
+  }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
   const [showFab, setShowFab] = useState(false);
+
+  // Neighbourhood carousel state
+  const nbhdRef = useRef<HTMLDivElement>(null);
+  const [activeDot, setActiveDot] = useState(0);
 
   useEffect(() => {
     if (sessionStorage.getItem('hiw_fab_dismissed')) return;
@@ -554,153 +151,460 @@ export function HomeScreen() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) {
-        setAuthState({ loading: false, loggedIn: false, name: '', accountType: '' });
-        return;
-      }
+      if (!session?.user) return;
       const profile = await getProfile();
       setAuthState({
-        loading: false,
         loggedIn: true,
         name: profile?.name || '',
         accountType: (profile as any)?.account_type || '',
+        isAdmin: !!(profile as any)?.is_admin,
       });
     });
   }, []);
 
-  if (authState.loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+  function nbhdScroll(dir: 1 | -1) {
+    const track = nbhdRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>('.nbhd-card');
+    const step = card ? card.offsetWidth + 12 : 332;
+    track.scrollBy({ left: dir * step, behavior: 'smooth' });
   }
 
-  // Logged-in (same layout for all account types)
+  function handleNbhdScroll() {
+    const track = nbhdRef.current;
+    if (!track) return;
+    const card = track.querySelector<HTMLElement>('.nbhd-card');
+    const step = card ? card.offsetWidth + 12 : 332;
+    setActiveDot(Math.round(track.scrollLeft / step));
+  }
+
+  // ── Logged-in view ──────────────────────────────────────────────────────────
   if (authState.loggedIn) {
+    const isBusiness = authState.accountType === 'business' && !authState.isAdmin;
     const firstName = authState.name.split(' ')[0] || 'there';
 
     return (
       <div className="min-h-screen pb-24 md:pb-8">
-        <SearchHeader greeting={`Hey ${firstName} 👋`} />
-        <ExplorerBanner />
-        <VibeSection />
-        <TrustSection />
-        <SharedContent showMembership={true} />
+        {isBusiness ? (
+          <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
+            <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
+              <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
+                <XploraLogo variant="full" className="h-28 md:h-40" />
+                <div className="space-y-2">
+                  <p className="text-xs uppercase tracking-widest opacity-60">Welcome back</p>
+                  <h1 className="text-3xl md:text-5xl leading-tight">Hey {firstName} 👋</h1>
+                  <p className="text-base md:text-lg opacity-80">Manage your perks, track your listings, and grow your reach.</p>
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
+                  <button
+                    onClick={() => navigate('/business/dashboard')}
+                    className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                  >
+                    <LayoutDashboard className="w-5 h-5" /> Dashboard
+                  </button>
+                  <button
+                    onClick={() => navigate('/account')}
+                    className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <User className="w-5 h-5" /> Account
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <SearchHeader greeting={`Hey ${firstName} 👋`} />
+        )}
+
+        <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
+          <section>
+            <h2 className="text-xl md:text-2xl mb-6 md:mb-8">Xperiences</h2>
+            <div className="space-y-10">
+              {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
+                const items = experiences.filter(e => e.category === cat.id);
+                if (!items.length) return null;
+                return (
+                  <div key={cat.id}>
+                    <div className="mb-3">
+                      <h3 className="text-lg font-medium">{cat.name}</h3>
+                      <p className="text-sm text-muted-foreground">{cat.tagline}</p>
+                    </div>
+                    <CardCarousel>
+                      {items.slice(0, 5).map(exp => (
+                        <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
+                          <ExperienceCard exp={exp} />
+                        </div>
+                      ))}
+                    </CardCarousel>
+                    <button
+                      onClick={() => navigate(`/itinerary?category=${cat.id}`)}
+                      className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
+                    >
+                      Explore more →
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+
+          {!isBusiness && (
+            <section>
+              <div
+                className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
+                onClick={() => navigate('/membership')}
+              >
+                <div>
+                  <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
+                  <h2 className="text-xl md:text-2xl mb-2">Become a Member</h2>
+                  <ul className="space-y-1 text-sm opacity-90">
+                    <li>🎟️ 48h early access to all experiences</li>
+                    <li>👫 1 free guest pass every month</li>
+                    <li>🍸 Monthly members-only 5 à 7</li>
+                  </ul>
+                </div>
+                <div className="text-center md:text-right flex-shrink-0">
+                  <p className="text-3xl font-serif">$10</p>
+                  <p className="text-sm opacity-80">/month</p>
+                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">Join — $10/month</button>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {(() => {
+            const nightCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploranights')!;
+            const items = experiences.filter(e => e.category === 'xploranights');
+            return items.length ? (
+              <section>
+                <div className="mb-3">
+                  <h3 className="text-lg font-medium">{nightCat.name}</h3>
+                  <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
+                </div>
+                <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
+                  {items.slice(0, 5).map(exp => (
+                    <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
+                      <ExperienceCard exp={exp} />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => navigate(`/itinerary?category=xploranights`)}
+                  className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
+                >
+                  Explore more →
+                </button>
+              </section>
+            ) : null;
+          })()}
+
+          <section>
+            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Perks</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+              {perks.map((perk) => (
+                <DealCard key={perk.id} {...perk} />
+              ))}
+            </div>
+          </section>
+        </div>
+
         <Footer />
       </div>
     );
   }
 
-  // Logged-out
+  // ── Logged-out landing ──────────────────────────────────────────────────────
+  const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xplorators')!;
+  const soloItems = experiences.filter(e => e.category === 'xplorators');
+
   return (
-    <div className="min-h-screen pb-24 md:pb-8">
-      <PageSEO
-        title="Québec City Tours & Experiences — Xplora"
-        description="Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. Your insider guide to the city."
-        canonical="/"
-        schema={LOCAL_BUSINESS_SCHEMA}
-      />
+    <div className="min-h-screen pb-24 md:pb-0 font-sans">
 
-      <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-10 w-full">
-          <div className="flex flex-col md:flex-row md:items-center md:gap-12">
+      {/* Hero */}
+      <section style={{ background: 'linear-gradient(to bottom, rgba(126,207,207,0.70), rgba(126,207,207,0.40))' }}>
+        <div className="max-w-3xl mx-auto px-6 py-12 md:py-24 text-center flex flex-col items-center gap-5">
+          <p className="text-xs uppercase tracking-widest text-gray-500">Québec City</p>
+          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-gray-900">
+            Discover local.<br />Live more.
+          </h1>
+          <p className="text-base md:text-lg text-gray-600 max-w-xl">
+            Hidden gems, trendy neighborhoods, curated self-guided tours made just for you. GoXplora now!
+          </p>
 
-            {/* Brand + CTA */}
-            <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-4 flex-1">
-              <XploraLogo variant="full" className="h-36 md:h-44" />
-              <div className="space-y-3">
-                <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl leading-tight">{t('landing.headline')}</h1>
-                <p className="text-sm md:text-base opacity-75 max-w-sm mx-auto md:mx-0">{t('landing.heroSub')}</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 pt-2 w-full sm:w-auto md:w-full">
-                <Link
-                  to="/itinerary"
-                  className="px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  {t('landing.exploreExperiences')}
-                  <ArrowRight className="w-5 h-5" />
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base font-medium hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Play className="w-4 h-4 fill-current" />
-                  {t('landing.seeHowItWorks')}
-                </Link>
-              </div>
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 text-sm pt-2">
-                <span className="text-yellow-500 tracking-wide">★★★★★</span>
-                <span className="opacity-80">4.9 · {t('landing.freeCancellation')}</span>
-                <span className="opacity-40">|</span>
-                <span className="opacity-70">{t('landing.trustedGuests')}</span>
-              </div>
-              <Link to="/login" className="text-sm opacity-60 hover:opacity-80 transition-opacity underline underline-offset-2">
-                {t('landing.alreadyMember')}
-              </Link>
-            </div>
-
-            {/* Photo collage — desktop only */}
-            <div className="hidden md:grid grid-cols-2 gap-2 flex-shrink-0 w-[400px] h-[380px] rounded-3xl overflow-hidden">
-              <img
-                src="/hero/petit-champlain.jpg"
-                alt="Rue du Petit-Champlain, Québec City"
-                className="col-span-1 row-span-2 w-full h-full object-cover"
-                loading="eager"
-                fetchPriority="high"
-              />
-              <img
-                src="/hero/chateau-night.webp"
-                alt="Château Frontenac at night"
-                className="w-full h-full object-cover rounded-tr-3xl"
-                loading="eager"
-              />
-              <img
-                src="/hero/chateau-dusk.jpg"
-                alt="Château Frontenac at dusk"
-                className="w-full h-full object-cover rounded-br-3xl"
-                loading="eager"
-              />
-            </div>
+          {/* Neighbourhood mini tiles */}
+          <div className="flex gap-2 justify-start md:justify-center w-full overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
+            {NBHD_DATA.map(({ label, img }) => (
+              <button
+                key={label}
+                onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+                className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden group"
+              >
+                <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <span className="absolute bottom-1.5 left-0 right-0 text-white text-[10px] font-medium text-center leading-tight px-1">{label}</span>
+              </button>
+            ))}
           </div>
 
-          {/* Photo strip — mobile only */}
-          <div className="md:hidden flex gap-3 overflow-x-auto mt-6 pb-2 -mx-6 px-6 scrollbar-hide">
-            {[
-              { src: '/hero/petit-champlain.jpg', alt: 'Rue du Petit-Champlain, Québec City' },
-              { src: '/hero/chateau-night.jpg',   alt: 'Château Frontenac at night' },
-              { src: '/hero/chateau-dusk.jpg',    alt: 'Château Frontenac at dusk' },
-            ].map((p, i) => (
-              <img
-                key={p.alt}
-                src={p.src}
-                alt={p.alt}
-                className="flex-shrink-0 w-40 h-28 rounded-2xl object-cover"
-                loading="eager"
-                fetchPriority={i === 0 ? 'high' : 'auto'}
-              />
+          {/* CTA */}
+          <Link
+            to="/itinerary"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+          >
+            Start self-guided exploring
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* Vibe section */}
+      <section className="bg-[#c9e8e8]/40 border-t border-[#b0d8d8]/50 px-6 py-5">
+        <div className="max-w-7xl mx-auto">
+          <p className="text-sm text-gray-500 mb-3">{getVibeLabel()}</p>
+          <div className="flex flex-wrap gap-2">
+            {VIBE_CHIPS.map(({ emoji, label }) => (
+              <button
+                key={label}
+                onClick={() => navigate(`/itinerary?q=${encodeURIComponent(label)}`)}
+                className="px-4 py-2 bg-white rounded-full text-sm border border-gray-200 hover:border-[#12343B] transition"
+              >
+                {emoji} {label}
+              </button>
             ))}
           </div>
         </div>
+      </section>
+
+      {/* Explore by neighbourhood */}
+      <section className="pt-8 pb-4">
+        <div className="max-w-7xl mx-auto px-6 md:px-8 flex items-center justify-between mb-4">
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900">Explore by neighbourhood</h2>
+          <div className="flex gap-2">
+            <button
+              onClick={() => nbhdScroll(-1)}
+              aria-label="Previous"
+              className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => nbhdScroll(1)}
+              aria-label="Next"
+              className="w-9 h-9 rounded-full bg-[#12343B] text-white flex items-center justify-center hover:opacity-90 transition"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+
+        <div
+          ref={nbhdRef}
+          onScroll={handleNbhdScroll}
+          className="flex gap-3 overflow-x-auto pb-2 pl-6 md:pl-8 [&::-webkit-scrollbar]:hidden"
+          style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', paddingRight: 40 }}
+        >
+          {NBHD_DATA.map(({ label, sub, img }) => (
+            <button
+              key={label}
+              onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+              className="nbhd-card flex-shrink-0 relative rounded-2xl overflow-hidden group"
+              style={{ scrollSnapAlign: 'start', width: 'min(72vw, 320px)', aspectRatio: '3/4' }}
+            >
+              <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-left">
+                <p className="text-white font-semibold text-sm md:text-base leading-tight">{label}</p>
+                <p className="text-white/70 text-xs md:text-sm mt-0.5">{sub}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Progress dots */}
+        <div className="flex justify-center gap-1.5 mt-4">
+          {NBHD_DATA.map((_, i) => (
+            <span
+              key={i}
+              className="h-1.5 rounded-full transition-all duration-300"
+              style={{
+                width: i === activeDot ? 20 : 6,
+                background: i === activeDot ? '#12343B' : '#D1D5DB',
+              }}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Xperiences — Solo */}
+      <section className="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-10">
+        <h2 className="font-serif text-xl md:text-2xl text-gray-900">Xperiences</h2>
+        <div>
+          <h3 className="text-lg font-medium mb-0.5">{soloCat.name}</h3>
+          <p className="text-sm text-gray-400 mb-4">{soloCat.tagline}</p>
+          {soloItems.length > 0 ? (
+            <>
+              <div className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible [&::-webkit-scrollbar]:hidden">
+                {soloItems.slice(0, 5).map(exp => (
+                  <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
+                    <ExperienceCard exp={exp} />
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => navigate(`/itinerary?category=xplorators`)}
+                className="mt-3 text-sm text-[#12343B] font-medium hover:underline flex items-center gap-1"
+              >
+                Explore more →
+              </button>
+            </>
+          ) : (
+            <p className="text-sm text-gray-400">Coming soon — check back shortly.</p>
+          )}
+        </div>
+      </section>
+
+      {/* Section break */}
+      <div className="bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center">
+        <p className="text-xs uppercase tracking-widest text-[#12343B]/50 mb-2">Who we are</p>
+        <p className="font-serif text-2xl md:text-3xl text-[#12343B]">Discover the city like a local</p>
       </div>
 
-      <ExplorerBanner />
-      <HowItWorksStrip />
-      <VibeSection />
-      <FeaturedSection />
-      <TrustSection />
-      <SharedContent showMembership={true} showFeatured={false} />
+      {/* About */}
+      <section id="about" className="py-16 px-6 bg-white">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Our story</p>
+            <h2 className="font-serif text-3xl md:text-4xl text-gray-900 mb-5">Born from a love of wandering</h2>
+            <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
+              GoXplora started with a simple belief: the best way to know a city is to walk it — slowly, curiously, without a bus schedule. We built the tools to make that possible for everyone.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-10 items-center mb-16">
+            <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
+              <img
+                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800"
+                alt="Old Québec streets"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#12343B]/30 to-transparent" />
+            </div>
+            <div className="space-y-5">
+              <h3 className="font-serif text-xl md:text-2xl text-gray-900">Québec City is our backyard</h3>
+              <p className="text-gray-500 leading-relaxed">
+                Discovering local has always been a family tradition. There's something special about hopping in the car with no real plan and ending up somewhere you've never been — Victoriaville, St-Jean-Port-Jolie, Portneuf, and so many more hidden corners of Québec.
+              </p>
+              <p className="text-gray-500 leading-relaxed">
+                I especially love that feeling of stumbling onto a new place — a street, a café, a view — that wasn't on any list. Xplora was born from that same spirit: making it easy for everyone to wander, discover, and fall in love with local.
+              </p>
+              <div className="flex items-center gap-3 pt-2">
+                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[#c9e8e8]">
+                  <img src="/team/founder.jpeg" alt="Ariel B." className="w-full h-full object-cover object-top" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">Ariel B.</p>
+                  <p className="text-xs text-gray-400">Founder, GoXplora</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Value pillars */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-12">
+            {VALUE_PILLARS.map(({ label, desc, icon }) => (
+              <div key={label} className="text-center">
+                <div className="w-12 h-12 rounded-2xl bg-[#c9e8e8]/60 flex items-center justify-center mx-auto mb-3">
+                  {icon}
+                </div>
+                <p className="text-sm font-semibold text-gray-800 mb-1">{label}</p>
+                <p className="text-xs text-gray-400 leading-snug">{desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* For Business */}
+      <section id="for-business" className="bg-[#12343B] text-white py-16 px-6 mt-8">
+        <div className="max-w-5xl mx-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3">For Business Owners</p>
+            <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Get your business on the map</h2>
+            <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto">
+              Partner with GoXplora and get discovered by thousands of curious explorers walking through your neighbourhood every day.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                title: 'Local visibility',
+                desc: 'Appear on curated neighbourhood routes right when explorers are nearby and ready to discover.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                ),
+              },
+              {
+                title: 'Real foot traffic',
+                desc: 'Track how many Xplorators walked past or visited your venue — with simple, clear analytics.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                  </svg>
+                ),
+              },
+              {
+                title: 'Exclusive offers',
+                desc: 'Share special deals or perks for GoXplora members — build loyalty and drive repeat visits.',
+                icon: (
+                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                    <path d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                  </svg>
+                ),
+              },
+            ].map(({ title, desc, icon }) => (
+              <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10">
+                <div className="w-10 h-10 rounded-xl bg-[#7ecfcf]/20 flex items-center justify-center mb-4">
+                  {icon}
+                </div>
+                <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
+                <p className="text-sm text-white/50 leading-relaxed">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <Link
+              to="/business"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 transition"
+            >
+              List your business
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <a href="mailto:hello@goxplora.ca" className="text-sm text-white/50 hover:text-white transition">
+              Contact our partnerships team →
+            </a>
+          </div>
+
+          <p className="text-center text-xs text-white/25 mt-10">
+            Trusted by local restaurants, boutiques, cafés & attractions across Québec City
+          </p>
+        </div>
+      </section>
+
       <Footer />
 
-      {showFab && !authState.loggedIn && (
+      {/* FAB */}
+      {showFab && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
           <Link
             to="/how-it-works"
             className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
-            {t('landing.newHereFab')}
+            New here? Learn how it works
           </Link>
           <button
             onClick={() => {
