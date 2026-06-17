@@ -11,6 +11,8 @@
   },
   "header": {
     "home": "Home",
+    "xperiences": "Xperiences",
+    "neighbourhoods": "Neighbourhoods",
     "experiences": "Experiences",
     "perks": "Perks",
     "howItWorks": "How it works",
@@ -219,7 +221,11 @@
     "spots": "spots",
     "free": "Free",
     "startExploring": "Start exploring",
-    "bookPaid": "Book"
+    "bookPaid": "Book",
+    "easy": "Easy",
+    "moderate": "Moderate",
+    "challenging": "Challenging",
+    "reviews": "reviews"
   },
   "events": {
     "today": "Today",

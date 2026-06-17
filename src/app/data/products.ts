@@ -22,6 +22,8 @@ export interface Product {
   difficulty?: string;
   category?: ExperienceCategory;
   weeklyBookings?: number;
+  rating?: number;       // 0–5, AllTrails-style
+  reviewCount?: number;
   // detail page fields
   longDescription?: string;
   includes?: string[];

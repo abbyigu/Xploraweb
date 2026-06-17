@@ -11,6 +11,8 @@
   },
   "header": {
     "home": "Accueil",
+    "xperiences": "Xpériences",
+    "neighbourhoods": "Quartiers",
     "experiences": "Expériences",
     "perks": "Avantages",
     "howItWorks": "Comment ça marche",
@@ -219,7 +221,11 @@
     "spots": "places",
     "free": "Gratuit",
     "startExploring": "Commencer",
-    "bookPaid": "Réserver"
+    "bookPaid": "Réserver",
+    "easy": "Facile",
+    "moderate": "Modéré",
+    "challenging": "Difficile",
+    "reviews": "avis"
   },
   "events": {
     "today": "Aujourd'hui",

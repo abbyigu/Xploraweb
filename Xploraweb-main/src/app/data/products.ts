@@ -23,6 +23,8 @@ export interface Product {
   spots?: number;
   difficulty?: string;
   category?: ExperienceCategory;
+  rating?: number;       // 0–5, AllTrails-style
+  reviewCount?: number;
   // detail page fields
   longDescription?: string;
   includes?: string[];
