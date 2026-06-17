@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
-import { Compass, Users, Moon, Sparkles, SlidersHorizontal, X } from 'lucide-react';
+import { Compass, Users, Moon, Sparkles, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
+import { ExperienceMap } from './ExperienceMap';
 import { EventCard } from './EventCard';
 import { useExperiences } from '../hooks/useExperiences';
 import type { ExperienceCategory, Product } from '../data/products';
@@ -115,6 +116,8 @@ export function ItineraryScreen() {
   const [familyOnly, setFamilyOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     const cat = searchParams.get('category');
@@ -205,6 +208,13 @@ export function ItineraryScreen() {
       e.vibes?.some(v => v.toLowerCase() === 'family-friendly')
     );
   }
+
+  // Experiences shown as markers on the AllTrails-style map sidebar.
+  const mapList: Product[] = hasFilter
+    ? filteredExperiences
+    : filter === 'all'
+      ? experiences
+      : experiences.filter(e => e.category === filter);
 
   function renderNightsSection(items: Product[], isFullPage = false) {
     const sorted = [...items].sort(sortByDate);
@@ -554,11 +564,37 @@ export function ItineraryScreen() {
       </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
-        {renderContent()}
+      {/* Results — AllTrails-style split: scrollable list + sticky map */}
+      <div className="md:flex md:items-start">
+        <div className={`${mobileView === 'map' ? 'hidden' : 'block'} md:block w-full md:w-3/5 lg:w-[62%]`}>
+          <div className="px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
+            {renderContent()}
+          </div>
+          <SimpleFooter />
+        </div>
+
+        {/* Sticky map (desktop) */}
+        <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
+          <ExperienceMap experiences={mapList} activeId={activeId} onMarkerClick={setActiveId} />
+        </div>
+
+        {/* Mobile full-screen map */}
+        {mobileView === 'map' && (
+          <div className="md:hidden h-[calc(100vh-13rem)] w-full">
+            <ExperienceMap experiences={mapList} activeId={activeId} onMarkerClick={setActiveId} />
+          </div>
+        )}
       </div>
 
-      <SimpleFooter />
+      {/* Mobile map/list toggle */}
+      <button
+        onClick={() => setMobileView(v => (v === 'map' ? 'list' : 'map'))}
+        className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-medium shadow-lg"
+      >
+        {mobileView === 'map'
+          ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> {t('itinerary.all')}</>
+          : <><MapIcon className="w-4 h-4" aria-hidden="true" /> Map</>}
+      </button>
     </div>
   );
 }

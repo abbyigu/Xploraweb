@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Compass, Users, Moon, Sparkles, X, Search, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { Compass, Users, Moon, Sparkles, X, Search, SlidersHorizontal, ChevronDown, Map as MapIcon, List as ListIcon } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
+import { ExperienceMap } from './ExperienceMap';
 import { QuickViewModal } from './QuickViewModal';
 import { CompareBar, ComparePanel } from './ComparePanel';
 import { useExperiences } from '../hooks/useExperiences';
@@ -258,6 +259,8 @@ export function ItineraryScreen() {
   const [quickViewExp, setQuickViewExp] = useState<Product | null>(null);
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [showComparePanel, setShowComparePanel] = useState(false);
+  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const toggleCompare = (exp: Product) => {
     setCompareList(prev =>
@@ -322,6 +325,13 @@ export function ItineraryScreen() {
 
   const activeCat = EXPERIENCE_CATEGORIES.find(c => c.id === filter);
   const hasAnyFilter = isHeaderFiltered || activeFilterCount > 0;
+
+  // AllTrails-style: a single flat result list that drives both the cards and the map.
+  const displayList: Product[] = hasAnyFilter
+    ? filteredExperiences
+    : filter === 'all'
+      ? sortExperiences([...experiences], filters.sort)
+      : sortExperiences(experiences.filter(e => e.category === filter), filters.sort);
   const filterLabel = textQuery || (selectedVibes.length > 0
     ? selectedVibes.map(v => v.charAt(0).toUpperCase() + v.slice(1)).join(', ')
     : selectedNeighbourhood);
@@ -447,82 +457,70 @@ export function ItineraryScreen() {
         onClear={() => { setFilters(DEFAULT_FILTERS); }}
       />
 
-      {/* Results */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
-        {hasAnyFilter || activeFilterCount > 0 ? (
-          filteredExperiences.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-              {filteredExperiences.map(exp => (
-                <ExperienceCard
-                  key={exp.id}
-                  exp={exp}
-                  onQuickView={() => setQuickViewExp(exp)}
-                  compareSelected={compareList.some(e => e.id === exp.id)}
-                  onCompareToggle={() => toggleCompare(exp)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16 text-muted-foreground">
-              <p className="text-lg mb-2">No experiences found</p>
-              <p className="text-sm mb-1">Xplora is currently Québec City only.</p>
-              <p className="text-sm mb-6 opacity-70">Try adjusting your filters or searching for a different term.</p>
-              <button onClick={clearAll} className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
-                Clear all filters
-              </button>
-            </div>
-          )
-        ) : filter === 'all' ? (
-          EXPERIENCE_CATEGORIES.map(cat => {
-            const items = sortExperiences(
-              experiences.filter(e => e.category === cat.id),
-              filters.sort
-            );
-            if (!items.length) return null;
-            const meta = TIER_META[cat.id as ExperienceCategory];
-            const Icon = meta?.icon;
-            if (!meta || !Icon) return null;
-            return (
-              <section key={cat.id}>
-                <div className="flex items-start gap-3 mb-5">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${meta.pill}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg md:text-xl font-medium leading-tight">{cat.name}</h2>
-                    <p className="text-sm text-muted-foreground">{cat.tagline}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                  {items.map(exp => (
+      {/* Results — AllTrails-style split: scrollable card list + sticky map */}
+      <div className="md:flex md:items-start">
+        {/* Left: result list */}
+        <div className={`${mobileView === 'map' ? 'hidden' : 'block'} md:block w-full md:w-3/5 lg:w-[62%]`}>
+          <div className="px-6 md:px-8 py-5 md:py-6">
+            <p className="text-sm text-muted-foreground mb-4">
+              {displayList.length} experience{displayList.length !== 1 ? 's' : ''}
+              {activeCat && !hasAnyFilter ? ` · ${activeCat.name}` : ''} in Québec City
+            </p>
+
+            {displayList.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
+                {displayList.map(exp => (
+                  <div
+                    key={exp.id}
+                    onMouseEnter={() => setActiveId(exp.id)}
+                    onMouseLeave={() => setActiveId(null)}
+                  >
                     <ExperienceCard
-                      key={exp.id}
                       exp={exp}
                       onQuickView={() => setQuickViewExp(exp)}
                       compareSelected={compareList.some(e => e.id === exp.id)}
                       onCompareToggle={() => toggleCompare(exp)}
                     />
-                  ))}
-                </div>
-              </section>
-            );
-          })
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {sortExperiences(experiences.filter(e => e.category === filter), filters.sort).map(exp => (
-              <ExperienceCard
-                key={exp.id}
-                exp={exp}
-                onQuickView={() => setQuickViewExp(exp)}
-                compareSelected={compareList.some(e => e.id === exp.id)}
-                onCompareToggle={() => toggleCompare(exp)}
-              />
-            ))}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16 text-muted-foreground">
+                <p className="text-lg mb-2">No experiences found</p>
+                <p className="text-sm mb-1">Xplora is currently Québec City only.</p>
+                <p className="text-sm mb-6 opacity-70">Try adjusting your filters or searching for a different term.</p>
+                <button onClick={clearAll} className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm">
+                  Clear all filters
+                </button>
+              </div>
+            )}
+          </div>
+
+          <SimpleFooter />
+        </div>
+
+        {/* Right: sticky map (desktop) */}
+        <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
+          <ExperienceMap experiences={displayList} activeId={activeId} onMarkerClick={setActiveId} />
+        </div>
+
+        {/* Mobile: full-screen map when toggled */}
+        {mobileView === 'map' && (
+          <div className="md:hidden h-[calc(100vh-13rem)] w-full">
+            <ExperienceMap experiences={displayList} activeId={activeId} onMarkerClick={setActiveId} />
           </div>
         )}
       </div>
 
-      <SimpleFooter />
+      {/* Mobile map/list toggle */}
+      <button
+        onClick={() => setMobileView(v => (v === 'map' ? 'list' : 'map'))}
+        className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-medium shadow-lg"
+      >
+        {mobileView === 'map'
+          ? <><ListIcon className="w-4 h-4" /> List</>
+          : <><MapIcon className="w-4 h-4" /> Map</>}
+      </button>
 
       {/* Quick-view modal */}
       {quickViewExp && (
