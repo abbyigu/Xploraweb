@@ -67,9 +67,9 @@ export function useExperiences() {
 
   useEffect(() => { reload(); }, []);
 
-  // Xploratours (guided group tours) hidden for the moment
+  // Xplorators (free self-guided) and Xploratours (guided tours) hidden for the moment
   const visible = useMemo(
-    () => experiences.filter(e => e.category !== 'xploratours'),
+    () => experiences.filter(e => e.category !== 'xploratours' && e.category !== 'xplorators'),
     [experiences],
   );
 

@@ -259,7 +259,9 @@ export function ItineraryScreen() {
   const [quickViewExp, setQuickViewExp] = useState<Product | null>(null);
   const [compareList, setCompareList] = useState<Product[]>([]);
   const [showComparePanel, setShowComparePanel] = useState(false);
-  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [mobileView, setMobileView] = useState<'list' | 'map'>(
+    () => (searchParams.get('view') === 'map' ? 'map' : 'list'),
+  );
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const toggleCompare = (exp: Product) => {

@@ -30,7 +30,6 @@ function useCrumbs(): Crumb[] {
   const map: Record<string, Crumb[]> = {
     '/itinerary':           [{ label: 'Experiences' }],
     '/about':               [{ label: 'About' }],
-    '/members':             [{ label: 'Perks' }],
     '/cart':                [{ label: 'Cart' }],
     '/account':             [{ label: 'Account' }],
     '/membership':          [{ label: 'Membership' }],
