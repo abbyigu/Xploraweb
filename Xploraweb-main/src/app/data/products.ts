@@ -3,7 +3,7 @@ export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' |
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
   { id: 'xplorators',    name: 'Xplorators',             tagline: 'Explore at your pace · Self-guided' },
   { id: 'xploratorsplus', name: 'Xplorators+',           tagline: 'Go deeper · Stories, context & local access' },
-  { id: 'xploratours',   name: 'Xploratours',            tagline: 'Experience together' },
+  // Xploratours (guided group tours) hidden for the moment
   { id: 'xploranights',  name: 'Xplora Nights',          tagline: 'The nights worth going out for' },
   { id: 'limoilou',      name: 'Xplorators · Limoilou',  tagline: 'Discover Limoilou · Neighbourhood routes' },
   { id: 'cartier',       name: 'Xplorators · Cartier',   tagline: 'Discover Cartier · Neighbourhood routes' },

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Product, ExperienceCategory } from '../data/products';
 import { experiences as staticExperiences } from '../data/products';
@@ -67,5 +67,11 @@ export function useExperiences() {
 
   useEffect(() => { reload(); }, []);
 
-  return { experiences, loading, reload };
+  // Xploratours (guided group tours) hidden for the moment
+  const visible = useMemo(
+    () => experiences.filter(e => e.category !== 'xploratours'),
+    [experiences],
+  );
+
+  return { experiences: visible, loading, reload };
 }
