@@ -303,8 +303,8 @@ export function HomeScreen() {
   }
 
   // ── Logged-out landing ──────────────────────────────────────────────────────
-  const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploratorsplus')!;
-  const soloItems = experiences.filter(e => e.category === 'xploratorsplus');
+  const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xplorators')!;
+  const soloItems = experiences.filter(e => e.category === 'xplorators');
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -440,7 +440,7 @@ export function HomeScreen() {
                 ))}
               </div>
               <button
-                onClick={() => navigate(`/itinerary?category=xploratorsplus`)}
+                onClick={() => navigate(`/itinerary?category=xplorators`)}
                 className="mt-3 text-sm text-[#12343B] font-medium hover:underline flex items-center gap-1"
               >
                 Explore more →

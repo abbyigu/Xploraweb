@@ -7,7 +7,7 @@ export function SearchHeader({ greeting }: { greeting?: string } = {}) {
 
   const vibes = [
     { label: t('search.dateNight'),    category: 'xploranights'   },
-    { label: t('search.chillSolo'),    category: 'xploratorsplus' },
+    { label: t('search.chillSolo'),    category: 'xplorators'     },
     // "With friends" (xploratours) hidden for the moment
     { label: t('search.somethingNew'), category: 'xploratorsplus' },
   ];

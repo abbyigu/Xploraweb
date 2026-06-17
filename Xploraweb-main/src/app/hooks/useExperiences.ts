@@ -85,9 +85,13 @@ export function useExperiences() {
     return () => { i18n.off('languageChanged', reload); };
   }, []);
 
-  // Xplorators (free self-guided) and Xploratours (guided tours) hidden for the moment
+  // Xplorators+, Nights, and Tours hidden for the moment
   const visible = useMemo(
-    () => experiences.filter(e => e.category !== 'xploratours' && e.category !== 'xplorators'),
+    () => experiences.filter(e =>
+      e.category !== 'xploratorsplus' &&
+      e.category !== 'xploranights' &&
+      e.category !== 'xploratours'
+    ),
     [experiences],
   );
 
