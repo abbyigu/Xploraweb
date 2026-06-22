@@ -3,10 +3,10 @@
   "configurations": [
     {
       "name": "xploraweb",
-      "runtimeExecutable": "/Users/arielblouin/.nvm/versions/node/v20.20.2/bin/pnpm",
+      "runtimeExecutable": "npm",
       "runtimeArgs": ["run", "dev"],
       "port": 5173,
-      "cwd": "."
+      "cwd": "/Users/arielblouin/Downloads/Club Horizon/.claude/worktrees/friendly-cray-5ecc83/Xploraweb-main"
     }
   ]
 }

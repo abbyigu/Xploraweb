@@ -116,7 +116,9 @@ export function ItineraryScreen() {
   const [familyOnly, setFamilyOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
-  const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [mobileView, setMobileView] = useState<'list' | 'map'>(
+    () => (searchParams.get('view') === 'map' ? 'map' : 'list'),
+  );
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -592,7 +594,7 @@ export function ItineraryScreen() {
         className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-medium shadow-lg"
       >
         {mobileView === 'map'
-          ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> {t('itinerary.all')}</>
+          ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> List</>
           : <><MapIcon className="w-4 h-4" aria-hidden="true" /> Map</>}
       </button>
     </div>

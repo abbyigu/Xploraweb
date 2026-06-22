@@ -4,10 +4,8 @@ import { useRef, useState, useEffect } from 'react';
 import { XploraLogo } from './XploraLogo';
 import { SearchHeader } from './SearchHeader';
 import { ExperienceCard } from './ExperienceCard';
-import { DealCard } from './DealCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
-import { perks } from '../data/mockData';
 import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
 
@@ -297,15 +295,6 @@ export function HomeScreen() {
               </section>
             ) : null;
           })()}
-
-          <section>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">Perks</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-              {perks.map((perk) => (
-                <DealCard key={perk.id} {...perk} />
-              ))}
-            </div>
-          </section>
         </div>
 
         <Footer />

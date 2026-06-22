@@ -39,12 +39,9 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',              labelKey: 'header.home' },
-    { path: '/itinerary',    labelKey: 'header.experiences' },
-    { path: '/perks',        labelKey: 'header.perks' },
-    { path: '/how-it-works', labelKey: 'header.howItWorks' },
-    { path: '/about',        labelKey: 'header.about' },
-    { path: '/contact',      labelKey: 'header.contact' },
+    { path: '/',               labelKey: 'header.xperiences' },
+    { path: '/neighbourhoods', labelKey: 'header.neighbourhoods' },
+    { path: '/about',          labelKey: 'header.about' },
   ];
 
   return (

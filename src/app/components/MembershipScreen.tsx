@@ -223,13 +223,6 @@ export function MembershipScreen() {
           </button>
         </p>
 
-        {/* Members area link */}
-        <button
-          onClick={() => navigate('/members')}
-          className="w-full border border-border rounded-2xl py-3 text-sm text-muted-foreground hover:bg-muted/40 transition-colors"
-        >
-          View perks & social events →
-        </button>
       </div>
 
       <SimpleFooter />
