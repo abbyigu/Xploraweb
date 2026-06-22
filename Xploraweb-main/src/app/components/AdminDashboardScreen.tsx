@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, Tag, Crown, DollarSign } from 'lucide-react';
+import { LayoutDashboard, LogOut, Users, Ticket, Star, TrendingUp, Archive, Trash2, RotateCcw, Clock, MessageSquare, Check, X, Tag, Crown, DollarSign, MapPin } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { XploraLogo } from './XploraLogo';
 import { AdminExperiencePanel } from './AdminExperiencePanel';
+import { AdminSpotsPanel } from './AdminSpotsPanel';
 import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { SimpleFooter } from './SimpleFooter';
 import { experiences as staticExperiences } from '../data/products';
@@ -51,7 +52,7 @@ export function AdminDashboardScreen() {
   const [authorized, setAuthorized] = useState(false);
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'outings' | 'neighbourhoods' | 'archive' | 'reviews' | 'pricing'>('outings');
+  const [activeTab, setActiveTab] = useState<'outings' | 'spots' | 'neighbourhoods' | 'archive' | 'reviews' | 'pricing'>('outings');
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
@@ -209,6 +210,13 @@ export function AdminDashboardScreen() {
               Outings
             </button>
             <button
+              onClick={() => setActiveTab('spots')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${activeTab === 'spots' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              <MapPin className="w-3.5 h-3.5" />
+              Spots
+            </button>
+            <button
               onClick={() => setActiveTab('neighbourhoods')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'neighbourhoods' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
@@ -245,6 +253,10 @@ export function AdminDashboardScreen() {
 
           {activeTab === 'outings' && (
             <AdminExperiencePanel onStatsChange={loadStats} />
+          )}
+
+          {activeTab === 'spots' && (
+            <AdminSpotsPanel />
           )}
 
           {activeTab === 'neighbourhoods' && (

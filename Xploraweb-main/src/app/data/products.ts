@@ -1,5 +1,34 @@
 export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' | 'xploratorsplus' | 'limoilou' | 'cartier';
 
+/** Distance/travel mode for a trail. Driving unlocks road-trip treks. */
+export type TrailMode = 'walking' | 'driving';
+
+/** Spot categories — used by the AI trek builder to assemble routes by interest. */
+export const SPOT_CATEGORIES = ['Food', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
+export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
+
+/**
+ * A Spot is a single, reusable place (a café, lookout, mural). Spots are the
+ * atomic building blocks the AI assembles into trails/treks by vibe. They live
+ * in their own library (xplora_spots) and carry NO distance or stop count —
+ * those only make sense for a route.
+ */
+export interface Spot {
+  id: string;
+  name: string;
+  description?: string;
+  address?: string;
+  lat?: number;
+  lng?: number;
+  website?: string;
+  image?: string;
+  neighbourhood?: string;
+  vibes?: string[];
+  category?: SpotCategory | string;
+  visitTime?: string;   // suggested time to spend, e.g. "20 min"
+  status?: string;
+}
+
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
   { id: 'xplorators',    name: 'Xplorators',             tagline: 'Explore at your pace · Self-guided' },
   // Xplorators+, Xplora Nights, and Tours hidden for the moment
@@ -33,6 +62,10 @@ export interface Product {
   hostBio?: string;
   highlights?: string[];
   itinerary?: string[];
+  spotIds?: string[];         // ordered references into the xplora_spots library
+  spots?: Spot[];             // resolved spots (populated at read time when available)
+  distance?: string;          // e.g. "2.4 km"
+  distanceMode?: TrailMode;   // walking | driving
   neighbourhood?: string;
   vibes?: string[];
   availableDates?: string[]; // ISO dates e.g. ["2026-06-15", "2026-06-22"]
