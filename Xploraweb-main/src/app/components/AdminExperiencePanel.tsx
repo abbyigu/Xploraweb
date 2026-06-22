@@ -13,7 +13,8 @@ function daysAgo(createdAt: string) {
 }
 import { supabase } from '../lib/supabase';
 import { EXPERIENCE_CATEGORIES, experiences as staticExperiences } from '../data/products';
-import type { Product } from '../data/products';
+import type { Product, Spot } from '../data/products';
+import { useSpots } from '../hooks/useSpots';
 
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 
@@ -24,6 +25,7 @@ const BLANK = {
   host_name: '', host_bio: '',
   highlights: '', includes: '', to_bring: '', languages: 'English, Français',
   itinerary: '', neighbourhood: '', vibes: '',
+  distance: '', distance_mode: 'walking', spot_ids: [] as string[],
   available_dates: '', available_times: '',
   // French fields
   name_fr: '', description_fr: '', long_description_fr: '',
@@ -50,6 +52,9 @@ function staticToForm(exp: Product) {
     to_bring: (exp.toBring || []).join('\n'),
     languages: (exp.languages || ['English', 'Français']).join(', '),
     itinerary: (exp.itinerary || []).join('\n'),
+    distance: exp.distance || '',
+    distance_mode: exp.distanceMode || 'walking',
+    spot_ids: exp.spotIds || [],
     neighbourhood: exp.neighbourhood || '',
     vibes: (exp.vibes || []).join(', '),
     name_fr: '', description_fr: '', long_description_fr: '',
@@ -71,6 +76,8 @@ export function AdminExperiencePanel() {
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const { spots: spotLibrary, byId: spotById } = useSpots();
+  const [spotQuery, setSpotQuery] = useState('');
 
   const load = async () => {
     // Auto-purge archived records older than 30 days
@@ -94,6 +101,18 @@ export function AdminExperiencePanel() {
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
+
+  // ── Trail spot selection (ordered references into the spots library) ──────────
+  const addSpot = (id: string) => setForm(f => f.spot_ids.includes(id) ? f : ({ ...f, spot_ids: [...f.spot_ids, id] }));
+  const removeSpot = (i: number) => setForm(f => ({ ...f, spot_ids: f.spot_ids.filter((_, j) => j !== i) }));
+  const moveSpot = (i: number, dir: -1 | 1) =>
+    setForm(f => {
+      const j = i + dir;
+      if (j < 0 || j >= f.spot_ids.length) return f;
+      const spot_ids = [...f.spot_ids];
+      [spot_ids[i], spot_ids[j]] = [spot_ids[j], spot_ids[i]];
+      return { ...f, spot_ids };
+    });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -124,8 +143,8 @@ export function AdminExperiencePanel() {
   }
 
   const openNew = () => {
-    setForm({ ...BLANK }); setEditing(null); setIsStaticEdit(false);
-    setImageFile(null); setImagePreview(''); setLangTab('en'); setShowForm(true);
+    setForm({ ...BLANK, spot_ids: [] }); setEditing(null); setIsStaticEdit(false);
+    setImageFile(null); setImagePreview(''); setLangTab('en'); setSpotQuery(''); setShowForm(true);
   };
 
   const openEdit = (exp: any) => {
@@ -149,6 +168,9 @@ export function AdminExperiencePanel() {
       to_bring: (exp.to_bring || []).join('\n'),
       languages: (exp.languages || ['English', 'Français']).join(', '),
       itinerary: (exp.itinerary || []).join('\n'),
+      distance: exp.distance || '',
+      distance_mode: exp.distance_mode || 'walking',
+      spot_ids: Array.isArray(exp.spot_ids) ? exp.spot_ids : [],
       neighbourhood: exp.neighbourhood || '',
       vibes: (exp.vibes || []).join(', '),
       available_dates: (exp.available_dates || []).join('\n'),
@@ -191,6 +213,9 @@ export function AdminExperiencePanel() {
       to_bring: exp.toBring || null,
       languages: exp.languages || null,
       itinerary: exp.itinerary || null,
+      spot_ids: exp.spotIds || null,
+      distance: exp.distance || null,
+      distance_mode: exp.distanceMode || 'walking',
       neighbourhood: exp.neighbourhood || null,
       vibes: exp.vibes || null,
       status: 'archived',
@@ -216,6 +241,14 @@ export function AdminExperiencePanel() {
       if (result.error) { setError(`Image upload failed: ${result.error}`); setSaving(false); return; }
       imageUrl = result.url;
     }
+    // Resolve selected spot ids to spots (skipping any that no longer exist).
+    const selectedSpots = form.spot_ids
+      .map(id => spotById.get(id))
+      .filter((s): s is Spot => !!s);
+    // Keep the legacy itinerary array in sync so the current detail page still renders.
+    const derivedItinerary = selectedSpots.map(s =>
+      s.description ? `${s.name} — ${s.description}` : s.name);
+
     const payload = {
       name: form.name,
       description: form.description,
@@ -234,7 +267,10 @@ export function AdminExperiencePanel() {
       includes: form.includes ? form.includes.split('\n').map(s => s.trim()).filter(Boolean) : null,
       to_bring: form.to_bring ? form.to_bring.split('\n').map(s => s.trim()).filter(Boolean) : null,
       languages: form.languages ? form.languages.split(',').map(s => s.trim()).filter(Boolean) : null,
-      itinerary: form.itinerary ? form.itinerary.split('\n').map(s => s.trim()).filter(Boolean) : null,
+      itinerary: derivedItinerary.length ? derivedItinerary : null,
+      spot_ids: form.spot_ids.length ? form.spot_ids : null,
+      distance: form.distance.trim() || null,
+      distance_mode: form.distance_mode || 'walking',
       neighbourhood: form.neighbourhood || null,
       vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
       available_dates: form.available_dates ? form.available_dates.split('\n').map(s => s.trim()).filter(Boolean) : null,
@@ -480,8 +516,8 @@ export function AdminExperiencePanel() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Itinerary stops — one per line</label>
-              <textarea value={form.itinerary} onChange={set('itinerary')} rows={5} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Place des Arts — Start at the open-air gallery&#10;Rue Saint-Joseph — Walk the main creative artery" />
+              <label className="text-xs text-muted-foreground">Itinerary stops</label>
+              <p className="text-xs text-muted-foreground/70 mt-1">Build the route from your <span className="font-medium text-foreground">Spots</span> in the <span className="font-medium text-foreground">Trail route</span> section below.</p>
             </div>
 
             <div>
@@ -544,6 +580,107 @@ export function AdminExperiencePanel() {
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Host name</label>
               <input value={form.host_name} onChange={set('host_name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
+            </div>
+
+            {/* Trail route — ordered selection of spots from the library */}
+            <div className="md:col-span-2 border-t border-border pt-4 space-y-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Trail route</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Pick spots from your library and order them. Don't see a place? Add it under the <span className="font-medium text-foreground">Spots</span> tab first.</p>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground">Mode</label>
+                  <select value={form.distance_mode} onChange={set('distance_mode')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+                    <option value="walking">🚶 Walking</option>
+                    <option value="driving">🚗 Driving</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">{form.distance_mode === 'driving' ? 'Driving distance' : 'Walking distance'}</label>
+                  <input value={form.distance} onChange={set('distance')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 2.4 km" />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground">Total stops</label>
+                  <input value={form.spot_ids.length} readOnly tabIndex={-1} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-muted/40 text-muted-foreground" />
+                </div>
+              </div>
+
+              {/* Selected, ordered spots */}
+              {form.spot_ids.length === 0 ? (
+                <p className="text-xs text-muted-foreground/70 italic">No spots yet — add some from the library below.{form.itinerary ? ' (This trail previously listed: ' + form.itinerary.split('\n')[0] + '…)' : ''}</p>
+              ) : (
+                <div className="space-y-2">
+                  {form.spot_ids.map((id, i) => {
+                    const spot = spotById.get(id);
+                    const noCoords = !spot || spot.lat == null || spot.lng == null;
+                    return (
+                      <div key={id} className="flex items-center gap-3 rounded-xl border border-border bg-muted/20 p-2.5">
+                        <span className="w-6 h-6 rounded-full bg-primary/10 text-primary text-xs font-semibold flex items-center justify-center flex-shrink-0">{i + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{spot ? spot.name : 'Unknown spot (deleted?)'}</p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {spot ? [spot.category, spot.neighbourhood].filter(Boolean).join(' · ') || '—' : id}
+                            {noCoords ? <span className="text-amber-600"> · ⚠ no coords</span> : ''}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button type="button" onClick={() => moveSpot(i, -1)} disabled={i === 0} className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move up">
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                          <button type="button" onClick={() => moveSpot(i, 1)} disabled={i === form.spot_ids.length - 1} className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move down">
+                            <ChevronDown className="w-4 h-4" />
+                          </button>
+                          <button type="button" onClick={() => removeSpot(i)} className="p-1.5 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500" title="Remove from trail">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Library picker */}
+              <div className="rounded-xl border border-dashed border-border p-3 space-y-2">
+                <input
+                  value={spotQuery}
+                  onChange={e => setSpotQuery(e.target.value)}
+                  placeholder="Search the spots library to add…"
+                  className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                {(() => {
+                  const available = spotLibrary.filter(s => !form.spot_ids.includes(s.id));
+                  const q = spotQuery.trim().toLowerCase();
+                  const matches = available.filter(s =>
+                    !q || (s.name || '').toLowerCase().includes(q)
+                       || (s.neighbourhood || '').toLowerCase().includes(q)
+                       || (s.category || '').toLowerCase().includes(q));
+                  if (spotLibrary.length === 0) {
+                    return <p className="text-xs text-muted-foreground/70 italic px-1">Your spots library is empty. Add places under the Spots tab.</p>;
+                  }
+                  if (matches.length === 0) {
+                    return <p className="text-xs text-muted-foreground/70 italic px-1">No matching spots available.</p>;
+                  }
+                  return (
+                    <div className="max-h-52 overflow-y-auto space-y-1">
+                      {matches.slice(0, 30).map(s => (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => addSpot(s.id)}
+                          className="w-full flex items-center gap-2 text-left px-2.5 py-2 rounded-lg hover:bg-muted transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5 text-primary flex-shrink-0" />
+                          <span className="text-sm truncate flex-1">{s.name}</span>
+                          <span className="text-xs text-muted-foreground truncate">{[s.category, s.neighbourhood].filter(Boolean).join(' · ')}</span>
+                        </button>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
             </div>
 
             {/* Schedule — only for paid / guided categories */}
