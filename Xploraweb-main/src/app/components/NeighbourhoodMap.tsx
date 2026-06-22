@@ -1,8 +1,12 @@
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Polygon, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import '@geoman-io/leaflet-geoman-free';
 import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+
+// Rendered with vanilla Leaflet (not react-leaflet): react-leaflet v5 requires
+// React 19 and crashes under React 18, blanking the page. Same approach as
+// ExperienceMap.
 
 // Fix Leaflet default marker icons broken by Vite bundling
 L.Icon.Default.mergeOptions({
@@ -24,84 +28,122 @@ interface Props {
   onChange: (v: MapState) => void;
 }
 
-function PinLayer({ value, onChange }: Props) {
-  useMapEvents({
-    click(e) {
-      onChange({ ...value, lat: +e.latlng.lat.toFixed(6), lng: +e.latlng.lng.toFixed(6) });
-    },
-  });
-  return value.lat != null && value.lng != null
-    ? <Marker position={[value.lat, value.lng]} />
-    : null;
-}
-
-function GeomanLayer({ value, onChange }: Props) {
-  const map = useMap();
-  const valueRef = useRef(value);
-  valueRef.current = value;
-
-  useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pm = (map as any).pm;
-    if (!pm) return;
-
-    pm.addControls({
-      position: 'topright',
-      drawMarker: false,
-      drawCircleMarker: false,
-      drawPolyline: false,
-      drawRectangle: false,
-      drawCircle: false,
-      drawText: false,
-      drawPolygon: true,
-      editMode: true,
-      dragMode: false,
-      cutPolygon: false,
-      removalMode: true,
-      rotateMode: false,
-    });
-
-    function extractRing(layer: L.Polygon): [number, number][] {
-      const lls = layer.getLatLngs()[0] as L.LatLng[];
-      return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
-    }
-
-    function syncAll() {
-      const rings: [number, number][][] = [];
-      map.eachLayer(l => {
-        if (l instanceof L.Polygon && !(l instanceof L.Rectangle)) {
-          rings.push(extractRing(l));
-        }
-      });
-      onChange({ ...valueRef.current, boundary: rings.length ? rings[0] : null });
-    }
-
-    map.on('pm:create', syncAll);
-    map.on('pm:remove', syncAll);
-    map.on('pm:edit', syncAll);
-
-    return () => {
-      pm.removeControls();
-      map.off('pm:create', syncAll);
-      map.off('pm:remove', syncAll);
-      map.off('pm:edit', syncAll);
-    };
-  }, [map]);
-
-  return null;
-}
-
-function BoundaryLayer({ boundary }: { boundary: [number, number][] | null }) {
-  if (!boundary || boundary.length < 3) return null;
-  return (
-    <Polygon
-      positions={boundary}
-      pathOptions={{ color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, weight: 2 }}
-    />
-  );
+function ringOf(layer: L.Polygon): [number, number][] {
+  const lls = layer.getLatLngs()[0] as L.LatLng[];
+  return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
 }
 
 export function NeighbourhoodMap({ value, onChange }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+  const polyRef = useRef<L.Polygon | null>(null);
+
+  // Keep the latest value/onChange reachable from Leaflet event handlers
+  // without re-initialising the map.
+  const valueRef = useRef(value);
+  valueRef.current = value;
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
+
+  // ── Init map once ───────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current).setView(
+      value.lat != null && value.lng != null ? [value.lat, value.lng] : QC,
+      14,
+    );
+    mapRef.current = map;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    // Click to set the centre pin.
+    map.on('click', (e: L.LeafletMouseEvent) => {
+      onChangeRef.current({
+        ...valueRef.current,
+        lat: +e.latlng.lat.toFixed(6),
+        lng: +e.latlng.lng.toFixed(6),
+      });
+    });
+
+    // Seed an existing boundary as an editable polygon.
+    if (value.boundary && value.boundary.length >= 3) {
+      polyRef.current = L.polygon(value.boundary, {
+        color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, weight: 2,
+      }).addTo(map);
+    }
+
+    // Geoman drawing toolbar (boundary polygon only).
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pm = (map as any).pm;
+    if (pm) {
+      pm.addControls({
+        position: 'topright',
+        drawMarker: false, drawCircleMarker: false, drawPolyline: false,
+        drawRectangle: false, drawCircle: false, drawText: false,
+        drawPolygon: true, editMode: true, dragMode: false,
+        cutPolygon: false, removalMode: true, rotateMode: false,
+      });
+
+      const sync = () => {
+        let ring: [number, number][] | null = null;
+        map.eachLayer(l => {
+          if (l instanceof L.Polygon && !(l instanceof L.Rectangle)) ring = ringOf(l as L.Polygon);
+        });
+        onChangeRef.current({ ...valueRef.current, boundary: ring });
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.on('pm:create', (e: any) => {
+        // Keep a single boundary: drop the previously seeded/drawn polygon.
+        if (polyRef.current && polyRef.current !== e.layer) map.removeLayer(polyRef.current);
+        polyRef.current = e.layer as L.Polygon;
+        e.layer.on('pm:edit', sync);
+        sync();
+      });
+      map.on('pm:remove', () => { polyRef.current = null; sync(); });
+      map.on('pm:edit', sync);
+      if (polyRef.current) polyRef.current.on('pm:edit', sync);
+    }
+
+    // Container may mount at zero size inside the form; recompute after paint.
+    setTimeout(() => map.invalidateSize(), 0);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markerRef.current = null;
+      polyRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Sync the centre marker to value (covers clicks + "Clear all") ───────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if (value.lat != null && value.lng != null) {
+      if (markerRef.current) markerRef.current.setLatLng([value.lat, value.lng]);
+      else markerRef.current = L.marker([value.lat, value.lng]).addTo(map);
+    } else if (markerRef.current) {
+      map.removeLayer(markerRef.current);
+      markerRef.current = null;
+    }
+  }, [value.lat, value.lng]);
+
+  // ── Remove the boundary polygon when cleared from outside ───────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if ((!value.boundary || value.boundary.length < 3) && polyRef.current) {
+      map.removeLayer(polyRef.current);
+      polyRef.current = null;
+    }
+  }, [value.boundary]);
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -112,22 +154,11 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
         </div>
       </div>
 
-      <div className="rounded-xl overflow-hidden border border-border" style={{ height: 360 }}>
-        <MapContainer
-          center={value.lat != null ? [value.lat, value.lng!] : QC}
-          zoom={14}
-          style={{ height: '100%', width: '100%' }}
-          scrollWheelZoom={true}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          />
-          <PinLayer value={value} onChange={onChange} />
-          <BoundaryLayer boundary={value.boundary} />
-          <GeomanLayer value={value} onChange={onChange} />
-        </MapContainer>
-      </div>
+      <div
+        ref={containerRef}
+        className="rounded-xl overflow-hidden border border-border"
+        style={{ height: 360 }}
+      />
 
       {(value.lat != null || value.boundary) && (
         <div className="flex gap-4 text-[11px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-3 py-2">
