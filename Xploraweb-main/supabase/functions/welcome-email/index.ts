@@ -27,7 +27,7 @@ function memberEmail(name: string, confirmUrl: string): string {
   return `
 <div style="font-family:'Inter',Arial,sans-serif;max-width:600px;margin:0 auto;background:#F7F8F5;padding:40px 24px;">
   <div style="text-align:center;margin-bottom:32px;">
-    <img src="https://qnalvzgqrfjbuoqsffbs.supabase.co/storage/v1/object/public/perks-images/xplora-logo.png" alt="Xplora" style="height:56px;" />
+    <img src="https://goxplora.ca/goxplora-logo.png" alt="GoXplora" style="height:56px;" />
   </div>
   <div style="background:#ffffff;border-radius:24px;padding:40px;border:1px solid #ECEEE8;">
     <h1 style="font-size:26px;color:#12343B;margin:0 0 8px;">Thanks for joining, ${firstName}!</h1>
@@ -62,7 +62,7 @@ function businessEmail(name: string, businessName: string, confirmUrl: string): 
   return `
 <div style="font-family:'Inter',Arial,sans-serif;max-width:600px;margin:0 auto;background:#F7F8F5;padding:40px 24px;">
   <div style="text-align:center;margin-bottom:32px;">
-    <img src="https://qnalvzgqrfjbuoqsffbs.supabase.co/storage/v1/object/public/perks-images/xplora-logo.png" alt="Xplora" style="height:56px;" />
+    <img src="https://goxplora.ca/goxplora-logo.png" alt="GoXplora" style="height:56px;" />
   </div>
   <div style="background:#ffffff;border-radius:24px;padding:40px;border:1px solid #ECEEE8;">
     <h1 style="font-size:26px;color:#12343B;margin:0 0 8px;">Congratulations, ${firstName}! 🎉</h1>

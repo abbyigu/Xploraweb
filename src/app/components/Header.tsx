@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router';
-import { Compass, Gift, Info, ShoppingCart, Search, MapPin } from 'lucide-react';
+import { Compass, Info, ShoppingCart, Search, MapPin } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect, useRef } from 'react';
@@ -47,9 +47,9 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',           icon: Compass, label: 'Xperiences' },
-    { path: '/members',    icon: Gift,    label: 'Perks' },
-    { path: '/about',      icon: Info,    label: 'About' },
+    { path: '/',               icon: Compass, label: 'Xperiences' },
+    { path: '/neighbourhoods', icon: MapPin,  label: 'Neighbourhoods' },
+    { path: '/about',          icon: Info,    label: 'About' },
   ];
 
   return (

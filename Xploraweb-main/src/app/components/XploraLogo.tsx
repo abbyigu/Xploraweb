@@ -1,4 +1,3 @@
-import logoFull from "../../imports/Xplora_logo_new.png";
 import logoIcon from "../../imports/Favicon.png";
 
 export function XploraLogo({
@@ -10,8 +9,8 @@ export function XploraLogo({
 }) {
   return (
     <img
-      src={variant === "icon" ? logoIcon : logoFull}
-      alt="Xplora"
+      src={variant === "icon" ? logoIcon : "/goxplora-logo.png"}
+      alt="GoXplora"
       className={className}
       style={variant === "full" ? { mixBlendMode: 'multiply', width: 'auto' } : { width: 'auto' }}
       fetchPriority="high"
