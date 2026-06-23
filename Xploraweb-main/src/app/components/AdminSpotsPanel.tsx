@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { SPOT_CATEGORIES } from '../data/products';
 
@@ -8,6 +8,7 @@ const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem',
 const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
   website: '', neighbourhood: '', category: '', visit_time: '', vibes: '',
+  xplora_tips: '',
   name_fr: '', description_fr: '',
 };
 
@@ -82,6 +83,7 @@ export function AdminSpotsPanel() {
       category: spot.category || '',
       visit_time: spot.visit_time || '',
       vibes: (spot.vibes || []).join(', '),
+      xplora_tips: (spot.xplora_tips || []).join('\n'),
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
     });
@@ -112,6 +114,7 @@ export function AdminSpotsPanel() {
       category: form.category || null,
       visit_time: form.visit_time.trim() || null,
       vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
+      xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
       name_fr: form.name_fr.trim() || null,
       description_fr: form.description_fr.trim() || null,
     };
@@ -243,6 +246,21 @@ export function AdminSpotsPanel() {
                   );
                 })}
               </div>
+            </div>
+
+            <div className="md:col-span-2 border-t border-border pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Lightbulb className="w-4 h-4 text-primary" />
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Xplora Tips</p>
+              </div>
+              <textarea
+                value={form.xplora_tips}
+                onChange={set('xplora_tips')}
+                rows={3}
+                className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                placeholder={"Go early to beat the crowd\nAsk for the off-menu hot chocolate\nBest light for photos is late afternoon"}
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">One tip per line — insider advice shown to explorers.</p>
             </div>
 
             <div className="md:col-span-2">

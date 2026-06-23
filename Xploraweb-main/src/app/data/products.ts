@@ -26,6 +26,7 @@ export interface Spot {
   vibes?: string[];
   category?: SpotCategory | string;
   visitTime?: string;   // suggested time to spend, e.g. "20 min"
+  xploraTips?: string[]; // insider tips shown to explorers
   status?: string;
 }
 
