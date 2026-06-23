@@ -94,43 +94,48 @@ export function AdminSpotsPanel() {
   const handleSave = async () => {
     setSaving(true);
     setError('');
-    let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
-    if (imageFile) {
-      const result = await uploadImage(imageFile);
-      if (result.error) { setError(`Image upload failed: ${result.error}`); setSaving(false); return; }
-      imageUrl = result.url;
-    }
-    const lat = parseFloat(form.lat);
-    const lng = parseFloat(form.lng);
-    const payload = {
-      name: form.name.trim(),
-      description: form.description.trim() || null,
-      address: form.address.trim() || null,
-      lat: isNaN(lat) ? null : lat,
-      lng: isNaN(lng) ? null : lng,
-      website: form.website.trim() || null,
-      image_url: imageUrl,
-      neighbourhood: form.neighbourhood.trim() || null,
-      category: form.category || null,
-      visit_time: form.visit_time.trim() || null,
-      vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
-      xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
-      name_fr: form.name_fr.trim() || null,
-      description_fr: form.description_fr.trim() || null,
-    };
+    try {
+      let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
+      if (imageFile) {
+        const result = await uploadImage(imageFile);
+        if (result.error) { setError(`Image upload failed: ${result.error}`); return; }
+        imageUrl = result.url;
+      }
+      const lat = parseFloat(form.lat);
+      const lng = parseFloat(form.lng);
+      const payload = {
+        name: form.name.trim(),
+        description: form.description.trim() || null,
+        address: form.address.trim() || null,
+        lat: isNaN(lat) ? null : lat,
+        lng: isNaN(lng) ? null : lng,
+        website: form.website.trim() || null,
+        image_url: imageUrl,
+        neighbourhood: form.neighbourhood.trim() || null,
+        category: form.category || null,
+        visit_time: form.visit_time.trim() || null,
+        vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
+        xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        name_fr: form.name_fr.trim() || null,
+        description_fr: form.description_fr.trim() || null,
+      };
 
-    let dbError: any;
-    if (editing) {
-      ({ error: dbError } = await supabase.from('xplora_spots').update(payload).eq('id', editing));
-    } else {
-      ({ error: dbError } = await supabase.from('xplora_spots').insert({ ...payload, status: 'active' }));
-    }
-    if (dbError) { setError(dbError.message); setSaving(false); return; }
+      let dbError: any;
+      if (editing) {
+        ({ error: dbError } = await supabase.from('xplora_spots').update(payload).eq('id', editing));
+      } else {
+        ({ error: dbError } = await supabase.from('xplora_spots').insert({ ...payload, status: 'active' }));
+      }
+      if (dbError) { setError(dbError.message); return; }
 
-    await load();
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => { setSaved(false); setShowForm(false); setEditing(null); }, 1200);
+      await load();
+      setSaved(true);
+      setTimeout(() => { setSaved(false); setShowForm(false); setEditing(null); }, 1200);
+    } catch (err: any) {
+      setError(err?.message || 'Something went wrong while saving. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
