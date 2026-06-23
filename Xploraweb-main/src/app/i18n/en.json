@@ -1,4 +1,23 @@
 {
+  "neighbourhoods": {
+    "kicker": "Québec City",
+    "title": "Explore by neighbourhood",
+    "subtitle": "Every corner of the city has its own character. Pick a neighbourhood to see the experiences waiting there.",
+    "viewExperiences": "View experiences",
+    "discover": "Discover",
+    "seoTitle": "Québec City Neighbourhoods — Xplora",
+    "seoDesc": "Explore Québec City neighbourhood by neighbourhood — from the Old Port to Saint-Roch and Limoilou. Discover curated self-guided tours and local experiences in each area."
+  },
+  "neighbourhoodDetail": {
+    "back": "All neighbourhoods",
+    "notFound": "Neighbourhood not found.",
+    "tours": "Self-guided tours",
+    "spots": "Local spots",
+    "spotsSub": "Handpicked places worth a stop in this neighbourhood.",
+    "website": "Website",
+    "empty": "No tours here yet — check back soon.",
+    "browseAll": "Browse all experiences"
+  },
   "nav": {
     "home": "Home",
     "experiences": "Experiences",
