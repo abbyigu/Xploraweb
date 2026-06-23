@@ -11,6 +11,7 @@ const BLANK = {
   tagline: '',
   description: '',
   cover_image_url: '',
+  famous_streets: '',
   sort_order: 0,
   status: 'active' as 'active' | 'draft',
 };
@@ -26,6 +27,7 @@ const SQL = `CREATE TABLE neighbourhoods (
   tagline text DEFAULT '',
   description text DEFAULT '',
   cover_image_url text DEFAULT '',
+  famous_streets text[] DEFAULT '{}',
   latitude numeric,
   longitude numeric,
   boundary jsonb,
@@ -117,6 +119,7 @@ export function AdminNeighbourhoodsPanel() {
       tagline: row.tagline || '',
       description: row.description || '',
       cover_image_url: row.cover_image_url || '',
+      famous_streets: Array.isArray(row.famous_streets) ? row.famous_streets.join('\n') : '',
       sort_order: row.sort_order ?? 0,
       status: row.status || 'active',
     });
@@ -146,6 +149,10 @@ export function AdminNeighbourhoodsPanel() {
       tagline: form.tagline.trim(),
       description: form.description.trim(),
       cover_image_url: form.cover_image_url.trim(),
+      famous_streets: form.famous_streets
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean),
       sort_order: Number(form.sort_order) || 0,
       status: form.status,
       latitude: mapState.lat,
@@ -251,6 +258,18 @@ export function AdminNeighbourhoodsPanel() {
               placeholder="A longer description shown on the neighbourhood detail page…"
               className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
             />
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-muted-foreground">Famous streets</label>
+            <textarea
+              value={form.famous_streets}
+              onChange={set('famous_streets')}
+              rows={3}
+              placeholder={"Rue du Petit-Champlain\nRue Saint-Jean\nGrande Allée"}
+              className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+            />
+            <p className="text-[11px] text-muted-foreground">One street per line — shown as tags on the neighbourhood page.</p>
           </div>
 
           <div className="space-y-1">

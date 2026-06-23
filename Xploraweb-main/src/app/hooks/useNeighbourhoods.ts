@@ -12,6 +12,7 @@ export interface Neighbourhood {
   lat: number | null;
   lng: number | null;
   boundary: [number, number][] | null;
+  famousStreets: string[];
 }
 
 export function mapNeighbourhoodRow(row: any): Neighbourhood {
@@ -26,6 +27,7 @@ export function mapNeighbourhoodRow(row: any): Neighbourhood {
     lat: row.latitude ?? null,
     lng: row.longitude ?? null,
     boundary: Array.isArray(row.boundary) ? row.boundary : null,
+    famousStreets: Array.isArray(row.famous_streets) ? row.famous_streets : [],
   };
 }
 

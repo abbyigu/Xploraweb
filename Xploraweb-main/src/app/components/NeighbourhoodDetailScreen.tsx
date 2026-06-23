@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router';
-import { ArrowLeft, ArrowRight, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Clock, ExternalLink, Signpost } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
@@ -131,6 +131,26 @@ export function NeighbourhoodDetailScreen() {
         {nbhd.description && (
           <section className="max-w-3xl mx-auto text-center">
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{nbhd.description}</p>
+          </section>
+        )}
+
+        {/* Famous streets in this neighbourhood */}
+        {nbhd.famousStreets.length > 0 && (
+          <section className="max-w-3xl mx-auto text-center">
+            <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4 flex items-center justify-center gap-2">
+              <Signpost className="w-5 h-5 text-[#12343B]" />
+              {t('neighbourhoodDetail.famousStreets', 'Famous streets')}
+            </h2>
+            <div className="flex flex-wrap justify-center gap-2">
+              {nbhd.famousStreets.map(street => (
+                <span
+                  key={street}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#12343B]/5 text-[#12343B] text-sm font-medium border border-[#12343B]/10"
+                >
+                  <MapPin className="w-3.5 h-3.5" /> {street}
+                </span>
+              ))}
+            </div>
           </section>
         )}
 
