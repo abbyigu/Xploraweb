@@ -23,6 +23,8 @@ function SkipLink() {
   );
 }
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
+const NeighbourhoodsScreen   = lazy(() => import('./components/NeighbourhoodsScreen').then(m => ({ default: m.NeighbourhoodsScreen })));
+const NeighbourhoodDetailScreen = lazy(() => import('./components/NeighbourhoodDetailScreen').then(m => ({ default: m.NeighbourhoodDetailScreen })));
 const ExperienceDetailScreen = lazy(() => import('./components/ExperienceDetailScreen').then(m => ({ default: m.ExperienceDetailScreen })));
 const WelcomeScreen          = lazy(() => import('./components/WelcomeScreen').then(m => ({ default: m.WelcomeScreen })));
 const SignupScreen            = lazy(() => import('./components/SignupScreen').then(m => ({ default: m.SignupScreen })));
@@ -121,7 +123,8 @@ export default function App() {
             <Routes>
               <Route path="/" element={<HomeScreen />} />
               <Route path="/home" element={<Navigate to="/" replace />} />
-              <Route path="/neighbourhoods" element={<Navigate to="/" replace />} />
+              <Route path="/neighbourhoods" element={<NeighbourhoodsScreen />} />
+              <Route path="/neighbourhoods/:slug" element={<NeighbourhoodDetailScreen />} />
               <Route path="/about" element={<AboutScreen />} />
               <Route path="/welcome" element={<WelcomeScreen />} />
               <Route path="/signup" element={<SignupScreen />} />

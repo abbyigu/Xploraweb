@@ -1,4 +1,23 @@
 {
+  "neighbourhoods": {
+    "kicker": "Ville de Québec",
+    "title": "Explorer par quartier",
+    "subtitle": "Chaque coin de la ville a son propre caractère. Choisissez un quartier pour découvrir les expériences qui vous y attendent.",
+    "viewExperiences": "Voir les expériences",
+    "discover": "Découvrir",
+    "seoTitle": "Quartiers de la ville de Québec — Xplora",
+    "seoDesc": "Explorez la ville de Québec quartier par quartier — du Vieux-Port à Saint-Roch et Limoilou. Découvrez des parcours autoguidés et des expériences locales dans chaque secteur."
+  },
+  "neighbourhoodDetail": {
+    "back": "Tous les quartiers",
+    "notFound": "Quartier introuvable.",
+    "tours": "Parcours autoguidés",
+    "spots": "Lieux locaux",
+    "spotsSub": "Des endroits triés sur le volet qui valent un arrêt dans ce quartier.",
+    "website": "Site web",
+    "empty": "Aucun parcours ici pour le moment — revenez bientôt.",
+    "browseAll": "Voir toutes les expériences"
+  },
   "nav": {
     "home": "Accueil",
     "experiences": "Expériences",

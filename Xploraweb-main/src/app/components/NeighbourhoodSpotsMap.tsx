@@ -1,0 +1,104 @@
+import { useEffect, useRef } from 'react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import type { Spot } from '../data/products';
+
+// Read-only map showing a neighbourhood's boundary/centre and its local spots.
+// Vanilla Leaflet (not react-leaflet) so it works under React 18 — same
+// approach as ExperienceMap / NeighbourhoodMap.
+
+const QC_CENTRE: [number, number] = [46.8139, -71.2080];
+
+// Self-contained SVG pin so we never depend on Leaflet's external marker PNGs
+// (which can fail to load and render as a broken image).
+const SPOT_ICON = L.divIcon({
+  className: 'xplora-spot-marker',
+  html: `<svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg">
+    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B"/>
+    <circle cx="15" cy="15" r="5.5" fill="#ffffff"/>
+  </svg>`,
+  iconSize: [30, 38],
+  iconAnchor: [15, 38],
+  popupAnchor: [0, -34],
+});
+
+function spotPopupHtml(spot: Spot, websiteLabel: string): string {
+  const cat = spot.category ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${spot.category}</div>` : '';
+  const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
+  const site = spot.website
+    ? `<a href="${spot.website}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px">${websiteLabel} ↗</a>`
+    : '';
+  return `
+    <div style="width:180px;font-family:inherit">
+      ${spot.image ? `<img src="${spot.image}" alt="" style="width:100%;height:90px;object-fit:cover;border-radius:8px;margin-bottom:8px" />` : ''}
+      ${cat}
+      <div style="font-size:14px;font-weight:600;line-height:1.25">${spot.name}</div>
+      ${addr}
+      ${site}
+    </div>`;
+}
+
+interface Props {
+  spots: Spot[];
+  center: [number, number] | null;
+  boundary: [number, number][] | null;
+  websiteLabel?: string;
+}
+
+export function NeighbourhoodSpotsMap({ spots, center, boundary, websiteLabel = 'Website' }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, { scrollWheelZoom: false, zoomControl: true })
+      .setView(center ?? QC_CENTRE, 14);
+    mapRef.current = map;
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    }).addTo(map);
+
+    const fitPoints: [number, number][] = [];
+
+    // Neighbourhood boundary.
+    if (boundary && boundary.length >= 3) {
+      const poly = L.polygon(boundary, {
+        color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.12, weight: 2,
+      }).addTo(map);
+      (poly.getLatLngs()[0] as L.LatLng[]).forEach(ll => fitPoints.push([ll.lat, ll.lng]));
+    }
+
+    // Spot markers.
+    spots.forEach(spot => {
+      if (spot.lat == null || spot.lng == null) return;
+      const pos: [number, number] = [spot.lat, spot.lng];
+      fitPoints.push(pos);
+      L.marker(pos, { icon: SPOT_ICON }).addTo(map).bindPopup(spotPopupHtml(spot, websiteLabel), { closeButton: true, minWidth: 180 });
+    });
+
+    if (fitPoints.length === 1) {
+      map.setView(fitPoints[0], 15);
+    } else if (fitPoints.length > 1) {
+      map.fitBounds(L.latLngBounds(fitPoints), { padding: [40, 40], maxZoom: 16 });
+    }
+
+    setTimeout(() => map.invalidateSize(), 80);
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="w-full rounded-2xl overflow-hidden border border-gray-200"
+      style={{ height: 360, background: '#e8eef0' }}
+    />
+  );
+}

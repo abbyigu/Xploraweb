@@ -6,6 +6,7 @@ import { SearchHeader } from './SearchHeader';
 import { ExperienceCard } from './ExperienceCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
+import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
 
@@ -19,6 +20,14 @@ const NBHD_DATA = [
   { label: 'Limoilou',        sub: 'Murals & local eats',   img: '/nbhd/limoilou.jpeg' },
   { label: 'Maguire',         sub: 'Boutiques & terrasses', img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
 ];
+
+// Fallback cover for admin neighbourhoods that don't have one set, and a
+// label → image lookup so admin entries reusing a known name get the nice
+// local artwork.
+const DEFAULT_NBHD_IMG = 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600';
+const NBHD_IMG_BY_LABEL: Record<string, string> = Object.fromEntries(
+  NBHD_DATA.map(n => [n.label.toLowerCase(), n.img]),
+);
 
 const VIBE_CHIPS = [
   { emoji: '🌅', label: 'Morning wander' },
@@ -129,6 +138,17 @@ function CardCarousel({ children }: { children: React.ReactNode }) {
 export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
+  const { neighbourhoods } = useNeighbourhoods();
+
+  // Prefer admin-managed neighbourhoods; fall back to the static list when the
+  // table is empty or hasn't been created yet.
+  const nbhdList = neighbourhoods.length
+    ? neighbourhoods.map(n => ({
+        label: n.name,
+        sub: n.tagline,
+        img: n.coverImage || NBHD_IMG_BY_LABEL[n.name.toLowerCase()] || DEFAULT_NBHD_IMG,
+      }))
+    : NBHD_DATA;
   const [authState, setAuthState] = useState<{
     loggedIn: boolean;
     name: string;
@@ -322,7 +342,7 @@ export function HomeScreen() {
 
           {/* Neighbourhood mini tiles */}
           <div className="flex gap-2 justify-start md:justify-center w-full overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-            {NBHD_DATA.map(({ label, img }) => (
+            {nbhdList.map(({ label, img }) => (
               <button
                 key={label}
                 onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
@@ -392,7 +412,7 @@ export function HomeScreen() {
           className="flex gap-3 overflow-x-auto pb-2 pl-6 md:pl-8 [&::-webkit-scrollbar]:hidden"
           style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', paddingRight: 40 }}
         >
-          {NBHD_DATA.map(({ label, sub, img }) => (
+          {nbhdList.map(({ label, sub, img }) => (
             <button
               key={label}
               onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
@@ -411,7 +431,7 @@ export function HomeScreen() {
 
         {/* Progress dots */}
         <div className="flex justify-center gap-1.5 mt-4">
-          {NBHD_DATA.map((_, i) => (
+          {nbhdList.map((_, i) => (
             <span
               key={i}
               className="h-1.5 rounded-full transition-all duration-300"
