@@ -21,6 +21,7 @@ export function mapSpotRow(row: any): Spot {
     vibes: row.vibes || undefined,
     category: row.category || undefined,
     visitTime: row.visit_time || undefined,
+    xploraTips: row.xplora_tips || undefined,
     status: row.status || undefined,
   };
 }

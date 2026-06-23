@@ -7,6 +7,7 @@ import { ExperienceCard } from './ExperienceCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { neighbourhoodImage } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
 
@@ -20,14 +21,6 @@ const NBHD_DATA = [
   { label: 'Limoilou',        sub: 'Murals & local eats',   img: '/nbhd/limoilou.jpeg' },
   { label: 'Maguire',         sub: 'Boutiques & terrasses', img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
 ];
-
-// Fallback cover for admin neighbourhoods that don't have one set, and a
-// label → image lookup so admin entries reusing a known name get the nice
-// local artwork.
-const DEFAULT_NBHD_IMG = 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600';
-const NBHD_IMG_BY_LABEL: Record<string, string> = Object.fromEntries(
-  NBHD_DATA.map(n => [n.label.toLowerCase(), n.img]),
-);
 
 const VIBE_CHIPS = [
   { emoji: '🌅', label: 'Morning wander' },
@@ -141,14 +134,19 @@ export function HomeScreen() {
   const { neighbourhoods } = useNeighbourhoods();
 
   // Prefer admin-managed neighbourhoods; fall back to the static list when the
-  // table is empty or hasn't been created yet.
+  // table is empty or hasn't been created yet. `slug` powers the link to each
+  // neighbourhood's page (preset tours + spots map).
   const nbhdList = neighbourhoods.length
     ? neighbourhoods.map(n => ({
         label: n.name,
         sub: n.tagline,
-        img: n.coverImage || NBHD_IMG_BY_LABEL[n.name.toLowerCase()] || DEFAULT_NBHD_IMG,
+        img: neighbourhoodImage(n.name, n.coverImage),
+        slug: n.slug || n.id,
       }))
-    : NBHD_DATA;
+    : NBHD_DATA.map(n => ({
+        ...n,
+        slug: n.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+      }));
   const [authState, setAuthState] = useState<{
     loggedIn: boolean;
     name: string;
@@ -342,10 +340,10 @@ export function HomeScreen() {
 
           {/* Neighbourhood mini tiles */}
           <div className="flex gap-2 justify-start md:justify-center w-full overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-            {nbhdList.map(({ label, img }) => (
+            {nbhdList.map(({ label, img, slug }) => (
               <button
                 key={label}
-                onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+                onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(slug)}`)}
                 className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden group"
               >
                 <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
@@ -412,10 +410,10 @@ export function HomeScreen() {
           className="flex gap-3 overflow-x-auto pb-2 pl-6 md:pl-8 [&::-webkit-scrollbar]:hidden"
           style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', paddingRight: 40 }}
         >
-          {nbhdList.map(({ label, sub, img }) => (
+          {nbhdList.map(({ label, sub, img, slug }) => (
             <button
               key={label}
-              onClick={() => navigate(`/itinerary?neighbourhood=${encodeURIComponent(label)}`)}
+              onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(slug)}`)}
               className="nbhd-card flex-shrink-0 relative rounded-2xl overflow-hidden group"
               style={{ scrollSnapAlign: 'start', width: 'min(72vw, 320px)', aspectRatio: '3/4' }}
             >

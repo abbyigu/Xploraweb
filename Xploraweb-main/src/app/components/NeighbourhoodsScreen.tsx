@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { useNeighbourhoods, type Neighbourhood } from '../hooks/useNeighbourhoods';
+import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
 // missing), so the page is never empty.
@@ -14,8 +15,6 @@ const FALLBACK: Neighbourhood[] = [
   { id: 'montcalm',        name: 'Montcalm',        slug: 'montcalm',        tagline: 'Parks & grand avenues', description: '', coverImage: '/nbhd/montcalm.jpg',    sortOrder: 3, lat: null, lng: null, boundary: null },
   { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   description: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null },
 ];
-
-const DEFAULT_IMG = 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600';
 
 export function NeighbourhoodsScreen() {
   const navigate = useNavigate();
@@ -61,9 +60,9 @@ export function NeighbourhoodsScreen() {
               >
                 <div className="relative aspect-[3/2] overflow-hidden">
                   <img
-                    src={n.coverImage || DEFAULT_IMG}
+                    src={neighbourhoodImage(n.name, n.coverImage)}
                     alt={n.name}
-                    onError={e => { if (e.currentTarget.src !== DEFAULT_IMG) e.currentTarget.src = DEFAULT_IMG; }}
+                    onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />

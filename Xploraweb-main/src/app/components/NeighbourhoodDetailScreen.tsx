@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router';
-import { ArrowLeft, MapPin, Clock, ExternalLink } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Clock, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
@@ -8,9 +8,8 @@ import { NeighbourhoodSpotsMap } from './NeighbourhoodSpotsMap';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSpots } from '../hooks/useSpots';
+import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import type { Spot } from '../data/products';
-
-const DEFAULT_IMG = 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=1200';
 
 function SpotCard({ spot }: { spot: Spot }) {
   const { t } = useTranslation();
@@ -106,9 +105,9 @@ export function NeighbourhoodDetailScreen() {
       <section className="relative">
         <div className="relative h-64 md:h-96 overflow-hidden">
           <img
-            src={nbhd.coverImage || DEFAULT_IMG}
+            src={neighbourhoodImage(nbhd.name, nbhd.coverImage)}
             alt={nbhd.name}
-            onError={e => { if (e.currentTarget.src !== DEFAULT_IMG) e.currentTarget.src = DEFAULT_IMG; }}
+            onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
@@ -130,16 +129,25 @@ export function NeighbourhoodDetailScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12 space-y-10">
         {/* Description — only shown here, on the neighbourhood's own page */}
         {nbhd.description && (
-          <section className="max-w-3xl">
+          <section className="max-w-3xl mx-auto text-center">
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{nbhd.description}</p>
           </section>
         )}
 
         {/* Preset tours for this neighbourhood */}
         <section>
-          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-5">
-            {t('neighbourhoodDetail.tours', 'Self-guided tours')}
-          </h2>
+          <div className="flex items-center justify-between gap-3 mb-5">
+            <h2 className="font-serif text-xl md:text-2xl text-gray-900">
+              {t('neighbourhoodDetail.tours', 'Self-guided tours')}
+            </h2>
+            <Link
+              to={`/itinerary?neighbourhood=${encodeURIComponent(nbhd.name)}`}
+              className="flex-shrink-0 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:gap-2 transition-all"
+            >
+              {t('neighbourhoodDetail.findOutMore', 'Find out more')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
           {items.length === 0 ? (
             <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
               <p className="text-sm text-muted-foreground">

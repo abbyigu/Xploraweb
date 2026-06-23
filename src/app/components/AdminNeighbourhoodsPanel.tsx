@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { NeighbourhoodMap, type MapState } from './NeighbourhoodMap';
 
@@ -56,10 +56,39 @@ export function AdminNeighbourhoodsPanel() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [uploading, setUploading] = useState(false);
   const [tableReady, setTableReady] = useState<boolean | null>(null);
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm(f => ({ ...f, [key]: e.target.value }));
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    setUploading(true);
+    setError('');
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) { setUploading(false); setError('You must be signed in to upload images.'); return; }
+
+    const fileData = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const res = await fetch('/api/upload-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ fileData, fileName: file.name, fileType: file.type }),
+    });
+    const json = await res.json().catch(() => ({}));
+    setUploading(false);
+    if (!res.ok || !json.url) { setError(`Image upload failed: ${json.error || res.statusText}`); return; }
+    setForm(f => ({ ...f, cover_image_url: json.url }));
+  }
 
   async function load() {
     const { data, error: err } = await supabase
@@ -225,13 +254,23 @@ export function AdminNeighbourhoodsPanel() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Cover image URL</label>
-            <input
-              value={form.cover_image_url}
-              onChange={set('cover_image_url')}
-              placeholder="https://…"
-              className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
+            <label className="text-xs font-medium text-muted-foreground">Cover image</label>
+            <div className="flex gap-2">
+              <input
+                value={form.cover_image_url}
+                onChange={set('cover_image_url')}
+                placeholder="https://… or upload a file"
+                className="flex-1 min-w-0 border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+              <label className={`flex items-center gap-2 px-4 py-2 border border-border rounded-xl text-sm whitespace-nowrap cursor-pointer hover:bg-muted transition ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
+                {uploading
+                  ? <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  : <Upload className="w-4 h-4" />}
+                {uploading ? 'Uploading…' : 'Upload'}
+              </label>
+            </div>
+            <p className="text-[11px] text-muted-foreground">Paste an image URL or upload a picture from your device.</p>
             {form.cover_image_url && (
               <img src={form.cover_image_url} alt="preview" className="mt-2 w-full h-32 object-cover rounded-xl" />
             )}
