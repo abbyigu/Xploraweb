@@ -23,7 +23,8 @@ const SPOT_ICON = L.divIcon({
 });
 
 function spotPopupHtml(spot: Spot, websiteLabel: string): string {
-  const cat = spot.category ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${spot.category}</div>` : '';
+  const meta = [spot.category, spot.priceRange].filter(Boolean).join(' · ');
+  const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
   const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
   const site = spot.website
     ? `<a href="${spot.website}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px">${websiteLabel} ↗</a>`
