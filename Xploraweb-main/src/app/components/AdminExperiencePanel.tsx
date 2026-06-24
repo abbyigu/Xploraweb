@@ -12,6 +12,7 @@ function daysAgo(createdAt: string) {
   return Math.floor((Date.now() - new Date(createdAt).getTime()) / (24 * 60 * 60 * 1000));
 }
 import { supabase } from '../lib/supabase';
+import { uploadViaApi } from '../lib/uploadImage';
 import { EXPERIENCE_CATEGORIES, experiences as staticExperiences } from '../data/products';
 import type { Product, Spot } from '../data/products';
 import { useSpots } from '../hooks/useSpots';
@@ -122,24 +123,7 @@ export function AdminExperiencePanel() {
   }
 
   async function uploadImage(file: File): Promise<{ url: string | null; error: string | null }> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return { url: null, error: 'Not authenticated' };
-
-    const fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ fileData, fileName: file.name, fileType: file.type }),
-    });
-    const json = await res.json();
-    if (!res.ok) return { url: null, error: json.error };
-    return { url: json.url, error: null };
+    return uploadViaApi(file);
   }
 
   const openNew = () => {

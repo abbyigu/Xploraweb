@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Check, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { uploadViaApi } from '../lib/uploadImage';
 import { NeighbourhoodMap, type MapState } from './NeighbourhoodMap';
 
 const BLANK_MAP: MapState = { lat: null, lng: null, boundary: null };
@@ -71,25 +72,10 @@ export function AdminNeighbourhoodsPanel() {
     setUploading(true);
     setError('');
 
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) { setUploading(false); setError('You must be signed in to upload images.'); return; }
-
-    const fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ fileData, fileName: file.name, fileType: file.type }),
-    });
-    const json = await res.json().catch(() => ({}));
+    const { url, error: uploadError } = await uploadViaApi(file);
     setUploading(false);
-    if (!res.ok || !json.url) { setError(`Image upload failed: ${json.error || res.statusText}`); return; }
-    setForm(f => ({ ...f, cover_image_url: json.url }));
+    if (uploadError || !url) { setError(`Image upload failed: ${uploadError || 'unknown error'}`); return; }
+    setForm(f => ({ ...f, cover_image_url: url }));
   }
 
   async function load() {

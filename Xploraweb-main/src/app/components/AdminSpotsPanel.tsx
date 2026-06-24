@@ -1,13 +1,21 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { uploadViaApi } from '../lib/uploadImage';
 import { SPOT_CATEGORIES } from '../data/products';
 
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 
+const PRICE_OPTIONS = [
+  { value: '$', label: '$', hint: 'Budget' },
+  { value: '$$', label: '$$', hint: 'Moderate' },
+  { value: '$$$', label: '$$$', hint: 'Pricey' },
+  { value: '$$$$', label: '$$$$', hint: 'Splurge' },
+];
+
 const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
-  website: '', neighbourhood: '', category: '', visit_time: '', vibes: '',
+  website: '', neighbourhood: '', category: '', visit_time: '', price_range: '', vibes: '',
   xplora_tips: '',
   name_fr: '', description_fr: '',
 };
@@ -45,22 +53,7 @@ export function AdminSpotsPanel() {
   }
 
   async function uploadImage(file: File): Promise<{ url: string | null; error: string | null }> {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return { url: null, error: 'Not authenticated' };
-    const fileData = await new Promise<string>((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve((reader.result as string).split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
-    const res = await fetch('/api/upload-image', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
-      body: JSON.stringify({ fileData, fileName: file.name, fileType: file.type }),
-    });
-    const json = await res.json();
-    if (!res.ok) return { url: null, error: json.error };
-    return { url: json.url, error: null };
+    return uploadViaApi(file);
   }
 
   const openNew = () => {
@@ -82,6 +75,7 @@ export function AdminSpotsPanel() {
       neighbourhood: spot.neighbourhood || '',
       category: spot.category || '',
       visit_time: spot.visit_time || '',
+      price_range: spot.price_range || '',
       vibes: (spot.vibes || []).join(', '),
       xplora_tips: (spot.xplora_tips || []).join('\n'),
       name_fr: spot.name_fr || '',
@@ -114,6 +108,7 @@ export function AdminSpotsPanel() {
         neighbourhood: form.neighbourhood.trim() || null,
         category: form.category || null,
         visit_time: form.visit_time.trim() || null,
+        price_range: form.price_range || null,
         vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
         name_fr: form.name_fr.trim() || null,
@@ -232,6 +227,27 @@ export function AdminSpotsPanel() {
             <div>
               <label className="text-xs text-muted-foreground">Suggested visit time</label>
               <input value={form.visit_time} onChange={set('visit_time')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 20 min" />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="text-xs text-muted-foreground">Price range</label>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {PRICE_OPTIONS.map(p => {
+                  const active = form.price_range === p.value;
+                  return (
+                    <button
+                      key={p.value}
+                      type="button"
+                      onClick={() => setForm(f => ({ ...f, price_range: active ? '' : p.value }))}
+                      title={p.hint}
+                      className={`px-4 py-1.5 rounded-full text-sm font-mono transition-colors ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'}`}
+                    >
+                      {p.label}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-[11px] text-muted-foreground mt-1">Tap to set how pricey the spot is — tap again to clear.</p>
             </div>
 
             <div className="md:col-span-2">
@@ -354,7 +370,7 @@ export function AdminSpotsPanel() {
                 <div className="min-w-0">
                   <p className="font-medium text-sm truncate">{spot.name}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {[spot.category, spot.neighbourhood].filter(Boolean).join(' · ') || 'No location'}
+                    {[spot.category, spot.neighbourhood, spot.price_range].filter(Boolean).join(' · ') || 'No location'}
                     {spot.lat == null || spot.lng == null ? ' · ⚠ no coords' : ''}
                   </p>
                 </div>

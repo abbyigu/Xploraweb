@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { Plus, LogOut, Trash2, Eye, EyeOff, Building2, CheckCircle, AlertCircle, Shield, Users, ChevronDown, ChevronUp, Star, MapPin, Mail, Globe, LayoutDashboard, Gift, Map } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { uploadViaApi } from '../lib/uploadImage';
 import { XploraLogo } from './XploraLogo';
 import { useTranslation } from 'react-i18next';
 
@@ -185,12 +186,10 @@ export function BusinessDashboardScreen() {
     setImagePreview(URL.createObjectURL(file));
   }
 
-  async function uploadImage(file: File, userId: string): Promise<string | null> {
-    const ext = file.name.split('.').pop();
-    const path = `${userId}/${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from('perk-images').upload(path, file, { upsert: true });
-    if (error) { setError('Image upload failed: ' + error.message); return null; }
-    return supabase.storage.from('perk-images').getPublicUrl(path).data.publicUrl;
+  async function uploadImage(file: File): Promise<string | null> {
+    const { url, error } = await uploadViaApi(file);
+    if (error) { setError('Image upload failed: ' + error); return null; }
+    return url;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -208,7 +207,7 @@ export function BusinessDashboardScreen() {
 
     let imageUrl: string | null = null;
     if (imageFile) {
-      imageUrl = await uploadImage(imageFile, user.id);
+      imageUrl = await uploadImage(imageFile);
       if (!imageUrl) { setSubmitting(false); return; }
     }
 
