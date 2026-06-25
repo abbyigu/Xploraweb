@@ -59,7 +59,11 @@ function SpotCard({ spot }: { spot: Spot }) {
         <div className="flex items-start justify-between gap-2">
           <p className="font-medium text-gray-900 leading-tight">{spot.name}</p>
           <span className="flex-shrink-0 inline-flex items-center gap-2 text-xs text-muted-foreground">
-            {spot.priceRange && <span className="font-mono font-semibold text-[#12343B]">{spot.priceRange}</span>}
+            {spot.priceRange && (
+              <span className="font-mono font-semibold text-[#12343B]">
+                {spot.priceRange === 'Free' ? t('neighbourhoodDetail.free', 'Free') : spot.priceRange}
+              </span>
+            )}
             {spot.visitTime && (
               <span className="inline-flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" /> {spot.visitTime}

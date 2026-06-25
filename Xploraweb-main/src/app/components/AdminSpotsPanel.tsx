@@ -8,6 +8,7 @@ import { SPOT_CATEGORIES } from '../data/products';
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 
 const PRICE_OPTIONS = [
+  { value: 'Free', label: 'Free', hint: 'No cost' },
   { value: '$', label: '$', hint: 'Budget' },
   { value: '$$', label: '$$', hint: 'Moderate' },
   { value: '$$$', label: '$$$', hint: 'Pricey' },
