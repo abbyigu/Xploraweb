@@ -1,5 +1,5 @@
 import { useParams, useNavigate, Link } from 'react-router';
-import { ArrowLeft, ArrowRight, MapPin, Clock, ExternalLink, Signpost } from 'lucide-react';
+import { ArrowLeft, ArrowRight, MapPin, Clock, ExternalLink, Signpost, Lightbulb } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
@@ -15,7 +15,10 @@ function SpotCard({ spot }: { spot: Spot }) {
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col">
-      <div className="relative aspect-[3/2] overflow-hidden bg-muted">
+      <div
+        className="group relative aspect-[3/2] overflow-hidden bg-muted focus:outline-none"
+        tabIndex={spot.xploraTips && spot.xploraTips.length > 0 ? 0 : undefined}
+      >
         {spot.image ? (
           <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
         ) : (
@@ -27,6 +30,29 @@ function SpotCard({ spot }: { spot: Spot }) {
           <span className="absolute top-2 left-2 text-[11px] font-medium px-2 py-1 rounded-full bg-white/90 text-[#12343B]">
             {spot.category}
           </span>
+        )}
+
+        {spot.xploraTips && spot.xploraTips.length > 0 && (
+          <>
+            {/* Always-visible hint badge (hides while the overlay is open) */}
+            <span className="absolute top-2 right-2 inline-flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-full bg-[#12343B]/90 text-white transition-opacity group-hover:opacity-0 group-focus-within:opacity-0">
+              <Lightbulb className="w-3 h-3" /> {t('neighbourhoodDetail.tips', 'Tips')}
+            </span>
+            {/* Overlay revealed on hover / tap / focus */}
+            <div className="absolute inset-0 bg-[#12343B]/95 text-white p-4 flex flex-col gap-2 overflow-y-auto opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
+              <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-widest text-white/80">
+                <Lightbulb className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.xploraTips', 'Xplora Tips')}
+              </div>
+              <ul className="space-y-1.5">
+                {spot.xploraTips.map((tip, i) => (
+                  <li key={i} className="flex gap-2 text-sm leading-snug">
+                    <span aria-hidden className="text-white/50">•</span>
+                    <span>{tip}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </>
         )}
       </div>
       <div className="p-4 flex flex-col gap-1.5 flex-1">
