@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
+import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
 
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
@@ -31,6 +32,7 @@ export function AdminSpotsPanel() {
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const { neighbourhoods } = useNeighbourhoods();
 
   const load = async () => {
     const { data } = await supabase
@@ -210,7 +212,13 @@ export function AdminSpotsPanel() {
 
             <div>
               <label className="text-xs text-muted-foreground">Neighbourhood</label>
-              <input value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Saint-Roch" />
+              <select value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="">—</option>
+                {form.neighbourhood && !neighbourhoods.some(n => n.name === form.neighbourhood) && (
+                  <option value={form.neighbourhood}>{form.neighbourhood}</option>
+                )}
+                {neighbourhoods.map(n => <option key={n.id} value={n.name}>{n.name}</option>)}
+              </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Category</label>
