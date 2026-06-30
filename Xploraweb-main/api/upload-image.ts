@@ -1,16 +1,20 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  'https://qnalvzgqrfjbuoqsffbs.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  // Created lazily so a missing env var returns a clear message instead of a
+  // module-load crash (opaque 500). Vercel env vars are scoped per environment,
+  // so this key must be set for Preview as well as Production.
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    return res.status(500).json({ error: 'Image upload is not configured for this environment (missing SUPABASE_SERVICE_ROLE_KEY).' });
+  }
+  const supabase = createClient('https://qnalvzgqrfjbuoqsffbs.supabase.co', serviceKey);
 
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace('Bearer ', '');

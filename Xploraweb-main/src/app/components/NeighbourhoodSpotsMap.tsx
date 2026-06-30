@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../data/products';
@@ -43,12 +43,17 @@ interface Props {
   spots: Spot[];
   center: [number, number] | null;
   boundary: [number, number][] | null;
+  route?: [number, number][] | null;
   websiteLabel?: string;
 }
 
-export function NeighbourhoodSpotsMap({ spots, center, boundary, websiteLabel = 'Website' }: Props) {
+export function NeighbourhoodSpotsMap({ spots, center, boundary, route, websiteLabel = 'Website' }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
+  const markerLayersRef = useRef<{ marker: L.Marker; category: string }[]>([]);
+
+  const categories = Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort();
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -64,7 +69,6 @@ export function NeighbourhoodSpotsMap({ spots, center, boundary, websiteLabel = 
 
     const fitPoints: [number, number][] = [];
 
-    // Neighbourhood boundary.
     if (boundary && boundary.length >= 3) {
       const poly = L.polygon(boundary, {
         color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.12, weight: 2,
@@ -72,12 +76,22 @@ export function NeighbourhoodSpotsMap({ spots, center, boundary, websiteLabel = 
       (poly.getLatLngs()[0] as L.LatLng[]).forEach(ll => fitPoints.push([ll.lat, ll.lng]));
     }
 
-    // Spot markers.
+    if (route && route.length >= 2) {
+      const line = L.polyline(route, {
+        color: '#12343B', weight: 6, opacity: 0.9, lineCap: 'round', lineJoin: 'round',
+      }).addTo(map);
+      (line.getLatLngs() as L.LatLng[]).forEach(ll => fitPoints.push([ll.lat, ll.lng]));
+    }
+
+    markerLayersRef.current = [];
     spots.forEach(spot => {
       if (spot.lat == null || spot.lng == null) return;
       const pos: [number, number] = [spot.lat, spot.lng];
       fitPoints.push(pos);
-      L.marker(pos, { icon: SPOT_ICON }).addTo(map).bindPopup(spotPopupHtml(spot, websiteLabel), { closeButton: true, minWidth: 180 });
+      const marker = L.marker(pos, { icon: SPOT_ICON })
+        .addTo(map)
+        .bindPopup(spotPopupHtml(spot, websiteLabel), { closeButton: true, minWidth: 180 });
+      markerLayersRef.current.push({ marker, category: spot.category ?? '' });
     });
 
     if (fitPoints.length === 1) {
@@ -91,15 +105,48 @@ export function NeighbourhoodSpotsMap({ spots, center, boundary, websiteLabel = 
     return () => {
       map.remove();
       mapRef.current = null;
+      markerLayersRef.current = [];
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Show/hide markers when the category filter changes
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    markerLayersRef.current.forEach(({ marker, category }) => {
+      if (!activeCategory || category === activeCategory) {
+        if (!map.hasLayer(marker)) marker.addTo(map);
+      } else {
+        if (map.hasLayer(marker)) marker.remove();
+      }
+    });
+  }, [activeCategory]);
+
   return (
-    <div
-      ref={containerRef}
-      className="w-full rounded-2xl overflow-hidden border border-gray-200"
-      style={{ height: 360, background: '#e8eef0' }}
-    />
+    <div className="w-full space-y-2">
+      {categories.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+              className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                activeCategory === cat
+                  ? 'bg-[#12343B] text-white border-[#12343B]'
+                  : 'bg-white text-[#12343B] border-[#12343B]/20 hover:bg-[#12343B]/5'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
+      <div
+        ref={containerRef}
+        className="w-full rounded-2xl overflow-hidden border border-gray-200"
+        style={{ height: 360, background: '#e8eef0' }}
+      />
+    </div>
   );
 }

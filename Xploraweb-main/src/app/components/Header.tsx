@@ -49,7 +49,9 @@ export function Header() {
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between">
           <div className="flex items-center -ml-4">
-            <XploraLogo variant="full" className="h-28 block" />
+            <Link to="/" aria-label={t('header.home', 'Home')} className="block">
+              <XploraLogo variant="full" className="h-28 block" />
+            </Link>
           </div>
 
           <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-0.5 lg:gap-1">

@@ -31,6 +31,19 @@ export default defineConfig({
     },
   },
 
+  // Vite has no serverless functions, so forward /api/* to the deployed
+  // production functions. This lets image upload (and other /api routes) work
+  // during `npm run dev` without needing `vercel dev`.
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://www.goxplora.ca',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
+
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
 

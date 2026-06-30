@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
+import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
 
-const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
+const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 
 const PRICE_OPTIONS = [
+  { value: 'Free', label: 'Free', hint: 'No cost' },
   { value: '$', label: '$', hint: 'Budget' },
   { value: '$$', label: '$$', hint: 'Moderate' },
   { value: '$$$', label: '$$$', hint: 'Pricey' },
@@ -31,6 +33,48 @@ export function AdminSpotsPanel() {
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [geocoding, setGeocoding] = useState(false);
+  const [geocodeMsg, setGeocodeMsg] = useState('');
+  const { neighbourhoods } = useNeighbourhoods();
+
+  const geocodeAddress = async () => {
+    const address = form.address.trim();
+    if (!address) return;
+    setGeocoding(true);
+    setGeocodeMsg('');
+    // Québec City bounding box — filter results to this area client-side
+    const QC = { minLat: 46.72, maxLat: 46.92, minLng: -71.45, maxLng: -71.05 };
+    const inQC = (lat: number, lon: number) =>
+      lat >= QC.minLat && lat <= QC.maxLat && lon >= QC.minLng && lon <= QC.maxLng;
+    // Strip postal code / province suffix that Google Maps appends, keep street + city
+    let clean = address.replace(/,?\s*[A-Z]\d[A-Z]\s*\d[A-Z]\d\s*$/i, '').trim();
+    // Expand French direction abbreviations that Google Maps shortens but OSM stores in full
+    clean = clean
+      .replace(/\bE\b/g, 'Est')
+      .replace(/\bO\b/g, 'Ouest')
+      .replace(/\bN\b/g, 'Nord')
+      .replace(/\bS\b/g, 'Sud');
+    // Ensure "Québec" appears so OSM anchors the search to this city
+    const q = /qu[eé]bec/i.test(clean) ? clean : `${clean}, Québec, Canada`;
+    try {
+      const params = new URLSearchParams({ q, format: 'json', limit: '5', addressdetails: '0' });
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+        headers: { 'Accept-Language': 'en' },
+      });
+      const data = await res.json();
+      const hit = data.find((r: any) => inQC(parseFloat(r.lat), parseFloat(r.lon)));
+      if (!hit) {
+        setGeocodeMsg('Not found in Québec City — check the spelling or add a street number.');
+      } else {
+        setForm(f => ({ ...f, lat: parseFloat(hit.lat).toFixed(6), lng: parseFloat(hit.lon).toFixed(6) }));
+        setGeocodeMsg(`✓ ${hit.display_name}`);
+      }
+    } catch {
+      setGeocodeMsg('Geocoding failed — check your connection.');
+    } finally {
+      setGeocoding(false);
+    }
+  };
 
   const load = async () => {
     const { data } = await supabase
@@ -58,7 +102,7 @@ export function AdminSpotsPanel() {
 
   const openNew = () => {
     setForm({ ...BLANK }); setEditing(null);
-    setImageFile(null); setImagePreview(''); setError(''); setShowForm(true);
+    setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setShowForm(true);
   };
 
   const openEdit = (spot: any) => {
@@ -82,6 +126,7 @@ export function AdminSpotsPanel() {
       description_fr: spot.description_fr || '',
     });
     setEditing(spot.id);
+    setGeocodeMsg('');
     setShowForm(true);
   };
 
@@ -196,7 +241,29 @@ export function AdminSpotsPanel() {
 
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Address</label>
-              <input value={form.address} onChange={set('address')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="643 Rue Saint-Joseph Est, Québec" />
+              <div className="flex gap-2 mt-1">
+                <input
+                  value={form.address}
+                  onChange={e => { set('address')(e); setGeocodeMsg(''); }}
+                  className="flex-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="643 Rue Saint-Joseph Est, Québec"
+                />
+                <button
+                  type="button"
+                  onClick={geocodeAddress}
+                  disabled={geocoding || !form.address.trim()}
+                  title="Look up coordinates from address"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
+                >
+                  <LocateFixed className={`w-4 h-4 ${geocoding ? 'animate-spin' : ''}`} />
+                  {geocoding ? 'Locating…' : 'Get coords'}
+                </button>
+              </div>
+              {geocodeMsg && (
+                <p className={`text-[11px] mt-1 ${geocodeMsg.startsWith('No') || geocodeMsg.startsWith('Geocoding') ? 'text-red-500' : 'text-green-700'}`}>
+                  {geocodeMsg}
+                </p>
+              )}
             </div>
 
             <div>
@@ -210,7 +277,13 @@ export function AdminSpotsPanel() {
 
             <div>
               <label className="text-xs text-muted-foreground">Neighbourhood</label>
-              <input value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Saint-Roch" />
+              <select value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="">—</option>
+                {form.neighbourhood && !neighbourhoods.some(n => n.name === form.neighbourhood) && (
+                  <option value={form.neighbourhood}>{form.neighbourhood}</option>
+                )}
+                {neighbourhoods.map(n => <option key={n.id} value={n.name}>{n.name}</option>)}
+              </select>
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Category</label>
