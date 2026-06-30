@@ -168,7 +168,7 @@ export function ItineraryScreen() {
     selectedLang !== null ||
     familyOnly;
 
-  let filteredExperiences = experiences;
+  let filteredExperiences = filter === 'all' ? experiences : experiences.filter(e => e.category === filter);
   if (searchQuery.trim()) {
     const q = searchQuery.trim().toLowerCase();
     filteredExperiences = filteredExperiences.filter(e =>

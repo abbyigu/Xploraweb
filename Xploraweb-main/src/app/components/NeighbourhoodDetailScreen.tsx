@@ -188,6 +188,41 @@ export function NeighbourhoodDetailScreen() {
           </section>
         )}
 
+        {/* Preset tours for this neighbourhood */}
+        <section>
+          <div className="flex items-center justify-between gap-3 mb-5">
+            <h2 className="font-serif text-xl md:text-2xl text-gray-900">
+              {t('neighbourhoodDetail.tours', 'Self-guided tours')}
+            </h2>
+            <Link
+              to={`/itinerary?neighbourhood=${encodeURIComponent(nbhd.name)}`}
+              className="flex-shrink-0 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:gap-2 transition-all"
+            >
+              {t('neighbourhoodDetail.findOutMore', 'Find out more')}
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+          {items.length === 0 ? (
+            <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+              <p className="text-sm text-muted-foreground">
+                {t('neighbourhoodDetail.empty', 'No tours here yet — check back soon.')}
+              </p>
+              <button
+                onClick={() => navigate('/itinerary')}
+                className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#12343B] text-white rounded-xl text-sm font-medium hover:opacity-90 transition"
+              >
+                {t('neighbourhoodDetail.browseAll', 'Browse all experiences')}
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
+              {items.map(exp => (
+                <ExperienceCard key={exp.id} exp={exp} />
+              ))}
+            </div>
+          )}
+        </section>
+
         {/* Famous streets in this neighbourhood */}
         {nbhd.famousStreets.length > 0 && (
           <section className="max-w-3xl mx-auto text-center">
@@ -230,41 +265,6 @@ export function NeighbourhoodDetailScreen() {
             )}
           </section>
         )}
-
-        {/* Preset tours for this neighbourhood */}
-        <section>
-          <div className="flex items-center justify-between gap-3 mb-5">
-            <h2 className="font-serif text-xl md:text-2xl text-gray-900">
-              {t('neighbourhoodDetail.tours', 'Self-guided tours')}
-            </h2>
-            <Link
-              to={`/itinerary?neighbourhood=${encodeURIComponent(nbhd.name)}`}
-              className="flex-shrink-0 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:gap-2 transition-all"
-            >
-              {t('neighbourhoodDetail.findOutMore', 'Find out more')}
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          {items.length === 0 ? (
-            <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
-              <p className="text-sm text-muted-foreground">
-                {t('neighbourhoodDetail.empty', 'No tours here yet — check back soon.')}
-              </p>
-              <button
-                onClick={() => navigate('/itinerary')}
-                className="mt-4 inline-flex items-center gap-1.5 px-5 py-2.5 bg-[#12343B] text-white rounded-xl text-sm font-medium hover:opacity-90 transition"
-              >
-                {t('neighbourhoodDetail.browseAll', 'Browse all experiences')}
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-              {items.map(exp => (
-                <ExperienceCard key={exp.id} exp={exp} />
-              ))}
-            </div>
-          )}
-        </section>
 
         {/* Local spots in this neighbourhood */}
         {allLocalSpots.length > 0 && (
