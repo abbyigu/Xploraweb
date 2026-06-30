@@ -153,6 +153,9 @@ export function HomeScreen() {
     accountType: string;
     isAdmin: boolean;
   }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
+  // Stays false until the auth check resolves, so we never render the
+  // logged-out landing before flipping to the logged-in view (the "flash").
+  const [authReady, setAuthReady] = useState(false);
   const [showFab, setShowFab] = useState(false);
 
   // Neighbourhood carousel state
@@ -167,7 +170,7 @@ export function HomeScreen() {
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) return;
+      if (!session?.user) { setAuthReady(true); return; }
       const profile = await getProfile();
       setAuthState({
         loggedIn: true,
@@ -175,7 +178,8 @@ export function HomeScreen() {
         accountType: (profile as any)?.account_type || '',
         isAdmin: !!(profile as any)?.is_admin,
       });
-    });
+      setAuthReady(true);
+    }).catch(() => setAuthReady(true));
   }, []);
 
   function nbhdScroll(dir: 1 | -1) {
@@ -192,6 +196,16 @@ export function HomeScreen() {
     const card = track.querySelector<HTMLElement>('.nbhd-card');
     const step = card ? card.offsetWidth + 12 : 332;
     setActiveDot(Math.round(track.scrollLeft / step));
+  }
+
+  // Wait for the auth check before choosing a view, otherwise logged-in users
+  // briefly see the logged-out landing before it swaps to their feed.
+  if (!authReady) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   // ── Logged-in view ──────────────────────────────────────────────────────────
