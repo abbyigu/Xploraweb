@@ -42,8 +42,9 @@ export function AdminSpotsPanel() {
     if (!address) return;
     setGeocoding(true);
     setGeocodeMsg('');
-    // Québec City bounding box — filter results to this area client-side
-    const QC = { minLat: 46.72, maxLat: 46.92, minLng: -71.45, maxLng: -71.05 };
+    // Greater Québec City bounding box — biases the search and sanity-checks the result.
+    const QC = { minLat: 46.70, maxLat: 46.95, minLng: -71.60, maxLng: -71.10 };
+    const viewbox = `${QC.minLng},${QC.maxLat},${QC.maxLng},${QC.minLat}`; // left,top,right,bottom
     const inQC = (lat: number, lon: number) =>
       lat >= QC.minLat && lat <= QC.maxLat && lon >= QC.minLng && lon <= QC.maxLng;
     // Strip postal code / province suffix that Google Maps appends, keep street + city
@@ -56,13 +57,32 @@ export function AdminSpotsPanel() {
       .replace(/\bS\b/g, 'Sud');
     // Ensure "Québec" appears so OSM anchors the search to this city
     const q = /qu[eé]bec/i.test(clean) ? clean : `${clean}, Québec, Canada`;
-    try {
-      const params = new URLSearchParams({ q, format: 'json', limit: '5', addressdetails: '0' });
+
+    // Nominatim is a shared free service. Bias the query to Québec/Canada so results
+    // come back ranked locally, and tell a throttled/empty response apart from a real
+    // miss — otherwise transient rate-limiting looks identical to "address not found".
+    const query = async (bounded: boolean): Promise<{ data: any[] } | { error: number }> => {
+      const params = new URLSearchParams({
+        q, format: 'json', limit: '5', addressdetails: '0',
+        countrycodes: 'ca', viewbox,
+      });
+      if (bounded) params.set('bounded', '1');
       const res = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
         headers: { 'Accept-Language': 'en' },
       });
-      const data = await res.json();
-      const hit = data.find((r: any) => inQC(parseFloat(r.lat), parseFloat(r.lon)));
+      if (!res.ok) return { error: res.status };
+      try { return { data: await res.json() }; } catch { return { error: 0 }; }
+    };
+
+    try {
+      // 1) Restrict strictly to the Québec City box. 2) Retry with a soft city bias.
+      let r = await query(true);
+      if ('data' in r && r.data.length === 0) r = await query(false);
+      if ('error' in r) {
+        setGeocodeMsg('Geocoding service is busy — wait a few seconds and try again.');
+        return;
+      }
+      const hit = r.data.find((x: any) => inQC(parseFloat(x.lat), parseFloat(x.lon)));
       if (!hit) {
         setGeocodeMsg('Not found in Québec City — check the spelling or add a street number.');
       } else {
