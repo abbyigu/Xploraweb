@@ -21,6 +21,7 @@ export interface MapState {
   lat: number | null;
   lng: number | null;
   boundary: [number, number][] | null; // ring of [lat, lng] pairs
+  route: [number, number][] | null; // walk-route polyline of [lat, lng] pairs
 }
 
 interface Props {
@@ -28,8 +29,18 @@ interface Props {
   onChange: (v: MapState) => void;
 }
 
+// Style for the highlighted walk route (e.g. "stroll rue du Petit-Champlain").
+const ROUTE_STYLE: L.PolylineOptions = {
+  color: '#12343B', weight: 6, opacity: 0.9, lineCap: 'round', lineJoin: 'round',
+};
+
 function ringOf(layer: L.Polygon): [number, number][] {
   const lls = layer.getLatLngs()[0] as L.LatLng[];
+  return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
+}
+
+function lineOf(layer: L.Polyline): [number, number][] {
+  const lls = layer.getLatLngs() as L.LatLng[];
   return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
 }
 
@@ -38,6 +49,7 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
   const polyRef = useRef<L.Polygon | null>(null);
+  const routeRef = useRef<L.Polyline | null>(null);
 
   // Keep the latest value/onChange reachable from Leaflet event handlers
   // without re-initialising the map.
@@ -69,44 +81,60 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
       });
     });
 
+    const syncBoundary = () =>
+      onChangeRef.current({ ...valueRef.current, boundary: polyRef.current ? ringOf(polyRef.current) : null });
+    const syncRoute = () =>
+      onChangeRef.current({ ...valueRef.current, route: routeRef.current ? lineOf(routeRef.current) : null });
+
     // Seed an existing boundary as an editable polygon.
     if (value.boundary && value.boundary.length >= 3) {
       polyRef.current = L.polygon(value.boundary, {
         color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, weight: 2,
       }).addTo(map);
+      polyRef.current.on('pm:edit', syncBoundary);
     }
 
-    // Geoman drawing toolbar (boundary polygon only).
+    // Seed an existing walk route as an editable polyline.
+    if (value.route && value.route.length >= 2) {
+      routeRef.current = L.polyline(value.route, ROUTE_STYLE).addTo(map);
+      routeRef.current.on('pm:edit', syncRoute);
+    }
+
+    // Geoman drawing toolbar (boundary polygon + walk-route polyline).
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const pm = (map as any).pm;
     if (pm) {
       pm.addControls({
         position: 'topright',
-        drawMarker: false, drawCircleMarker: false, drawPolyline: false,
+        drawMarker: false, drawCircleMarker: false, drawPolyline: true,
         drawRectangle: false, drawCircle: false, drawText: false,
         drawPolygon: true, editMode: true, dragMode: false,
         cutPolygon: false, removalMode: true, rotateMode: false,
       });
 
-      const sync = () => {
-        let ring: [number, number][] | null = null;
-        map.eachLayer(l => {
-          if (l instanceof L.Polygon && !(l instanceof L.Rectangle)) ring = ringOf(l as L.Polygon);
-        });
-        onChangeRef.current({ ...valueRef.current, boundary: ring });
-      };
-
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       map.on('pm:create', (e: any) => {
-        // Keep a single boundary: drop the previously seeded/drawn polygon.
-        if (polyRef.current && polyRef.current !== e.layer) map.removeLayer(polyRef.current);
-        polyRef.current = e.layer as L.Polygon;
-        e.layer.on('pm:edit', sync);
-        sync();
+        if (e.shape === 'Line') {
+          // Keep a single walk route: drop the previously seeded/drawn line.
+          if (routeRef.current && routeRef.current !== e.layer) map.removeLayer(routeRef.current);
+          routeRef.current = e.layer as L.Polyline;
+          routeRef.current.setStyle(ROUTE_STYLE);
+          e.layer.on('pm:edit', syncRoute);
+          syncRoute();
+        } else {
+          // Keep a single boundary: drop the previously seeded/drawn polygon.
+          if (polyRef.current && polyRef.current !== e.layer) map.removeLayer(polyRef.current);
+          polyRef.current = e.layer as L.Polygon;
+          e.layer.on('pm:edit', syncBoundary);
+          syncBoundary();
+        }
       });
-      map.on('pm:remove', () => { polyRef.current = null; sync(); });
-      map.on('pm:edit', sync);
-      if (polyRef.current) polyRef.current.on('pm:edit', sync);
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      map.on('pm:remove', (e: any) => {
+        if (e.layer === routeRef.current) { routeRef.current = null; syncRoute(); }
+        else if (e.layer === polyRef.current) { polyRef.current = null; syncBoundary(); }
+      });
     }
 
     // Container may mount at zero size inside the form; recompute after paint.
@@ -117,6 +145,7 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
       mapRef.current = null;
       markerRef.current = null;
       polyRef.current = null;
+      routeRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -144,13 +173,24 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
     }
   }, [value.boundary]);
 
+  // ── Remove the walk route when cleared from outside ─────────────────────────
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    if ((!value.route || value.route.length < 2) && routeRef.current) {
+      map.removeLayer(routeRef.current);
+      routeRef.current = null;
+    }
+  }, [value.route]);
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-muted-foreground">Map</label>
         <div className="flex gap-3 text-[11px] text-muted-foreground">
           <span>📍 Click map to set centre pin</span>
-          <span>⬡ Use toolbar to draw boundary</span>
+          <span>⬡ Draw boundary</span>
+          <span>〰 Draw walk route</span>
         </div>
       </div>
 
@@ -160,7 +200,7 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
         style={{ height: 360 }}
       />
 
-      {(value.lat != null || value.boundary) && (
+      {(value.lat != null || value.boundary || value.route) && (
         <div className="flex gap-4 text-[11px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-3 py-2">
           {value.lat != null && (
             <span>📍 {value.lat}, {value.lng}</span>
@@ -168,9 +208,12 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
           {value.boundary && (
             <span>⬡ {value.boundary.length} boundary points</span>
           )}
+          {value.route && (
+            <span>〰 {value.route.length}-point route</span>
+          )}
           <button
             type="button"
-            onClick={() => onChange({ lat: null, lng: null, boundary: null })}
+            onClick={() => onChange({ lat: null, lng: null, boundary: null, route: null })}
             className="ml-auto text-red-400 hover:text-red-600 transition"
           >
             Clear all

@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { NeighbourhoodMap, type MapState } from './NeighbourhoodMap';
 
-const BLANK_MAP: MapState = { lat: null, lng: null, boundary: null };
+const BLANK_MAP: MapState = { lat: null, lng: null, boundary: null, route: null };
 
 const BLANK = {
   name: '',
@@ -32,6 +32,7 @@ const SQL = `CREATE TABLE neighbourhoods (
   latitude numeric,
   longitude numeric,
   boundary jsonb,
+  route jsonb,
   sort_order integer DEFAULT 0,
   status text DEFAULT 'active',
   created_at timestamptz DEFAULT now()
@@ -113,6 +114,7 @@ export function AdminNeighbourhoodsPanel() {
       lat: row.latitude ?? null,
       lng: row.longitude ?? null,
       boundary: row.boundary ?? null,
+      route: row.route ?? null,
     });
     setEditing(row.id);
     setError('');
@@ -144,6 +146,7 @@ export function AdminNeighbourhoodsPanel() {
       latitude: mapState.lat,
       longitude: mapState.lng,
       boundary: mapState.boundary,
+      route: mapState.route,
     };
 
     const { error: err } = editing
@@ -354,6 +357,9 @@ export function AdminNeighbourhoodsPanel() {
                   )}
                   {row.boundary && (
                     <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 font-medium">⬡ boundary</span>
+                  )}
+                  {row.route && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-50 text-teal-600 font-medium">〰 route</span>
                   )}
                 </div>
                 {row.tagline && <p className="text-xs text-muted-foreground mt-0.5">{row.tagline}</p>}
