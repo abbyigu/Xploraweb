@@ -43,16 +43,16 @@ export function Header() {
             </Link>
           </div>
 
-          <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-0.5 lg:gap-1">
+          <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-2 lg:gap-3">
             {navItems.map(({ path, labelKey }) => (
               <Link
                 key={path}
                 to={path}
                 aria-current={isActive(path) ? 'page' : undefined}
-                className={`px-3 lg:px-4 py-2 rounded-xl transition-all text-sm lg:text-base whitespace-nowrap ${
+                className={`px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap ${
                   isActive(path)
-                    ? 'bg-primary/15 border-2 border-primary text-foreground font-medium'
-                    : 'text-foreground hover:bg-muted/40'
+                    ? 'bg-primary/15 border-primary text-foreground font-medium'
+                    : 'border-transparent text-foreground hover:bg-muted/40'
                 }`}
               >
                 {t(labelKey)}
