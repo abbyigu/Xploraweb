@@ -114,10 +114,6 @@ export default async function handler(req: any, res: any) {
   }
   const body = parsed.data;
 
-  if (!process.env.AI_GATEWAY_API_KEY) {
-    return res.status(500).json({ error: 'The AI itinerary builder is not configured yet.', code: 'NOT_CONFIGURED' });
-  }
-
   const supabase = createClient(
     'https://qnalvzgqrfjbuoqsffbs.supabase.co',
     process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_CCDW9tXRVNYA66aqo190bw_hIVgo8Nt',
