@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router';
 import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, Star, RotateCcw, ChevronLeft as Prev, ChevronRight as Next, Calendar, Minus, Plus } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
 import { useCart } from '../context/CartContext';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 import { analytics } from '../lib/analytics';
@@ -629,7 +629,7 @@ export function ExperienceDetailScreen() {
         </div>
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

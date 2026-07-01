@@ -1,23 +1,15 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { useRef, useState, useEffect } from 'react';
-import { ExperienceCard } from './ExperienceCard';
-import { EXPERIENCE_CATEGORIES } from '../data/products';
-import { useExperiences } from '../hooks/useExperiences';
-import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { ArrowRight, Flame, Heart, Compass, MapPin, Handshake } from 'lucide-react';
 import { useSiteContent } from '../hooks/useSiteContent';
-import { neighbourhoodImage } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
-const NBHD_DATA = [
-  { label: 'Old Port',        sub: 'History & waterfront',  img: '/nbhd/old-port.jpeg' },
-  { label: 'Saint-Roch',      sub: 'Art, coffee & cool',    img: '/nbhd/saint-roch.webp' },
-  { label: 'Petit-Champlain', sub: 'Cobblestones & charm',  img: '/nbhd/champlain.jpeg' },
-  { label: 'Montcalm',        sub: 'Parks & grand avenues', img: '/nbhd/montcalm.jpg' },
-  { label: 'Limoilou',        sub: 'Murals & local eats',   img: '/nbhd/limoilou.jpeg' },
-  { label: 'Maguire',         sub: 'Boutiques & terrasses', img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
+const FEATURE_TILES = [
+  { label: 'Hotspots',           desc: 'Buzzing spots nearby',      icon: Flame,   to: '/neighbourhoods' },
+  { label: 'Places We Love',     desc: 'Our favorite local finds',  icon: Heart,   to: '/neighbourhoods' },
+  { label: 'New Tour',           desc: 'Fresh self-guided routes',  icon: Compass, to: '/itinerary' },
+  { label: 'New Neighbourhoods', desc: 'Just added to Xplora',      icon: MapPin,  to: '/neighbourhoods' },
 ];
 
 const VALUE_PILLARS = [
@@ -62,55 +54,7 @@ const VALUE_PILLARS = [
 
 export function HomeScreen() {
   const navigate = useNavigate();
-  const { experiences } = useExperiences();
-  const { neighbourhoods } = useNeighbourhoods();
   const { content: siteContent } = useSiteContent();
-
-  // Prefer admin-managed neighbourhoods; fall back to the static list when the
-  // table is empty or hasn't been created yet. `slug` powers the link to each
-  // neighbourhood's page (preset tours + spots map).
-  const nbhdList = neighbourhoods.length
-    ? neighbourhoods.map(n => ({
-        label: n.name,
-        sub: n.tagline,
-        img: neighbourhoodImage(n.name, n.coverImage),
-        slug: n.slug || n.id,
-      }))
-    : NBHD_DATA.map(n => ({
-        ...n,
-        slug: n.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
-      }));
-  const [showFab, setShowFab] = useState(false);
-
-  // Neighbourhood carousel state
-  const nbhdRef = useRef<HTMLDivElement>(null);
-  const [activeDot, setActiveDot] = useState(0);
-
-  useEffect(() => {
-    if (sessionStorage.getItem('hiw_fab_dismissed')) return;
-    const timer = setTimeout(() => setShowFab(true), 8000);
-    return () => clearTimeout(timer);
-  }, []);
-
-  function nbhdScroll(dir: 1 | -1) {
-    const track = nbhdRef.current;
-    if (!track) return;
-    const card = track.querySelector<HTMLElement>('.nbhd-card');
-    const step = card ? card.offsetWidth + 12 : 332;
-    track.scrollBy({ left: dir * step, behavior: 'smooth' });
-  }
-
-  function handleNbhdScroll() {
-    const track = nbhdRef.current;
-    if (!track) return;
-    const card = track.querySelector<HTMLElement>('.nbhd-card');
-    const step = card ? card.offsetWidth + 12 : 332;
-    setActiveDot(Math.round(track.scrollLeft / step));
-  }
-
-  // ── Landing page (everyone: logged-out visitors, regular users, business, admin) ──
-  const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xplorators')!;
-  const soloItems = experiences.filter(e => e.category === 'xplorators');
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -123,7 +67,7 @@ export function HomeScreen() {
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
-        <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center gap-8">
+        <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center justify-center gap-8">
           {/* Wording — top */}
           <div className="flex flex-col items-center gap-5">
             <p className="text-xs uppercase tracking-widest text-white/80">Québec City</p>
@@ -137,10 +81,10 @@ export function HomeScreen() {
             </p>
           </div>
 
-          {/* CTA — bottom */}
+          {/* CTA */}
           <Link
             to="/itinerary"
-            className="mt-auto inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
           >
             {siteContent.heroCtaLabel}
             <ArrowRight className="w-5 h-5" />
@@ -148,98 +92,31 @@ export function HomeScreen() {
         </div>
       </section>
 
-      {/* Explore by neighbourhood */}
+      {/* Discover more */}
       <section className="pt-8 pb-4">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 flex items-center justify-between mb-4">
-          <h2 className="font-serif text-xl md:text-2xl text-gray-900">Explore by neighbourhood</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => nbhdScroll(-1)}
-              aria-label="Previous"
-              className="w-9 h-9 rounded-full border border-gray-200 bg-white flex items-center justify-center hover:bg-gray-50 transition"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => nbhdScroll(1)}
-              aria-label="Next"
-              className="w-9 h-9 rounded-full bg-[#12343B] text-white flex items-center justify-center hover:opacity-90 transition"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        <div
-          ref={nbhdRef}
-          onScroll={handleNbhdScroll}
-          className="flex gap-3 overflow-x-auto pb-2 pl-6 md:pl-8 [&::-webkit-scrollbar]:hidden"
-          style={{ scrollSnapType: 'x mandatory', WebkitOverflowScrolling: 'touch', paddingRight: 40 }}
-        >
-          {nbhdList.map(({ label, sub, img, slug }) => (
-            <button
-              key={label}
-              onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(slug)}`)}
-              className="nbhd-card flex-shrink-0 relative rounded-2xl overflow-hidden group"
-              style={{ scrollSnapAlign: 'start', width: 'min(72vw, 320px)', aspectRatio: '3/4' }}
-            >
-              <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4 text-left">
-                <p className="text-white font-semibold text-sm md:text-base leading-tight">{label}</p>
-                <p className="text-white/70 text-xs md:text-sm mt-0.5">{sub}</p>
-              </div>
-            </button>
-          ))}
-        </div>
-
-        {/* Progress dots */}
-        <div className="flex justify-center gap-1.5 mt-4">
-          {nbhdList.map((_, i) => (
-            <span
-              key={i}
-              className="h-1.5 rounded-full transition-all duration-300"
-              style={{
-                width: i === activeDot ? 20 : 6,
-                background: i === activeDot ? '#12343B' : '#D1D5DB',
-              }}
-            />
-          ))}
-        </div>
-      </section>
-
-      {/* Xperiences — Solo */}
-      <section className="max-w-7xl mx-auto px-6 md:px-8 py-8 space-y-10">
-        <h2 className="font-serif text-xl md:text-2xl text-gray-900">Xperiences</h2>
-        <div>
-          <h3 className="text-lg font-medium mb-0.5">{soloCat.name}</h3>
-          <p className="text-sm text-gray-400 mb-4">{soloCat.tagline}</p>
-          {soloItems.length > 0 ? (
-            <>
-              <div className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible [&::-webkit-scrollbar]:hidden">
-                {soloItems.slice(0, 5).map(exp => (
-                  <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                    <ExperienceCard exp={exp} />
-                  </div>
-                ))}
-              </div>
+        <div className="max-w-7xl mx-auto px-6 md:px-8">
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">Discover more</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+            {FEATURE_TILES.map(({ label, desc, icon: Icon, to }) => (
               <button
-                onClick={() => navigate(`/itinerary?category=xplorators`)}
-                className="mt-3 text-sm text-[#12343B] font-medium hover:underline flex items-center gap-1"
+                key={label}
+                onClick={() => navigate(to)}
+                className="text-left rounded-2xl border border-gray-200 bg-white p-4 md:p-5 hover:shadow-lg hover:border-[#12343B]/30 transition-all"
               >
-                Explore more →
+                <div className="w-10 h-10 rounded-xl bg-[#c9e8e8]/60 flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5 text-[#12343B]" />
+                </div>
+                <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
+                <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
               </button>
-            </>
-          ) : (
-            <p className="text-sm text-gray-400">Coming soon — check back shortly.</p>
-          )}
+            ))}
+          </div>
         </div>
       </section>
 
       {/* Section break */}
       <div className="bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center">
-        <p className="text-xs uppercase tracking-widest text-[#12343B]/50 mb-2">Who we are</p>
-        <p className="font-serif text-2xl md:text-3xl text-[#12343B]">Discover the city like a local</p>
+        <p className="font-serif text-2xl md:text-3xl text-[#12343B]">Born from a love of wandering</p>
       </div>
 
       {/* About */}
@@ -247,39 +124,18 @@ export function HomeScreen() {
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-14">
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">Our story</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-gray-900 mb-5">Born from a love of wandering</h2>
             <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
               GoXplora started with a simple belief: the best way to know a city is to walk it — slowly, curiously, without a bus schedule. We built the tools to make that possible for everyone.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-10 items-center mb-16">
-            <div className="relative rounded-3xl overflow-hidden aspect-[4/3]">
-              <img
-                src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=800"
-                alt="Old Québec streets"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-br from-[#12343B]/30 to-transparent" />
-            </div>
-            <div className="space-y-5">
-              <h3 className="font-serif text-xl md:text-2xl text-gray-900">Québec City is our backyard</h3>
-              <p className="text-gray-500 leading-relaxed">
-                Discovering local has always been a family tradition. There's something special about hopping in the car with no real plan and ending up somewhere you've never been — Victoriaville, St-Jean-Port-Jolie, Portneuf, and so many more hidden corners of Québec.
-              </p>
-              <p className="text-gray-500 leading-relaxed">
-                I especially love that feeling of stumbling onto a new place — a street, a café, a view — that wasn't on any list. Xplora was born from that same spirit: making it easy for everyone to wander, discover, and fall in love with local.
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-[#c9e8e8]">
-                  <img src="/team/founder.jpeg" alt="Ariel B." className="w-full h-full object-cover object-top" />
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-gray-800">Ariel B.</p>
-                  <p className="text-xs text-gray-400">Founder, GoXplora</p>
-                </div>
-              </div>
-            </div>
+          <div className="relative rounded-3xl overflow-hidden aspect-[16/9] max-w-3xl mx-auto mb-16">
+            <img
+              src="/hero/umbrella-alley.jpg"
+              alt="Colorful umbrellas hanging over a Québec City alley"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#12343B]/30 to-transparent" />
           </div>
 
           {/* Value pillars */}
@@ -313,6 +169,7 @@ export function HomeScreen() {
               {
                 title: 'Local visibility',
                 desc: 'Appear on curated neighbourhood routes right when explorers are nearby and ready to discover.',
+                detail: "Your venue gets featured on the specific self-guided routes that pass your door, with your name, photos, and a short blurb explorers see mid-walk — not buried in a generic directory.",
                 icon: (
                   <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -322,6 +179,7 @@ export function HomeScreen() {
               {
                 title: 'Real foot traffic',
                 desc: 'Track how many Xplorators walked past or visited your venue — with simple, clear analytics.',
+                detail: 'A dashboard shows visits by day and route, so you can see which tours actually send people through your door and double down on what works.',
                 icon: (
                   <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
                     <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
@@ -329,21 +187,19 @@ export function HomeScreen() {
                 ),
               },
               {
-                title: 'Exclusive offers',
-                desc: 'Share special deals or perks for GoXplora members — build loyalty and drive repeat visits.',
-                icon: (
-                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                  </svg>
-                ),
+                title: 'Partnerships',
+                desc: 'Team up with other local businesses on cross-promotions, bundles, and joint experiences.',
+                detail: "Pair up with nearby shops and cafés on the same route to co-host events, cross-promote each other, or bundle a multi-stop deal explorers can redeem in one visit.",
+                icon: <Handshake className="w-5 h-5 text-[#7ecfcf]" />,
               },
-            ].map(({ title, desc, icon }) => (
+            ].map(({ title, desc, detail, icon }) => (
               <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10">
                 <div className="w-10 h-10 rounded-xl bg-[#7ecfcf]/20 flex items-center justify-center mb-4">
                   {icon}
                 </div>
                 <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed">{desc}</p>
+                <p className="text-sm text-white/50 leading-relaxed mb-3">{desc}</p>
+                <p className="text-xs text-white/35 leading-relaxed border-t border-white/10 pt-3">{detail}</p>
               </div>
             ))}
           </div>
@@ -368,29 +224,6 @@ export function HomeScreen() {
       </section>
 
       <Footer />
-
-      {/* FAB */}
-      {showFab && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
-          <Link
-            to="/how-it-works"
-            className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
-          >
-            <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
-            New here? Learn how it works
-          </Link>
-          <button
-            onClick={() => {
-              setShowFab(false);
-              sessionStorage.setItem('hiw_fab_dismissed', '1');
-            }}
-            aria-label="Dismiss"
-            className="w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
-          >
-            <X className="w-3 h-3" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }

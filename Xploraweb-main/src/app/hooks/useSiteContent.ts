@@ -16,7 +16,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContent = {
   heroHeadline: 'Discover local.\nLive more.',
   heroSubheadline: 'Hidden gems, trendy neighborhoods, curated self-guided tours made just for you.',
   heroCtaLabel: 'Go Xplora Now',
-  heroImageUrl: '/hero/petit-champlain.jpg',
+  heroImageUrl: '/hero/window-flower-box.jpg',
 };
 
 export function mapSiteContentRow(row: any): SiteContent {

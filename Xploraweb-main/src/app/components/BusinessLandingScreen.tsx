@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, CheckCircle, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
@@ -270,7 +270,7 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

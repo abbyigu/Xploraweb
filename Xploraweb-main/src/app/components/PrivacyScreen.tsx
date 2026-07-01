@@ -1,4 +1,4 @@
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 
 export function PrivacyScreen() {
@@ -114,7 +114,7 @@ export function PrivacyScreen() {
 
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

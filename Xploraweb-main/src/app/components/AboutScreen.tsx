@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, BadgeCheck, MapPin, Globe, Calendar, Sparkles } from 'lucide-react';
 import { Link } from 'react-router';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
@@ -10,7 +10,7 @@ const TEAM: { name: string; role: string; bio: string; photo: string; initials: 
     name: 'Ariel',
     role: 'Founder',
     bio: 'Hi, I\'m Ariel — founder of Xplora ✨ Growing up, exploring local cafés, hidden gems, and small towns was a family tradition. Those experiences inspired me to create Xplora — a platform designed to help people slow down, discover local culture, and experience Québec City more meaningfully.',
-    photo: '/team/founder-1.jpg',
+    photo: '/team/founder.jpeg',
     initials: 'AB',
   },
 ];
@@ -56,8 +56,6 @@ export function AboutScreen() {
   const trustPoints = [
     t('about.trust1'),
     t('about.trust2'),
-    t('about.trust3'),
-    t('about.trust4'),
   ];
 
   return (
@@ -83,11 +81,28 @@ export function AboutScreen() {
         <section className="space-y-4">
           <p className="text-xs uppercase tracking-widest text-muted-foreground">{t('about.storyLabel')}</p>
           <p className="text-lg md:text-xl leading-relaxed text-foreground">
-            {t('about.story')}
-          </p>
-          <p className="text-base text-muted-foreground leading-relaxed">
             {t('about.storyDetail')}
           </p>
+        </section>
+
+        {/* Québec City is our backyard */}
+        <section className="space-y-4">
+          <h2 className="text-xl md:text-2xl text-foreground">Québec City is our backyard</h2>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            Discovering local has always been a family tradition. There's something special about ending up somewhere you've never been — and so many more hidden corners of Québec.
+          </p>
+          <p className="text-base text-muted-foreground leading-relaxed">
+            I especially love that feeling of stumbling onto a new place — a street, a café, a view — that wasn't on any list. Xplora was born from that same spirit: making it easy for everyone to wander, discover, and fall in love with local.
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-primary/20">
+              <img src="/team/founder.jpeg" alt="Ariel B." className="w-full h-full object-cover object-top" />
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-foreground">Ariel B.</p>
+              <p className="text-xs text-muted-foreground">Founder, GoXplora</p>
+            </div>
+          </div>
         </section>
 
         {/* Stats bar */}
@@ -159,7 +174,7 @@ export function AboutScreen() {
 
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

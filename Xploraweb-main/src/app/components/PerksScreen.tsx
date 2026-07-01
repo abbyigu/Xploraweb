@@ -1,6 +1,6 @@
 import { Sparkles, Lock, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
@@ -58,7 +58,7 @@ function Paywall() {
           </div>
         </div>
       </div>
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }
@@ -316,7 +316,7 @@ export function PerksScreen() {
         )}
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

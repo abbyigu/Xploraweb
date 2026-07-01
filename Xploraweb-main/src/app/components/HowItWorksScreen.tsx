@@ -1,6 +1,6 @@
 import { Link } from 'react-router';
 import { Compass, Users, Moon, Sparkles, ArrowRight, ChevronDown } from 'lucide-react';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
@@ -159,7 +159,7 @@ export function HowItWorksScreen() {
 
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

@@ -1,15 +1,16 @@
 import { Link, useLocation } from 'react-router';
-import { Compass, Map, Search, User } from 'lucide-react';
+import { Home, Compass, Info, MapPin, User } from 'lucide-react';
 
 export function BottomNav() {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',          icon: Compass, label: 'Xperiences', badge: 0 },
-    { path: '/itinerary?view=map', icon: Map, label: 'Maps',  badge: 0 },
-    { path: '/itinerary', icon: Search,  label: 'Search',     badge: 0 },
-    { path: '/account',   icon: User,    label: 'Account',    badge: 0 },
+    { path: '/',              icon: Home,    label: 'Home',       badge: 0 },
+    { path: '/itinerary',     icon: Compass, label: 'Xperiences', badge: 0 },
+    { path: '/about',         icon: Info,    label: 'About',      badge: 0 },
+    { path: '/neighbourhoods', icon: MapPin, label: 'Hoods',      badge: 0 },
+    { path: '/account',       icon: User,    label: 'Account',    badge: 0 },
   ];
 
   return (

@@ -1,5 +1,5 @@
 import { Bell, Tag, Calendar, Sparkles } from 'lucide-react';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 
 export function NotificationsScreen() {
@@ -100,7 +100,7 @@ export function NotificationsScreen() {
         )}
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

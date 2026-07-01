@@ -1,7 +1,7 @@
 import { Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useState } from 'react';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useNavigate } from 'react-router';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +72,7 @@ export function CartScreen() {
             {t('cart.browse')}
           </button>
         </div>
-        <SimpleFooter />
+        <Footer />
       </div>
     );
   }
@@ -156,7 +156,7 @@ export function CartScreen() {
         </div>
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

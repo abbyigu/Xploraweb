@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare, LayoutDashboard } from 'lucide-react';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { XploraLogo } from './XploraLogo';
@@ -703,7 +703,7 @@ export function AccountScreen() {
         )}
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }
