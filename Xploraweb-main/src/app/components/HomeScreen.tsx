@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, LayoutDashboard, User, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
-import { XploraLogo } from './XploraLogo';
 import { ExperienceCard } from './ExperienceCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
@@ -9,7 +8,6 @@ import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { neighbourhoodImage } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
-import { supabase, getProfile } from '../lib/supabase';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -62,49 +60,6 @@ const VALUE_PILLARS = [
   },
 ];
 
-function CardCarousel({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const scroll = (dir: 'left' | 'right') => {
-    ref.current?.scrollBy({ left: dir === 'right' ? 200 : -200, behavior: 'smooth' });
-  };
-  return (
-    <div className="relative group">
-      <button
-        onClick={() => scroll('left')}
-        className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <div
-        ref={ref}
-        className="flex gap-3 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-2 lg:grid-cols-3 md:overflow-visible scrollbar-hide"
-      >
-        {children}
-      </div>
-      <button
-        onClick={() => scroll('right')}
-        className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-white shadow-md border border-border items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-muted/40"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
-      <div className="flex md:hidden justify-end gap-2 mt-2 pr-1">
-        <button
-          onClick={() => scroll('left')}
-          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-        <button
-          onClick={() => scroll('right')}
-          className="w-7 h-7 rounded-full bg-white shadow border border-border flex items-center justify-center hover:bg-muted/40 active:scale-95 transition-transform"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
-
 export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
@@ -125,15 +80,6 @@ export function HomeScreen() {
         ...n,
         slug: n.label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
       }));
-  const [authState, setAuthState] = useState<{
-    loggedIn: boolean;
-    name: string;
-    accountType: string;
-    isAdmin: boolean;
-  }>({ loggedIn: false, name: '', accountType: '', isAdmin: false });
-  // Stays false until the auth check resolves, so we never render the
-  // logged-out landing before flipping to the logged-in view (the "flash").
-  const [authReady, setAuthReady] = useState(false);
   const [showFab, setShowFab] = useState(false);
 
   // Neighbourhood carousel state
@@ -144,20 +90,6 @@ export function HomeScreen() {
     if (sessionStorage.getItem('hiw_fab_dismissed')) return;
     const timer = setTimeout(() => setShowFab(true), 8000);
     return () => clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (!session?.user) { setAuthReady(true); return; }
-      const profile = await getProfile();
-      setAuthState({
-        loggedIn: true,
-        name: profile?.name || '',
-        accountType: (profile as any)?.account_type || '',
-        isAdmin: !!(profile as any)?.is_admin,
-      });
-      setAuthReady(true);
-    }).catch(() => setAuthReady(true));
   }, []);
 
   function nbhdScroll(dir: 1 | -1) {
@@ -176,114 +108,7 @@ export function HomeScreen() {
     setActiveDot(Math.round(track.scrollLeft / step));
   }
 
-  // Wait for the auth check before choosing a view, otherwise logged-in users
-  // briefly see the logged-out landing before it swaps to their feed.
-  if (!authReady) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // ── Business dashboard (logged in with a business account) ──────────────────
-  if (authState.loggedIn && authState.accountType === 'business' && !authState.isAdmin) {
-    const firstName = authState.name.split(' ')[0] || 'there';
-
-    return (
-      <div className="min-h-screen pb-24 md:pb-8">
-        <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
-          <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
-            <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
-              <XploraLogo variant="full" className="h-28 md:h-40" />
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-widest opacity-60">Welcome back</p>
-                <h1 className="text-3xl md:text-5xl leading-tight">Hey {firstName} 👋</h1>
-                <p className="text-base md:text-lg opacity-80">Manage your perks, track your listings, and grow your reach.</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-                <button
-                  onClick={() => navigate('/business/dashboard')}
-                  className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                >
-                  <LayoutDashboard className="w-5 h-5" /> Dashboard
-                </button>
-                <button
-                  onClick={() => navigate('/account')}
-                  className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <User className="w-5 h-5" /> Account
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
-          <section>
-            <h2 className="text-xl md:text-2xl mb-6 md:mb-8">Xperiences</h2>
-            <div className="space-y-10">
-              {EXPERIENCE_CATEGORIES.filter(cat => cat.id !== 'xploranights').map(cat => {
-                const items = experiences.filter(e => e.category === cat.id);
-                if (!items.length) return null;
-                return (
-                  <div key={cat.id}>
-                    <div className="mb-3">
-                      <h3 className="text-lg font-medium">{cat.name}</h3>
-                      <p className="text-sm text-muted-foreground">{cat.tagline}</p>
-                    </div>
-                    <CardCarousel>
-                      {items.slice(0, 5).map(exp => (
-                        <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                          <ExperienceCard exp={exp} />
-                        </div>
-                      ))}
-                    </CardCarousel>
-                    <button
-                      onClick={() => navigate(`/itinerary?category=${cat.id}`)}
-                      className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-                    >
-                      Explore more →
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {(() => {
-            const nightCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploranights')!;
-            const items = experiences.filter(e => e.category === 'xploranights');
-            return items.length ? (
-              <section>
-                <div className="mb-3">
-                  <h3 className="text-lg font-medium">{nightCat.name}</h3>
-                  <p className="text-sm text-muted-foreground">{nightCat.tagline}</p>
-                </div>
-                <div className="flex gap-4 overflow-x-auto pb-2 -mx-6 px-6 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:overflow-visible">
-                  {items.slice(0, 5).map(exp => (
-                    <div key={exp.id} className="w-[160px] md:w-auto flex-shrink-0 md:flex-shrink h-full">
-                      <ExperienceCard exp={exp} />
-                    </div>
-                  ))}
-                </div>
-                <button
-                  onClick={() => navigate(`/itinerary?category=xploranights`)}
-                  className="mt-3 text-sm text-primary font-medium hover:underline flex items-center gap-1"
-                >
-                  Explore more →
-                </button>
-              </section>
-            ) : null;
-          })()}
-        </div>
-
-        <Footer />
-      </div>
-    );
-  }
-
-  // ── Landing page (logged-out visitors and regular logged-in users) ──────────
+  // ── Landing page (everyone: logged-out visitors, regular users, business, admin) ──
   const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xplorators')!;
   const soloItems = experiences.filter(e => e.category === 'xplorators');
 
