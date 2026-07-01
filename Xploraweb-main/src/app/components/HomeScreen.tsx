@@ -2,11 +2,11 @@ import { Link, useNavigate } from 'react-router';
 import { ArrowRight, LayoutDashboard, User, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useRef, useState, useEffect } from 'react';
 import { XploraLogo } from './XploraLogo';
-import { SearchHeader } from './SearchHeader';
 import { ExperienceCard } from './ExperienceCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { useSiteContent } from '../hooks/useSiteContent';
 import { neighbourhoodImage } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
@@ -20,21 +20,6 @@ const NBHD_DATA = [
   { label: 'Montcalm',        sub: 'Parks & grand avenues', img: '/nbhd/montcalm.jpg' },
   { label: 'Limoilou',        sub: 'Murals & local eats',   img: '/nbhd/limoilou.jpeg' },
   { label: 'Maguire',         sub: 'Boutiques & terrasses', img: 'https://images.unsplash.com/photo-1467269204594-9661b134dd2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600' },
-];
-
-const VIBE_CHIPS = [
-  { emoji: '🌅', label: 'Morning wander' },
-  { emoji: '🍷', label: 'Evening out' },
-  { emoji: '☕', label: 'Solo & slow' },
-  { emoji: '👫', label: 'With someone' },
-  { emoji: '📍', label: 'Old Port' },
-  { emoji: '🏙️', label: 'Saint-Roch' },
-  { emoji: '🪨', label: 'Petit-Champlain' },
-  { emoji: '🏘️', label: 'Montcalm' },
-  { emoji: '🌿', label: 'Limoilou' },
-  { emoji: '🌙', label: 'Night owl' },
-  { emoji: '🎨', label: 'Art & culture' },
-  { emoji: '🍕', label: 'Foodie trail' },
 ];
 
 const VALUE_PILLARS = [
@@ -76,14 +61,6 @@ const VALUE_PILLARS = [
     ),
   },
 ];
-
-function getVibeLabel() {
-  const h = new Date().getHours();
-  if (h < 12) return "What's your vibe this morning?";
-  if (h < 17) return "What's your vibe this afternoon?";
-  if (h < 21) return "What's your vibe this evening?";
-  return "What's your vibe tonight?";
-}
 
 function CardCarousel({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -132,6 +109,7 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const { neighbourhoods } = useNeighbourhoods();
+  const { content: siteContent } = useSiteContent();
 
   // Prefer admin-managed neighbourhoods; fall back to the static list when the
   // table is empty or hasn't been created yet. `slug` powers the link to each
@@ -208,43 +186,38 @@ export function HomeScreen() {
     );
   }
 
-  // ── Logged-in view ──────────────────────────────────────────────────────────
-  if (authState.loggedIn) {
-    const isBusiness = authState.accountType === 'business' && !authState.isAdmin;
+  // ── Business dashboard (logged in with a business account) ──────────────────
+  if (authState.loggedIn && authState.accountType === 'business' && !authState.isAdmin) {
     const firstName = authState.name.split(' ')[0] || 'there';
 
     return (
       <div className="min-h-screen pb-24 md:pb-8">
-        {isBusiness ? (
-          <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
-            <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
-              <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
-                <XploraLogo variant="full" className="h-28 md:h-40" />
-                <div className="space-y-2">
-                  <p className="text-xs uppercase tracking-widest opacity-60">Welcome back</p>
-                  <h1 className="text-3xl md:text-5xl leading-tight">Hey {firstName} 👋</h1>
-                  <p className="text-base md:text-lg opacity-80">Manage your perks, track your listings, and grow your reach.</p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
-                  <button
-                    onClick={() => navigate('/business/dashboard')}
-                    className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                  >
-                    <LayoutDashboard className="w-5 h-5" /> Dashboard
-                  </button>
-                  <button
-                    onClick={() => navigate('/account')}
-                    className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <User className="w-5 h-5" /> Account
-                  </button>
-                </div>
+        <div className="bg-gradient-to-b from-primary/40 to-primary/20 text-foreground">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 py-14 md:py-24">
+            <div className="flex flex-col items-center text-center space-y-6 max-w-2xl mx-auto">
+              <XploraLogo variant="full" className="h-28 md:h-40" />
+              <div className="space-y-2">
+                <p className="text-xs uppercase tracking-widest opacity-60">Welcome back</p>
+                <h1 className="text-3xl md:text-5xl leading-tight">Hey {firstName} 👋</h1>
+                <p className="text-base md:text-lg opacity-80">Manage your perks, track your listings, and grow your reach.</p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-2">
+                <button
+                  onClick={() => navigate('/business/dashboard')}
+                  className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                >
+                  <LayoutDashboard className="w-5 h-5" /> Dashboard
+                </button>
+                <button
+                  onClick={() => navigate('/account')}
+                  className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center gap-2"
+                >
+                  <User className="w-5 h-5" /> Account
+                </button>
               </div>
             </div>
           </div>
-        ) : (
-          <SearchHeader greeting={`Hey ${firstName} 👋`} />
-        )}
+        </div>
 
         <div className="max-w-7xl mx-auto px-6 md:px-8 py-6 md:py-8 space-y-8 sm:space-y-10 md:space-y-12 lg:space-y-16">
           <section>
@@ -278,30 +251,6 @@ export function HomeScreen() {
             </div>
           </section>
 
-          {!isBusiness && (
-            <section>
-              <div
-                className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4 cursor-pointer hover:opacity-95 transition-opacity"
-                onClick={() => navigate('/membership')}
-              >
-                <div>
-                  <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Xplora</p>
-                  <h2 className="text-xl md:text-2xl mb-2">Become a Member</h2>
-                  <ul className="space-y-1 text-sm opacity-90">
-                    <li>🎟️ 48h early access to all experiences</li>
-                    <li>👫 1 free guest pass every month</li>
-                    <li>🍸 Monthly members-only 5 à 7</li>
-                  </ul>
-                </div>
-                <div className="text-center md:text-right flex-shrink-0">
-                  <p className="text-3xl font-serif">$10</p>
-                  <p className="text-sm opacity-80">/month</p>
-                  <button className="mt-3 bg-white text-primary px-5 py-2 rounded-full text-sm font-medium hover:bg-white/90 transition-colors">Join — $10/month</button>
-                </div>
-              </div>
-            </section>
-          )}
-
           {(() => {
             const nightCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xploranights')!;
             const items = experiences.filter(e => e.category === 'xploranights');
@@ -334,7 +283,7 @@ export function HomeScreen() {
     );
   }
 
-  // ── Logged-out landing ──────────────────────────────────────────────────────
+  // ── Landing page (logged-out visitors and regular logged-in users) ──────────
   const soloCat = EXPERIENCE_CATEGORIES.find(c => c.id === 'xplorators')!;
   const soloItems = experiences.filter(e => e.category === 'xplorators');
 
@@ -342,57 +291,35 @@ export function HomeScreen() {
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
 
       {/* Hero */}
-      <section style={{ background: 'linear-gradient(to bottom, rgba(126,207,207,0.70), rgba(126,207,207,0.40))' }}>
-        <div className="max-w-3xl mx-auto px-6 py-12 md:py-24 text-center flex flex-col items-center gap-5">
-          <p className="text-xs uppercase tracking-widest text-gray-500">Québec City</p>
-          <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-gray-900">
-            Discover local.<br />Live more.
-          </h1>
-          <p className="text-base md:text-lg text-gray-600 max-w-xl">
-            Hidden gems, trendy neighborhoods, curated self-guided tours made just for you. GoXplora now!
-          </p>
-
-          {/* Neighbourhood mini tiles */}
-          <div className="flex gap-2 justify-start md:justify-center w-full overflow-x-auto pb-1 -mx-6 px-6 md:mx-0 md:px-0 [&::-webkit-scrollbar]:hidden">
-            {nbhdList.map(({ label, img, slug }) => (
-              <button
-                key={label}
-                onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(slug)}`)}
-                className="flex-shrink-0 relative w-24 h-24 rounded-2xl overflow-hidden group"
-              >
-                <img src={img} alt={label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <span className="absolute bottom-1.5 left-0 right-0 text-white text-[10px] font-medium text-center leading-tight px-1">{label}</span>
-              </button>
-            ))}
+      <section className="relative min-h-[520px] md:min-h-[600px] flex">
+        <img
+          src={siteContent.heroImageUrl}
+          alt="People exploring Petit-Champlain in Québec City"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
+        <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center gap-8">
+          {/* Wording — top */}
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-xs uppercase tracking-widest text-white/80">Québec City</p>
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow">
+              {siteContent.heroHeadline.split('\n').map((line, i, lines) => (
+                <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
+              ))}
+            </h1>
+            <p className="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm">
+              {siteContent.heroSubheadline}
+            </p>
           </div>
 
-          {/* CTA */}
+          {/* CTA — bottom */}
           <Link
             to="/itinerary"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+            className="mt-auto inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
           >
-            Start self-guided exploring
+            {siteContent.heroCtaLabel}
             <ArrowRight className="w-5 h-5" />
           </Link>
-        </div>
-      </section>
-
-      {/* Vibe section */}
-      <section className="bg-[#c9e8e8]/40 border-t border-[#b0d8d8]/50 px-6 py-5">
-        <div className="max-w-7xl mx-auto">
-          <p className="text-sm text-gray-500 mb-3">{getVibeLabel()}</p>
-          <div className="flex flex-wrap gap-2">
-            {VIBE_CHIPS.map(({ emoji, label }) => (
-              <button
-                key={label}
-                onClick={() => navigate(`/itinerary?q=${encodeURIComponent(label)}`)}
-                className="px-4 py-2 bg-white rounded-full text-sm border border-gray-200 hover:border-[#12343B] transition"
-              >
-                {emoji} {label}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 
