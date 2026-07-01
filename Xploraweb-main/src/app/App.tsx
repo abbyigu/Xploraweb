@@ -9,6 +9,7 @@ import { HomeScreen } from './components/HomeScreen';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 import { analytics, initGtag } from './lib/analytics';
+import { useSiteContent } from './hooks/useSiteContent';
 import './i18n';
 
 function SkipLink() {
@@ -103,6 +104,7 @@ function GtagLoader() {
 }
 
 export default function App() {
+  const { content } = useSiteContent();
   return (
     <HelmetProvider>
     <CartProvider>
@@ -113,9 +115,11 @@ export default function App() {
       <GtagLoader />
       <div className="min-h-screen bg-background">
         <SkipLink />
-        <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">
-          🎉 Xplora launches in June — be among the first to explore Québec City differently.
-        </div>
+        {content.bannerEnabled && (
+          <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">
+            {content.bannerText}
+          </div>
+        )}
         <Header />
         <main id="main-content" tabIndex={-1} className="outline-none">
         <div className="md:max-w-none max-w-md mx-auto relative">
