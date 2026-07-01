@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { merch, memberships } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useTranslation } from 'react-i18next';
 
@@ -94,7 +94,7 @@ export function ShopScreen() {
         </div>
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

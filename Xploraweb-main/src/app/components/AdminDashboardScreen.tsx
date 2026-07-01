@@ -7,7 +7,7 @@ import { AdminExperiencePanel } from './AdminExperiencePanel';
 import { AdminSpotsPanel } from './AdminSpotsPanel';
 import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { AdminSiteContentPanel } from './AdminSiteContentPanel';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { experiences as staticExperiences } from '../data/products';
 
 const ADMIN_EMAIL = 'ariel.blouin@live.ca';
@@ -379,7 +379,7 @@ export function AdminDashboardScreen() {
           )}
         </div>
       </div>
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

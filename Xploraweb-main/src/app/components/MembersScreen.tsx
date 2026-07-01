@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sparkles, Lock, MapPin, Clock, Users } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
@@ -63,7 +63,7 @@ function Paywall() {
           </div>
         </div>
       </div>
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }
@@ -283,7 +283,7 @@ export function MembersScreen() {
         )}
 
       </div>
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

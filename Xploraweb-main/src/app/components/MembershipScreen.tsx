@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
@@ -150,7 +150,7 @@ export function MembershipScreen() {
 
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

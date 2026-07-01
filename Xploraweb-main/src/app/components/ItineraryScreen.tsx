@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router';
 import { Compass, Users, Moon, Sparkles, SlidersHorizontal, X, Map as MapIcon, List as ListIcon } from 'lucide-react';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { ExperienceCard } from './ExperienceCard';
 import { ExperienceMap } from './ExperienceMap';
@@ -572,7 +572,7 @@ export function ItineraryScreen() {
           <div className="px-6 md:px-8 py-6 md:py-8 space-y-10 md:space-y-14">
             {renderContent()}
           </div>
-          <SimpleFooter />
+          <Footer />
         </div>
 
         {/* Sticky map (desktop) */}

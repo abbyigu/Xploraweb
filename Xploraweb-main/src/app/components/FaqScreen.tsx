@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronDown, ArrowRight, Mail } from 'lucide-react';
 import { Link } from 'react-router';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
@@ -187,7 +187,7 @@ export function FaqScreen() {
 
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

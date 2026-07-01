@@ -1,6 +1,6 @@
 import { Clock, Users, MapPin } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import { SimpleFooter } from './SimpleFooter';
+import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 
 export function MeetupsScreen() {
@@ -147,7 +147,7 @@ export function MeetupsScreen() {
         </div>
       </div>
 
-      <SimpleFooter />
+      <Footer />
     </div>
   );
 }

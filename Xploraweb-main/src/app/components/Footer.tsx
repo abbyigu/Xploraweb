@@ -2,7 +2,7 @@ import { Link } from 'react-router';
 
 export function Footer() {
   return (
-    <footer className="bg-[#0d2328] text-white mt-8 pb-24 md:pb-0">
+    <footer className="bg-[#0d2328] text-white pb-24 md:pb-0">
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-12 pb-8">
 
         {/* Top grid */}
@@ -40,7 +40,6 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-white/70">
               <li><Link to="/itinerary" className="hover:text-white transition">Neighbourhoods</Link></li>
               <li><Link to="/itinerary" className="hover:text-white transition">Xperiences</Link></li>
-              <li><Link to="/itinerary" className="hover:text-white transition">Vibe tours</Link></li>
               <li><Link to="/itinerary" className="hover:text-white transition">Map view</Link></li>
             </ul>
           </div>
