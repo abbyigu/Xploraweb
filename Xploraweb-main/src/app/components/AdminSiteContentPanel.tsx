@@ -12,6 +12,7 @@ const SQL = `CREATE TABLE site_content (
   hero_subheadline text DEFAULT '',
   hero_cta_label text DEFAULT '',
   hero_image_url text DEFAULT '',
+  itinerary_paywalled boolean DEFAULT false,
   updated_at timestamptz DEFAULT now()
 );
 
@@ -35,6 +36,7 @@ const BLANK = {
   hero_subheadline: SITE_CONTENT_DEFAULTS.heroSubheadline,
   hero_cta_label: SITE_CONTENT_DEFAULTS.heroCtaLabel,
   hero_image_url: SITE_CONTENT_DEFAULTS.heroImageUrl,
+  itinerary_paywalled: SITE_CONTENT_DEFAULTS.itineraryPaywalled,
 };
 
 export function AdminSiteContentPanel() {
@@ -66,6 +68,7 @@ export function AdminSiteContentPanel() {
         hero_subheadline: data.hero_subheadline || BLANK.hero_subheadline,
         hero_cta_label: data.hero_cta_label || BLANK.hero_cta_label,
         hero_image_url: data.hero_image_url || BLANK.hero_image_url,
+        itinerary_paywalled: data.itinerary_paywalled ?? BLANK.itinerary_paywalled,
       });
     }
     setLoading(false);
@@ -198,7 +201,30 @@ export function AdminSiteContentPanel() {
         </div>
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <h4 className="text-sm font-semibold">Xperience page</h4>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm">Paywall this page</p>
+            <p className="text-[11px] text-muted-foreground">Visitors see a "join to unlock" teaser instead of the experience list. Membership status isn't checked yet — this hides the page for everyone until real access checks are built.</p>
+          </div>
+          <button
+            onClick={() => setForm(f => ({ ...f, itinerary_paywalled: !f.itinerary_paywalled }))}
+            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${form.itinerary_paywalled ? 'bg-secondary' : 'bg-muted'}`}
+          >
+            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.itinerary_paywalled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+          </button>
+        </div>
+      </div>
+
+      {error && (
+        <div className="text-xs text-red-500 space-y-1">
+          <p>{error}</p>
+          {error.includes('itinerary_paywalled') && (
+            <p className="text-muted-foreground">Run this in Supabase SQL Editor: <code className="bg-muted px-1 rounded">ALTER TABLE site_content ADD COLUMN IF NOT EXISTS itinerary_paywalled boolean DEFAULT false;</code></p>
+          )}
+        </div>
+      )}
 
       <button
         onClick={handleSave}

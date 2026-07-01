@@ -8,6 +8,7 @@ export interface SiteContent {
   heroSubheadline: string;
   heroCtaLabel: string;
   heroImageUrl: string;
+  itineraryPaywalled: boolean;
 }
 
 export const SITE_CONTENT_DEFAULTS: SiteContent = {
@@ -17,6 +18,7 @@ export const SITE_CONTENT_DEFAULTS: SiteContent = {
   heroSubheadline: 'Hidden gems, trendy neighborhoods, curated self-guided tours made just for you.',
   heroCtaLabel: 'Go Xplora Now',
   heroImageUrl: '/hero/window-flower-box.jpg',
+  itineraryPaywalled: false,
 };
 
 export function mapSiteContentRow(row: any): SiteContent {
@@ -27,6 +29,7 @@ export function mapSiteContentRow(row: any): SiteContent {
     heroSubheadline: row.hero_subheadline || SITE_CONTENT_DEFAULTS.heroSubheadline,
     heroCtaLabel: row.hero_cta_label || SITE_CONTENT_DEFAULTS.heroCtaLabel,
     heroImageUrl: row.hero_image_url || SITE_CONTENT_DEFAULTS.heroImageUrl,
+    itineraryPaywalled: row.itinerary_paywalled ?? SITE_CONTENT_DEFAULTS.itineraryPaywalled,
   };
 }
 
