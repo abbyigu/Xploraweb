@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
-const SPOT_CATEGORIES = ['Food', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
+const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
 const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'] as const;
 const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
   quick: { minMin: 20, maxMin: 45, targetStops: 3 },
@@ -18,6 +18,7 @@ const RequestSchema = z.object({
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   vibes: z.array(z.enum(VIBE_OPTIONS)),
   timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).nullable(),
+  neighbourhood: z.string().nullable(),
   language: z.enum(['en', 'fr']),
 });
 
@@ -94,6 +95,7 @@ Requirements:
 - Target about ${bucket.targetStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.timeOfDay ? `- This route is for the ${body.timeOfDay}; prefer spots that fit that time of day.` : ''}
+${body.neighbourhood ? `- Stay within the ${body.neighbourhood} neighbourhood.` : ''}
 ${body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.vibes.length ? `- Prefer vibes: ${body.vibes.join(', ')}.` : ''}
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
@@ -133,6 +135,9 @@ export default async function handler(req: any, res: any) {
       .filter(c => c.lat != null && c.lng != null)
       .filter(c => haversineKm(origin, { lat: c.lat!, lng: c.lng! }) <= body.radiusKm!)
       .sort((a, b) => haversineKm(origin, { lat: a.lat!, lng: a.lng! }) - haversineKm(origin, { lat: b.lat!, lng: b.lng! }));
+  }
+  if (body.neighbourhood) {
+    candidates = candidates.filter(c => c.neighbourhood === body.neighbourhood);
   }
   if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));

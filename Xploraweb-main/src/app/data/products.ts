@@ -4,7 +4,7 @@ export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' |
 export type TrailMode = 'walking' | 'driving';
 
 /** Spot categories — used by the AI trek builder to assemble routes by interest. */
-export const SPOT_CATEGORIES = ['Food', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
+export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
 /**
