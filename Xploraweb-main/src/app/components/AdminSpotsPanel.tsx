@@ -5,7 +5,7 @@ import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
 
-const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
+const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'cute'];
 
 const PRICE_OPTIONS = [
   { value: 'Free', label: 'Free', hint: 'No cost' },
@@ -247,6 +247,23 @@ export function AdminSpotsPanel() {
       || (s.category || '').toLowerCase().includes(q);
   });
 
+  // Group spots by neighbourhood, ordered to match the neighbourhoods list (sort_order),
+  // with unrecognized names after and unassigned spots last.
+  const groupedSpots = (() => {
+    const groups = new Map<string, any[]>();
+    for (const spot of filtered) {
+      const key = spot.neighbourhood || '';
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key)!.push(spot);
+    }
+    const knownNames = neighbourhoods.map(n => n.name);
+    const known = knownNames.filter(name => groups.has(name)).map(name => [name, groups.get(name)!] as [string, any[]]);
+    const extraNames = [...groups.keys()].filter(k => k && !knownNames.includes(k)).sort();
+    const extra = extraNames.map(name => [name, groups.get(name)!] as [string, any[]]);
+    const unassigned = groups.has('') ? [['', groups.get('')!] as [string, any[]]] : [];
+    return [...known, ...extra, ...unassigned];
+  })();
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -484,42 +501,50 @@ export function AdminSpotsPanel() {
           <p className="text-sm text-muted-foreground">No spots yet. Add places here, then assemble them into trails.</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {filtered.map(spot => (
-            <div key={spot.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                {spot.image_url ? (
-                  <img src={spot.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
-                ) : (
-                  <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-4 h-4 text-muted-foreground" />
+        <div className="space-y-5">
+          {groupedSpots.map(([name, group]) => (
+            <div key={name || '__unassigned'} className="space-y-2">
+              <div className="flex items-center gap-2 px-1">
+                <h4 className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">{name || 'Unassigned'}</h4>
+                <span className="text-[11px] text-muted-foreground">{group.length}</span>
+              </div>
+              {group.map(spot => (
+                <div key={spot.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    {spot.image_url ? (
+                      <img src={spot.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                        <MapPin className="w-4 h-4 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{spot.name}</p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {[spot.category, spot.price_range].filter(Boolean).join(' · ') || 'No location'}
+                        {spot.lat == null || spot.lng == null ? ' · ⚠ no coords' : ''}
+                      </p>
+                    </div>
                   </div>
-                )}
-                <div className="min-w-0">
-                  <p className="font-medium text-sm truncate">{spot.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    {[spot.category, spot.neighbourhood, spot.price_range].filter(Boolean).join(' · ') || 'No location'}
-                    {spot.lat == null || spot.lng == null ? ' · ⚠ no coords' : ''}
-                  </p>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => toggleStatus(spot)}
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                        spot.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${spot.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
+                      {spot.status === 'active' ? 'Live' : 'Draft'}
+                    </button>
+                    <button onClick={() => openEdit(spot)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDelete(spot.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => toggleStatus(spot)}
-                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
-                    spot.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
-                >
-                  <span className={`w-1.5 h-1.5 rounded-full ${spot.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
-                  {spot.status === 'active' ? 'Live' : 'Draft'}
-                </button>
-                <button onClick={() => openEdit(spot)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(spot.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+              ))}
             </div>
           ))}
         </div>

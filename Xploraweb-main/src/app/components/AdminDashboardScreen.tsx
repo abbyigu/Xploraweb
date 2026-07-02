@@ -19,6 +19,7 @@ interface Stats {
   free: number;
   paid: number;
   totalSpots: number;
+  spotsTotal: number;
   partnerOffers: number;
   archived: number;
 }
@@ -54,7 +55,7 @@ export function AdminDashboardScreen() {
   const [adminName, setAdminName] = useState('');
   const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'outings' | 'spots' | 'neighbourhoods' | 'content' | 'archive' | 'reviews' | 'pricing'>('outings');
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, partnerOffers: 0, archived: 0 });
+  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, spotsTotal: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
 
@@ -79,9 +80,10 @@ export function AdminDashboardScreen() {
   }, []);
 
   async function loadStats() {
-    const [expRes, perksRes] = await Promise.all([
+    const [expRes, perksRes, spotsRes] = await Promise.all([
       supabase.from('xplora_experiences').select('status, price_cents, spots'),
       supabase.from('business_perks').select('id', { count: 'exact', head: true }),
+      supabase.from('xplora_spots').select('id', { count: 'exact', head: true }),
     ]);
     const exps = expRes.data || [];
     setStats({
@@ -91,6 +93,7 @@ export function AdminDashboardScreen() {
       free: exps.filter(e => e.status !== 'archived' && (!e.price_cents || e.price_cents === 0)).length,
       paid: exps.filter(e => e.status !== 'archived' && e.price_cents && e.price_cents > 0).length,
       totalSpots: exps.filter(e => e.status !== 'archived').reduce((sum, e) => sum + (e.spots || 0), 0),
+      spotsTotal: spotsRes.count || 0,
       partnerOffers: perksRes.count || 0,
       archived: exps.filter(e => e.status === 'archived').length,
     });
@@ -196,6 +199,7 @@ export function AdminDashboardScreen() {
             <StatCard icon={<TrendingUp className="w-5 h-5 text-green-500" />} value={stats.active} label="Live" sub={`${stats.draft} draft`} />
             <StatCard icon={<Ticket className="w-5 h-5 text-secondary" />} value={stats.paid} label="Paid" sub={`${stats.free} free`} />
             <StatCard icon={<Archive className="w-5 h-5 text-amber-500" />} value={stats.archived} label="Archived" sub="auto-deletes in 2 days" />
+            <StatCard icon={<MapPin className="w-5 h-5 text-secondary" />} value={stats.spotsTotal} label="Total spots" />
           </div>
         </div>
 
