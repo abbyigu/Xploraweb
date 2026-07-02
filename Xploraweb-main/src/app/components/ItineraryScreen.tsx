@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router';
+import { useSearchParams, useNavigate } from 'react-router';
 import { Lock, MapPin, Wand2, Loader2 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
@@ -81,6 +81,7 @@ export function ItineraryScreen() {
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [vibes, setVibes] = useState<string[]>([]);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
+  const [neighbourhood, setNeighbourhood] = useState<string | null>(null);
 
   const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [geoStatus, setGeoStatus] = useState<GeoStatus>('idle');
@@ -117,6 +118,7 @@ export function ItineraryScreen() {
       categories,
       vibes,
       timeOfDay,
+      neighbourhood,
       language: i18n.language === 'fr' ? 'fr' : 'en',
     };
     try {
@@ -223,29 +225,30 @@ export function ItineraryScreen() {
         </div>
       ) : (
         <>
-          {neighbourhoods.length > 0 && (
-            <div className="max-w-3xl mx-auto px-6 md:px-8 pt-6">
-              <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
-              <div className="flex gap-2 overflow-x-auto pb-1 -mb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-                {neighbourhoods.map(n => (
-                  <Link
-                    key={n.id}
-                    to={`/neighbourhoods/${n.slug || n.id}`}
-                    className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-medium bg-secondary/10 text-secondary hover:bg-secondary/20 transition-colors whitespace-nowrap"
-                  >
-                    {n.name}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
           <div className="max-w-3xl mx-auto px-6 md:px-8 pt-6 pb-10 space-y-6">
             <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-5">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Wand2 className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
                 {t('itineraryBuilder.subtitle')}
               </div>
+
+              {/* Neighbourhood */}
+              {neighbourhoods.length > 0 && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {neighbourhoods.map(n => (
+                      <Chip
+                        key={n.id}
+                        active={neighbourhood === n.name}
+                        onClick={() => setNeighbourhood(prev => prev === n.name ? null : n.name)}
+                      >
+                        {n.name}
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Vibe */}
               <div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
@@ -35,7 +35,29 @@ export function AdminSpotsPanel() {
   const [query, setQuery] = useState('');
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
+  const [translating, setTranslating] = useState(false);
+  const [translateError, setTranslateError] = useState('');
   const { neighbourhoods } = useNeighbourhoods();
+
+  const autoTranslate = async () => {
+    if (!form.name.trim() && !form.description.trim()) return;
+    setTranslating(true);
+    setTranslateError('');
+    try {
+      const res = await fetch('/api/translate-spot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: form.name, description: form.description }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setTranslateError(data?.error || 'Translation failed.'); return; }
+      setForm(f => ({ ...f, name_fr: data.name_fr || f.name_fr, description_fr: data.description_fr || f.description_fr }));
+    } catch {
+      setTranslateError('Translation failed — check your connection.');
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   const geocodeAddress = async () => {
     const address = form.address.trim();
@@ -122,13 +144,14 @@ export function AdminSpotsPanel() {
 
   const openNew = () => {
     setForm({ ...BLANK }); setEditing(null);
-    setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setShowForm(true);
+    setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setTranslateError(''); setShowForm(true);
   };
 
   const openEdit = (spot: any) => {
     setImageFile(null);
     setImagePreview(spot.image_url || '');
     setError('');
+    setTranslateError('');
     setForm({
       name: spot.name || '',
       description: spot.description || '',
@@ -407,7 +430,19 @@ export function AdminSpotsPanel() {
 
             {/* Optional French translations */}
             <div className="md:col-span-2 border-t border-border pt-3">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground mb-2">Français (optionnel)</p>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Français (optionnel)</p>
+                <button
+                  type="button"
+                  onClick={autoTranslate}
+                  disabled={translating || (!form.name.trim() && !form.description.trim())}
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
+                >
+                  {translating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Languages className="w-3.5 h-3.5" />}
+                  {translating ? 'Translating…' : 'Auto-translate'}
+                </button>
+              </div>
+              {translateError && <p className="text-[11px] text-red-500 mb-2">{translateError}</p>}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-muted-foreground">Nom (FR)</label>
