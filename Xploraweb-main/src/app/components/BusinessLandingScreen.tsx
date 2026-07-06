@@ -57,17 +57,17 @@ export function BusinessLandingScreen() {
     {
       step: '3',
       title: 'Go live instantly',
-      desc: 'Your perk appears in the Xplora perks feed for all members to see and redeem.',
+      desc: 'Your perk appears in the Xplora perks feed for all explorers to see and redeem.',
     },
   ];
 
   const benefits = [
     'No upfront cost — completely free to offer a perk',
     'Direct exposure to engaged Québec City locals',
-    'Host a members-only 5 à 7 at your venue',
+    'Host a community 5 à 7 at your venue',
     'Featured placement in curated itineraries',
     'Manage your perks anytime from your dashboard',
-    'Build a loyal relationship with Xplora members',
+    'Build a loyal relationship with Xplora explorers',
   ];
 
   const partnerTypes = [
@@ -98,7 +98,7 @@ export function BusinessLandingScreen() {
               {t('business.landingSubtitle')}
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-              Xplora members are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
+              Xplora explorers are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
               <Link
@@ -152,7 +152,7 @@ export function BusinessLandingScreen() {
                   '🎟️ Skip-the-line access',
                   '🥐 Free pastry with coffee',
                   '🎨 Private after-hours viewing',
-                  '📦 Members-only discount',
+                  '📦 Exclusive discount',
                   '🧘 Free first class',
                   '🛍️ Exclusive product drop',
                 ].map((p) => (
@@ -202,23 +202,16 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
-      {/* Member audience banner */}
+      {/* Explorer audience banner */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-4">
-        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
-            <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Members</h2>
-            <ul className="space-y-1 text-sm opacity-90">
-              <li>🏙️ Engaged Québec City locals & young professionals</li>
-              <li>🎟️ Paying $10/month to actively discover the city</li>
-              <li>🍸 Attending monthly members-only 5 à 7</li>
-            </ul>
-          </div>
-          <div className="text-center md:text-right flex-shrink-0">
-            <p className="text-3xl font-serif">$10</p>
-            <p className="text-sm opacity-80">/month members</p>
-            <p className="text-xs opacity-60 mt-1">committed explorers, not casual browsers</p>
-          </div>
+        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8">
+          <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
+          <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Explorers</h2>
+          <ul className="space-y-1 text-sm opacity-90">
+            <li>🏙️ Engaged Québec City locals & young professionals</li>
+            <li>🧭 Actively discovering the city through curated routes</li>
+            <li>🍸 Attending community 5 à 7 socials</li>
+          </ul>
         </div>
       </div>
 
