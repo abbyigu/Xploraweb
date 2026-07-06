@@ -20,6 +20,7 @@ export function NeighbourhoodDetailScreen() {
   const { experiences } = useExperiences();
   const { spots } = useSpots();
   const [activeStreet, setActiveStreet] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const spotsRef = React.useRef<HTMLElement>(null);
 
   function selectStreet(street: string) {
@@ -61,9 +62,12 @@ export function NeighbourhoodDetailScreen() {
   const allLocalSpots = spots.filter(
     s => s.neighbourhood?.trim().toLowerCase() === nbhdName,
   );
-  const localSpots = activeStreet
+  const streetSpots = activeStreet
     ? allLocalSpots.filter(s => s.address?.toLowerCase().includes(activeStreet.toLowerCase()))
     : allLocalSpots;
+  const localSpots = activeCategory
+    ? streetSpots.filter(s => s.category === activeCategory)
+    : streetSpots;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -193,31 +197,35 @@ export function NeighbourhoodDetailScreen() {
           <section ref={spotsRef} className="scroll-mt-24">
             <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-1.5">
               {t('neighbourhoodDetail.spots', 'Local spots')}
-              {activeStreet && (
-                <span className="ml-2 text-base font-normal text-[#12343B]">— {activeStreet}</span>
+              {(activeStreet || activeCategory) && (
+                <span className="ml-2 text-base font-normal text-[#12343B]">
+                  — {[activeStreet, activeCategory].filter(Boolean).join(' · ')}
+                </span>
               )}
             </h2>
             <p className="text-sm text-muted-foreground mb-5">
               {t('neighbourhoodDetail.spotsSub', 'Handpicked places worth a stop in this neighbourhood.')}
             </p>
-            {(nbhd.lat != null || nbhd.boundary || nbhd.route || localSpots.some(s => s.lat != null)) && (
+            {(nbhd.lat != null || nbhd.boundary || nbhd.route || streetSpots.some(s => s.lat != null)) && (
               <div className="mb-5">
                 <NeighbourhoodSpotsMap
-                  spots={localSpots}
+                  spots={streetSpots}
                   center={nbhd.lat != null && nbhd.lng != null ? [nbhd.lat, nbhd.lng] : null}
                   boundary={nbhd.boundary}
                   route={nbhd.route}
                   websiteLabel={t('neighbourhoodDetail.website', 'Website')}
+                  activeCategory={activeCategory}
+                  onCategoryChange={setActiveCategory}
                 />
               </div>
             )}
             {localSpots.length === 0 ? (
               <div className="bg-card border border-dashed border-border rounded-2xl p-8 text-center">
                 <p className="text-sm text-muted-foreground">
-                  {t('neighbourhoodDetail.noSpotsOnStreet', 'No spots found on this street yet.')}
+                  {t('neighbourhoodDetail.noSpotsOnStreet', 'No spots found here yet.')}
                 </p>
                 <button
-                  onClick={() => setActiveStreet(null)}
+                  onClick={() => { setActiveStreet(null); setActiveCategory(null); }}
                   className="mt-3 text-sm text-[#12343B] font-medium hover:underline"
                 >
                   {t('neighbourhoodDetail.showAllSpots', 'Show all spots')}
