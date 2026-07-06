@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
 
-const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'cute'];
+const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'cute', 'brunch'];
 
 const PRICE_OPTIONS = [
   { value: 'Free', label: 'Free', hint: 'No cost' },
@@ -20,13 +20,16 @@ const BLANK = {
   website: '', neighbourhood: '', category: '', visit_time: '', price_range: '', vibes: '',
   xplora_tips: '',
   name_fr: '', description_fr: '',
+  is_brunch: false,
+  is_hotspot: false,
+  is_loved: false,
 };
 
 export function AdminSpotsPanel() {
   const [spots, setSpots] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
-  const [form, setForm] = useState({ ...BLANK });
+  const [form, setForm] = useState<typeof BLANK>({ ...BLANK });
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -167,6 +170,9 @@ export function AdminSpotsPanel() {
       xplora_tips: (spot.xplora_tips || []).join('\n'),
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
+      is_brunch: !!spot.is_brunch,
+      is_hotspot: !!spot.is_hotspot,
+      is_loved: !!spot.is_loved,
     });
     setEditing(spot.id);
     setGeocodeMsg('');
@@ -201,6 +207,9 @@ export function AdminSpotsPanel() {
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
         name_fr: form.name_fr.trim() || null,
         description_fr: form.description_fr.trim() || null,
+        is_brunch: form.is_brunch,
+        is_hotspot: form.is_hotspot,
+        is_loved: form.is_loved,
       };
 
       let dbError: any;
@@ -383,6 +392,54 @@ export function AdminSpotsPanel() {
               <p className="text-[11px] text-muted-foreground mt-1">Tap to set how pricey the spot is — tap again to clear.</p>
             </div>
 
+            <div className="md:col-span-2 flex flex-wrap gap-3">
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, is_brunch: !f.is_brunch }))}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    form.is_brunch
+                      ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                  }`}
+                >
+                  <Star className={`w-4 h-4 ${form.is_brunch ? 'fill-white' : ''}`} />
+                  Brunch spot
+                </button>
+                <p className="text-[11px] text-muted-foreground mt-1">Starred highlight wherever it's shown.</p>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, is_hotspot: !f.is_hotspot }))}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    form.is_hotspot
+                      ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                  }`}
+                >
+                  <Flame className={`w-4 h-4 ${form.is_hotspot ? 'fill-white' : ''}`} />
+                  Hotspot
+                </button>
+                <p className="text-[11px] text-muted-foreground mt-1">Featured on the home "Hotspots" tile.</p>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setForm(f => ({ ...f, is_loved: !f.is_loved }))}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    form.is_loved
+                      ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${form.is_loved ? 'fill-white' : ''}`} />
+                  Place We Love
+                </button>
+                <p className="text-[11px] text-muted-foreground mt-1">Featured on the home "Places We Love" tile.</p>
+              </div>
+            </div>
+
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Vibes</label>
               <div className="flex flex-wrap gap-2 mt-2">
@@ -519,7 +576,12 @@ export function AdminSpotsPanel() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <p className="font-medium text-sm truncate">{spot.name}</p>
+                      <p className="font-medium text-sm truncate flex items-center gap-1.5">
+                        {spot.name}
+                        {spot.is_brunch && <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500 flex-shrink-0" />}
+                        {spot.is_hotspot && <Flame className="w-3.5 h-3.5 text-red-500 fill-red-500 flex-shrink-0" />}
+                        {spot.is_loved && <Heart className="w-3.5 h-3.5 text-pink-500 fill-pink-500 flex-shrink-0" />}
+                      </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {[spot.category, spot.price_range].filter(Boolean).join(' · ') || 'No location'}
                         {spot.lat == null || spot.lng == null ? ' · ⚠ no coords' : ''}

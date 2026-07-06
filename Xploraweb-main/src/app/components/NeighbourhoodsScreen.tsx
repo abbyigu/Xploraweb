@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
@@ -9,19 +9,24 @@ import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
 // missing), so the page is never empty.
 const FALLBACK: Neighbourhood[] = [
-  { id: 'old-port',        name: 'Old Port',        slug: 'old-port',        tagline: 'History & waterfront',  description: '', coverImage: '/nbhd/old-port.jpeg',  sortOrder: 0, lat: null, lng: null, boundary: null, route: null },
-  { id: 'saint-roch',      name: 'Saint-Roch',      slug: 'saint-roch',      tagline: 'Art, coffee & cool',    description: '', coverImage: '/nbhd/saint-roch.webp', sortOrder: 1, lat: null, lng: null, boundary: null, route: null },
-  { id: 'petit-champlain', name: 'Petit-Champlain', slug: 'petit-champlain', tagline: 'Cobblestones & charm',  description: '', coverImage: '/nbhd/champlain.jpeg',  sortOrder: 2, lat: null, lng: null, boundary: null, route: null },
-  { id: 'montcalm',        name: 'Montcalm',        slug: 'montcalm',        tagline: 'Parks & grand avenues', description: '', coverImage: '/nbhd/montcalm.jpg',    sortOrder: 3, lat: null, lng: null, boundary: null, route: null },
-  { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   description: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null, route: null },
+  { id: 'old-port',        name: 'Old Port',        slug: 'old-port',        tagline: 'History & waterfront',  description: '', coverImage: '/nbhd/old-port.jpeg',  sortOrder: 0, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'saint-roch',      name: 'Saint-Roch',      slug: 'saint-roch',      tagline: 'Art, coffee & cool',    description: '', coverImage: '/nbhd/saint-roch.webp', sortOrder: 1, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'petit-champlain', name: 'Petit-Champlain', slug: 'petit-champlain', tagline: 'Cobblestones & charm',  description: '', coverImage: '/nbhd/champlain.jpeg',  sortOrder: 2, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'montcalm',        name: 'Montcalm',        slug: 'montcalm',        tagline: 'Parks & grand avenues', description: '', coverImage: '/nbhd/montcalm.jpg',    sortOrder: 3, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   description: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
 ];
 
 export function NeighbourhoodsScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { neighbourhoods, loading } = useNeighbourhoods();
+  const [searchParams] = useSearchParams();
+  const sortNew = searchParams.get('sort') === 'new';
 
-  const list = neighbourhoods.length ? neighbourhoods : FALLBACK;
+  const base = neighbourhoods.length ? neighbourhoods : FALLBACK;
+  const list = sortNew
+    ? [...base].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+    : base;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -36,10 +41,12 @@ export function NeighbourhoodsScreen() {
         <div className="max-w-3xl mx-auto px-6 py-12 md:py-20 text-center flex flex-col items-center gap-4">
           <p className="text-xs uppercase tracking-widest text-gray-500">{t('neighbourhoods.kicker', 'Québec City')}</p>
           <h1 className="font-serif text-3xl sm:text-4xl md:text-5xl leading-tight text-gray-900">
-            {t('neighbourhoods.title', 'Explore by neighbourhood')}
+            {sortNew ? t('neighbourhoods.newTitle', 'New neighbourhoods') : t('neighbourhoods.title', 'Explore by neighbourhood')}
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-xl">
-            {t('neighbourhoods.subtitle', 'Every corner of the city has its own character. Pick a neighbourhood to see the experiences waiting there.')}
+            {sortNew
+              ? t('neighbourhoods.newSubtitle', "The latest additions to Xplora, freshest first.")
+              : t('neighbourhoods.subtitle', 'Every corner of the city has its own character. Pick a neighbourhood to see the experiences waiting there.')}
           </p>
         </div>
       </section>
@@ -52,7 +59,7 @@ export function NeighbourhoodsScreen() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-            {list.map(n => (
+            {list.map((n, i) => (
               <button
                 key={n.id}
                 onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(n.slug || n.id)}`)}
@@ -66,6 +73,11 @@ export function NeighbourhoodsScreen() {
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+                  {sortNew && i < 3 && (
+                    <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-[#12343B] text-white">
+                      {t('neighbourhoods.newBadge', 'New')}
+                    </span>
+                  )}
                   <div className="absolute bottom-0 left-0 right-0 p-4">
                     <p className="text-white font-semibold text-lg leading-tight flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 flex-shrink-0" /> {n.name}

@@ -1,4 +1,4 @@
-import { MapPin, Clock, ExternalLink, Lightbulb } from 'lucide-react';
+import { MapPin, Clock, ExternalLink, Lightbulb, Star } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 
@@ -21,6 +21,11 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
         {spot.category && (
           <span className="absolute top-2 left-2 text-[11px] font-medium px-2 py-1 rounded-full bg-white/90 text-[#12343B]">
             {spot.category}
+          </span>
+        )}
+        {spot.isBrunch && (
+          <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm">
+            <Star className="w-3 h-3 fill-white" /> {t('neighbourhoodDetail.brunch', 'Brunch')}
           </span>
         )}
 

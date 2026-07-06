@@ -4,7 +4,7 @@ export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' |
 export type TrailMode = 'walking' | 'driving';
 
 /** Spot categories — used by the AI trek builder to assemble routes by interest. */
-export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
+export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays'] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
 /**
@@ -25,6 +25,9 @@ export interface Spot {
   neighbourhood?: string;
   vibes?: string[];
   category?: SpotCategory | string;
+  isBrunch?: boolean;    // special highlight — spot is a great brunch pick
+  isHotspot?: boolean;   // admin-curated — surfaced on the "Hotspots" home tile
+  isLoved?: boolean;     // admin-curated — surfaced on the "Places We Love" home tile
   visitTime?: string;   // suggested time to spend, e.g. "20 min"
   priceRange?: string;  // relative cost, e.g. "$", "$$", "$$$"
   xploraTips?: string[]; // insider tips shown to explorers
