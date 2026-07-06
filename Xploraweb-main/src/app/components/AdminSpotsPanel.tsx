@@ -43,18 +43,18 @@ export function AdminSpotsPanel() {
   const { neighbourhoods } = useNeighbourhoods();
 
   const autoTranslate = async () => {
-    if (!form.name.trim() && !form.description.trim()) return;
+    if (!form.name.trim() && !form.description.trim() && !form.xplora_tips.trim()) return;
     setTranslating(true);
     setTranslateError('');
     try {
       const res = await fetch('/api/translate-spot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, description: form.description }),
+        body: JSON.stringify({ name: form.name, description: form.description, tips: form.xplora_tips }),
       });
       const data = await res.json();
       if (!res.ok) { setTranslateError(data?.error || 'Translation failed.'); return; }
-      setForm(f => ({ ...f, name_fr: data.name_fr || f.name_fr, description_fr: data.description_fr || f.description_fr }));
+      setForm(f => ({ ...f, name_fr: data.name_fr || f.name_fr, description_fr: data.description_fr || f.description_fr, xplora_tips_fr: data.tips_fr || f.xplora_tips_fr }));
     } catch {
       setTranslateError('Translation failed — check your connection.');
     } finally {
@@ -511,7 +511,7 @@ export function AdminSpotsPanel() {
                 <button
                   type="button"
                   onClick={autoTranslate}
-                  disabled={translating || (!form.name.trim() && !form.description.trim())}
+                  disabled={translating || (!form.name.trim() && !form.description.trim() && !form.xplora_tips.trim())}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   {translating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Languages className="w-3.5 h-3.5" />}
