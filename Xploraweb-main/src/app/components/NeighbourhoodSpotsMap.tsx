@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../data/products';
@@ -45,15 +45,24 @@ interface Props {
   boundary: [number, number][] | null;
   route?: [number, number][] | null;
   websiteLabel?: string;
+  activeCategory?: string | null;
+  onCategoryChange?: (category: string | null) => void;
 }
 
-export function NeighbourhoodSpotsMap({ spots, center, boundary, route, websiteLabel = 'Website' }: Props) {
+export function NeighbourhoodSpotsMap({
+  spots,
+  center,
+  boundary,
+  route,
+  websiteLabel = 'Website',
+  activeCategory = null,
+  onCategoryChange,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerLayersRef = useRef<{ marker: L.Marker; category: string }[]>([]);
 
   const categories = Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -130,7 +139,7 @@ export function NeighbourhoodSpotsMap({ spots, center, boundary, route, websiteL
           {categories.map(cat => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+              onClick={() => onCategoryChange?.(activeCategory === cat ? null : cat)}
               className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
                 activeCategory === cat
                   ? 'bg-[#12343B] text-white border-[#12343B]'
