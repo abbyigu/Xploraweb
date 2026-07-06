@@ -54,6 +54,7 @@ interface CandidateSpot {
 
 function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
   const pick = (fr: string | null, en: string | null) => (lang === 'fr' && fr) ? fr : (en || null);
+  const pickArr = (fr: string[] | null, en: string[] | null) => (lang === 'fr' && fr && fr.length > 0) ? fr : (en || []);
   return {
     id: row.id,
     name: pick(row.name_fr, row.name) || row.name,
@@ -68,7 +69,7 @@ function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
     category: row.category ?? null,
     visitTime: row.visit_time ?? null,
     priceRange: row.price_range ?? null,
-    xploraTips: row.xplora_tips || [],
+    xploraTips: pickArr(row.xplora_tips_fr, row.xplora_tips),
   };
 }
 

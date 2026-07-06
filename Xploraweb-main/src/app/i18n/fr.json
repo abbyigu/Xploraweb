@@ -196,9 +196,9 @@
     "subtitle": "Trouvez votre prochaine aventure à Québec",
     "vibe": "Ambiance",
     "neighbourhood": "Quartier",
-    "paywallTitle": "Expériences réservées aux membres",
-    "paywallSubtitle": "Devenez membre Xplora pour débloquer toutes nos expériences à Québec.",
-    "paywallCta": "Devenir membre"
+    "paywallTitle": "Connectez-vous pour déverrouiller",
+    "paywallSubtitle": "Créez un compte gratuit pour débloquer toutes nos expériences à Québec.",
+    "paywallCta": "Créer un compte gratuit"
   },
   "itineraryBuilder": {
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
@@ -446,10 +446,10 @@
   "perks": {
     "title": "Avantages Xplora",
     "subtitle": "Accès exclusif à des endroits introuvables ailleurs",
-    "membersOnly": "Réservé aux membres",
-    "joinPrompt": "Les avantages Xplora sont exclusifs aux membres. Rejoignez pour accéder aux menus cachés, laissez-passer coupe-file, et bien plus.",
-    "join": "Rejoindre — 10 $/mois",
-    "alreadyMember": "Déjà membre ? Connexion",
+    "membersOnly": "Connectez-vous pour déverrouiller",
+    "joinPrompt": "Les avantages Xplora sont exclusifs aux explorateurs connectés. Créez un compte gratuit pour accéder aux menus cachés, laissez-passer coupe-file, et bien plus.",
+    "join": "Créer un compte gratuit",
+    "alreadyMember": "Vous avez déjà un compte ? Connexion",
     "active": "Actif",
     "comingSoon": "Bientôt",
     "ready": "Disponible",
@@ -520,10 +520,10 @@
     "ctaContact": "Nous contacter"
   },
   "members": {
-    "title": "Réservé aux membres",
-    "subtitle": "Rejoignez pour accéder aux avantages exclusifs, offres locales et événements sociaux avec d'autres Xplorateurs.",
-    "join": "Rejoindre — 10 $/mois",
-    "alreadyMember": "Déjà membre ? Connexion",
+    "title": "Connectez-vous pour déverrouiller",
+    "subtitle": "Créez un compte gratuit pour accéder aux avantages exclusifs, offres locales et événements sociaux avec d'autres Xplorateurs.",
+    "join": "Créer un compte gratuit",
+    "alreadyMember": "Vous avez déjà un compte ? Connexion",
     "sectionTitle": "Membres",
     "sectionSubtitle": "Avantages et événements sociaux pour les membres Xplora",
     "perks": "Avantages",
@@ -633,7 +633,7 @@
     "whatKindOfPerk": "Quel type d'avantage fonctionne ?",
     "whoWePartner": "Avec qui nous nous associons",
     "anyBusiness": "Toute entreprise de Québec avec une bonne offre",
-    "readyToReach": "Prêt à rejoindre les membres Xplora ?",
+    "readyToReach": "Prêt à rejoindre les explorateurs Xplora ?",
     "loginTitle": "Compte entreprise",
     "loginSubtitle": "Connexion partenaire",
     "loginDesc": "Gérez vos avantages et offres",

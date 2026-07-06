@@ -196,9 +196,9 @@
     "subtitle": "Find your next adventure in Québec City",
     "vibe": "Vibe",
     "neighbourhood": "Neighbourhood",
-    "paywallTitle": "Members-only experiences",
-    "paywallSubtitle": "Join Xplora to unlock our full lineup of curated Québec City experiences.",
-    "paywallCta": "Join Xplora"
+    "paywallTitle": "Sign in to unlock",
+    "paywallSubtitle": "Create a free account to unlock our full lineup of curated Québec City experiences.",
+    "paywallCta": "Create Free Account"
   },
   "itineraryBuilder": {
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
@@ -446,10 +446,10 @@
   "perks": {
     "title": "Xplora Perks",
     "subtitle": "Insider access to places you won't find anywhere else",
-    "membersOnly": "Members Only",
-    "joinPrompt": "Xplora Perks are exclusive to members. Join to unlock insider access to hidden menus, skip-the-line passes, and more.",
-    "join": "Join — $10/month",
-    "alreadyMember": "Already a member? Log in",
+    "membersOnly": "Sign In to Unlock",
+    "joinPrompt": "Xplora Perks are exclusive to signed-in explorers. Create a free account to unlock insider access to hidden menus, skip-the-line passes, and more.",
+    "join": "Create Free Account",
+    "alreadyMember": "Already have an account? Log in",
     "active": "Active",
     "comingSoon": "Coming Soon",
     "ready": "Ready for You",
@@ -520,10 +520,10 @@
     "ctaContact": "Get in touch"
   },
   "members": {
-    "title": "Members Only",
-    "subtitle": "Join to unlock insider perks, local deals, and social events with fellow Xplorators.",
-    "join": "Join — $10/month",
-    "alreadyMember": "Already a member? Log in",
+    "title": "Sign In to Unlock",
+    "subtitle": "Create a free account to unlock insider perks, local deals, and social events with fellow Xplorators.",
+    "join": "Create Free Account",
+    "alreadyMember": "Already have an account? Log in",
     "sectionTitle": "Members",
     "sectionSubtitle": "Perks & social events for Xplora members",
     "perks": "Perks",
@@ -633,7 +633,7 @@
     "whatKindOfPerk": "What kind of perk works?",
     "whoWePartner": "Who we partner with",
     "anyBusiness": "Any Québec City business with a great offer",
-    "readyToReach": "Ready to reach Xplora members?",
+    "readyToReach": "Ready to reach Xplora explorers?",
     "loginTitle": "Business Account",
     "loginSubtitle": "Partner Sign In",
     "loginDesc": "Manage your perks and offers",

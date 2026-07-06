@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { ArrowRight, CheckCircle, Building2 } from 'lucide-react';
-import { XploraLogo } from './XploraLogo';
 import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
@@ -57,17 +56,17 @@ export function BusinessLandingScreen() {
     {
       step: '3',
       title: 'Go live instantly',
-      desc: 'Your perk appears in the Xplora perks feed for all members to see and redeem.',
+      desc: 'Your perk appears in the Xplora perks feed for all explorers to see and redeem.',
     },
   ];
 
   const benefits = [
     'No upfront cost — completely free to offer a perk',
     'Direct exposure to engaged Québec City locals',
-    'Host a members-only 5 à 7 at your venue',
+    'Host a community 5 à 7 at your venue',
     'Featured placement in curated itineraries',
     'Manage your perks anytime from your dashboard',
-    'Build a loyal relationship with Xplora members',
+    'Build a loyal relationship with Xplora explorers',
   ];
 
   const partnerTypes = [
@@ -85,39 +84,43 @@ export function BusinessLandingScreen() {
     <div className="min-h-screen bg-background">
 
       {/* Hero */}
-      <div className="bg-gradient-to-b from-primary/40 to-primary/20">
-        <div className="max-w-7xl mx-auto px-6 md:px-8 py-12 md:py-20">
-          <div className="flex justify-center mb-8">
-            <XploraLogo variant="full" className="h-20" />
-          </div>
-          <div className="max-w-3xl mx-auto text-center space-y-5">
-            <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-1.5 rounded-full text-sm">
-              <Building2 className="w-4 h-4" /> {t('business.landingTitle')}
-            </div>
-            <h1 className="text-3xl md:text-5xl leading-tight">
+      <section className="relative min-h-[520px] md:min-h-[600px] flex">
+        <img
+          src="/hero/rue-du-petit-champlain-shops.jpg"
+          alt="Storefronts in Québec City"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
+        <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center justify-center gap-8">
+          <div className="flex flex-col items-center gap-5">
+            <p className="text-xs uppercase tracking-widest text-white/80 inline-flex items-center gap-2">
+              <Building2 className="w-3.5 h-3.5" /> {t('business.landingTitle')}
+            </p>
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow">
               {t('business.landingSubtitle')}
             </h1>
-            <p className="text-base md:text-lg text-muted-foreground max-w-xl mx-auto">
-              Xplora members are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
+            <p className="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm">
+              Xplora explorers are engaged locals and young professionals actively discovering the city. Offering a perk puts your venue in their hands — for free.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2">
-              <Link
-                to="/business/signup"
-                className="px-8 py-4 bg-secondary text-secondary-foreground rounded-2xl text-base hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-              >
-                {t('business.createAccount')}
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <Link
-                to="/business/login"
-                className="px-8 py-4 bg-white/40 backdrop-blur-sm text-foreground rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
-              >
-                {t('business.signIn')}
-              </Link>
-            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-2 w-full sm:w-auto">
+            <Link
+              to="/business/signup"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+            >
+              {t('business.createAccount')}
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/business/login"
+              className="px-8 py-4 bg-white/40 backdrop-blur-sm text-white rounded-2xl text-base hover:bg-white/50 transition-colors flex items-center justify-center"
+            >
+              {t('business.signIn')}
+            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
       <ExplorerBanner />
 
@@ -152,7 +155,7 @@ export function BusinessLandingScreen() {
                   '🎟️ Skip-the-line access',
                   '🥐 Free pastry with coffee',
                   '🎨 Private after-hours viewing',
-                  '📦 Members-only discount',
+                  '📦 Exclusive discount',
                   '🧘 Free first class',
                   '🛍️ Exclusive product drop',
                 ].map((p) => (
@@ -170,11 +173,13 @@ export function BusinessLandingScreen() {
           <h2 className="text-3xl md:text-4xl mb-3">{t('business.whoWePartner')}</h2>
           <p className="text-muted-foreground">{t('business.anyBusiness')}</p>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {partnerTypes.map((pt) => (
-            <div key={pt.label} className="bg-card border border-border rounded-2xl p-5 text-center space-y-2">
-              <div className="text-3xl">{pt.icon}</div>
-              <p className="text-sm text-muted-foreground">{pt.label}</p>
+            <div key={pt.label} className="text-left rounded-2xl border border-gray-200 bg-white p-4 md:p-5 hover:shadow-lg hover:border-[#12343B]/30 transition-all">
+              <div className="w-10 h-10 rounded-xl bg-[#c9e8e8]/60 flex items-center justify-center mb-3 text-lg">
+                {pt.icon}
+              </div>
+              <p className="font-semibold text-sm md:text-base text-gray-900">{pt.label}</p>
             </div>
           ))}
         </div>
@@ -202,23 +207,16 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
-      {/* Member audience banner */}
+      {/* Explorer audience banner */}
       <div className="max-w-7xl mx-auto px-6 md:px-8 pb-4">
-        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
-            <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Members</h2>
-            <ul className="space-y-1 text-sm opacity-90">
-              <li>🏙️ Engaged Québec City locals & young professionals</li>
-              <li>🎟️ Paying $10/month to actively discover the city</li>
-              <li>🍸 Attending monthly members-only 5 à 7</li>
-            </ul>
-          </div>
-          <div className="text-center md:text-right flex-shrink-0">
-            <p className="text-3xl font-serif">$10</p>
-            <p className="text-sm opacity-80">/month members</p>
-            <p className="text-xs opacity-60 mt-1">committed explorers, not casual browsers</p>
-          </div>
+        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8">
+          <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
+          <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Explorers</h2>
+          <ul className="space-y-1 text-sm opacity-90">
+            <li>🏙️ Engaged Québec City locals & young professionals</li>
+            <li>🧭 Actively discovering the city through curated routes</li>
+            <li>🍸 Attending community 5 à 7 socials</li>
+          </ul>
         </div>
       </div>
 

@@ -54,7 +54,7 @@ function Paywall() {
             <p className="text-sm text-muted-foreground mb-6">
               {t('members.subtitle')}
             </p>
-            <button onClick={() => navigate('/membership')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
+            <button onClick={() => navigate('/signup')} className="w-full bg-primary text-primary-foreground py-3 rounded-xl font-medium hover:opacity-90 transition-opacity mb-3">
               {t('members.join')}
             </button>
             <button onClick={() => navigate('/login')} className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors">

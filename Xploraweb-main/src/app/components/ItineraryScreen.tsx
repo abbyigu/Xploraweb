@@ -216,7 +216,7 @@ export function ItineraryScreen() {
             <h2 className="text-lg md:text-xl font-medium">{t('itinerary.paywallTitle')}</h2>
             <p className="text-sm text-muted-foreground max-w-sm">{t('itinerary.paywallSubtitle')}</p>
             <button
-              onClick={() => navigate('/membership')}
+              onClick={() => navigate('/signup')}
               className="mt-1 px-5 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
             >
               {t('itinerary.paywallCta')}

@@ -19,7 +19,7 @@ const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
   website: '', neighbourhood: '', category: '', visit_time: '', price_range: '', vibes: '',
   xplora_tips: '',
-  name_fr: '', description_fr: '',
+  name_fr: '', description_fr: '', xplora_tips_fr: '',
   is_brunch: false,
   is_hotspot: false,
   is_loved: false,
@@ -170,6 +170,7 @@ export function AdminSpotsPanel() {
       xplora_tips: (spot.xplora_tips || []).join('\n'),
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
+      xplora_tips_fr: (spot.xplora_tips_fr || []).join('\n'),
       is_brunch: !!spot.is_brunch,
       is_hotspot: !!spot.is_hotspot,
       is_loved: !!spot.is_loved,
@@ -207,6 +208,7 @@ export function AdminSpotsPanel() {
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
         name_fr: form.name_fr.trim() || null,
         description_fr: form.description_fr.trim() || null,
+        xplora_tips_fr: form.xplora_tips_fr ? form.xplora_tips_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
         is_brunch: form.is_brunch,
         is_hotspot: form.is_hotspot,
         is_loved: form.is_loved,
@@ -525,6 +527,17 @@ export function AdminSpotsPanel() {
                 <div>
                   <label className="text-xs text-muted-foreground">Description (FR)</label>
                   <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Description courte" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="text-xs text-muted-foreground">Xplora Tips (FR)</label>
+                  <textarea
+                    value={form.xplora_tips_fr}
+                    onChange={set('xplora_tips_fr')}
+                    rows={3}
+                    className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    placeholder={"Arrivez tôt pour éviter la foule\nDemandez le chocolat chaud hors-menu"}
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">Un conseil par ligne. Laissez vide pour afficher les conseils anglais aux visiteurs francophones.</p>
                 </div>
               </div>
             </div>

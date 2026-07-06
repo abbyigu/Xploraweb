@@ -400,17 +400,6 @@ export function AccountScreen() {
                 )}
               </div>
 
-              <div
-                className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-center justify-between cursor-pointer hover:bg-primary/15 transition-colors"
-                onClick={() => navigate('/membership')}
-              >
-                <div>
-                  <p className="text-sm font-medium text-primary">{t('account.membership')}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t('account.membershipSub')}</p>
-                </div>
-                <span className="text-sm text-primary font-medium">{t('account.membershipPrice')}</span>
-              </div>
-
               <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
                 <LogOut className="w-5 h-5" /><span>{t('account.logOut')}</span>
               </button>

@@ -7,6 +7,10 @@ function pick(fr: string | null | undefined, en: string | null | undefined): str
   return (i18n.language === 'fr' && fr) ? fr : (en || '');
 }
 
+function pickArr(fr: string[] | null | undefined, en: string[] | null | undefined): string[] | undefined {
+  return (i18n.language === 'fr' && fr && fr.length > 0) ? fr : (en || undefined);
+}
+
 export function mapSpotRow(row: any): Spot {
   return {
     id: row.id,
@@ -25,7 +29,7 @@ export function mapSpotRow(row: any): Spot {
     isLoved: row.is_loved || undefined,
     visitTime: row.visit_time || undefined,
     priceRange: row.price_range || undefined,
-    xploraTips: row.xplora_tips || undefined,
+    xploraTips: pickArr(row.xplora_tips_fr, row.xplora_tips),
     status: row.status || undefined,
   };
 }

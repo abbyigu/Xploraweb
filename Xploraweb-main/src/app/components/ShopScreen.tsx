@@ -1,20 +1,16 @@
 import { ShoppingCart, Check } from 'lucide-react';
-import { useState } from 'react';
-import { merch, memberships } from '../data/products';
+import { merch } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
 import { Footer } from './Footer';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useTranslation } from 'react-i18next';
 
-type Tab = 'merch' | 'memberships';
-
 function formatPrice(cents: number) {
   return '$' + (cents / 100).toFixed(0);
 }
 
 export function ShopScreen() {
-  const [activeTab, setActiveTab] = useState<Tab>('merch');
   const { addItem, items, count } = useCart();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -25,12 +21,7 @@ export function ShopScreen() {
     if (!inCart(product.id)) addItem(product);
   };
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: 'merch', label: t('shop.merch') },
-    { key: 'memberships', label: t('shop.memberships') },
-  ];
-
-  const products = activeTab === 'merch' ? merch : memberships;
+  const products = merch;
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
@@ -52,18 +43,6 @@ export function ShopScreen() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-6">
-        <div className="flex gap-2 mb-6 border-b border-border">
-          {tabs.map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`pb-3 px-1 border-b-2 transition-colors text-sm ${activeTab === tab.key ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {products.map(product => (
             <div key={product.id} className="bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow">
@@ -79,7 +58,7 @@ export function ShopScreen() {
                 <h3 className="text-base mb-1">{product.name}</h3>
                 <p className="text-sm text-muted-foreground mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-medium">{formatPrice(product.price)}{product.type === 'membership' && product.badge === '/month' ? '/mo' : ''}</span>
+                  <span className="text-lg font-medium">{formatPrice(product.price)}</span>
                   <button
                     onClick={() => handleAdd(product)}
                     className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${inCart(product.id) ? 'bg-green-500 text-white cursor-default' : 'bg-primary text-primary-foreground hover:opacity-90'}`}
