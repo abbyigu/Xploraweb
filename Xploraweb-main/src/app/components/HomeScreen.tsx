@@ -2,14 +2,15 @@ import { Link, useNavigate } from 'react-router';
 import { ArrowRight, Flame, Heart, Compass, MapPin, Handshake } from 'lucide-react';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { Footer } from './Footer';
+import { SpotFinder } from './SpotFinder';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 const FEATURE_TILES = [
-  { label: 'Hotspots',           desc: 'Buzzing spots nearby',      icon: Flame,   to: '/neighbourhoods' },
-  { label: 'Places We Love',     desc: 'Our favorite local finds',  icon: Heart,   to: '/neighbourhoods' },
+  { label: 'Hotspots',           desc: 'Buzzing spots nearby',      icon: Flame,   to: '/hotspots' },
+  { label: 'Places We Love',     desc: 'Our favorite local finds',  icon: Heart,   to: '/loved' },
   { label: 'New Tour',           desc: 'Fresh self-guided routes',  icon: Compass, to: '/itinerary' },
-  { label: 'New Neighbourhoods', desc: 'Just added to Xplora',      icon: MapPin,  to: '/neighbourhoods' },
+  { label: 'New Neighbourhoods', desc: 'Just added to Xplora',      icon: MapPin,  to: '/neighbourhoods?sort=new' },
 ];
 
 const VALUE_PILLARS = [
@@ -118,6 +119,8 @@ export function HomeScreen() {
       <div className="bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center">
         <p className="font-serif text-2xl md:text-3xl text-[#12343B]">Born from a love of wandering</p>
       </div>
+
+      <SpotFinder />
 
       {/* About */}
       <section id="about" className="py-16 px-6 bg-white">

@@ -223,15 +223,6 @@ export function AccountScreen() {
               {t('account.createAccount')}
             </button>
           </div>
-
-          <div
-            className="mt-6 bg-primary/10 border border-primary/20 rounded-2xl p-4 text-center cursor-pointer hover:bg-primary/15 transition-colors"
-            onClick={() => navigate('/membership')}
-          >
-            <p className="text-sm font-medium text-primary mb-0.5">{t('account.membership')}</p>
-            <p className="text-xs text-muted-foreground">{t('account.membershipSub')}</p>
-            <p className="text-xs text-primary mt-2 underline underline-offset-2">{t('account.membershipPrice')}</p>
-          </div>
         </div>
       </div>
     );

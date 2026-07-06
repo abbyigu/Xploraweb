@@ -5,8 +5,25 @@
     "subtitle": "Every corner of the city has its own character. Pick a neighbourhood to see the experiences waiting there.",
     "viewExperiences": "View experiences",
     "discover": "Discover",
+    "newTitle": "New neighbourhoods",
+    "newSubtitle": "The latest additions to Xplora, freshest first.",
+    "newBadge": "New",
     "seoTitle": "Québec City Neighbourhoods — Xplora",
     "seoDesc": "Explore Québec City neighbourhood by neighbourhood — from the Old Port to Saint-Roch and Limoilou. Discover curated self-guided tours and local experiences in each area."
+  },
+  "hotspots": {
+    "title": "Hotspots",
+    "subtitle": "Buzzing spots our team keeps coming back to.",
+    "empty": "No hotspots yet — check back soon.",
+    "seoTitle": "Hotspots in Québec City — Xplora",
+    "seoDesc": "The buzzing spots our team keeps coming back to in Québec City."
+  },
+  "placesWeLove": {
+    "title": "Places We Love",
+    "subtitle": "Our favorite local finds, handpicked by the Xplora team.",
+    "empty": "No favorites yet — check back soon.",
+    "seoTitle": "Places We Love in Québec City — Xplora",
+    "seoDesc": "Our favorite local finds, handpicked by the Xplora team in Québec City."
   },
   "neighbourhoodDetail": {
     "back": "All neighbourhoods",
@@ -19,9 +36,23 @@
     "website": "Website",
     "tips": "Tips",
     "xploraTips": "Xplora Tips",
+    "brunch": "Brunch",
     "free": "Free",
     "empty": "No tours here yet — check back soon.",
     "browseAll": "Browse all experiences"
+  },
+  "spotFinder": {
+    "title": "Not sure what to do?",
+    "subtitle": "Tell us where, what, and your budget — we'll pick a spot for you.",
+    "where": "Where",
+    "what": "What",
+    "budget": "Budget",
+    "anywhere": "Where — anywhere",
+    "anything": "What — anything",
+    "anyBudget": "$ — any budget",
+    "cta": "Find me something",
+    "again": "Try another",
+    "noMatch": "Nothing matches yet — try loosening a filter."
   },
   "nav": {
     "home": "Home",
@@ -602,8 +633,6 @@
     "whatKindOfPerk": "What kind of perk works?",
     "whoWePartner": "Who we partner with",
     "anyBusiness": "Any Québec City business with a great offer",
-    "exploreBy": "Explore by vibe or neighbourhood",
-    "exploreByDesc": "Discover experiences that match your mood or your part of the city.",
     "readyToReach": "Ready to reach Xplora members?",
     "loginTitle": "Business Account",
     "loginSubtitle": "Partner Sign In",
@@ -627,9 +656,7 @@
     "creating": "Creating account...",
     "hasAccount": "Already have an account?",
     "lookingPersonalAccount": "Looking for a personal account?",
-    "joinAsMember": "Join as a member",
-    "discovery": "Discovery",
-    "exploreByDesc": "Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it."
+    "joinAsMember": "Join as a member"
   },
   "forgotPassword": {
     "title": "Forgot Password?",
@@ -768,7 +795,8 @@
     "artsy": "Artsy",
     "outdoorsy": "Outdoorsy",
     "lateNight": "Late Night",
-    "familyFriendly": "Family-Friendly"
+    "familyFriendly": "Family-Friendly",
+    "brunch": "Brunch"
   },
   "testimonials": {
     "title": "What explorers are saying",

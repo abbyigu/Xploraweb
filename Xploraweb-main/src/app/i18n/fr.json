@@ -5,8 +5,25 @@
     "subtitle": "Chaque coin de la ville a son propre caractère. Choisissez un quartier pour découvrir les expériences qui vous y attendent.",
     "viewExperiences": "Voir les expériences",
     "discover": "Découvrir",
+    "newTitle": "Nouveaux quartiers",
+    "newSubtitle": "Les derniers ajouts à Xplora, les plus récents en premier.",
+    "newBadge": "Nouveau",
     "seoTitle": "Quartiers de la ville de Québec — Xplora",
     "seoDesc": "Explorez la ville de Québec quartier par quartier — du Vieux-Port à Saint-Roch et Limoilou. Découvrez des parcours autoguidés et des expériences locales dans chaque secteur."
+  },
+  "hotspots": {
+    "title": "Incontournables",
+    "subtitle": "Les endroits animés où notre équipe revient sans cesse.",
+    "empty": "Aucun incontournable pour le moment — revenez bientôt.",
+    "seoTitle": "Incontournables à Québec — Xplora",
+    "seoDesc": "Les endroits animés où notre équipe revient sans cesse à Québec."
+  },
+  "placesWeLove": {
+    "title": "Nos coups de cœur",
+    "subtitle": "Nos endroits préférés, triés sur le volet par l'équipe Xplora.",
+    "empty": "Aucun coup de cœur pour le moment — revenez bientôt.",
+    "seoTitle": "Nos coups de cœur à Québec — Xplora",
+    "seoDesc": "Nos endroits préférés à Québec, triés sur le volet par l'équipe Xplora."
   },
   "neighbourhoodDetail": {
     "back": "Tous les quartiers",
@@ -19,9 +36,23 @@
     "website": "Site web",
     "tips": "Astuces",
     "xploraTips": "Astuces Xplora",
+    "brunch": "Brunch",
     "free": "Gratuit",
     "empty": "Aucun parcours ici pour le moment — revenez bientôt.",
     "browseAll": "Voir toutes les expériences"
+  },
+  "spotFinder": {
+    "title": "Pas sûr de quoi faire?",
+    "subtitle": "Dites-nous où, quoi, et votre budget — on choisit un endroit pour vous.",
+    "where": "Où",
+    "what": "Quoi",
+    "budget": "Budget",
+    "anywhere": "Où — n'importe où",
+    "anything": "Quoi — n'importe quoi",
+    "anyBudget": "$ — tous budgets",
+    "cta": "Trouvez-moi quelque chose",
+    "again": "Essayer un autre",
+    "noMatch": "Rien ne correspond encore — essayez d'assouplir un filtre."
   },
   "nav": {
     "home": "Accueil",
@@ -602,8 +633,6 @@
     "whatKindOfPerk": "Quel type d'avantage fonctionne ?",
     "whoWePartner": "Avec qui nous nous associons",
     "anyBusiness": "Toute entreprise de Québec avec une bonne offre",
-    "exploreBy": "Explorer par ambiance ou quartier",
-    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquettez votre avantage pour que les bonnes personnes le trouvent.",
     "readyToReach": "Prêt à rejoindre les membres Xplora ?",
     "loginTitle": "Compte entreprise",
     "loginSubtitle": "Connexion partenaire",
@@ -627,9 +656,7 @@
     "creating": "Création du compte...",
     "hasAccount": "Vous avez déjà un compte ?",
     "lookingPersonalAccount": "Vous cherchez un compte personnel ?",
-    "joinAsMember": "Rejoindre comme membre",
-    "discovery": "Découverte",
-    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquettez votre avantage pour que les bonnes personnes le trouvent."
+    "joinAsMember": "Rejoindre comme membre"
   },
   "forgotPassword": {
     "title": "Mot de passe oublié ?",
@@ -768,7 +795,8 @@
     "artsy": "Artistique",
     "outdoorsy": "Plein air",
     "lateNight": "Nuit tardive",
-    "familyFriendly": "Famille"
+    "familyFriendly": "Famille",
+    "brunch": "Brunch"
   },
   "faq": {
     "headline": "Questions et réponses",

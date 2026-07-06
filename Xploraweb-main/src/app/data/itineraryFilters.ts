@@ -6,12 +6,12 @@ export type { SpotCategory };
 
 // Shared between the browse page (ItineraryScreen) and the AI builder
 // (ItineraryBuilderScreen) so both filter on the same vibe vocabulary.
-export const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
+export const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'brunch'];
 
 export const VIBE_KEY: Record<string, string> = {
   'cozy': 'cozy', 'adventurous': 'adventurous', 'foodie': 'foodie', 'romantic': 'romantic',
   'hidden gem': 'hiddenGem', 'lively': 'lively', 'artsy': 'artsy', 'outdoorsy': 'outdoorsy',
-  'late night': 'lateNight', 'family-friendly': 'familyFriendly',
+  'late night': 'lateNight', 'family-friendly': 'familyFriendly', 'brunch': 'brunch',
 };
 
 export type WalkLengthBucket = 'quick' | 'standard' | 'long';
