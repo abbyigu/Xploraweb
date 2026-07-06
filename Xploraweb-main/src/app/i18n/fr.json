@@ -633,8 +633,6 @@
     "whatKindOfPerk": "Quel type d'avantage fonctionne ?",
     "whoWePartner": "Avec qui nous nous associons",
     "anyBusiness": "Toute entreprise de Québec avec une bonne offre",
-    "exploreBy": "Explorer par ambiance ou quartier",
-    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquettez votre avantage pour que les bonnes personnes le trouvent.",
     "readyToReach": "Prêt à rejoindre les membres Xplora ?",
     "loginTitle": "Compte entreprise",
     "loginSubtitle": "Connexion partenaire",
@@ -658,9 +656,7 @@
     "creating": "Création du compte...",
     "hasAccount": "Vous avez déjà un compte ?",
     "lookingPersonalAccount": "Vous cherchez un compte personnel ?",
-    "joinAsMember": "Rejoindre comme membre",
-    "discovery": "Découverte",
-    "exploreByDesc": "Les membres découvrent les lieux et expériences par ambiance et quartier. Étiquettez votre avantage pour que les bonnes personnes le trouvent."
+    "joinAsMember": "Rejoindre comme membre"
   },
   "forgotPassword": {
     "title": "Mot de passe oublié ?",

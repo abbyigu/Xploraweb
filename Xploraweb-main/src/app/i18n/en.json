@@ -633,8 +633,6 @@
     "whatKindOfPerk": "What kind of perk works?",
     "whoWePartner": "Who we partner with",
     "anyBusiness": "Any Québec City business with a great offer",
-    "exploreBy": "Explore by vibe or neighbourhood",
-    "exploreByDesc": "Discover experiences that match your mood or your part of the city.",
     "readyToReach": "Ready to reach Xplora members?",
     "loginTitle": "Business Account",
     "loginSubtitle": "Partner Sign In",
@@ -658,9 +656,7 @@
     "creating": "Creating account...",
     "hasAccount": "Already have an account?",
     "lookingPersonalAccount": "Looking for a personal account?",
-    "joinAsMember": "Join as a member",
-    "discovery": "Discovery",
-    "exploreByDesc": "Members discover venues and experiences by vibe and neighbourhood. Tag your perk so the right people find it."
+    "joinAsMember": "Join as a member"
   },
   "forgotPassword": {
     "title": "Forgot Password?",

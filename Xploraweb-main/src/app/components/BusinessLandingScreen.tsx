@@ -6,12 +6,6 @@ import { Footer } from './Footer';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 
-const VIBE_KEY: Record<string, string> = {
-  'cozy': 'cozy', 'adventurous': 'adventurous', 'foodie': 'foodie', 'romantic': 'romantic',
-  'hidden gem': 'hiddenGem', 'lively': 'lively', 'artsy': 'artsy', 'outdoorsy': 'outdoorsy',
-  'late night': 'lateNight', 'family-friendly': 'familyFriendly',
-};
-
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
 function ExplorerBanner() {
@@ -127,48 +121,6 @@ export function BusinessLandingScreen() {
 
       <ExplorerBanner />
 
-      {/* How it works */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl mb-3">{t('business.howItWorks')}</h2>
-          <p className="text-muted-foreground">{t('business.howItWorksDesc')}</p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {steps.map((s) => (
-            <div key={s.step} className="relative">
-              <div className="absolute -top-3 -left-2 text-6xl font-serif text-primary/10 select-none">{s.step}</div>
-              <div className="relative pt-4 space-y-3">
-                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
-                  {s.step}
-                </div>
-                <h3 className="text-xl">{s.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Member audience banner */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-4">
-        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-          <div>
-            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
-            <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Members</h2>
-            <ul className="space-y-1 text-sm opacity-90">
-              <li>🏙️ Engaged Québec City locals & young professionals</li>
-              <li>🎟️ Paying $10/month to actively discover the city</li>
-              <li>🍸 Attending monthly members-only 5 à 7</li>
-            </ul>
-          </div>
-          <div className="text-center md:text-right flex-shrink-0">
-            <p className="text-3xl font-serif">$10</p>
-            <p className="text-sm opacity-80">/month members</p>
-            <p className="text-xs opacity-60 mt-1">committed explorers, not casual browsers</p>
-          </div>
-        </div>
-      </div>
-
       {/* Benefits */}
       <div className="bg-muted/30 py-16 md:py-24">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -228,29 +180,44 @@ export function BusinessLandingScreen() {
         </div>
       </div>
 
-      {/* What's your vibe banner */}
-      <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-10">
-        <div className="bg-muted/40 border border-border rounded-3xl p-6 md:p-8 space-y-4">
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-1">{t('business.discovery')}</p>
-            <h2 className="text-xl md:text-2xl mb-2">{t('business.exploreBy')}</h2>
-            <p className="text-sm text-muted-foreground max-w-lg">{t('business.exploreByDesc')}</p>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
-            <div className="flex flex-wrap gap-2">
-              {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
-                <Link key={v} to={`/itinerary?vibe=${encodeURIComponent(v)}`} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm hover:bg-primary/20 transition-colors">{t(`vibes.${VIBE_KEY[v]}`, v)}</Link>
-              ))}
+      {/* How it works */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 py-16 md:py-24">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl mb-3">{t('business.howItWorks')}</h2>
+          <p className="text-muted-foreground">{t('business.howItWorksDesc')}</p>
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {steps.map((s) => (
+            <div key={s.step} className="relative">
+              <div className="absolute -top-3 -left-2 text-6xl font-serif text-primary/10 select-none">{s.step}</div>
+              <div className="relative pt-4 space-y-3">
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-medium">
+                  {s.step}
+                </div>
+                <h3 className="text-xl">{s.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{s.desc}</p>
+              </div>
             </div>
-          </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Member audience banner */}
+      <div className="max-w-7xl mx-auto px-6 md:px-8 pb-4">
+        <div className="bg-primary text-primary-foreground rounded-3xl p-6 md:p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
-            <div className="flex flex-wrap gap-2">
-              {['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'].map(n => (
-                <Link key={n} to={`/itinerary?neighbourhood=${encodeURIComponent(n)}`} className="px-3 py-1.5 bg-secondary/10 text-secondary rounded-full text-sm hover:bg-secondary/20 transition-colors">{n}</Link>
-              ))}
-            </div>
+            <p className="text-xs uppercase tracking-widest opacity-70 mb-1">Your audience</p>
+            <h2 className="text-xl md:text-2xl mb-2">Reach Xplora Members</h2>
+            <ul className="space-y-1 text-sm opacity-90">
+              <li>🏙️ Engaged Québec City locals & young professionals</li>
+              <li>🎟️ Paying $10/month to actively discover the city</li>
+              <li>🍸 Attending monthly members-only 5 à 7</li>
+            </ul>
+          </div>
+          <div className="text-center md:text-right flex-shrink-0">
+            <p className="text-3xl font-serif">$10</p>
+            <p className="text-sm opacity-80">/month members</p>
+            <p className="text-xs opacity-60 mt-1">committed explorers, not casual browsers</p>
           </div>
         </div>
       </div>
