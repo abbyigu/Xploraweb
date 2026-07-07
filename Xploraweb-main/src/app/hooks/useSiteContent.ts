@@ -13,10 +13,10 @@ export interface SiteContent {
 
 export const SITE_CONTENT_DEFAULTS: SiteContent = {
   bannerEnabled: true,
-  bannerText: '🎉 Xplora launches in June — be among the first to explore Québec City differently.',
-  heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Hidden gems, trendy neighborhoods, curated self-guided tours made just for you.',
-  heroCtaLabel: 'Go Xplora Now',
+  bannerText: 'Built in Québec City. Free to start, always.',
+  heroHeadline: 'Your local guide to Québec City.',
+  heroSubheadline: 'Free, self-guided walking routes through Québec City\'s best neighbourhoods. Pick a route, follow the map, go at your pace.',
+  heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,
 };
