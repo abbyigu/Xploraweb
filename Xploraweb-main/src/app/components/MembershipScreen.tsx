@@ -2,21 +2,13 @@ import { useState } from 'react';
 import { Star } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { Footer } from './Footer';
-import { supabase } from '../lib/supabase';
+import { NotifyMeForm } from './NotifyMeForm';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
-import { analytics } from '../lib/analytics';
-
-const PRICE_IDS = {
-  monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
-  yearly: 'price_1TTkTaLXjgh0xxiruBF7GyMg',
-};
 
 export function MembershipScreen() {
   const { t } = useTranslation();
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const perks = [
@@ -27,40 +19,6 @@ export function MembershipScreen() {
     { icon: '🔓', text: t('membership.perks') },
     { icon: '🎁', text: t('membership.surprises') },
   ];
-
-  const handleSubscribe = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-
-      const res = await fetch('/api/stripe-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId: PRICE_IDS[billing],
-          successUrl: `${window.location.origin}/?subscribed=true`,
-          cancelUrl: window.location.href,
-          userId: user?.id || '',
-          customerEmail: user?.email || '',
-        }),
-      });
-
-      const data = await res.json();
-      if (data.url) {
-        const price = billing === 'yearly' ? 9600 : 1000;
-        analytics.beginCheckout([{ id: `membership_${billing}`, name: `Xplora Membership (${billing})`, price, quantity: 1 }], price);
-        analytics.stageSubscribe(billing);
-        window.location.href = data.url;
-      } else {
-        setError(data.error || 'Something went wrong.');
-      }
-    } catch {
-      setError('Could not connect to checkout. Try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
@@ -76,6 +34,9 @@ export function MembershipScreen() {
               <Star className="w-6 h-6 fill-current" />
             </div>
           </div>
+          <span className="inline-block text-xs font-semibold uppercase tracking-widest bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full mb-3">
+            {t('membership.previewBadge')}
+          </span>
           <h1 className="text-3xl md:text-4xl lg:text-5xl mb-2">{t('membership.title')}</h1>
           <p className="text-sm md:text-base opacity-90">{t('membership.subtitle')}</p>
         </div>
@@ -117,16 +78,14 @@ export function MembershipScreen() {
             )}
           </div>
 
-          {error && <p className="text-sm text-red-500 mt-3">{error}</p>}
+          <div className="mt-6 w-full py-3.5 rounded-2xl text-base font-medium bg-muted text-muted-foreground">
+            {t('membership.comingSoon')}
+          </div>
 
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="mt-6 w-full bg-primary text-primary-foreground py-4 rounded-2xl text-base font-medium hover:opacity-90 transition-opacity disabled:opacity-60"
-          >
-            {loading ? 'Redirecting…' : t(billing === 'monthly' ? 'membership.joinMonthly' : 'membership.joinYearly')}
-          </button>
-          <p className="text-xs text-muted-foreground mt-3">{t('membership.cancel')}</p>
+          <div className="mt-4 text-left bg-muted/40 border border-border rounded-2xl p-4 space-y-2">
+            <p className="text-sm text-muted-foreground">{t('membership.previewNotice')}</p>
+            <NotifyMeForm />
+          </div>
         </div>
 
         {/* Perks list */}

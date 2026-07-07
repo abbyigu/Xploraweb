@@ -1,6 +1,4 @@
 import { Link, useLocation } from 'react-router';
-import { ShoppingCart } from 'lucide-react';
-import { useCart } from '../context/CartContext';
 import { XploraLogo } from './XploraLogo';
 import { useState, useEffect } from 'react';
 import { getProfile } from '../lib/supabase';
@@ -13,7 +11,6 @@ function getInitials(name: string): string {
 
 export function Header() {
   const location = useLocation();
-  const { count } = useCart();
   const [avatar, setAvatar] = useState<{ url: string | null; name: string }>({ url: null, name: '' });
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
@@ -70,15 +67,6 @@ export function Header() {
             >
               <span aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
             </button>
-
-            <Link to="/cart" aria-label={t('a11y.cart')} className="relative p-2 rounded-xl hover:bg-muted/40 transition-colors">
-              <ShoppingCart className="w-5 h-5" aria-hidden="true" />
-              {count > 0 && (
-                <span aria-hidden="true" className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                  {count > 9 ? '9+' : count}
-                </span>
-              )}
-            </Link>
 
             <Link to="/account" aria-label={t('a11y.account')}>
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
