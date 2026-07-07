@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, Flame, Heart, Compass, MapPin, Handshake } from 'lucide-react';
+import { ArrowRight, Flame, Heart, Compass, MapPin, Sparkles, Megaphone, SlidersHorizontal } from 'lucide-react';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
@@ -9,7 +9,7 @@ const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 const FEATURE_TILES = [
   { label: 'Hotspots',           desc: 'Buzzing spots nearby',      icon: Flame,   to: '/hotspots' },
   { label: 'Places We Love',     desc: 'Our favorite local finds',  icon: Heart,   to: '/loved' },
-  { label: 'New Tour',           desc: 'Fresh self-guided routes',  icon: Compass, to: '/itinerary' },
+  { label: 'New Walk',           desc: 'Fresh self-guided routes',  icon: Compass, to: '/itinerary' },
   { label: 'New Neighbourhoods', desc: 'Just added to Xplora',      icon: MapPin,  to: '/neighbourhoods?sort=new' },
 ];
 
@@ -44,7 +44,7 @@ const VALUE_PILLARS = [
   },
   {
     label: 'Community',
-    desc: 'Supporting local businesses along the way.',
+    desc: 'Every stop supports someone who calls this city home.',
     icon: (
       <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
         <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
@@ -83,20 +83,31 @@ export function HomeScreen() {
           </div>
 
           {/* CTA */}
-          <Link
-            to="/itinerary"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
-          >
-            {siteContent.heroCtaLabel}
-            <ArrowRight className="w-5 h-5" />
-          </Link>
+          <div className="flex flex-col items-center gap-4 w-full sm:w-auto">
+            <Link
+              to="/itinerary"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+            >
+              {siteContent.heroCtaLabel}
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <div className="flex items-center gap-3 text-sm">
+              <Link to="/how-it-works" className="text-white/90 hover:text-white underline underline-offset-4 transition">
+                See How It Works
+              </Link>
+              <span className="text-white/40">·</span>
+              <Link to="/business" className="text-white/90 hover:text-white underline underline-offset-4 transition">
+                For Business
+              </Link>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Discover more */}
       <section className="pt-8 pb-4">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">Discover more</h2>
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">Where to start</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {FEATURE_TILES.map(({ label, desc, icon: Icon, to }) => (
               <button
@@ -112,6 +123,16 @@ export function HomeScreen() {
               </button>
             ))}
           </div>
+          <Link
+            to="/how-it-works"
+            className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-[#b0d8d8]/60 bg-[#c9e8e8]/20 px-5 py-4 hover:bg-[#c9e8e8]/30 transition"
+          >
+            <div>
+              <p className="text-sm font-semibold text-gray-900">More ways to explore</p>
+              <p className="text-xs text-gray-500 mt-0.5">Premium Walks, Guided Tours, and Evening Events — coming soon</p>
+            </div>
+            <ArrowRight className="w-4 h-4 text-[#12343B] flex-shrink-0" />
+          </Link>
         </div>
       </section>
 
@@ -163,37 +184,29 @@ export function HomeScreen() {
             <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3">For Business Owners</p>
             <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Get your business on the map</h2>
             <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto">
-              Partner with GoXplora and get discovered by thousands of curious explorers walking through your neighbourhood every day.
+              List a free perk and get discovered by explorers walking through your neighbourhood every day.
             </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 mb-12">
             {[
               {
-                title: 'Local visibility',
-                desc: 'Appear on curated neighbourhood routes right when explorers are nearby and ready to discover.',
-                detail: "Your venue gets featured on the specific self-guided routes that pass your door, with your name, photos, and a short blurb explorers see mid-walk — not buried in a generic directory.",
-                icon: (
-                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                  </svg>
-                ),
+                title: 'Free to join',
+                desc: 'No upfront cost. Submit a perk and go live in minutes.',
+                detail: "Create a business account, add an offer — a discount, a free item, early access — and it's live for explorers to see. No subscription, no listing fee.",
+                icon: <Sparkles className="w-5 h-5 text-[#7ecfcf]" />,
               },
               {
-                title: 'Real foot traffic',
-                desc: 'Track how many Xplorators walked past or visited your venue — with simple, clear analytics.',
-                detail: 'A dashboard shows visits by day and route, so you can see which tours actually send people through your door and double down on what works.',
-                icon: (
-                  <svg className="w-5 h-5 text-[#7ecfcf]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                    <path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                  </svg>
-                ),
+                title: 'Real exposure',
+                desc: 'Your perk appears in the Xplora perks feed, seen by explorers across Québec City.',
+                detail: 'Every active perk is visible to anyone browsing Xplora — not buried behind a paywall or a generic directory listing.',
+                icon: <Megaphone className="w-5 h-5 text-[#7ecfcf]" />,
               },
               {
-                title: 'Partnerships',
-                desc: 'Team up with other local businesses on cross-promotions, bundles, and joint experiences.',
-                detail: "Pair up with nearby shops and cafés on the same route to co-host events, cross-promote each other, or bundle a multi-stop deal explorers can redeem in one visit.",
-                icon: <Handshake className="w-5 h-5 text-[#7ecfcf]" />,
+                title: 'Full control',
+                desc: 'Pause, update, or remove your perk anytime.',
+                detail: 'Manage everything from your business dashboard — toggle a perk on or off, swap the offer, or add a new one whenever you want.',
+                icon: <SlidersHorizontal className="w-5 h-5 text-[#7ecfcf]" />,
               },
             ].map(({ title, desc, detail, icon }) => (
               <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10">
@@ -212,17 +225,13 @@ export function HomeScreen() {
               to="/business"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 transition"
             >
-              List your business
+              List a Free Perk
               <ArrowRight className="w-5 h-5" />
             </Link>
             <a href="mailto:hello@goxplora.ca" className="text-sm text-white/50 hover:text-white transition">
               Contact our partnerships team →
             </a>
           </div>
-
-          <p className="text-center text-xs text-white/25 mt-10">
-            Trusted by local restaurants, boutiques, cafés & attractions across Québec City
-          </p>
         </div>
       </section>
 

@@ -366,15 +366,6 @@ export function ExperienceDetailScreen() {
               </div>
             )}
 
-            {/* Xplorators upsell */}
-            {isSelfGuided && (
-              <div className="bg-muted/40 rounded-2xl p-5 space-y-2">
-                <p className="text-sm text-muted-foreground">{t('experienceDetail.groupPrompt')}</p>
-                <button onClick={() => navigate('/itinerary?category=xploratours')} className="text-sm text-primary font-medium hover:underline">
-                  {t('experienceDetail.toursLink')}
-                </button>
-              </div>
-            )}
           </div>
 
           {/* Booking sidebar — desktop */}

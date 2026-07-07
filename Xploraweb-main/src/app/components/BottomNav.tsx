@@ -7,7 +7,7 @@ export function BottomNav() {
 
   const navItems = [
     { path: '/',              icon: Home,    label: 'Home',       badge: 0 },
-    { path: '/itinerary',     icon: Compass, label: 'Xperiences', badge: 0 },
+    { path: '/itinerary',     icon: Compass, label: 'Walks',      badge: 0 },
     { path: '/about',         icon: Info,    label: 'About',      badge: 0 },
     { path: '/neighbourhoods', icon: MapPin, label: 'Hoods',      badge: 0 },
     { path: '/account',       icon: User,    label: 'Account',    badge: 0 },
