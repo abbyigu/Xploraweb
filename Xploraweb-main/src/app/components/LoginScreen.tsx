@@ -4,6 +4,7 @@ import { Mail, Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { NotifyMeForm } from './NotifyMeForm';
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -41,6 +42,12 @@ export function LoginScreen() {
           </div>
           <h1 className="text-3xl mb-2">{t('login.title')}</h1>
           <p className="text-muted-foreground">{t('login.subtitle')}</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-primary/5 p-5 space-y-2 mb-6">
+          <p className="text-sm font-medium">{t('itinerary.toursComingSoonTitle')}</p>
+          <p className="text-sm text-muted-foreground">{t('itinerary.toursComingSoonBody')}</p>
+          <NotifyMeForm className="pt-1" />
         </div>
 
         {error && (

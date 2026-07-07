@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router';
 import { Lock, MapPin, Wand2, Loader2 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
+import { NotifyMeForm } from './NotifyMeForm';
 import { Slider } from './ui/slider';
 import { ItineraryResult } from './ItineraryResult';
 import { useExperiences } from '../hooks/useExperiences';
@@ -179,7 +180,11 @@ export function ItineraryScreen() {
           ))}
         </div>
         {filtered.length === 0 ? (
-          <p className="text-muted-foreground text-sm py-8 text-center">{t('events.noUpcoming')}</p>
+          <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center space-y-3 max-w-md mx-auto">
+            <p className="font-medium">{t('events.comingSoonTitle')}</p>
+            <p className="text-sm text-muted-foreground">{t('events.comingSoonBody')}</p>
+            <NotifyMeForm className="pt-1" />
+          </div>
         ) : (
           <div className="flex flex-col gap-3">
             {filtered.map(exp => <EventCard key={exp.id} exp={exp} />)}

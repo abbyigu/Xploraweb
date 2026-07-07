@@ -1,4 +1,4 @@
-import { Clock, MapPin, ShoppingCart, Check, ArrowRight, Star, Bookmark } from 'lucide-react';
+import { Clock, MapPin, Check, ArrowRight, Star, Bookmark } from 'lucide-react';
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useCart } from '../context/CartContext';
@@ -100,27 +100,31 @@ export function ExperienceCard({ exp }: { exp: Product }) {
 
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-1">
-          <span className="text-lg font-semibold">
-            {isFree
-              ? <span className="text-primary text-base font-semibold">{t('experienceCard.free')}</span>
-              : `$${(exp.price / 100).toFixed(0)}`}
-          </span>
-          <button
-            onClick={handleCTA}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-              inCart
-                ? 'bg-green-500 text-white cursor-default'
-                : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
-            }`}
-          >
-            {inCart ? (
-              <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceCard.added')}</>
-            ) : isFree && isSelfGuided ? (
-              <>{t('experienceCard.startExploring')}<ArrowRight className="w-4 h-4" aria-hidden="true" /></>
-            ) : (
-              <><ShoppingCart className="w-4 h-4" aria-hidden="true" />{t('experienceCard.bookPaid')} — ${(exp.price / 100).toFixed(0)}</>
-            )}
-          </button>
+          {isFree ? (
+            <>
+              <span className="text-base font-semibold text-primary">{t('experienceCard.free')}</span>
+              <button
+                onClick={handleCTA}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                  inCart
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                }`}
+              >
+                {inCart ? (
+                  <><Check className="w-4 h-4" aria-hidden="true" />{t('experienceCard.added')}</>
+                ) : isSelfGuided ? (
+                  <>{t('experienceCard.startExploring')}<ArrowRight className="w-4 h-4" aria-hidden="true" /></>
+                ) : (
+                  <>{t('experienceCard.bookPaid')}<ArrowRight className="w-4 h-4" aria-hidden="true" /></>
+                )}
+              </button>
+            </>
+          ) : (
+            <span className="ml-auto text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
+              {t('experienceCard.comingSoon')}
+            </span>
+          )}
         </div>
       </div>
     </div>

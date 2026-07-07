@@ -4,25 +4,8 @@ import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-
-const KIT_API_KEY = 'pqpO04D1U_oq3KhLMmB87w';
-const KIT_FORM_UID = '361503f84f';
-
-async function subscribeToNewsletter(email: string, firstName: string) {
-  try {
-    const formData = new FormData();
-    formData.append('email_address', email);
-    formData.append('first_name', firstName.split(' ')[0]);
-    formData.append('api_key', KIT_API_KEY);
-    await fetch(`https://app.kit.com/forms/${KIT_FORM_UID}/subscriptions`, {
-      method: 'POST',
-      body: formData,
-      mode: 'no-cors',
-    });
-  } catch {
-    // Silently fail
-  }
-}
+import { subscribeToNewsletter } from '../lib/newsletter';
+import { NotifyMeForm } from './NotifyMeForm';
 
 export function SignupScreen() {
   const navigate = useNavigate();
@@ -85,6 +68,12 @@ export function SignupScreen() {
           </div>
           <h1 className="text-3xl mb-2">{t('signup.title')}</h1>
           <p className="text-muted-foreground">{t('signup.subtitle')}</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-primary/5 p-5 space-y-2 mb-6">
+          <p className="text-sm font-medium">{t('itinerary.toursComingSoonTitle')}</p>
+          <p className="text-sm text-muted-foreground">{t('itinerary.toursComingSoonBody')}</p>
+          <NotifyMeForm className="pt-1" />
         </div>
 
         {error && (

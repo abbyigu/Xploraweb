@@ -68,19 +68,8 @@ export function Footer() {
         </div>
 
         {/* Bottom row */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40 order-2 md:order-1">© 2026 GoXplora · Québec City, QC</p>
-          <div className="flex items-center gap-2 order-1 md:order-2">
-            <span className="text-[10px] text-white/30 mr-1">Secure payments</span>
-            <span className="bg-white rounded px-2 py-1 text-[11px] font-bold text-[#1A1F71] leading-none tracking-wide">VISA</span>
-            <span className="flex items-center">
-              <span className="w-5 h-5 rounded-full bg-[#EB001B] opacity-90 -mr-2 inline-block" />
-              <span className="w-5 h-5 rounded-full bg-[#F79E1B] opacity-90 inline-block" />
-            </span>
-            <span className="bg-white rounded px-2 py-1 text-[11px] font-semibold text-black leading-none">Apple Pay</span>
-            <span className="bg-white rounded px-2 py-1 text-[11px] font-semibold text-black leading-none">G Pay</span>
-            <span className="bg-white rounded px-2 py-1 text-[11px] font-bold text-[#FFCD00] leading-none" style={{ textShadow: '0 0 1px #888' }}>Interac</span>
-          </div>
+        <div className="border-t border-white/10 pt-6 flex items-center justify-center">
+          <p className="text-xs text-white/40">© 2026 GoXplora · Québec City, QC</p>
         </div>
       </div>
     </footer>

@@ -94,26 +94,30 @@ export function EventCard({ exp }: { exp: Product }) {
 
         {/* Price + CTA */}
         <div className="flex items-center justify-between mt-auto pt-1">
-          <span className="text-sm font-semibold">
-            {exp.price === 0
-              ? <span className="text-primary">{t('experienceCard.free')}</span>
-              : `$${(exp.price / 100).toFixed(0)}`}
-          </span>
-          <button
-            onClick={(e) => { e.stopPropagation(); if (!inCart) addItem(exp); }}
-            className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl font-medium transition-all ${
-              inCart
-                ? 'bg-green-500 text-white cursor-default'
-                : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
-            }`}
-            aria-label={inCart ? t('experienceCard.added') : `${t('experienceCard.bookPaid')} ${exp.name}`}
-          >
-            {inCart ? (
-              <><Check className="w-3 h-3" aria-hidden="true" />{t('experienceCard.added')}</>
-            ) : (
-              <><ShoppingCart className="w-3 h-3" aria-hidden="true" />{t('experienceCard.bookPaid')}</>
-            )}
-          </button>
+          {exp.price === 0 ? (
+            <>
+              <span className="text-sm font-semibold text-primary">{t('experienceCard.free')}</span>
+              <button
+                onClick={(e) => { e.stopPropagation(); if (!inCart) addItem(exp); }}
+                className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl font-medium transition-all ${
+                  inCart
+                    ? 'bg-green-500 text-white cursor-default'
+                    : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                }`}
+                aria-label={inCart ? t('experienceCard.added') : `${t('experienceCard.bookPaid')} ${exp.name}`}
+              >
+                {inCart ? (
+                  <><Check className="w-3 h-3" aria-hidden="true" />{t('experienceCard.added')}</>
+                ) : (
+                  <><ShoppingCart className="w-3 h-3" aria-hidden="true" />{t('experienceCard.bookPaid')}</>
+                )}
+              </button>
+            </>
+          ) : (
+            <span className="ml-auto text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground">
+              {t('experienceCard.comingSoon')}
+            </span>
+          )}
         </div>
       </div>
     </div>

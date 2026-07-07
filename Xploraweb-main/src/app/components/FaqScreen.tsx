@@ -61,30 +61,6 @@ export function FaqScreen() {
 
   const categories = [
     {
-      title: t('faq.bookingTitle'),
-      items: [
-        {
-          q: t('faq.q_account'),
-          a: t('faq.a_account'),
-          link: { label: t('faq.link_experiences'), to: '/itinerary' },
-        },
-        { q: t('faq.q_payment'), a: t('faq.a_payment') },
-        { q: t('faq.q_fee'),     a: t('faq.a_fee') },
-      ],
-    },
-    {
-      title: t('faq.cancellationTitle'),
-      items: [
-        {
-          q: t('faq.q_cancel'),
-          a: t('faq.a_cancel'),
-          link: { label: t('faq.link_terms'), to: '/terms' },
-        },
-        { q: t('faq.q_cancel_late'), a: t('faq.a_cancel_late') },
-        { q: t('faq.q_no_show'),     a: t('faq.a_no_show') },
-      ],
-    },
-    {
       title: t('faq.languageTitle'),
       items: [
         {
