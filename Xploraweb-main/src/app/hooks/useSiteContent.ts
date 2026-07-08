@@ -14,7 +14,7 @@ export interface SiteContent {
 export const SITE_CONTENT_DEFAULTS: SiteContent = {
   bannerEnabled: true,
   bannerText: 'Built in Québec City. Free to start, always.',
-  heroHeadline: 'Your local guide to Québec City.',
+  heroHeadline: 'Discover local.\nLive more.',
   heroSubheadline: 'Free, self-guided walking routes through Québec City\'s best neighbourhoods. Pick a route, follow the map, go at your pace.',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
