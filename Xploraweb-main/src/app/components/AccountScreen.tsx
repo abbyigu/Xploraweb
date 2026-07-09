@@ -543,7 +543,7 @@ export function AccountScreen() {
                 ) : (
                   <div className="space-y-3">
                     {savedItineraries.map((item) => {
-                      const mapsUrl = buildGoogleMapsUrl(item.stops, null);
+                      const mapsUrl = buildGoogleMapsUrl(item.stops);
                       return (
                       <div key={item.id} className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors">
                         <div className="flex items-start justify-between gap-3">
