@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, User, Building2, ExternalLink, Shield, MapPin, Map, Star, Check, Archive, Clock, RotateCcw, Trash2, MessageSquare, LayoutDashboard } from 'lucide-react';
 import { Footer } from './Footer';
 import { supabase, getProfile, upsertProfile } from '../lib/supabase';
+import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
+import type { SavedItinerary } from '../lib/savedItineraries';
+import { buildGoogleMapsUrl } from '../lib/maps';
 import { useNavigate } from 'react-router';
 import { XploraLogo } from './XploraLogo';
 import { useExperiences } from '../hooks/useExperiences';
@@ -62,12 +65,7 @@ export function AccountScreen() {
     setTimeout(() => setPasswordEmailSent(false), 4000);
   };
 
-  const [savedItineraries, setSavedItineraries] = useState(() => {
-    try {
-      const raw = localStorage.getItem('xplora_saved_itineraries');
-      return raw ? JSON.parse(raw) : [];
-    } catch { return []; }
-  });
+  const [savedItineraries, setSavedItineraries] = useState<SavedItinerary[]>([]);
 
   const [savedPerks, setSavedPerks] = useState(() => {
     try {
@@ -76,12 +74,9 @@ export function AccountScreen() {
     } catch { return []; }
   });
 
-  const removeItinerary = (id: number) => {
-    setSavedItineraries((prev: typeof defaultItineraries) => {
-      const updated = prev.filter((i) => i.id !== id);
-      localStorage.setItem('xplora_saved_itineraries', JSON.stringify(updated));
-      return updated;
-    });
+  const removeItinerary = async (id: string) => {
+    setSavedItineraries((prev) => prev.filter((i) => i.id !== id));
+    await deleteSavedItinerary(id);
   };
 
   const removePerk = (id: number) => {
@@ -117,6 +112,7 @@ export function AccountScreen() {
         }
         setLoading(false);
       });
+      fetchSavedItineraries().then(setSavedItineraries);
     });
   }, []);
 
@@ -546,17 +542,38 @@ export function AccountScreen() {
                   <p className="text-sm text-muted-foreground py-2">{t('account.noItineraries')}</p>
                 ) : (
                   <div className="space-y-3">
-                    {savedItineraries.map((item) => (
-                      <div key={item.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
-                        <div className="flex items-center gap-3">
-                          <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
-                          <div><h4 className="text-base mb-1">{item.title}</h4><p className="text-sm text-muted-foreground">{item.date}</p></div>
+                    {savedItineraries.map((item) => {
+                      const mapsUrl = buildGoogleMapsUrl(item.stops, null);
+                      return (
+                      <div key={item.id} className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3 min-w-0">
+                            <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0 mt-0.5" />
+                            <div className="min-w-0">
+                              <h4 className="text-base mb-1 truncate">{item.title}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {t('itineraryBuilder.resultMeta', { duration: item.estimatedDurationMin, distance: item.estimatedDistanceKm })}
+                                {' · '}{new Date(item.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
+                          </div>
+                          <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0" aria-label="Remove">
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
-                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
-                          <X className="w-4 h-4" />
-                        </button>
+                        {mapsUrl && (
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                          >
+                            {t('account.openMaps')} <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
                       </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>

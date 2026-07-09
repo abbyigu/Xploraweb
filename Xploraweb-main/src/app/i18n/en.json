@@ -226,7 +226,11 @@
     "errorNotConfigured": "This feature isn't available right now — please check back later.",
     "errorNoCandidates": "No spots match your filters yet — try a bigger radius or fewer filters.",
     "errorLlm": "Something went wrong generating your route. Please try again.",
-    "resultMeta": "~{{duration}} min · {{distance}} km"
+    "resultMeta": "~{{duration}} min · {{distance}} km",
+    "openInMaps": "Open in Google Maps",
+    "saveRoute": "Save route",
+    "saved": "Saved",
+    "saveError": "Couldn't save your route — please try again."
   },
   "howItWorks": {
     "title": "How it works",

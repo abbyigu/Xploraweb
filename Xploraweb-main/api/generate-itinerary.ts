@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
-const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
+const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
   quick: { minMin: 20, maxMin: 45, targetStops: 3 },

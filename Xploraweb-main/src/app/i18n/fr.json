@@ -226,7 +226,11 @@
     "errorNotConfigured": "Cette fonctionnalité n'est pas encore disponible — revenez bientôt.",
     "errorNoCandidates": "Aucun lieu ne correspond à vos filtres — essayez un rayon plus grand ou moins de filtres.",
     "errorLlm": "Une erreur est survenue lors de la création du parcours. Veuillez réessayer.",
-    "resultMeta": "~{{duration}} min · {{distance}} km"
+    "resultMeta": "~{{duration}} min · {{distance}} km",
+    "openInMaps": "Ouvrir dans Google Maps",
+    "saveRoute": "Enregistrer le parcours",
+    "saved": "Enregistré",
+    "saveError": "Impossible d'enregistrer le parcours — veuillez réessayer."
   },
   "howItWorks": {
     "title": "Comment ça marche",

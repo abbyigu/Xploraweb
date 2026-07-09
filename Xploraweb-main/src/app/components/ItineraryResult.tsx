@@ -1,8 +1,12 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Map as MapIcon, List as ListIcon } from 'lucide-react';
+import { useNavigate } from 'react-router';
+import { Map as MapIcon, List as ListIcon, ExternalLink, Heart, Loader2 } from 'lucide-react';
 import { SpotCard } from './SpotCard';
 import { NeighbourhoodSpotsMap } from './NeighbourhoodSpotsMap';
+import { supabase } from '../lib/supabase';
+import { saveItinerary } from '../lib/savedItineraries';
+import { buildGoogleMapsUrl } from '../lib/maps';
 import type { GeneratedItinerary } from '../data/itineraryFilters';
 
 interface Props {
@@ -12,7 +16,23 @@ interface Props {
 
 export function ItineraryResult({ result, origin }: Props) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
+  const [isGuest, setIsGuest] = useState(false);
+  const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setIsGuest(!session?.user));
+  }, []);
+
+  async function handleSave() {
+    if (isGuest) { navigate('/signup'); return; }
+    setSaveState('saving');
+    const { ok } = await saveItinerary(result);
+    setSaveState(ok ? 'saved' : 'error');
+  }
+
+  const mapsUrl = buildGoogleMapsUrl(result.stops, origin);
 
   const stopsWithCoords = result.stops.filter(s => s.spot.lat != null && s.spot.lng != null);
   const route: [number, number][] = stopsWithCoords.map(s => [s.spot.lat!, s.spot.lng!]);
@@ -29,6 +49,36 @@ export function ItineraryResult({ result, origin }: Props) {
         <p className="text-xs text-muted-foreground mt-2">
           {t('itineraryBuilder.resultMeta', { duration: result.estimatedDurationMin, distance: result.estimatedDistanceKm })}
         </p>
+
+        <div className="flex flex-wrap gap-2 mt-4">
+          {mapsUrl && (
+            <a
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+            >
+              <ExternalLink className="w-4 h-4" aria-hidden="true" />
+              {t('itineraryBuilder.openInMaps')}
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saveState === 'saving' || saveState === 'saved'}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition disabled:opacity-70"
+          >
+            {saveState === 'saving' ? (
+              <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+            ) : (
+              <Heart className={`w-4 h-4 ${saveState === 'saved' ? 'fill-secondary text-secondary' : ''}`} aria-hidden="true" />
+            )}
+            {saveState === 'saved' ? t('itineraryBuilder.saved') : t('itineraryBuilder.saveRoute')}
+          </button>
+          {saveState === 'error' && (
+            <p className="w-full text-xs text-red-600">{t('itineraryBuilder.saveError')}</p>
+          )}
+        </div>
       </div>
 
       <div className="md:flex md:items-start">
