@@ -14,6 +14,10 @@ export const VIBE_KEY: Record<string, string> = {
   'late night': 'lateNight', 'family-friendly': 'familyFriendly', 'brunch': 'brunch',
 };
 
+// Relative cost tier, matches Spot.priceRange values.
+export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
+export type PriceRange = (typeof PRICE_RANGES)[number];
+
 export type WalkLengthBucket = 'quick' | 'standard' | 'long';
 
 export interface WalkLengthOption {
@@ -42,7 +46,7 @@ export interface ItineraryGenerateRequest {
   radiusKm: number | null;
   origin: { lat: number; lng: number } | null;
   categories: SpotCategory[];
-  vibes: string[];
+  priceRanges: PriceRange[];
   timeOfDay: TimeOfDay | null;
   neighbourhoods: string[];
   language: 'en' | 'fr';
