@@ -192,10 +192,10 @@
     "whatPeopleSay": "Ce que les gens disent"
   },
   "itinerary": {
-    "title": "Expériences",
+    "title": "Balades autonomes",
     "subtitle": "Trouvez votre prochaine aventure à Québec",
     "vibe": "Ambiance",
-    "neighbourhood": "Quartier",
+    "neighbourhood": "Quartiers",
     "paywallTitle": "Connectez-vous pour déverrouiller",
     "paywallSubtitle": "Créez un compte gratuit pour débloquer toutes nos expériences à Québec.",
     "paywallCta": "Créer un compte gratuit",
@@ -220,6 +220,7 @@
     "locationGranted": "Utilisation de votre position actuelle",
     "locationDenied": "Position indisponible — parcours sans filtre de distance",
     "generate": "Générer mon parcours",
+    "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
     "generating": "Création de votre parcours…",
     "regenerate": "Générer un autre parcours",
     "errorNotConfigured": "Cette fonctionnalité n'est pas encore disponible — revenez bientôt.",
