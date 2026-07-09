@@ -44,7 +44,7 @@ export interface ItineraryGenerateRequest {
   categories: SpotCategory[];
   vibes: string[];
   timeOfDay: TimeOfDay | null;
-  neighbourhood: string | null;
+  neighbourhoods: string[];
   language: 'en' | 'fr';
 }
 

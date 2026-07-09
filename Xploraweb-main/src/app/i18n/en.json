@@ -192,10 +192,10 @@
     "whatPeopleSay": "What people are saying"
   },
   "itinerary": {
-    "title": "Experiences",
+    "title": "Self-Guided Walks",
     "subtitle": "Find your next adventure in Québec City",
     "vibe": "Vibe",
-    "neighbourhood": "Neighbourhood",
+    "neighbourhood": "Neighbourhoods",
     "paywallTitle": "Sign in to unlock",
     "paywallSubtitle": "Create a free account to unlock our full lineup of curated Québec City experiences.",
     "paywallCta": "Create Free Account",
@@ -220,6 +220,7 @@
     "locationGranted": "Using your current location",
     "locationDenied": "Location unavailable — showing routes without distance filtering",
     "generate": "Generate my route",
+    "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
     "generating": "Building your route…",
     "regenerate": "Generate a different route",
     "errorNotConfigured": "This feature isn't available right now — please check back later.",

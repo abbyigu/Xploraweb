@@ -72,7 +72,7 @@ export function ItineraryScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const { content: siteContent } = useSiteContent();
-  const { neighbourhoods } = useNeighbourhoods();
+  const { neighbourhoods: neighbourhoodOptions } = useNeighbourhoods();
   const [searchParams] = useSearchParams();
   const isNightsView = searchParams.get('category') === 'xploranights';
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
@@ -82,7 +82,7 @@ export function ItineraryScreen() {
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [vibes, setVibes] = useState<string[]>([]);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
-  const [neighbourhood, setNeighbourhood] = useState<string | null>(null);
+  const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
 
   const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
   const [geoStatus, setGeoStatus] = useState<GeoStatus>('idle');
@@ -97,6 +97,9 @@ export function ItineraryScreen() {
   }
   function toggleCategory(c: SpotCategory) {
     setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  }
+  function toggleNeighbourhood(n: string) {
+    setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
   }
 
   function requestLocation() {
@@ -119,7 +122,7 @@ export function ItineraryScreen() {
       categories,
       vibes,
       timeOfDay,
-      neighbourhood,
+      neighbourhoods,
       language: i18n.language === 'fr' ? 'fr' : 'en',
     };
     try {
@@ -199,7 +202,7 @@ export function ItineraryScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
-        title="Things to Do in Québec City — Xplora Experiences"
+        title="Things to Do in Québec City — Xplora Self-Guided Walks"
         description="Build a custom AI walking route in Québec City, or browse tours by neighbourhood. Filter by vibe, radius, categories, and more."
         canonical="/itinerary"
       />
@@ -238,15 +241,15 @@ export function ItineraryScreen() {
               </div>
 
               {/* Neighbourhood */}
-              {neighbourhoods.length > 0 && (
+              {neighbourhoodOptions.length > 0 && (
                 <div>
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
                   <div className="flex flex-wrap gap-2">
-                    {neighbourhoods.map(n => (
+                    {neighbourhoodOptions.map(n => (
                       <Chip
                         key={n.id}
-                        active={neighbourhood === n.name}
-                        onClick={() => setNeighbourhood(prev => prev === n.name ? null : n.name)}
+                        active={neighbourhoods.includes(n.name)}
+                        onClick={() => toggleNeighbourhood(n.name)}
                       >
                         {n.name}
                       </Chip>
@@ -349,6 +352,7 @@ export function ItineraryScreen() {
                 <><Wand2 className="w-4 h-4" aria-hidden="true" /> {genState === 'success' ? t('itineraryBuilder.regenerate') : t('itineraryBuilder.generate')}</>
               )}
             </button>
+            <p className="text-xs text-muted-foreground text-center -mt-3">{t('itineraryBuilder.generateDescription')}</p>
 
             {genState === 'error' && errorCode && (
               <p className="text-sm text-red-600 text-center">{t(ERROR_KEY[errorCode])}</p>

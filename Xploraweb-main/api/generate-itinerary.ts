@@ -18,7 +18,7 @@ const RequestSchema = z.object({
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   vibes: z.array(z.enum(VIBE_OPTIONS)),
   timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).nullable(),
-  neighbourhood: z.string().nullable(),
+  neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
 });
 
@@ -96,7 +96,7 @@ Requirements:
 - Target about ${bucket.targetStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.timeOfDay ? `- This route is for the ${body.timeOfDay}; prefer spots that fit that time of day.` : ''}
-${body.neighbourhood ? `- Stay within the ${body.neighbourhood} neighbourhood.` : ''}
+${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.vibes.length ? `- Prefer vibes: ${body.vibes.join(', ')}.` : ''}
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
@@ -137,8 +137,8 @@ export default async function handler(req: any, res: any) {
       .filter(c => haversineKm(origin, { lat: c.lat!, lng: c.lng! }) <= body.radiusKm!)
       .sort((a, b) => haversineKm(origin, { lat: a.lat!, lng: a.lng! }) - haversineKm(origin, { lat: b.lat!, lng: b.lng! }));
   }
-  if (body.neighbourhood) {
-    candidates = candidates.filter(c => c.neighbourhood === body.neighbourhood);
+  if (body.neighbourhoods.length > 0) {
+    candidates = candidates.filter(c => c.neighbourhood && body.neighbourhoods.includes(c.neighbourhood));
   }
   if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));
