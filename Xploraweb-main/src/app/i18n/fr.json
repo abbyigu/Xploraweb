@@ -192,12 +192,12 @@
     "whatPeopleSay": "Ce que les gens disent"
   },
   "itinerary": {
-    "title": "Balades autonomes",
-    "subtitle": "Trouvez votre prochaine aventure à Québec",
-    "vibe": "Ambiance",
+    "title": "Balades autonomes à Québec",
+    "subtitle": "Choisissez une gamme de prix et une durée de marche — nous créons un parcours autonome à explorer à votre rythme.",
+    "price": "Prix",
     "neighbourhood": "Quartiers",
     "paywallTitle": "Connectez-vous pour déverrouiller",
-    "paywallSubtitle": "Créez un compte gratuit pour débloquer toutes nos expériences à Québec.",
+    "paywallSubtitle": "Créez un compte gratuit pour débloquer nos parcours autonomes à Québec.",
     "paywallCta": "Créer un compte gratuit",
     "toursComingSoonTitle": "Les parcours autonomes sont gratuits et prêts dès aujourd'hui",
     "toursComingSoonBody": "Les visites guidées, parcours premium et événements en soirée arrivent bientôt. Envie d'être averti dès leur lancement ?"

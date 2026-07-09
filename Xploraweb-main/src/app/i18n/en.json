@@ -192,12 +192,12 @@
     "whatPeopleSay": "What people are saying"
   },
   "itinerary": {
-    "title": "Self-Guided Walks",
-    "subtitle": "Find your next adventure in Québec City",
-    "vibe": "Vibe",
+    "title": "Self-Guided Walks in Québec City",
+    "subtitle": "Set your price range and walk length — we'll build a self-guided route for you to explore at your own pace.",
+    "price": "Price",
     "neighbourhood": "Neighbourhoods",
     "paywallTitle": "Sign in to unlock",
-    "paywallSubtitle": "Create a free account to unlock our full lineup of curated Québec City experiences.",
+    "paywallSubtitle": "Create a free account to unlock our self-guided walking routes in Québec City.",
     "paywallCta": "Create Free Account",
     "toursComingSoonTitle": "Self-guided routes are free and ready today",
     "toursComingSoonBody": "Guided tours, premium routes, and evening events are coming soon. Want to know the moment they launch?"

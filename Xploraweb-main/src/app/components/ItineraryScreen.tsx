@@ -10,11 +10,11 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import {
-  VIBE_OPTIONS, VIBE_KEY, SPOT_CATEGORIES, WALK_LENGTH_BUCKETS, TIME_OF_DAY_OPTIONS,
+  PRICE_RANGES, SPOT_CATEGORIES, WALK_LENGTH_BUCKETS, TIME_OF_DAY_OPTIONS,
   RADIUS_KM_MIN, RADIUS_KM_MAX, RADIUS_KM_DEFAULT,
 } from '../data/itineraryFilters';
 import type {
-  WalkLengthBucket, TimeOfDay, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
+  WalkLengthBucket, TimeOfDay, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -80,7 +80,7 @@ export function ItineraryScreen() {
   const [walkLength, setWalkLength] = useState<WalkLengthBucket>('standard');
   const [radiusKm, setRadiusKm] = useState(RADIUS_KM_DEFAULT);
   const [categories, setCategories] = useState<SpotCategory[]>([]);
-  const [vibes, setVibes] = useState<string[]>([]);
+  const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
 
@@ -92,8 +92,8 @@ export function ItineraryScreen() {
   const [result, setResult] = useState<GeneratedItinerary | null>(null);
   const [genKey, setGenKey] = useState(0);
 
-  function toggleVibe(v: string) {
-    setVibes(prev => prev.includes(v) ? prev.filter(x => x !== v) : [...prev, v]);
+  function togglePriceRange(p: PriceRange) {
+    setPriceRanges(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
   }
   function toggleCategory(c: SpotCategory) {
     setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
@@ -120,7 +120,7 @@ export function ItineraryScreen() {
       radiusKm: geoStatus === 'granted' ? radiusKm : null,
       origin: geoStatus === 'granted' ? origin : null,
       categories,
-      vibes,
+      priceRanges,
       timeOfDay,
       neighbourhoods,
       language: i18n.language === 'fr' ? 'fr' : 'en',
@@ -202,8 +202,8 @@ export function ItineraryScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
-        title="Things to Do in Québec City — Xplora Self-Guided Walks"
-        description="Build a custom AI walking route in Québec City, or browse tours by neighbourhood. Filter by vibe, radius, categories, and more."
+        title="Self-Guided Walks in Québec City | Xplora"
+        description="Build a custom self-guided walking route in Québec City. Filter by price, walk length, radius, and category — then explore at your own pace."
         canonical="/itinerary"
       />
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
@@ -258,13 +258,13 @@ export function ItineraryScreen() {
                 </div>
               )}
 
-              {/* Vibe */}
+              {/* Price */}
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.vibe')}</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {VIBE_OPTIONS.map(v => (
-                    <Chip key={v} active={vibes.includes(v)} onClick={() => toggleVibe(v)}>
-                      {t(`vibes.${VIBE_KEY[v]}`, v)}
+                  {PRICE_RANGES.map(p => (
+                    <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
+                      {p}
                     </Chip>
                   ))}
                 </div>
