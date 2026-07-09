@@ -2,14 +2,14 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const SLIDES = [
-  { src: '/hero/quebec-street-le-forgeron-dor.jpg', alt: 'Visitors walking a lively Old Québec shopping street' },
-  { src: '/hero/brick-wall-cafe-interior.jpg', alt: 'Locals working from a cozy Québec City café' },
-  { src: '/hero/illy-cafe-terrace.jpg', alt: 'Friends chatting on a sunny café terrace' },
-  { src: '/hero/park-walk-dusk.jpg', alt: 'Two people strolling past a stone building at dusk' },
-  { src: '/hero/petit-champlain-chateau-view.jpg', alt: 'Rue du Petit-Champlain with Château Frontenac rising above' },
-  { src: '/hero/depanneur-cafe-storefront.jpg', alt: 'Teal-fronted Dépanneur Café storefront in Old Montréal' },
-  { src: '/hero/laval-statue-building.jpg', alt: 'Monument to François de Laval in front of a grand stone building' },
-  { src: '/hero/blue-heritage-house.jpg', alt: 'Blue heritage house with a river view in Québec City' },
+  { src: '/hero/quebec-street-le-forgeron-dor.jpg', alt: 'Visitors walking a lively Old Québec shopping street', desktopFocus: 'md:object-[50%_75%]' },
+  { src: '/hero/brick-wall-cafe-interior.jpg', alt: 'Locals working from a cozy Québec City café', desktopFocus: 'md:object-[35%_80%]' },
+  { src: '/hero/illy-cafe-terrace.jpg', alt: 'Friends chatting on a sunny café terrace', desktopFocus: 'md:object-[55%_55%]' },
+  { src: '/hero/park-walk-dusk.jpg', alt: 'Two people strolling past a stone building at dusk', desktopFocus: 'md:object-[50%_70%]' },
+  { src: '/hero/petit-champlain-chateau-view.jpg', alt: 'Rue du Petit-Champlain with Château Frontenac rising above', desktopFocus: 'md:object-[50%_85%]' },
+  { src: '/hero/depanneur-cafe-storefront.jpg', alt: 'Teal-fronted Dépanneur Café storefront in Old Montréal', desktopFocus: 'md:object-[50%_80%]' },
+  { src: '/hero/laval-statue-building.jpg', alt: 'Monument to François de Laval in front of a grand stone building', desktopFocus: 'md:object-[30%_85%]' },
+  { src: '/hero/blue-heritage-house.jpg', alt: 'Blue heritage house with a river view in Québec City', desktopFocus: 'md:object-[40%_80%]' },
 ];
 
 const SLIDE_DURATION_MS = 6000;
@@ -35,7 +35,7 @@ export function HeroSlideshow() {
           key={slide.src}
           src={slide.src}
           alt={slide.alt}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out ${
+          className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
             i === activeIndex ? 'opacity-100' : 'opacity-0'
           }`}
         />
