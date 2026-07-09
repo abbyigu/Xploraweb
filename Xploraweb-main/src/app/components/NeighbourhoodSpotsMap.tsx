@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../data/products';
+import { SPOT_CATEGORY_KEY } from '../data/products';
 
 // Read-only map showing a neighbourhood's boundary/centre and its local spots.
 // Vanilla Leaflet (not react-leaflet) so it works under React 18 — same
@@ -22,8 +24,8 @@ const SPOT_ICON = L.divIcon({
   popupAnchor: [0, -34],
 });
 
-function spotPopupHtml(spot: Spot, websiteLabel: string): string {
-  const meta = [spot.category, spot.priceRange].filter(Boolean).join(' · ');
+function spotPopupHtml(spot: Spot, websiteLabel: string, categoryLabel: (cat: string) => string): string {
+  const meta = [spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ');
   const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
   const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
   const site = spot.website
@@ -58,11 +60,13 @@ export function NeighbourhoodSpotsMap({
   activeCategory = null,
   onCategoryChange,
 }: Props) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerLayersRef = useRef<{ marker: L.Marker; category: string }[]>([]);
 
   const categories = Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort();
+  const categoryLabel = (cat: string) => SPOT_CATEGORY_KEY[cat] ? t(`categories.${SPOT_CATEGORY_KEY[cat]}`, cat) : cat;
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -99,7 +103,7 @@ export function NeighbourhoodSpotsMap({
       fitPoints.push(pos);
       const marker = L.marker(pos, { icon: SPOT_ICON })
         .addTo(map)
-        .bindPopup(spotPopupHtml(spot, websiteLabel), { closeButton: true, minWidth: 180 });
+        .bindPopup(spotPopupHtml(spot, websiteLabel, categoryLabel), { closeButton: true, minWidth: 180 });
       markerLayersRef.current.push({ marker, category: spot.category ?? '' });
     });
 
@@ -146,7 +150,7 @@ export function NeighbourhoodSpotsMap({
                   : 'bg-white text-[#12343B] border-[#12343B]/20 hover:bg-[#12343B]/5'
               }`}
             >
-              {cat}
+              {categoryLabel(cat)}
             </button>
           ))}
         </div>

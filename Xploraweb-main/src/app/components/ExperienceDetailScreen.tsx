@@ -16,13 +16,13 @@ interface Testimonial {
   reviewer_name: string | null;
 }
 
-const CAT_TYPE_LABEL: Record<string, string> = {
-  xplorators: 'Self-guided walk',
-  xploratorsplus: 'Premium route',
-  xploratours: 'Guided tour',
-  xploranights: 'Evening event',
-  limoilou: 'Neighbourhood route',
-  cartier: 'Neighbourhood route',
+const CAT_TYPE_KEY: Record<string, string> = {
+  xplorators: 'experienceDetail.catTypeSelfGuided',
+  xploratorsplus: 'experienceDetail.catTypePremium',
+  xploratours: 'experienceDetail.catTypeGuidedTour',
+  xploranights: 'experienceDetail.catTypeEveningEvent',
+  limoilou: 'experienceDetail.catTypeNeighbourhoodRoute',
+  cartier: 'experienceDetail.catTypeNeighbourhoodRoute',
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -130,8 +130,13 @@ export function ExperienceDetailScreen() {
   return (
     <div className="min-h-screen pb-32 md:pb-12 bg-background">
       <PageSEO
-        title={`${exp.name} in Québec City — Xplora`}
-        description={exp.description || `Book ${exp.name} in Québec City. ${exp.duration ? `Duration: ${exp.duration}.` : ''} ${exp.neighbourhood ? `Located in ${exp.neighbourhood}.` : ''} Curated by Xplora.`}
+        title={t('experienceDetail.seoTitle', { name: exp.name })}
+        description={exp.description || [
+          t('experienceDetail.seoDescBook', { name: exp.name }),
+          exp.duration ? t('experienceDetail.seoDescDuration', { duration: exp.duration }) : '',
+          exp.neighbourhood ? t('experienceDetail.seoDescLocated', { neighbourhood: exp.neighbourhood }) : '',
+          t('experienceDetail.seoDescCurated'),
+        ].filter(Boolean).join(' ')}
         canonical={`/experience/${exp.id}`}
         schema={touristAttractionSchema}
       />
@@ -200,7 +205,7 @@ export function ExperienceDetailScreen() {
             <div>
               {exp.category && (
                 <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-2">
-                  {CAT_TYPE_LABEL[exp.category] ?? exp.category}
+                  {CAT_TYPE_KEY[exp.category] ? t(CAT_TYPE_KEY[exp.category]) : exp.category}
                 </p>
               )}
               <h1 className="text-2xl md:text-3xl font-semibold mb-2 leading-tight">{exp.name}</h1>

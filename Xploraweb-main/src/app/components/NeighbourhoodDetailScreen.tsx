@@ -72,8 +72,8 @@ export function NeighbourhoodDetailScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
       <PageSEO
-        title={`${nbhd.name} — Xplora`}
-        description={nbhd.description || nbhd.tagline || `Discover experiences in ${nbhd.name}, Québec City.`}
+        title={t('neighbourhoodDetail.seoTitleSuffix', { name: nbhd.name })}
+        description={nbhd.description || nbhd.tagline || t('neighbourhoodDetail.seoDescFallback', { name: nbhd.name })}
         canonical={`/neighbourhoods/${nbhd.slug || nbhd.id}`}
       />
 

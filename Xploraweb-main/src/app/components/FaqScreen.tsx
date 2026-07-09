@@ -117,8 +117,8 @@ export function FaqScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
-        title="FAQ — Xplora Québec City Experiences"
-        description="Answers to common questions about booking, cancellations, language, meeting points, weather, accessibility, and age requirements for Xplora experiences."
+        title={t('faq.seoTitle')}
+        description={t('faq.seoDesc')}
         canonical="/faq"
       />
 

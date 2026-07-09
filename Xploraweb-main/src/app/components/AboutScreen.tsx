@@ -61,8 +61,8 @@ export function AboutScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
-        title="About Xplora — Québec City's Local Experience Guide"
-        description="Xplora is built by locals who know Québec City deeply. Learn who we are, what drives us, and why we only recommend what we'd show a friend."
+        title={t('about.seoTitle')}
+        description={t('about.seoDesc')}
         canonical="/about"
       />
 
