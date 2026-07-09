@@ -13,8 +13,8 @@ export function BusinessLandingScreen() {
       {/* Hero */}
       <section className="relative min-h-[520px] md:min-h-[600px] flex">
         <img
-          src="/hero/rue-du-petit-champlain-shops.jpg"
-          alt="Storefronts in Québec City"
+          src="/hero/slate-roof-dormers.jpg"
+          alt="Slate roof with dormer windows in Québec City"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
