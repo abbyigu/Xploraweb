@@ -3,6 +3,7 @@ import { ArrowRight, Flame, Heart, Compass, MapPin, Sparkles, Megaphone, Sliders
 import { useSiteContent } from '../hooks/useSiteContent';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
+import { HeroSlideshow } from './HeroSlideshow';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -61,12 +62,8 @@ export function HomeScreen() {
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
 
       {/* Hero */}
-      <section className="relative min-h-[520px] md:min-h-[600px] flex">
-        <img
-          src={siteContent.heroImageUrl}
-          alt="People exploring Petit-Champlain in Québec City"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      <section className="relative min-h-[520px] md:min-h-[600px] flex overflow-hidden">
+        <HeroSlideshow />
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
         <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center justify-center gap-8">
           {/* Wording — top */}
