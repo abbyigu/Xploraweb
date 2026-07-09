@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, Flame, Heart, Compass, MapPin, Sparkles, Megaphone, SlidersHorizontal } from 'lucide-react';
+import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2 } from 'lucide-react';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
@@ -176,59 +176,21 @@ export function HomeScreen() {
 
       {/* For Business */}
       <section id="for-business" className="bg-[#12343B] text-white py-16 px-6 mt-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3">For Business Owners</p>
-            <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Get your business on the map</h2>
-            <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto">
-              List a free perk and get discovered by explorers walking through your neighbourhood every day.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
-            {[
-              {
-                title: 'Free to join',
-                desc: 'No upfront cost. Submit a perk and go live in minutes.',
-                detail: "Create a business account, add an offer — a discount, a free item, early access — and it's live for explorers to see. No subscription, no listing fee.",
-                icon: <Sparkles className="w-5 h-5 text-[#7ecfcf]" />,
-              },
-              {
-                title: 'Real exposure',
-                desc: 'Your perk appears in the Xplora perks feed, seen by explorers across Québec City.',
-                detail: 'Every active perk is visible to anyone browsing Xplora — not buried behind a paywall or a generic directory listing.',
-                icon: <Megaphone className="w-5 h-5 text-[#7ecfcf]" />,
-              },
-              {
-                title: 'Full control',
-                desc: 'Pause, update, or remove your perk anytime.',
-                detail: 'Manage everything from your business dashboard — toggle a perk on or off, swap the offer, or add a new one whenever you want.',
-                icon: <SlidersHorizontal className="w-5 h-5 text-[#7ecfcf]" />,
-              },
-            ].map(({ title, desc, detail, icon }) => (
-              <div key={title} className="bg-white/5 rounded-2xl p-6 border border-white/10">
-                <div className="w-10 h-10 rounded-xl bg-[#7ecfcf]/20 flex items-center justify-center mb-4">
-                  {icon}
-                </div>
-                <h3 className="text-base font-semibold text-white mb-2">{title}</h3>
-                <p className="text-sm text-white/50 leading-relaxed mb-3">{desc}</p>
-                <p className="text-xs text-white/35 leading-relaxed border-t border-white/10 pt-3">{detail}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
-            <Link
-              to="/business"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 transition"
-            >
-              List a Free Perk
-              <ArrowRight className="w-5 h-5" />
-            </Link>
-            <a href="mailto:hello@goxplora.ca" className="text-sm text-white/50 hover:text-white transition">
-              Contact our partnerships team →
-            </a>
-          </div>
+        <div className="max-w-2xl mx-auto text-center">
+          <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3 inline-flex items-center gap-2 justify-center">
+            <Building2 className="w-3.5 h-3.5" /> Partner Program
+          </p>
+          <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">Our business partner program is coming soon</h2>
+          <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto mb-8">
+            We're putting the finishing touches on how Québec City businesses can partner with Xplora and reach engaged local explorers. Want to be first in line?
+          </p>
+          <a
+            href="mailto:hello@goxplora.ca"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 transition"
+          >
+            <Mail className="w-5 h-5" />
+            Contact us at hello@goxplora.ca
+          </a>
         </div>
       </section>
 
