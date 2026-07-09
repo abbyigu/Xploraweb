@@ -12,7 +12,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <div className="overflow-hidden mb-3" style={{ width: 178, height: 46 }}>
               <img
-                src="/goxplora-logo.svg"
+                src="/goxplora-logo.png"
                 alt="GoXplora"
                 style={{ height: 100, marginTop: -24, marginLeft: -10, mixBlendMode: 'screen', filter: 'invert(1) hue-rotate(180deg) brightness(1.6)' }}
               />

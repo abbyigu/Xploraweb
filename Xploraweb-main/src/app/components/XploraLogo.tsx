@@ -9,7 +9,7 @@ export function XploraLogo({
 }) {
   return (
     <img
-      src={variant === "icon" ? logoIcon : "/goxplora-logo.svg"}
+      src={variant === "icon" ? logoIcon : "/goxplora-logo.png"}
       alt="GoXplora"
       className={className}
       style={variant === "full" ? { mixBlendMode: 'multiply', width: 'auto' } : { width: 'auto' }}

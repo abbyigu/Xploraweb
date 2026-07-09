@@ -155,8 +155,8 @@ export function HomeScreen() {
 
           <div className="relative rounded-3xl overflow-hidden aspect-[16/9] max-w-3xl mx-auto mb-16">
             <img
-              src="/hero/umbrella-alley.jpg"
-              alt="Colorful umbrellas hanging over a Québec City alley"
+              src="/hero/slate-roof-dormers.jpg"
+              alt="Slate roof with yellow-trimmed dormer windows in Québec City"
               className="w-full h-full object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-br from-[#12343B]/30 to-transparent" />
