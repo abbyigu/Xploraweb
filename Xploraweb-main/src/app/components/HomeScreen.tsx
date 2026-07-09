@@ -136,12 +136,12 @@ export function HomeScreen() {
         </div>
       </section>
 
+      <SpotFinder />
+
       {/* Section break */}
       <div className="bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center">
         <p className="font-serif text-2xl md:text-3xl text-[#12343B]">Born from a love of wandering</p>
       </div>
-
-      <SpotFinder />
 
       {/* About */}
       <section id="about" className="py-16 px-6 bg-white">
