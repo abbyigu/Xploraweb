@@ -23,8 +23,8 @@ export function MembershipScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
-        title="Xplora Membership — Unlimited Québec City Experiences"
-        description="Join Xplora and unlock unlimited access to curated Québec City tours, local perks, and exclusive events. Monthly and yearly plans available."
+        title={t('membership.seoTitle')}
+        description={t('membership.seoDesc')}
         canonical="/membership"
       />
       <div className="bg-gradient-to-b from-primary to-primary/80 text-primary-foreground px-6 md:px-8 pt-8 pb-10 rounded-b-[3rem] md:rounded-none">

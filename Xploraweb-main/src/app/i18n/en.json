@@ -39,7 +39,9 @@
     "brunch": "Brunch",
     "free": "Free",
     "empty": "No tours here yet — check back soon.",
-    "browseAll": "Browse all experiences"
+    "browseAll": "Browse all experiences",
+    "seoTitleSuffix": "{{name}} — Xplora",
+    "seoDescFallback": "Discover experiences in {{name}}, Québec City."
   },
   "spotFinder": {
     "title": "Not sure what to do?",
@@ -89,7 +91,23 @@
     "terms": "Terms",
     "contact": "Contact",
     "joinUs": "Join Us",
-    "trustCue": "Secure payments · Québec City, QC"
+    "trustCue": "Secure payments · Québec City, QC",
+    "brandTagline": "Self-guided neighbourhood walks in Québec City.",
+    "exploreHeading": "Explore",
+    "linkNeighbourhoods": "Neighbourhoods",
+    "linkWalks": "Walks",
+    "linkMapView": "Map view",
+    "companyHeading": "Company",
+    "linkAboutUs": "About us",
+    "linkForBusinesses": "For businesses",
+    "linkContactUs": "Contact us",
+    "linkPress": "Press",
+    "legalHeading": "Legal",
+    "linkPrivacyPolicy": "Privacy policy",
+    "linkTermsOfService": "Terms of service",
+    "linkCookiePolicy": "Cookie policy",
+    "linkAccessibility": "Accessibility",
+    "copyrightLine": "© 2026 GoXplora · Québec City, QC"
   },
   "landing": {
     "headline": "Book the best local tours and experiences in Québec City.",
@@ -104,7 +122,6 @@
     "featuredTitle": "Experiences to book now",
     "featuredSub": "Walking tours, food walks, and evening events in Québec City",
     "from": "From",
-
     "stopSearching": "Stop searching. Start exploring.",
     "noMore": "No more generic Google searches. Xplora is your insider guide to Québec City's trendy spots — curated by people who actually know the city.",
     "getItinerary": "Get your itinerary",
@@ -189,7 +206,45 @@
     "audience": "Locals & Visitors",
     "exploreMore": "Explore more →",
     "featuredExperiences": "Featured Experiences",
-    "whatPeopleSay": "What people are saying"
+    "whatPeopleSay": "What people are saying",
+    "heroEyebrow": "Québec City",
+    "heroSeeHowItWorks": "See How It Works",
+    "heroForBusiness": "For Business",
+    "whereToStart": "Where to start",
+    "tileHotspotsLabel": "Hotspots",
+    "tileHotspotsDesc": "Buzzing spots nearby",
+    "tileLovedLabel": "Places We Love",
+    "tileLovedDesc": "Our favorite local finds",
+    "tileWalkLabel": "New Walk",
+    "tileWalkDesc": "Fresh self-guided routes",
+    "tileHoodsLabel": "New Neighbourhoods",
+    "tileHoodsDesc": "Just added to Xplora",
+    "moreWaysTitle": "More ways to explore",
+    "moreWaysDesc": "Premium Walks, Guided Tours, and Evening Events — coming soon",
+    "sectionBreakQuote": "Born from a love of wandering",
+    "storyEyebrow": "Our story",
+    "storyBody": "GoXplora started with a simple belief: the best way to know a city is to walk it — slowly, curiously, without a bus schedule. We built the tools to make that possible for everyone.",
+    "pillarSelfGuidedLabel": "Self-guided",
+    "pillarSelfGuidedDesc": "Go at your pace, on your terms.",
+    "pillarLocalLabel": "Local first",
+    "pillarLocalDesc": "Routes built by people who live here.",
+    "pillarCuratedLabel": "Curated",
+    "pillarCuratedDesc": "Every stop is handpicked, not crowdsourced.",
+    "pillarCommunityLabel": "Community",
+    "pillarCommunityDesc": "Every stop supports someone who calls this city home.",
+    "heroSlideAlt1": "Visitors walking a lively Old Québec shopping street",
+    "heroSlideAlt2": "Locals working from a cozy Québec City café",
+    "heroSlideAlt3": "Friends chatting on a sunny café terrace",
+    "heroSlideAlt4": "Two people strolling past a stone building at dusk",
+    "heroSlideAlt5": "Rue du Petit-Champlain with Château Frontenac rising above",
+    "heroSlideAlt6": "Teal-fronted Dépanneur Café storefront in Old Montréal",
+    "heroSlideAlt7": "Monument to François de Laval in front of a grand stone building",
+    "heroSlideAlt8": "Blue heritage house with a river view in Québec City",
+    "businessComingSoonEyebrow": "Partner Program",
+    "businessComingSoonTitle": "Our business partner program is coming soon",
+    "businessComingSoonBody": "We're putting the finishing touches on how Québec City businesses can partner with Xplora and reach engaged local explorers. Want to be first in line?",
+    "businessComingSoonCta": "Contact us at hello@goxplora.ca",
+    "storyImageAlt": "Slate roof with yellow-trimmed dormer windows in Québec City"
   },
   "itinerary": {
     "title": "Self-Guided Walks in Québec City",
@@ -200,7 +255,9 @@
     "paywallSubtitle": "Create a free account to unlock our self-guided walking routes in Québec City.",
     "paywallCta": "Create Free Account",
     "toursComingSoonTitle": "Self-guided routes are free and ready today",
-    "toursComingSoonBody": "Guided tours, premium routes, and evening events are coming soon. Want to know the moment they launch?"
+    "toursComingSoonBody": "Guided tours, premium routes, and evening events are coming soon. Want to know the moment they launch?",
+    "seoTitle": "Self-Guided Walks in Québec City | Xplora",
+    "seoDesc": "Build a custom self-guided walking route in Québec City. Filter by price, walk length, radius, and category — then explore at your own pace."
   },
   "itineraryBuilder": {
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
@@ -359,7 +416,17 @@
     "addToCartInstead": "Add to cart instead",
     "eventDate": "Date",
     "totalFor": "Total for {{count}} guest",
-    "totalForPlural": "Total for {{count}} guests"
+    "totalForPlural": "Total for {{count}} guests",
+    "seoTitle": "{{name}} in Québec City — Xplora",
+    "seoDescBook": "Book {{name}} in Québec City.",
+    "seoDescDuration": "Duration: {{duration}}.",
+    "seoDescLocated": "Located in {{neighbourhood}}.",
+    "seoDescCurated": "Curated by Xplora.",
+    "catTypeSelfGuided": "Self-guided walk",
+    "catTypePremium": "Premium route",
+    "catTypeGuidedTour": "Guided tour",
+    "catTypeEveningEvent": "Evening event",
+    "catTypeNeighbourhoodRoute": "Neighbourhood route"
   },
   "account": {
     "loading": "Loading your profile...",
@@ -466,7 +533,9 @@
     "surprises": "Surprise upgrades & freebies",
     "alreadyMember": "Already a member?",
     "logIn": "Log in",
-    "viewPerks": "View perks & social events →"
+    "viewPerks": "View perks & social events →",
+    "seoTitle": "Xplora Membership — Unlimited Québec City Experiences",
+    "seoDesc": "Join Xplora and unlock unlimited access to curated Québec City tours, local perks, and exclusive events. Monthly and yearly plans available."
   },
   "perks": {
     "title": "Xplora Perks",
@@ -542,7 +611,9 @@
     "ctaTitle": "Ready to explore?",
     "ctaBody": "Browse our curated experiences or reach out — we're a short email away.",
     "ctaExperiences": "See all experiences",
-    "ctaContact": "Get in touch"
+    "ctaContact": "Get in touch",
+    "seoTitle": "About Xplora — Québec City's Local Experience Guide",
+    "seoDesc": "Xplora is built by locals who know Québec City deeply. Learn who we are, what drives us, and why we only recommend what we'd show a friend."
   },
   "members": {
     "title": "Sign In to Unlock",
@@ -555,7 +626,9 @@
     "social": "Social",
     "ready": "Ready for You",
     "unlock": "Unlock More",
-    "happeningNow": "Happening Now & Soon"
+    "happeningNow": "Happening Now & Soon",
+    "seoTitle": "Xplora Members — Exclusive Québec City Perks & Experiences",
+    "seoDesc": "Unlock exclusive perks and insider access across Québec City. Xplora members get discounts, free drinks, skip-the-line privileges, and more at the best local venues."
   },
   "meetups": {
     "title": "Happening Now & Soon",
@@ -879,7 +952,9 @@
     "ctaTitle": "Still have questions?",
     "ctaBody": "We're happy to help before you book.",
     "ctaContact": "Email us",
-    "ctaExperiences": "Browse experiences"
+    "ctaExperiences": "Browse experiences",
+    "seoTitle": "FAQ — Xplora Québec City Experiences",
+    "seoDesc": "Answers to common questions about booking, cancellations, language, meeting points, weather, accessibility, and age requirements for Xplora experiences."
   },
   "a11y": {
     "skipToContent": "Skip to main content",
@@ -896,6 +971,26 @@
     "photoOf": "Photo {{current}} of {{total}}",
     "removeItem": "Remove {{name}} from cart",
     "decreaseQty": "Decrease quantity of {{name}}",
-    "increaseQty": "Increase quantity of {{name}}"
+    "increaseQty": "Increase quantity of {{name}}",
+    "goToPhoto": "Go to photo {{n}}"
+  },
+  "bottomNav": {
+    "home": "Home",
+    "walks": "Walks",
+    "about": "About",
+    "hoods": "Hoods",
+    "account": "Account"
+  },
+  "categories": {
+    "food": "Food",
+    "cafe": "Cafe",
+    "bar": "Bar",
+    "culture": "Culture",
+    "nature": "Nature",
+    "shopping": "Shopping",
+    "family": "Family",
+    "history": "History",
+    "stays": "Stays",
+    "sweets": "Sweets"
   }
 }

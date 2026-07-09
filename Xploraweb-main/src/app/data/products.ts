@@ -7,6 +7,12 @@ export type TrailMode = 'walking' | 'driving';
 export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
+/** Maps a canonical (English, DB-stored) spot category to its i18n key under `categories.*`. */
+export const SPOT_CATEGORY_KEY: Record<string, string> = {
+  Food: 'food', Cafe: 'cafe', Bar: 'bar', Culture: 'culture', Nature: 'nature',
+  Shopping: 'shopping', Family: 'family', History: 'history', Stays: 'stays', Sweets: 'sweets',
+};
+
 /**
  * A Spot is a single, reusable place (a café, lookout, mural). Spots are the
  * atomic building blocks the AI assembles into trails/treks by vibe. They live

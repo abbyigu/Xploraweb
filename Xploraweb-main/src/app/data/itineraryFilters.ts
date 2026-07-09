@@ -1,7 +1,7 @@
-import { SPOT_CATEGORIES } from './products';
+import { SPOT_CATEGORIES, SPOT_CATEGORY_KEY } from './products';
 import type { SpotCategory, Spot } from './products';
 
-export { SPOT_CATEGORIES };
+export { SPOT_CATEGORIES, SPOT_CATEGORY_KEY };
 export type { SpotCategory };
 
 // Shared between the browse page (ItineraryScreen) and the AI builder

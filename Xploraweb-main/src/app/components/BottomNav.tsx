@@ -1,16 +1,18 @@
 import { Link, useLocation } from 'react-router';
 import { Home, Compass, Info, MapPin, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export function BottomNav() {
   const location = useLocation();
+  const { t } = useTranslation();
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
-    { path: '/',              icon: Home,    label: 'Home',       badge: 0 },
-    { path: '/itinerary',     icon: Compass, label: 'Walks',      badge: 0 },
-    { path: '/about',         icon: Info,    label: 'About',      badge: 0 },
-    { path: '/neighbourhoods', icon: MapPin, label: 'Hoods',      badge: 0 },
-    { path: '/account',       icon: User,    label: 'Account',    badge: 0 },
+    { path: '/',              icon: Home,    label: t('bottomNav.home'),    badge: 0 },
+    { path: '/itinerary',     icon: Compass, label: t('bottomNav.walks'),   badge: 0 },
+    { path: '/about',         icon: Info,    label: t('bottomNav.about'),   badge: 0 },
+    { path: '/neighbourhoods', icon: MapPin, label: t('bottomNav.hoods'),   badge: 0 },
+    { path: '/account',       icon: User,    label: t('bottomNav.account'), badge: 0 },
   ];
 
   return (

@@ -3,8 +3,8 @@ import { Sparkles, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSpots } from '../hooks/useSpots';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
-import { SPOT_CATEGORIES } from '../data/products';
-import { VIBE_OPTIONS } from '../data/itineraryFilters';
+import { SPOT_CATEGORIES, SPOT_CATEGORY_KEY } from '../data/products';
+import { VIBE_OPTIONS, VIBE_KEY } from '../data/itineraryFilters';
 import { SpotCard } from './SpotCard';
 import type { Spot } from '../data/products';
 
@@ -98,7 +98,7 @@ export function SpotFinder() {
             aria-label={t('spotFinder.what', 'What')}
           >
             <option value="">{t('spotFinder.anything', 'What — anything')}</option>
-            {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+            {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</option>)}
           </select>
           <select
             value={price}
@@ -124,7 +124,7 @@ export function SpotFinder() {
                     active ? 'bg-[#12343B] text-white' : 'bg-[#12343B]/10 text-[#12343B] hover:bg-[#12343B]/20'
                   }`}
                 >
-                  {v}
+                  {t(`vibes.${VIBE_KEY[v]}`, v)}
                 </button>
               );
             })}

@@ -39,7 +39,9 @@
     "brunch": "Brunch",
     "free": "Gratuit",
     "empty": "Aucun parcours ici pour le moment — revenez bientôt.",
-    "browseAll": "Voir toutes les expériences"
+    "browseAll": "Voir toutes les expériences",
+    "seoTitleSuffix": "{{name}} — Xplora",
+    "seoDescFallback": "Découvrez les expériences à {{name}}, Québec."
   },
   "spotFinder": {
     "title": "Pas sûr de quoi faire?",
@@ -89,7 +91,23 @@
     "terms": "Conditions",
     "contact": "Contact",
     "joinUs": "Rejoignez-nous",
-    "trustCue": "Paiements sécurisés · Québec, QC"
+    "trustCue": "Paiements sécurisés · Québec, QC",
+    "brandTagline": "Balades autoguidées de quartier à Québec.",
+    "exploreHeading": "Explorer",
+    "linkNeighbourhoods": "Quartiers",
+    "linkWalks": "Balades",
+    "linkMapView": "Vue carte",
+    "companyHeading": "Entreprise",
+    "linkAboutUs": "À propos de nous",
+    "linkForBusinesses": "Pour les entreprises",
+    "linkContactUs": "Contactez-nous",
+    "linkPress": "Presse",
+    "legalHeading": "Mentions légales",
+    "linkPrivacyPolicy": "Politique de confidentialité",
+    "linkTermsOfService": "Conditions d'utilisation",
+    "linkCookiePolicy": "Politique de cookies",
+    "linkAccessibility": "Accessibilité",
+    "copyrightLine": "© 2026 GoXplora · Québec, QC"
   },
   "landing": {
     "headline": "Réservez les meilleures visites et expériences locales à Québec.",
@@ -104,7 +122,6 @@
     "featuredTitle": "Expériences à réserver maintenant",
     "featuredSub": "Visites guidées, balades gastronomiques et événements du soir à Québec",
     "from": "À partir de",
-
     "stopSearching": "Arrêtez de chercher. Commencez à explorer.",
     "noMore": "Fini les recherches Google génériques. Xplora est votre guide insider des endroits tendance de Québec — sélectionnés par des gens qui connaissent vraiment la ville.",
     "getItinerary": "Voir mon itinéraire",
@@ -189,7 +206,45 @@
     "audience": "Locaux et visiteurs",
     "exploreMore": "Voir plus →",
     "featuredExperiences": "Expériences à la une",
-    "whatPeopleSay": "Ce que les gens disent"
+    "whatPeopleSay": "Ce que les gens disent",
+    "heroEyebrow": "Québec",
+    "heroSeeHowItWorks": "Voir comment ça marche",
+    "heroForBusiness": "Pour les entreprises",
+    "whereToStart": "Par où commencer",
+    "tileHotspotsLabel": "Incontournables",
+    "tileHotspotsDesc": "Des endroits animés près de vous",
+    "tileLovedLabel": "Nos coups de cœur",
+    "tileLovedDesc": "Nos découvertes locales préférées",
+    "tileWalkLabel": "Nouvelle balade",
+    "tileWalkDesc": "De nouveaux parcours autoguidés",
+    "tileHoodsLabel": "Nouveaux quartiers",
+    "tileHoodsDesc": "Récemment ajoutés à Xplora",
+    "moreWaysTitle": "D'autres façons d'explorer",
+    "moreWaysDesc": "Balades Premium, visites guidées et événements en soirée — bientôt disponibles",
+    "sectionBreakQuote": "Né d'une passion pour la flânerie",
+    "storyEyebrow": "Notre histoire",
+    "storyBody": "GoXplora est né d'une conviction simple : la meilleure façon de découvrir une ville, c'est de la parcourir à pied — lentement, avec curiosité, sans horaire d'autobus. Nous avons créé les outils pour le rendre possible pour tout le monde.",
+    "pillarSelfGuidedLabel": "Autoguidé",
+    "pillarSelfGuidedDesc": "Avancez à votre rythme, à votre façon.",
+    "pillarLocalLabel": "Locaux d'abord",
+    "pillarLocalDesc": "Des parcours créés par des gens d'ici.",
+    "pillarCuratedLabel": "Sélectionné avec soin",
+    "pillarCuratedDesc": "Chaque arrêt est choisi à la main, jamais généré par la foule.",
+    "pillarCommunityLabel": "Communauté",
+    "pillarCommunityDesc": "Chaque arrêt soutient quelqu'un qui appelle cette ville chez soi.",
+    "heroSlideAlt1": "Visiteurs se promenant sur une rue commerçante animée du Vieux-Québec",
+    "heroSlideAlt2": "Des gens du coin qui travaillent dans un café chaleureux de Québec",
+    "heroSlideAlt3": "Des amis qui discutent sur une terrasse de café ensoleillée",
+    "heroSlideAlt4": "Deux personnes se promenant devant un bâtiment de pierre au crépuscule",
+    "heroSlideAlt5": "La rue du Petit-Champlain avec le Château Frontenac en arrière-plan",
+    "heroSlideAlt6": "Façade turquoise du Dépanneur Café dans le Vieux-Montréal",
+    "heroSlideAlt7": "Monument à François de Laval devant un imposant bâtiment de pierre",
+    "heroSlideAlt8": "Maison patrimoniale bleue avec vue sur le fleuve à Québec",
+    "businessComingSoonEyebrow": "Programme de partenariat",
+    "businessComingSoonTitle": "Notre programme de partenariat pour les entreprises arrive bientôt",
+    "businessComingSoonBody": "Nous mettons la touche finale à la façon dont les entreprises de Québec pourront s'associer à Xplora et rejoindre des explorateurs locaux engagés. Vous voulez être parmi les premiers avisés ?",
+    "businessComingSoonCta": "Contactez-nous à hello@goxplora.ca",
+    "storyImageAlt": "Toit d'ardoise avec lucarnes aux boiseries jaunes à Québec"
   },
   "itinerary": {
     "title": "Balades autonomes à Québec",
@@ -200,7 +255,9 @@
     "paywallSubtitle": "Créez un compte gratuit pour débloquer nos parcours autonomes à Québec.",
     "paywallCta": "Créer un compte gratuit",
     "toursComingSoonTitle": "Les parcours autonomes sont gratuits et prêts dès aujourd'hui",
-    "toursComingSoonBody": "Les visites guidées, parcours premium et événements en soirée arrivent bientôt. Envie d'être averti dès leur lancement ?"
+    "toursComingSoonBody": "Les visites guidées, parcours premium et événements en soirée arrivent bientôt. Envie d'être averti dès leur lancement ?",
+    "seoTitle": "Balades autoguidées à Québec | Xplora",
+    "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, durée de marche, rayon et catégorie — puis explorez à votre rythme."
   },
   "itineraryBuilder": {
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
@@ -359,7 +416,17 @@
     "addToCartInstead": "Ajouter au panier",
     "eventDate": "Date",
     "totalFor": "Total pour {{count}} participant",
-    "totalForPlural": "Total pour {{count}} participants"
+    "totalForPlural": "Total pour {{count}} participants",
+    "seoTitle": "{{name}} à Québec — Xplora",
+    "seoDescBook": "Réservez {{name}} à Québec.",
+    "seoDescDuration": "Durée : {{duration}}.",
+    "seoDescLocated": "Situé à {{neighbourhood}}.",
+    "seoDescCurated": "Sélectionné par Xplora.",
+    "catTypeSelfGuided": "Balade autoguidée",
+    "catTypePremium": "Parcours premium",
+    "catTypeGuidedTour": "Visite guidée",
+    "catTypeEveningEvent": "Événement en soirée",
+    "catTypeNeighbourhoodRoute": "Parcours de quartier"
   },
   "account": {
     "loading": "Chargement de votre profil...",
@@ -466,7 +533,9 @@
     "surprises": "Surprises et cadeaux",
     "alreadyMember": "Déjà membre ?",
     "logIn": "Connexion",
-    "viewPerks": "Voir les avantages et événements →"
+    "viewPerks": "Voir les avantages et événements →",
+    "seoTitle": "Abonnement Xplora — Accès illimité aux expériences à Québec",
+    "seoDesc": "Rejoignez Xplora et profitez d'un accès illimité aux visites sélectionnées, aux avantages locaux et aux événements exclusifs à Québec. Forfaits mensuels et annuels disponibles."
   },
   "perks": {
     "title": "Avantages Xplora",
@@ -542,7 +611,9 @@
     "ctaTitle": "Prêt à explorer ?",
     "ctaBody": "Parcourez nos expériences ou écrivez-nous — nous sommes à un courriel près.",
     "ctaExperiences": "Voir toutes les expériences",
-    "ctaContact": "Nous contacter"
+    "ctaContact": "Nous contacter",
+    "seoTitle": "À propos d'Xplora — Le guide local des expériences à Québec",
+    "seoDesc": "Xplora est créé par des gens d'ici qui connaissent Québec en profondeur. Découvrez qui nous sommes, ce qui nous motive et pourquoi nous ne recommandons que ce que nous montrerions à un ami."
   },
   "members": {
     "title": "Connectez-vous pour déverrouiller",
@@ -555,7 +626,9 @@
     "social": "Social",
     "ready": "Disponible",
     "unlock": "Déverrouiller",
-    "happeningNow": "Maintenant et bientôt"
+    "happeningNow": "Maintenant et bientôt",
+    "seoTitle": "Membres Xplora — Avantages et expériences exclusifs à Québec",
+    "seoDesc": "Profitez d'avantages exclusifs et d'un accès privilégié partout à Québec. Les membres Xplora obtiennent des rabais, des consommations gratuites, un accès coupe-file et plus encore dans les meilleurs endroits locaux."
   },
   "meetups": {
     "title": "Maintenant et bientôt",
@@ -867,7 +940,9 @@
     "ctaTitle": "Vous avez encore des questions ?",
     "ctaBody": "Nous sommes là pour vous aider avant que vous réserviez.",
     "ctaContact": "Écrivez-nous",
-    "ctaExperiences": "Voir les expériences"
+    "ctaExperiences": "Voir les expériences",
+    "seoTitle": "FAQ — Expériences Xplora à Québec",
+    "seoDesc": "Réponses aux questions courantes sur la réservation, les annulations, la langue, les points de rencontre, la météo, l'accessibilité et les exigences d'âge pour les expériences Xplora."
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal",
@@ -884,7 +959,8 @@
     "photoOf": "Photo {{current}} sur {{total}}",
     "removeItem": "Retirer {{name}} du panier",
     "decreaseQty": "Diminuer la quantité de {{name}}",
-    "increaseQty": "Augmenter la quantité de {{name}}"
+    "increaseQty": "Augmenter la quantité de {{name}}",
+    "goToPhoto": "Aller à la photo {{n}}"
   },
   "testimonials": {
     "title": "Ce que disent les explorateurs",
@@ -897,5 +973,24 @@
     "3quote": "Le parcours autonome était tellement bien conçu — comme si un ami local nous guidait.",
     "3name": "Andrés R.",
     "3role": "Visiteur, Montréal"
+  },
+  "bottomNav": {
+    "home": "Accueil",
+    "walks": "Balades",
+    "about": "À propos",
+    "hoods": "Quartiers",
+    "account": "Compte"
+  },
+  "categories": {
+    "food": "Restauration",
+    "cafe": "Café",
+    "bar": "Bar",
+    "culture": "Culture",
+    "nature": "Nature",
+    "shopping": "Magasinage",
+    "family": "Famille",
+    "history": "Histoire",
+    "stays": "Hébergement",
+    "sweets": "Sucreries"
   }
 }
