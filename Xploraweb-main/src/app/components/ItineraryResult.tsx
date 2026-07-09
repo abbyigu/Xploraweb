@@ -32,7 +32,7 @@ export function ItineraryResult({ result, origin }: Props) {
     setSaveState(ok ? 'saved' : 'error');
   }
 
-  const mapsUrl = buildGoogleMapsUrl(result.stops, origin);
+  const mapsUrl = buildGoogleMapsUrl(result.stops);
 
   const stopsWithCoords = result.stops.filter(s => s.spot.lat != null && s.spot.lng != null);
   const route: [number, number][] = stopsWithCoords.map(s => [s.spot.lat!, s.spot.lng!]);
