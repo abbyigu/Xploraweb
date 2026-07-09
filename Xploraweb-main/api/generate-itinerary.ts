@@ -128,12 +128,13 @@ export default async function handler(req: any, res: any) {
     .eq('status', 'active');
   if (dbError) return res.status(500).json({ error: dbError.message, code: 'LLM_ERROR' });
 
-  let candidates = (rows || []).map(r => mapSpotRow(r, body.language));
+  let candidates = (rows || [])
+    .map(r => mapSpotRow(r, body.language))
+    .filter(c => c.lat != null && c.lng != null);
 
   if (body.origin && body.radiusKm) {
     const origin = body.origin;
     candidates = candidates
-      .filter(c => c.lat != null && c.lng != null)
       .filter(c => haversineKm(origin, { lat: c.lat!, lng: c.lng! }) <= body.radiusKm!)
       .sort((a, b) => haversineKm(origin, { lat: a.lat!, lng: a.lng! }) - haversineKm(origin, { lat: b.lat!, lng: b.lng! }));
   }
