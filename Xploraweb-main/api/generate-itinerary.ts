@@ -3,7 +3,7 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History'] as const;
-const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'] as const;
+const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
   quick: { minMin: 20, maxMin: 45, targetStops: 3 },
   standard: { minMin: 45, maxMin: 90, targetStops: 5 },
@@ -16,7 +16,7 @@ const RequestSchema = z.object({
   radiusKm: z.number().min(0.5).max(10).nullable(),
   origin: z.object({ lat: z.number(), lng: z.number() }).nullable(),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
-  vibes: z.array(z.enum(VIBE_OPTIONS)),
+  priceRanges: z.array(z.enum(PRICE_RANGES)),
   timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).nullable(),
   neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
@@ -84,7 +84,7 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
   const bucket = WALK_LENGTH_BUCKETS[body.walkLength];
   const candidateList = candidates.map(c => ({
-    id: c.id, name: c.name, category: c.category, vibes: c.vibes,
+    id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
   }));
   return `You are assembling a self-guided walking itinerary in Québec City from a fixed list of real places.
@@ -98,7 +98,7 @@ Requirements:
 ${body.timeOfDay ? `- This route is for the ${body.timeOfDay}; prefer spots that fit that time of day.` : ''}
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
-${body.vibes.length ? `- Prefer vibes: ${body.vibes.join(', ')}.` : ''}
+${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
@@ -143,8 +143,8 @@ export default async function handler(req: any, res: any) {
   if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));
   }
-  if (body.vibes.length > 0) {
-    candidates = candidates.filter(c => c.vibes.some(v => body.vibes.includes(v as any)));
+  if (body.priceRanges.length > 0) {
+    candidates = candidates.filter(c => c.priceRange && body.priceRanges.includes(c.priceRange as any));
   }
   candidates = candidates.slice(0, CANDIDATE_CAP);
 
