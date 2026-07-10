@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Upload, Camera } from 'lucide-react';
 import { upsertProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { INTEREST_OPTIONS, INTEREST_KEY } from '../data/interests';
 
 export function AccountSetupScreen() {
   const navigate = useNavigate();
@@ -11,11 +12,7 @@ export function AccountSetupScreen() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const interestOptions = [
-    'Food & Dining', 'Art & Culture', 'Nightlife',
-    'Outdoor Activities', 'History', 'Shopping',
-    'Music & Events', 'Sports', 'Photography', 'Architecture',
-  ];
+  const interestOptions = INTEREST_OPTIONS;
 
   const toggleInterest = (interest: string) => {
     setInterests((prev) =>
@@ -53,7 +50,7 @@ export function AccountSetupScreen() {
               <label className="cursor-pointer">
                 <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center overflow-hidden">
                   {profileImage ? (
-                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                    <img src={profileImage} alt={t('account.profileAlt')} className="w-full h-full object-cover" />
                   ) : (
                     <Camera className="w-12 h-12 text-muted-foreground" />
                   )}
@@ -81,7 +78,7 @@ export function AccountSetupScreen() {
                       : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  {interest}
+                  {t(`account.interestOptions.${INTEREST_KEY[interest]}`)}
                 </button>
               ))}
             </div>

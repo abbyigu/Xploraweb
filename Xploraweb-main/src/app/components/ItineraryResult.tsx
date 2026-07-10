@@ -101,12 +101,12 @@ export function ItineraryResult({ result, origin }: Props) {
         </div>
 
         <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
-          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} />
+          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} />
         </div>
 
         {mobileView === 'map' && (
           <div className="md:hidden h-[calc(100vh-13rem)] w-full">
-            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} />
+            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} />
           </div>
         )}
       </div>
@@ -116,8 +116,8 @@ export function ItineraryResult({ result, origin }: Props) {
         className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-medium shadow-lg"
       >
         {mobileView === 'map'
-          ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> List</>
-          : <><MapIcon className="w-4 h-4" aria-hidden="true" /> Map</>}
+          ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> {t('itineraryBuilder.listView')}</>
+          : <><MapIcon className="w-4 h-4" aria-hidden="true" /> {t('itineraryBuilder.mapView')}</>}
       </button>
     </div>
   );

@@ -5,12 +5,13 @@ import { useNavigate } from 'react-router';
 import type { Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 
-function formatEventDate(dateStr: string): { day: string; month: string; weekday: string } {
+function formatEventDate(dateStr: string, lang: string): { day: string; month: string; weekday: string } {
+  const locale = lang === 'fr' ? 'fr-CA' : 'en-CA';
   const d = new Date(dateStr + 'T00:00:00');
   return {
-    day: d.toLocaleDateString('en-CA', { day: 'numeric' }),
-    month: d.toLocaleDateString('en-CA', { month: 'short' }).toUpperCase(),
-    weekday: d.toLocaleDateString('en-CA', { weekday: 'short' }).toUpperCase(),
+    day: d.toLocaleDateString(locale, { day: 'numeric' }),
+    month: d.toLocaleDateString(locale, { month: 'short' }).toUpperCase(),
+    weekday: d.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase(),
   };
 }
 
@@ -23,13 +24,13 @@ const EVENT_TYPE_STYLE: Record<string, { label: string; className: string }> = {
 export function EventCard({ exp }: { exp: Product }) {
   const { addItem, items } = useCart();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const inCart = items.some(i => i.id === exp.id);
   const typeStyle = exp.eventType ? EVENT_TYPE_STYLE[exp.eventType] : null;
   const locationShort = exp.meetingPoint
     ? exp.meetingPoint.split('—')[0].split(',')[0].trim()
     : null;
-  const dateInfo = exp.eventDate ? formatEventDate(exp.eventDate) : null;
+  const dateInfo = exp.eventDate ? formatEventDate(exp.eventDate, i18n.language) : null;
   const fewSpots = exp.spots !== undefined && exp.spots <= 5;
 
   return (

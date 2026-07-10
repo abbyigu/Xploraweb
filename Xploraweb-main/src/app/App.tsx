@@ -106,6 +106,7 @@ function GtagLoader() {
 }
 
 export default function App() {
+  const { t } = useTranslation();
   const { content } = useSiteContent();
   return (
     <HelmetProvider>
@@ -119,7 +120,7 @@ export default function App() {
         <SkipLink />
         {content.bannerEnabled && (
           <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">
-            {content.bannerText}
+            {content.bannerText ?? t('home.bannerText')}
           </div>
         )}
         <Header />

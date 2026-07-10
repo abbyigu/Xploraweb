@@ -46,7 +46,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
         {/* Save / bookmark — AllTrails-style */}
         <button
           onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
-          aria-label={saved ? 'Remove from saved' : 'Save'}
+          aria-label={saved ? t('experienceCard.removeFromSaved') : t('experienceCard.save')}
           aria-pressed={saved}
           className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 shadow-sm flex items-center justify-center hover:bg-white transition-colors"
         >
@@ -89,7 +89,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
         {exp.neighbourhood && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <MapPin className="w-3 h-3 flex-shrink-0" aria-hidden="true" />
-            {exp.neighbourhood}, Québec City
+            {exp.neighbourhood}, {t('experienceCard.cityLabel')}
           </div>
         )}
 

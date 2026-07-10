@@ -3,22 +3,22 @@ import { MapPin, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
-import { useNeighbourhoods, type Neighbourhood } from '../hooks/useNeighbourhoods';
+import { useNeighbourhoods, localizedTagline, type Neighbourhood } from '../hooks/useNeighbourhoods';
 import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
 // missing), so the page is never empty.
 const FALLBACK: Neighbourhood[] = [
-  { id: 'old-port',        name: 'Old Port',        slug: 'old-port',        tagline: 'History & waterfront',  description: '', coverImage: '/nbhd/old-port.jpeg',  sortOrder: 0, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
-  { id: 'saint-roch',      name: 'Saint-Roch',      slug: 'saint-roch',      tagline: 'Art, coffee & cool',    description: '', coverImage: '/nbhd/saint-roch.webp', sortOrder: 1, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
-  { id: 'petit-champlain', name: 'Petit-Champlain', slug: 'petit-champlain', tagline: 'Cobblestones & charm',  description: '', coverImage: '/nbhd/champlain.jpeg',  sortOrder: 2, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
-  { id: 'montcalm',        name: 'Montcalm',        slug: 'montcalm',        tagline: 'Parks & grand avenues', description: '', coverImage: '/nbhd/montcalm.jpg',    sortOrder: 3, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
-  { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   description: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'old-port',        name: 'Old Port',        slug: 'old-port',        tagline: 'History & waterfront',  taglineFr: 'Histoire et bord de l\'eau',      description: '', descriptionFr: '', coverImage: '/nbhd/old-port.jpeg',  sortOrder: 0, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'saint-roch',      name: 'Saint-Roch',      slug: 'saint-roch',      tagline: 'Art, coffee & cool',    taglineFr: 'Art, café et branché',            description: '', descriptionFr: '', coverImage: '/nbhd/saint-roch.webp', sortOrder: 1, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'petit-champlain', name: 'Petit-Champlain', slug: 'petit-champlain', tagline: 'Cobblestones & charm',  taglineFr: 'Pavés et charme',                 description: '', descriptionFr: '', coverImage: '/nbhd/champlain.jpeg',  sortOrder: 2, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'montcalm',        name: 'Montcalm',        slug: 'montcalm',        tagline: 'Parks & grand avenues', taglineFr: 'Parcs et grandes avenues',        description: '', descriptionFr: '', coverImage: '/nbhd/montcalm.jpg',    sortOrder: 3, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
+  { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   taglineFr: 'Murales et cuisine locale',       description: '', descriptionFr: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
 ];
 
 export function NeighbourhoodsScreen() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { neighbourhoods, loading } = useNeighbourhoods();
   const [searchParams] = useSearchParams();
   const sortNew = searchParams.get('sort') === 'new';
@@ -82,7 +82,7 @@ export function NeighbourhoodsScreen() {
                     <p className="text-white font-semibold text-lg leading-tight flex items-center gap-1.5">
                       <MapPin className="w-4 h-4 flex-shrink-0" /> {n.name}
                     </p>
-                    {n.tagline && <p className="text-white/80 text-sm mt-0.5">{n.tagline}</p>}
+                    {localizedTagline(n, i18n.language) && <p className="text-white/80 text-sm mt-0.5">{localizedTagline(n, i18n.language)}</p>}
                   </div>
                 </div>
                 <div className="px-4 py-3">

@@ -10,7 +10,9 @@ const BLANK = {
   name: '',
   slug: '',
   tagline: '',
+  tagline_fr: '',
   description: '',
+  description_fr: '',
   cover_image_url: '',
   famous_streets: '',
   sort_order: 0,
@@ -26,7 +28,9 @@ const SQL = `CREATE TABLE neighbourhoods (
   name text NOT NULL,
   slug text UNIQUE NOT NULL,
   tagline text DEFAULT '',
+  tagline_fr text DEFAULT '',
   description text DEFAULT '',
+  description_fr text DEFAULT '',
   cover_image_url text DEFAULT '',
   famous_streets text[] DEFAULT '{}',
   latitude numeric,
@@ -104,7 +108,9 @@ export function AdminNeighbourhoodsPanel() {
       name: row.name || '',
       slug: row.slug || '',
       tagline: row.tagline || '',
+      tagline_fr: row.tagline_fr || '',
       description: row.description || '',
+      description_fr: row.description_fr || '',
       cover_image_url: row.cover_image_url || '',
       famous_streets: Array.isArray(row.famous_streets) ? row.famous_streets.join('\n') : '',
       sort_order: row.sort_order ?? 0,
@@ -135,7 +141,9 @@ export function AdminNeighbourhoodsPanel() {
       name: form.name.trim(),
       slug: form.slug.trim() || toSlug(form.name),
       tagline: form.tagline.trim(),
+      tagline_fr: form.tagline_fr.trim(),
       description: form.description.trim(),
+      description_fr: form.description_fr.trim(),
       cover_image_url: form.cover_image_url.trim(),
       famous_streets: form.famous_streets
         .split('\n')
@@ -227,26 +235,49 @@ export function AdminNeighbourhoodsPanel() {
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Tagline</label>
-            <input
-              value={form.tagline}
-              onChange={set('tagline')}
-              placeholder="History & waterfront"
-              className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-            <p className="text-[11px] text-muted-foreground">Short line shown under the neighbourhood name on cards.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Tagline (English)</label>
+              <input
+                value={form.tagline}
+                onChange={set('tagline')}
+                placeholder="History & waterfront"
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Tagline (French)</label>
+              <input
+                value={form.tagline_fr}
+                onChange={set('tagline_fr')}
+                placeholder="Histoire et bord de l'eau"
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
           </div>
+          <p className="text-[11px] text-muted-foreground -mt-2">Short line shown under the neighbourhood name on cards. Shown untranslated if the French version is left blank.</p>
 
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Description</label>
-            <textarea
-              value={form.description}
-              onChange={set('description')}
-              rows={3}
-              placeholder="A longer description shown on the neighbourhood detail page…"
-              className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Description (English)</label>
+              <textarea
+                value={form.description}
+                onChange={set('description')}
+                rows={3}
+                placeholder="A longer description shown on the neighbourhood detail page…"
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-muted-foreground">Description (French)</label>
+              <textarea
+                value={form.description_fr}
+                onChange={set('description_fr')}
+                rows={3}
+                placeholder="Une description plus longue affichée sur la page du quartier…"
+                className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+              />
+            </div>
           </div>
 
           <div className="space-y-1">
@@ -310,7 +341,14 @@ export function AdminNeighbourhoodsPanel() {
             </div>
           </div>
 
-          {error && <p className="text-xs text-red-500">{error}</p>}
+          {error && (
+            <div className="text-xs text-red-500 space-y-1">
+              <p>{error}</p>
+              {(error.includes('tagline_fr') || error.includes('description_fr')) && (
+                <p className="text-muted-foreground">Run this in Supabase SQL Editor: <code className="bg-muted px-1 rounded">ALTER TABLE neighbourhoods ADD COLUMN IF NOT EXISTS tagline_fr text DEFAULT ''; ALTER TABLE neighbourhoods ADD COLUMN IF NOT EXISTS description_fr text DEFAULT '';</code></p>
+              )}
+            </div>
+          )}
 
           <div className="flex gap-3 pt-1">
             <button
