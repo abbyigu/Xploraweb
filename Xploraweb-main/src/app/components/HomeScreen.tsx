@@ -1,10 +1,13 @@
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
+import { supabase, getProfile } from '../lib/supabase';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
+import { WelcomeDiscoverPanel } from './WelcomeDiscoverPanel';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -12,9 +15,14 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { content: siteContent } = useSiteContent();
-  const heroHeadline = siteContent.heroHeadline ?? t('home.heroHeadline');
-  const heroSubheadline = siteContent.heroSubheadline ?? t('home.heroSubheadline');
-  const heroCtaLabel = siteContent.heroCtaLabel ?? t('home.heroCtaLabel');
+  const [memberName, setMemberName] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user) return;
+      getProfile().then((data) => setMemberName(data?.name || session.user.email || ''));
+    });
+  }, []);
 
   const FEATURE_TILES = [
     { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots' },
@@ -105,6 +113,8 @@ export function HomeScreen() {
           </div>
         </div>
       </section>
+
+      {memberName !== null && <WelcomeDiscoverPanel name={memberName} />}
 
       {/* Discover more */}
       <section className="pt-8 pb-4">
