@@ -188,13 +188,6 @@
   "home": {
     "welcomeBack": "Bon retour",
     "hey": "Bonjour",
-    "welcomeGreeting": "Bon retour, {{name}} — qu'avez-vous envie d'explorer aujourd'hui ?",
-    "welcomeGreetingFallback": "Bon retour — qu'avez-vous envie d'explorer aujourd'hui ?",
-    "welcomeSearchPlaceholder": "Rechercher des expériences...",
-    "welcomeFilterAll": "Tout",
-    "welcomeSectionTitle": "Sélectionné pour vous",
-    "welcomeSeeAll": "Tout voir",
-    "welcomeNoResults": "Aucune expérience ne correspond à votre recherche.",
     "businessDesc": "Gérez vos avantages, suivez vos offres et développez votre portée.",
     "dashboard": "Tableau de bord",
     "account": "Compte",
