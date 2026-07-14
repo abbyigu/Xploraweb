@@ -68,7 +68,7 @@ export function Header() {
               <span aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
             </button>
 
-            <Link to="/account" aria-label={t('a11y.account')}>
+            <Link to="/dashboard" aria-label={t('a11y.account')}>
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
                   ? <img src={avatar.url} alt="" aria-hidden="true" className="w-full h-full object-cover" />
