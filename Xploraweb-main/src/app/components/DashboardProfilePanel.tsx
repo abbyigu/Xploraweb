@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router';
 import { useExperiences } from '../hooks/useExperiences';
 import { useTranslation } from 'react-i18next';
 import type { DashboardProfile } from './DashboardScreen';
+import { INTEREST_OPTIONS, INTEREST_KEY } from '../data/interests';
 
 function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
@@ -15,7 +16,7 @@ function getInitials(name: string): string {
 
 export function DashboardProfilePanel({ profile, setProfile }: { profile: DashboardProfile; setProfile: React.Dispatch<React.SetStateAction<DashboardProfile>> }) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { experiences } = useExperiences();
   const [purchasedIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
@@ -62,11 +63,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
     });
   };
 
-  const interestOptions = [
-    'Food & Dining', 'Art & Culture', 'Nightlife',
-    'Outdoor Activities', 'History', 'Shopping',
-    'Music & Events', 'Sports', 'Photography', 'Architecture',
-  ];
+  const interestOptions = INTEREST_OPTIONS;
 
   const handleSaveProfile = async () => {
     await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
@@ -108,7 +105,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
             onClick={() => fileInputRef.current?.click()}
           >
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+              <img src={profile.avatar_url} alt={t('account.profileAlt')} className="w-full h-full object-cover" />
             ) : (
               <span>{getInitials(profile.name)}</span>
             )}
@@ -122,7 +119,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
         </div>
         <div>
-          <h2 className="text-xl mb-1">{profile.name || 'Your Name'}</h2>
+          <h2 className="text-xl mb-1">{profile.name || t('account.yourName')}</h2>
           <p className="text-sm text-muted-foreground">{profile.email || 'your@email.com'}</p>
           <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
             📍 {profile.location}
@@ -154,7 +151,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
               <div>
                 <label className="block text-sm text-muted-foreground mb-1">{t('account.fullName')}</label>
                 <input type="text" value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your full name" />
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder={t('account.fullNamePlaceholder')} />
               </div>
               <div>
                 <label className="block text-sm text-muted-foreground mb-1">{t('account.email')}</label>
@@ -164,7 +161,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
               <div>
                 <label className="block text-sm text-muted-foreground mb-1">{t('account.location')}</label>
                 <input type="text" value={profile.location} onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
-                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Quebec City, QC" />
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder={t('account.locationPlaceholder')} />
               </div>
             </div>
             <button onClick={handleSaveProfile} className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
@@ -181,16 +178,16 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Business Name</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">{t('account.businessName')}</p>
                   <p className="text-sm font-medium">{profile.business_name || '—'}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-0.5">Business Type</p>
+                  <p className="text-xs text-muted-foreground mb-0.5">{t('account.businessType')}</p>
                   <p className="text-sm">{profile.business_type || '—'}</p>
                 </div>
                 {profile.business_website && (
                   <div>
-                    <p className="text-xs text-muted-foreground mb-0.5">Website</p>
+                    <p className="text-xs text-muted-foreground mb-0.5">{t('account.website')}</p>
                     <a href={profile.business_website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
                       {profile.business_website} <ExternalLink className="w-3 h-3" />
                     </a>
@@ -266,7 +263,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                     profile.interests.includes(interest) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50'
                   }`}
                 >
-                  {interest}
+                  {t(`account.interestOptions.${INTEREST_KEY[interest]}`)}
                 </button>
               ))}
             </div>
@@ -324,7 +321,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                             {categoryLabel && <p className="text-xs text-secondary uppercase tracking-widest mb-0.5">{categoryLabel}</p>}
                             <h4 className="font-medium text-base truncate">{exp.name}</h4>
                             <p className="text-sm text-muted-foreground">
-                              {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)} / person`}
+                              {exp.price === 0 ? t('common.free') : `$${(exp.price / 100).toFixed(0)} ${t('common.perPerson')}`}
                             </p>
                           </div>
                           <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -358,7 +355,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                             {/* Itinerary stops */}
                             {exp.itinerary && exp.itinerary.length > 0 && (
                               <div>
-                                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Itinerary</p>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{t('experienceDetail.itinerary')}</p>
                                 <ol className="space-y-2.5">
                                   {exp.itinerary.map((stop, i) => (
                                     <li key={i} className="flex items-start gap-3 text-sm">
@@ -376,7 +373,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                               onClick={() => navigate(`/experience/${exp.id}`)}
                               className="text-sm text-primary hover:underline"
                             >
-                              View full details →
+                              {t('account.viewFullDetails')}
                             </button>
                           </div>
                         )}
@@ -405,11 +402,11 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                             <h4 className="text-base mb-1 truncate">{item.title}</h4>
                             <p className="text-sm text-muted-foreground">
                               {t('itineraryBuilder.resultMeta', { duration: item.estimatedDurationMin, distance: item.estimatedDistanceKm })}
-                              {' · '}{new Date(item.createdAt).toLocaleDateString()}
+                              {' · '}{new Date(item.createdAt).toLocaleDateString(i18n.language === 'fr' ? 'fr-CA' : 'en-CA')}
                             </p>
                           </div>
                         </div>
-                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0" aria-label="Remove">
+                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0" aria-label={t('common.remove')}>
                           <X className="w-4 h-4" />
                         </button>
                       </div>
@@ -443,7 +440,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                         <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
                         <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · {t('account.validUntil')} {perk.validUntil}</p></div>
                       </div>
-                      <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                      <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label={t('common.remove')}>
                         <X className="w-4 h-4" />
                       </button>
                     </div>
