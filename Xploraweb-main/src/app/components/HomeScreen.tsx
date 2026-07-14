@@ -15,6 +15,9 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { content: siteContent } = useSiteContent();
+  const heroHeadline = siteContent.heroHeadline ?? t('home.heroHeadline');
+  const heroSubheadline = siteContent.heroSubheadline ?? t('home.heroSubheadline');
+  const heroCtaLabel = siteContent.heroCtaLabel ?? t('home.heroCtaLabel');
   const [memberName, setMemberName] = useState<string | null>(null);
 
   useEffect(() => {
