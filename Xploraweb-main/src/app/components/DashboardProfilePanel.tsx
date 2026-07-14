@@ -1,0 +1,460 @@
+import { useState, useEffect, useRef } from 'react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, Building2, ExternalLink, MapPin, Map } from 'lucide-react';
+import { supabase, upsertProfile } from '../lib/supabase';
+import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
+import type { SavedItinerary } from '../lib/savedItineraries';
+import { buildGoogleMapsUrl } from '../lib/maps';
+import { useNavigate } from 'react-router';
+import { useExperiences } from '../hooks/useExperiences';
+import { useTranslation } from 'react-i18next';
+import type { DashboardProfile } from './DashboardScreen';
+
+function getInitials(name: string): string {
+  return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
+}
+
+export function DashboardProfilePanel({ profile, setProfile }: { profile: DashboardProfile; setProfile: React.Dispatch<React.SetStateAction<DashboardProfile>> }) {
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { experiences } = useExperiences();
+  const [purchasedIds] = useState<string[]>(() => {
+    try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
+  });
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved'>('profile');
+  const [expandedExp, setExpandedExp] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
+  const [passwordEmailSent, setPasswordEmailSent] = useState(false);
+  const [savedItineraries, setSavedItineraries] = useState<SavedItinerary[]>([]);
+  const [savedPerks, setSavedPerks] = useState(() => {
+    try {
+      const raw = localStorage.getItem('xplora_saved_perks');
+      return raw ? JSON.parse(raw) : [];
+    } catch { return []; }
+  });
+
+  useEffect(() => {
+    fetchSavedItineraries().then(setSavedItineraries);
+  }, []);
+
+  const toggleSection = (section: 'notifications' | 'privacy') =>
+    setOpenSection((prev) => (prev === section ? null : section));
+
+  const handleChangePassword = async () => {
+    if (!profile.email) return;
+    await supabase.auth.resetPasswordForEmail(profile.email, { redirectTo: window.location.origin });
+    setPasswordEmailSent(true);
+    setTimeout(() => setPasswordEmailSent(false), 4000);
+  };
+
+  const removeItinerary = async (id: string) => {
+    setSavedItineraries((prev) => prev.filter((i) => i.id !== id));
+    await deleteSavedItinerary(id);
+  };
+
+  const removePerk = (id: number) => {
+    setSavedPerks((prev: typeof savedPerks) => {
+      const updated = prev.filter((p: any) => p.id !== id);
+      localStorage.setItem('xplora_saved_perks', JSON.stringify(updated));
+      return updated;
+    });
+  };
+
+  const interestOptions = [
+    'Food & Dining', 'Art & Culture', 'Nightlife',
+    'Outdoor Activities', 'History', 'Shopping',
+    'Music & Events', 'Sports', 'Photography', 'Architecture',
+  ];
+
+  const handleSaveProfile = async () => {
+    await upsertProfile({ name: profile.name, email: profile.email, location: profile.location });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const avatar_url = reader.result as string;
+      setProfile((p) => ({ ...p, avatar_url }));
+      await upsertProfile({ avatar_url });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const toggleInterest = async (interest: string) => {
+    const interests = profile.interests.includes(interest)
+      ? profile.interests.filter((i) => i !== interest)
+      : [...profile.interests, interest];
+    setProfile((p) => ({ ...p, interests }));
+    await upsertProfile({ interests });
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-6">
+        <div className="relative">
+          <div
+            className="w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl overflow-hidden cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span>{getInitials(profile.name)}</span>
+            )}
+          </div>
+          <button
+            className="absolute bottom-0 right-0 bg-secondary text-secondary-foreground p-1.5 rounded-full"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Camera className="w-3.5 h-3.5" />
+          </button>
+          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+        </div>
+        <div>
+          <h2 className="text-xl mb-1">{profile.name || 'Your Name'}</h2>
+          <p className="text-sm text-muted-foreground">{profile.email || 'your@email.com'}</p>
+          <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+            📍 {profile.location}
+          </p>
+        </div>
+      </div>
+
+      <div className="border-b border-border">
+        <div className="flex gap-6 overflow-x-auto">
+          {(['profile', 'preferences', 'saved'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`pb-3 px-1 border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab === 'profile' ? t('account.profileTab') : tab === 'preferences' ? t('account.preferencesTab') : t('account.savedTab')}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === 'profile' && (
+        <div className="space-y-4">
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <h3 className="text-lg mb-4">{t('account.personalInfo')}</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm text-muted-foreground mb-1">{t('account.fullName')}</label>
+                <input type="text" value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your full name" />
+              </div>
+              <div>
+                <label className="block text-sm text-muted-foreground mb-1">{t('account.email')}</label>
+                <input type="email" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="your@email.com" />
+              </div>
+              <div>
+                <label className="block text-sm text-muted-foreground mb-1">{t('account.location')}</label>
+                <input type="text" value={profile.location} onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
+                  className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Quebec City, QC" />
+              </div>
+            </div>
+            <button onClick={handleSaveProfile} className="mt-4 bg-primary text-primary-foreground px-6 py-2 rounded-lg hover:opacity-90 transition-opacity">
+              {saved ? t('account.saved') : t('account.saveChanges')}
+            </button>
+          </div>
+
+          {/* Business section — only for business accounts */}
+          {profile.account_type === 'business' && (
+            <div className="bg-card rounded-xl p-4 border border-border">
+              <div className="flex items-center gap-2 mb-4">
+                <Building2 className="w-5 h-5 text-secondary" />
+                <h3 className="text-lg">{t('account.yourBusiness')}</h3>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Business Name</p>
+                  <p className="text-sm font-medium">{profile.business_name || '—'}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground mb-0.5">Business Type</p>
+                  <p className="text-sm">{profile.business_type || '—'}</p>
+                </div>
+                {profile.business_website && (
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Website</p>
+                    <a href={profile.business_website} target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline flex items-center gap-1">
+                      {profile.business_website} <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
+                )}
+                <div className="pt-2 border-t border-border">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${profile.stripe_connect_onboarded ? 'bg-green-500' : 'bg-amber-400'}`} />
+                    <p className="text-sm">
+                      {profile.stripe_connect_onboarded
+                        ? t('account.stripeConnected')
+                        : t('account.stripeNotConnected')}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="space-y-2">
+            {/* Notifications */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>{t('account.notifications')}</span></div>
+                {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'notifications' && (
+                <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+                  {([
+                    { key: 'email', label: t('account.emailNotifs') },
+                    { key: 'push', label: t('account.pushNotifs') },
+                    { key: 'newsletter', label: t('account.newsletter') },
+                  ] as const).map(({ key, label }) => (
+                    <label key={key} className="flex items-center justify-between text-sm">
+                      <span>{label}</span>
+                      <input type="checkbox" checked={notifPrefs[key]} onChange={(e) => setNotifPrefs((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Privacy & Security */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>{t('account.privacySecurity')}</span></div>
+                {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'privacy' && (
+                <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                  <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                    {passwordEmailSent ? t('account.passwordSent') : t('account.changePassword')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <button onClick={handleLogout} className="w-full bg-card rounded-xl p-4 border border-border flex items-center gap-3 hover:bg-muted transition-colors text-red-600">
+              <LogOut className="w-5 h-5" /><span>{t('account.logOut')}</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'preferences' && (
+        <div className="space-y-4">
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <h3 className="text-lg mb-4">{t('account.interests')}</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {interestOptions.map((interest) => (
+                <button key={interest} onClick={() => toggleInterest(interest)}
+                  className={`p-3 rounded-xl border-2 transition-all text-sm ${
+                    profile.interests.includes(interest) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50'
+                  }`}
+                >
+                  {interest}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-card rounded-xl p-4 border border-border">
+            <div className="space-y-3">
+              <label className="flex items-center justify-between"><span>{t('account.showHiddenGems')}</span><input type="checkbox" defaultChecked className="rounded" /></label>
+              <label className="flex items-center justify-between"><span>{t('account.familyFriendly')}</span><input type="checkbox" defaultChecked className="rounded" /></label>
+              <label className="flex items-center justify-between"><span>{t('account.budgetFriendly')}</span><input type="checkbox" className="rounded" /></label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'saved' && (() => {
+        const bookedExps = purchasedIds
+          .map(id => experiences.find(e => e.id === id))
+          .filter((e): e is NonNullable<typeof e> => !!e);
+
+        return (
+          <div className="space-y-8">
+
+            {/* My Experiences */}
+            <div>
+              <h3 className="text-xl mb-4">{t('account.myExperiences')}</h3>
+              {bookedExps.length === 0 ? (
+                <div className="bg-card border border-border rounded-2xl p-6 text-center">
+                  <Map className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                  <p className="text-sm text-muted-foreground">{t('account.noExperiences')}</p>
+                  <button onClick={() => navigate('/itinerary')} className="mt-4 text-sm text-primary hover:underline">
+                    {t('account.browseExperiences')}
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {bookedExps.map((exp) => {
+                    const isOpen = expandedExp === exp.id;
+                    const categoryLabel =
+                      exp.category === 'xplorators' ? 'Xplora-tors' :
+                      exp.category === 'xploratours' ? 'Xplora-tours' :
+                      exp.category === 'xploranights' ? 'Xplora Nights' : '';
+
+                    return (
+                      <div key={exp.id} className="bg-card border border-border rounded-2xl overflow-hidden">
+                        {/* Header row */}
+                        <button
+                          className="w-full flex items-center gap-4 p-4 hover:bg-muted/30 transition-colors text-left"
+                          onClick={() => setExpandedExp(isOpen ? null : exp.id)}
+                        >
+                          {exp.image && (
+                            <img src={exp.image} alt={exp.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            {categoryLabel && <p className="text-xs text-secondary uppercase tracking-widest mb-0.5">{categoryLabel}</p>}
+                            <h4 className="font-medium text-base truncate">{exp.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {exp.price === 0 ? 'Free' : `$${(exp.price / 100).toFixed(0)} / person`}
+                            </p>
+                          </div>
+                          <ChevronDown className={`w-4 h-4 text-muted-foreground flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+                        </button>
+
+                        {/* Expanded: map + itinerary */}
+                        {isOpen && (
+                          <div className="border-t border-border px-4 pb-5 pt-4 space-y-5">
+
+                            {/* Meeting point / map */}
+                            {exp.meetingPoint && (
+                              <div>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('account.meetingPoint')}</p>
+                                <div className="flex items-start gap-3 bg-muted/30 rounded-xl p-3">
+                                  <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                                  <div>
+                                    <p className="text-sm">{exp.meetingPoint}</p>
+                                    <a
+                                      href={`https://maps.google.com/?q=${encodeURIComponent(exp.meetingPoint)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs text-primary hover:underline mt-1 inline-flex items-center gap-1"
+                                    >
+                                      {t('account.openMaps')} <ExternalLink className="w-3 h-3" />
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Itinerary stops */}
+                            {exp.itinerary && exp.itinerary.length > 0 && (
+                              <div>
+                                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">Itinerary</p>
+                                <ol className="space-y-2.5">
+                                  {exp.itinerary.map((stop, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-sm">
+                                      <span className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium mt-0.5">
+                                        {i + 1}
+                                      </span>
+                                      <span className="text-muted-foreground leading-relaxed">{stop}</span>
+                                    </li>
+                                  ))}
+                                </ol>
+                              </div>
+                            )}
+
+                            <button
+                              onClick={() => navigate(`/experience/${exp.id}`)}
+                              className="text-sm text-primary hover:underline"
+                            >
+                              View full details →
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Saved Itineraries */}
+            <div>
+              <h3 className="text-xl mb-4">{t('account.savedItineraries')}</h3>
+              {savedItineraries.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">{t('account.noItineraries')}</p>
+              ) : (
+                <div className="space-y-3">
+                  {savedItineraries.map((item) => {
+                    const mapsUrl = buildGoogleMapsUrl(item.stops);
+                    return (
+                    <div key={item.id} className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3 min-w-0">
+                          <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0 mt-0.5" />
+                          <div className="min-w-0">
+                            <h4 className="text-base mb-1 truncate">{item.title}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {t('itineraryBuilder.resultMeta', { duration: item.estimatedDurationMin, distance: item.estimatedDistanceKm })}
+                              {' · '}{new Date(item.createdAt).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0" aria-label="Remove">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      {mapsUrl && (
+                        <a
+                          href={mapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                        >
+                          {t('account.openMaps')} <ExternalLink className="w-3.5 h-3.5" />
+                        </a>
+                      )}
+                    </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Saved Perks */}
+            <div>
+              <h3 className="text-xl mb-4">{t('account.savedPerks')}</h3>
+              {savedPerks.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">{t('account.noPerks')}</p>
+              ) : (
+                <div className="space-y-3">
+                  {savedPerks.map((perk: any) => (
+                    <div key={perk.id} className="bg-card rounded-xl p-4 border border-border flex items-center justify-between hover:bg-muted transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0" />
+                        <div><h4 className="text-base mb-1">{perk.title}</h4><p className="text-sm text-muted-foreground">{perk.venue} · {t('account.validUntil')} {perk.validUntil}</p></div>
+                      </div>
+                      <button onClick={() => removePerk(perk.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label="Remove">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        );
+      })()}
+    </div>
+  );
+}

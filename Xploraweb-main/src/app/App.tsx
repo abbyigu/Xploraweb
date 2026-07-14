@@ -35,7 +35,7 @@ const LoginScreen             = lazy(() => import('./components/LoginScreen').th
 const ForgotPasswordScreen   = lazy(() => import('./components/ForgotPasswordScreen').then(m => ({ default: m.ForgotPasswordScreen })));
 const ResetPasswordScreen    = lazy(() => import('./components/ResetPasswordScreen').then(m => ({ default: m.ResetPasswordScreen })));
 const AccountSetupScreen     = lazy(() => import('./components/AccountSetupScreen').then(m => ({ default: m.AccountSetupScreen })));
-const AccountScreen          = lazy(() => import('./components/AccountScreen').then(m => ({ default: m.AccountScreen })));
+const DashboardScreen        = lazy(() => import('./components/DashboardScreen').then(m => ({ default: m.DashboardScreen })));
 const NotificationsScreen    = lazy(() => import('./components/NotificationsScreen').then(m => ({ default: m.NotificationsScreen })));
 const AboutScreen            = lazy(() => import('./components/AboutScreen').then(m => ({ default: m.AboutScreen })));
 const CartScreen             = lazy(() => import('./components/CartScreen').then(m => ({ default: m.CartScreen })));
@@ -43,8 +43,6 @@ const MembershipScreen       = lazy(() => import('./components/MembershipScreen'
 const BusinessLandingScreen  = lazy(() => import('./components/BusinessLandingScreen').then(m => ({ default: m.BusinessLandingScreen })));
 const BusinessSignupScreen   = lazy(() => import('./components/BusinessSignupScreen').then(m => ({ default: m.BusinessSignupScreen })));
 const BusinessLoginScreen    = lazy(() => import('./components/BusinessLoginScreen').then(m => ({ default: m.BusinessLoginScreen })));
-const BusinessDashboardScreen= lazy(() => import('./components/BusinessDashboardScreen').then(m => ({ default: m.BusinessDashboardScreen })));
-const AdminDashboardScreen   = lazy(() => import('./components/AdminDashboardScreen').then(m => ({ default: m.AdminDashboardScreen })));
 const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').then(m => ({ default: m.PrivacyScreen })));
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
 const HowItWorksScreen       = lazy(() => import('./components/HowItWorksScreen').then(m => ({ default: m.HowItWorksScreen })));
@@ -140,7 +138,7 @@ export default function App() {
               <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
               <Route path="/reset-password" element={<ResetPasswordScreen />} />
               <Route path="/account-setup" element={<AccountSetupScreen />} />
-              <Route path="/account" element={<AccountScreen />} />
+              <Route path="/account" element={<Navigate to="/dashboard" replace />} />
               <Route path="/itinerary" element={<ItineraryScreen />} />
               <Route path="/experience/:id" element={<ExperienceDetailScreen />} />
               <Route path="/notifications" element={<NotificationsScreen />} />
@@ -149,8 +147,8 @@ export default function App() {
               <Route path="/business" element={<BusinessLandingScreen />} />
               <Route path="/business/signup" element={<BusinessSignupScreen />} />
               <Route path="/business/login" element={<BusinessLoginScreen />} />
-              <Route path="/business/dashboard" element={<BusinessDashboardScreen />} />
-              <Route path="/dashboard" element={<AdminDashboardScreen />} />
+              <Route path="/business/dashboard" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/dashboard" element={<DashboardScreen />} />
               <Route path="/privacy" element={<PrivacyScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
               <Route path="/how-it-works" element={<HowItWorksScreen />} />

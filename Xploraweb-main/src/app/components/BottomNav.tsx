@@ -12,7 +12,7 @@ export function BottomNav() {
     { path: '/itinerary',     icon: Compass, label: t('bottomNav.walks'),   badge: 0 },
     { path: '/about',         icon: Info,    label: t('bottomNav.about'),   badge: 0 },
     { path: '/neighbourhoods', icon: MapPin, label: t('bottomNav.hoods'),   badge: 0 },
-    { path: '/account',       icon: User,    label: t('bottomNav.account'), badge: 0 },
+    { path: '/dashboard',     icon: User,    label: t('bottomNav.account'), badge: 0 },
   ];
 
   return (
