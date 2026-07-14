@@ -12,9 +12,9 @@ export function HomeScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { content: siteContent } = useSiteContent();
-  const heroHeadline = siteContent.heroHeadline || t('home.heroHeadline');
-  const heroSubheadline = siteContent.heroSubheadline || t('home.heroSubheadline');
-  const heroCtaLabel = siteContent.heroCtaLabel || t('home.heroCtaLabel');
+  const heroHeadline = siteContent.heroHeadline ?? t('home.heroHeadline');
+  const heroSubheadline = siteContent.heroSubheadline ?? t('home.heroSubheadline');
+  const heroCtaLabel = siteContent.heroCtaLabel ?? t('home.heroCtaLabel');
 
   const FEATURE_TILES = [
     { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots' },
