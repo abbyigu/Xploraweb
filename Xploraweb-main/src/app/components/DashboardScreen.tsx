@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router';
-import { LogOut, Shield, Building2, User, Home } from 'lucide-react';
+import { LogOut, Shield, Building2, User } from 'lucide-react';
 import { supabase, getProfile } from '../lib/supabase';
 import { Footer } from './Footer';
 import { XploraLogo } from './XploraLogo';
 import { useTranslation } from 'react-i18next';
-import { DashboardHomePanel } from './DashboardHomePanel';
 import { DashboardProfilePanel } from './DashboardProfilePanel';
 import { DashboardBusinessPanel } from './DashboardBusinessPanel';
 import { AdminPanel } from './AdminPanel';
@@ -30,7 +29,7 @@ const EMPTY_PROFILE: DashboardProfile = {
   stripe_connect_onboarded: false, is_admin: false,
 };
 
-type Section = 'home' | 'profile' | 'business' | 'admin';
+type Section = 'profile' | 'business' | 'admin';
 
 export function DashboardScreen() {
   const navigate = useNavigate();
@@ -38,7 +37,7 @@ export function DashboardScreen() {
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [profile, setProfile] = useState<DashboardProfile>(EMPTY_PROFILE);
-  const [section, setSection] = useState<Section>('home');
+  const [section, setSection] = useState<Section>('profile');
   const defaultSectionSet = useRef(false);
 
   useEffect(() => {
@@ -135,20 +134,13 @@ export function DashboardScreen() {
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
         {/* Section tabs */}
-        <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit overflow-x-auto">
-          <button
-            onClick={() => setSection('home')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${section === 'home' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <Home className="w-3.5 h-3.5" />
-            {t('account.homeTab')}
-          </button>
+        <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
           <button
             onClick={() => setSection('profile')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${section === 'profile' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'profile' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
           >
             <User className="w-3.5 h-3.5" />
-            {t('account.profileTab')}
+            {t('account.title')}
           </button>
           {showBusiness && (
             <button
@@ -170,7 +162,6 @@ export function DashboardScreen() {
           )}
         </div>
 
-        {section === 'home' && <DashboardHomePanel profile={profile} />}
         {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} />}
         {section === 'business' && showBusiness && <DashboardBusinessPanel profile={profile} />}
         {section === 'admin' && showAdmin && <AdminPanel />}
