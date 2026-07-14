@@ -107,7 +107,7 @@ export function SpotFinder() {
             aria-label={t('spotFinder.budget', 'Budget')}
           >
             <option value="">{t('spotFinder.anyBudget', '$ — any budget')}</option>
-            {PRICE_OPTIONS.map(p => <option key={p} value={p}>{p}</option>)}
+            {PRICE_OPTIONS.map(p => <option key={p} value={p}>{p === 'Free' ? t('spotFinder.freeOption') : p}</option>)}
           </select>
         </div>
 

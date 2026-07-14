@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import type { Product, ExperienceCategory } from '../data/products';
-import { experiences as staticExperiences } from '../data/products';
+import { experiences as staticExperiences, localizeProduct } from '../data/products';
 import i18n from '../i18n';
 
 function pick(fr: string | null | undefined, en: string | null | undefined): string {
@@ -76,7 +76,9 @@ export function useExperiences() {
     const VALID_CATEGORIES = new Set(['xplorators','xploratours','xploranights','xploratorsplus','limoilou','cartier']);
     const promoted = [...fromXplora, ...fromPerks].filter(e => e.category && VALID_CATEGORIES.has(e.category));
     const activeDbNames = new Set(promoted.map(e => e.name.toLowerCase()));
-    const unpromoted = staticExperiences.filter(e => !activeDbNames.has(e.name.toLowerCase()));
+    const unpromoted = staticExperiences
+      .filter(e => !activeDbNames.has(e.name.toLowerCase()))
+      .map(e => localizeProduct(e, i18n.language));
     setExperiences([...promoted, ...unpromoted]);
     setLoading(false);
   };

@@ -83,12 +83,12 @@ export function HomeScreen() {
           <div className="flex flex-col items-center gap-5">
             <p className="text-xs uppercase tracking-widest text-white/80">{t('home.heroEyebrow')}</p>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow">
-              {siteContent.heroHeadline.split('\n').map((line, i, lines) => (
+              {heroHeadline.split('\n').map((line, i, lines) => (
                 <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
               ))}
             </h1>
             <p className="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm">
-              {siteContent.heroSubheadline}
+              {heroSubheadline}
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export function HomeScreen() {
               to="/itinerary"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
             >
-              {siteContent.heroCtaLabel}
+              {heroCtaLabel}
               <ArrowRight className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-3 text-sm">

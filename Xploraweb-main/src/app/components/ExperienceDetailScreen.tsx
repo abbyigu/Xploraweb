@@ -222,7 +222,7 @@ export function ExperienceDetailScreen() {
                     <p className="font-medium">
                       {isFree ? t('experienceDetail.free') : t('experienceDetail.comingSoon')}
                     </p>
-                    {isFree && <p className="text-xs text-muted-foreground">{isSelfGuided ? 'No booking needed' : 'Free'}</p>}
+                    {isFree && <p className="text-xs text-muted-foreground">{isSelfGuided ? t('experienceDetail.noBookingNeeded') : t('experienceDetail.free')}</p>}
                   </div>
                 </div>
                 {exp.duration && (
@@ -267,10 +267,12 @@ export function ExperienceDetailScreen() {
                     </div>
                   </div>
                 )}
-                <div className="flex items-start gap-2 col-span-2">
-                  <RotateCcw className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
-                  <p className="text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
-                </div>
+                {!isFree && (
+                  <div className="flex items-start gap-2 col-span-2">
+                    <RotateCcw className="w-4 h-4 flex-shrink-0 mt-0.5 text-muted-foreground" aria-hidden="true" />
+                    <p className="text-muted-foreground">{t('experienceDetail.cancelPolicy')}</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -295,7 +297,7 @@ export function ExperienceDetailScreen() {
                 <p className="text-xs uppercase tracking-widest text-muted-foreground font-medium">{t('experienceDetail.testimonialLabel')}</p>
                 <StarRating rating={testimonial.rating} />
                 <p className="text-sm leading-relaxed">"{testimonial.comment}"</p>
-                <p className="text-sm font-medium text-muted-foreground">— {testimonial.reviewer_name ?? 'Anonymous'}</p>
+                <p className="text-sm font-medium text-muted-foreground">— {testimonial.reviewer_name ?? t('experienceDetail.anonymous')}</p>
               </div>
             )}
 
@@ -409,7 +411,7 @@ export function ExperienceDetailScreen() {
                 </button>
               )}
 
-              {isFree && (
+              {!isFree && (
                 <div className="pt-1 space-y-1.5 text-xs text-muted-foreground">
                   <p className="flex items-center gap-1.5 justify-center">
                     <RotateCcw className="w-3 h-3" aria-hidden="true" />

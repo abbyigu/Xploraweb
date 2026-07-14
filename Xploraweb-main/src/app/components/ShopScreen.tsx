@@ -1,5 +1,5 @@
 import { ShoppingCart, Check } from 'lucide-react';
-import { merch } from '../data/products';
+import { merch, localizeProduct } from '../data/products';
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router';
 import { Footer } from './Footer';
@@ -13,7 +13,7 @@ function formatPrice(cents: number) {
 export function ShopScreen() {
   const { addItem, items, count } = useCart();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const inCart = (id: string) => items.some(i => i.id === id);
 
@@ -21,7 +21,7 @@ export function ShopScreen() {
     if (!inCart(product.id)) addItem(product);
   };
 
-  const products = merch;
+  const products = merch.map(m => localizeProduct(m, i18n.language));
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
