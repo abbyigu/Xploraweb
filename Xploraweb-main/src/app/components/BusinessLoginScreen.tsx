@@ -29,7 +29,7 @@ export function BusinessLoginScreen() {
     }
 
     setLoading(false);
-    navigate('/business/dashboard');
+    navigate('/dashboard');
   };
 
   return (
