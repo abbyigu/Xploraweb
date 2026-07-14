@@ -5,17 +5,16 @@ import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 
-const TEAM: { name: string; role: string; bio: string; photo: string; initials: string }[] = [
+const TEAM: { name: string; photo: string; initials: string }[] = [
   {
     name: 'Ariel',
-    role: 'Founder',
-    bio: 'Hi, I\'m Ariel — founder of Xplora ✨ Growing up, exploring local cafés, hidden gems, and small towns was a family tradition. Those experiences inspired me to create Xplora — a platform designed to help people slow down, discover local culture, and experience Québec City more meaningfully.',
     photo: '/team/founder.jpeg',
     initials: 'AB',
   },
 ];
 
 function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
+  const { t } = useTranslation();
   const [imgFailed, setImgFailed] = useState(false);
 
   return (
@@ -36,8 +35,8 @@ function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
       </div>
       <div className="space-y-0.5">
         <p className="font-medium text-foreground text-sm">{member.name}</p>
-        <p className="text-xs text-xplora-primary uppercase tracking-wide">{member.role}</p>
-        <p className="text-sm text-muted-foreground leading-relaxed pt-1">{member.bio}</p>
+        <p className="text-xs text-xplora-primary uppercase tracking-wide">{t('about.founderRole')}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed pt-1">{t('about.founderBio')}</p>
       </div>
     </div>
   );
@@ -69,7 +68,7 @@ export function AboutScreen() {
       {/* Hero */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-10 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-3xl mx-auto space-y-2">
-          <p className="text-xs uppercase tracking-widest opacity-60">Xplora — Québec City</p>
+          <p className="text-xs uppercase tracking-widest opacity-60">{t('about.heroEyebrow')}</p>
           <h1 className="text-2xl md:text-3xl lg:text-4xl">{t('about.headline')}</h1>
           <p className="text-sm md:text-base opacity-80 max-w-xl">{t('about.subheadline')}</p>
         </div>
@@ -87,12 +86,12 @@ export function AboutScreen() {
 
         {/* Québec City is our backyard */}
         <section className="space-y-4">
-          <h2 className="text-xl md:text-2xl text-foreground">Québec City is our backyard</h2>
+          <h2 className="text-xl md:text-2xl text-foreground">{t('about.backyardTitle')}</h2>
           <p className="text-base text-muted-foreground leading-relaxed">
-            Discovering local has always been a family tradition. There's something special about ending up somewhere you've never been — and so many more hidden corners of Québec.
+            {t('about.backyardPara1')}
           </p>
           <p className="text-base text-muted-foreground leading-relaxed">
-            I especially love that feeling of stumbling onto a new place — a street, a café, a view — that wasn't on any list. Xplora was born from that same spirit: making it easy for everyone to wander, discover, and fall in love with local.
+            {t('about.backyardPara2')}
           </p>
           <div className="flex items-center gap-3 pt-2">
             <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-primary/20">
@@ -100,7 +99,7 @@ export function AboutScreen() {
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Ariel B.</p>
-              <p className="text-xs text-muted-foreground">Founder, GoXplora</p>
+              <p className="text-xs text-muted-foreground">{t('about.founderCaption')}</p>
             </div>
           </div>
         </section>

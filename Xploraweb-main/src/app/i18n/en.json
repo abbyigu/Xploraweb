@@ -52,6 +52,7 @@
     "anywhere": "Where — anywhere",
     "anything": "What — anything",
     "anyBudget": "$ — any budget",
+    "freeOption": "Free",
     "cta": "Find me something",
     "again": "Try another",
     "noMatch": "Nothing matches yet — try loosening a filter."
@@ -208,6 +209,10 @@
     "featuredExperiences": "Featured Experiences",
     "whatPeopleSay": "What people are saying",
     "heroEyebrow": "Québec City",
+    "heroHeadline": "Discover local.\nLive more.",
+    "heroSubheadline": "Free, self-guided walking routes through Québec City's best neighbourhoods. Pick a route, follow the map, go at your pace.",
+    "heroCtaLabel": "Get My Free Route",
+    "bannerText": "Built in Québec City. Free to start, always.",
     "heroSeeHowItWorks": "See How It Works",
     "heroForBusiness": "For Business",
     "whereToStart": "Where to start",
@@ -287,7 +292,9 @@
     "openInMaps": "Open in Google Maps",
     "saveRoute": "Save route",
     "saved": "Saved",
-    "saveError": "Couldn't save your route — please try again."
+    "saveError": "Couldn't save your route — please try again.",
+    "listView": "List",
+    "mapView": "Map"
   },
   "howItWorks": {
     "title": "How it works",
@@ -345,7 +352,10 @@
     "easy": "Easy",
     "moderate": "Moderate",
     "challenging": "Challenging",
-    "reviews": "reviews"
+    "reviews": "reviews",
+    "save": "Save",
+    "removeFromSaved": "Remove from saved",
+    "cityLabel": "Québec City"
   },
   "events": {
     "today": "Today",
@@ -379,6 +389,7 @@
     "meetingPoint": "Meeting point",
     "getDirections": "Get directions →",
     "free": "Free",
+    "noBookingNeeded": "No booking needed",
     "comingSoon": "Coming soon",
     "comingSoonTitle": "Booking coming soon",
     "comingSoonBody": "We're not open for bookings yet — check back soon or explore our free self-guided routes in the meantime.",
@@ -405,6 +416,7 @@
     "reviewSubmit": "Submit review",
     "reviewSubmitting": "Submitting…",
     "reviewThanks": "Thanks for your review! It will appear once approved.",
+    "anonymous": "Anonymous",
     "guests": "Guests",
     "bookNow": "Book now",
     "bookingNow": "Booking…",
@@ -446,6 +458,15 @@
     "preferencesTab": "Preferences",
     "savedTab": "Saved",
     "adminTab": "Admin",
+    "noCommentLeft": "No comment left.",
+    "yourName": "Your Name",
+    "fullNamePlaceholder": "Your full name",
+    "locationPlaceholder": "Quebec City, QC",
+    "profileAlt": "Profile",
+    "businessName": "Business Name",
+    "businessType": "Business Type",
+    "website": "Website",
+    "viewFullDetails": "View full details →",
     "personalInfo": "Personal Information",
     "fullName": "Full Name",
     "email": "Email",
@@ -481,7 +502,19 @@
     "showHiddenGems": "Show me hidden gems",
     "familyFriendly": "Include family-friendly activities",
     "budgetFriendly": "Budget-friendly options only",
-    "fullDashboard": "Full dashboard"
+    "fullDashboard": "Full dashboard",
+    "interestOptions": {
+      "foodDining": "Food & Dining",
+      "artCulture": "Art & Culture",
+      "nightlife": "Nightlife",
+      "outdoorActivities": "Outdoor Activities",
+      "history": "History",
+      "shopping": "Shopping",
+      "musicEvents": "Music & Events",
+      "sports": "Sports",
+      "photography": "Photography",
+      "architecture": "Architecture"
+    }
   },
   "accountSetup": {
     "title": "Complete Your Profile",
@@ -572,7 +605,10 @@
     "secure": "🔒 Secure payment powered by Stripe",
     "guestCheckout": "No account required — guest checkout available",
     "stepReview": "Review order",
-    "stepPay": "Pay"
+    "stepPay": "Pay",
+    "checkoutFailed": "Checkout failed",
+    "genericError": "Something went wrong. Please try again.",
+    "redirecting": "Redirecting to Stripe…"
   },
   "welcome": {
     "title": "Welcome to Xplora",
@@ -600,6 +636,13 @@
     "storyLabel": "Why we started",
     "story": "Xplora started because the best things to do in Québec City were scattered — buried in Facebook groups, passed by word-of-mouth, or just never written down.",
     "storyDetail": "We wanted one place to find what's actually worth doing: the walks that feel like a local gave you a tour, the events where you meet people, the spots your friends keep coming back to. Local knowledge, made accessible — for newcomers, for visitors, and for people who've lived here for years.",
+    "heroEyebrow": "Xplora — Québec City",
+    "backyardTitle": "Québec City is our backyard",
+    "backyardPara1": "Discovering local has always been a family tradition. There's something special about ending up somewhere you've never been — and so many more hidden corners of Québec.",
+    "backyardPara2": "I especially love that feeling of stumbling onto a new place — a street, a café, a view — that wasn't on any list. Xplora was born from that same spirit: making it easy for everyone to wander, discover, and fall in love with local.",
+    "founderCaption": "Founder, GoXplora",
+    "founderRole": "Founder",
+    "founderBio": "Hi, I'm Ariel — founder of Xplora ✨ Growing up, exploring local cafés, hidden gems, and small towns was a family tradition. Those experiences inspired me to create Xplora — a platform designed to help people slow down, discover local culture, and experience Québec City more meaningfully.",
     "stat1Value": "2026",
     "stat1Label": "Founded in Québec City",
     "stat2Value": "12+",

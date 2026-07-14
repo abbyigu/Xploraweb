@@ -7,7 +7,7 @@ import { PageSEO } from './PageSEO';
 import { ExperienceCard } from './ExperienceCard';
 import { NeighbourhoodSpotsMap } from './NeighbourhoodSpotsMap';
 import { SpotCard } from './SpotCard';
-import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { useNeighbourhoods, localizedTagline, localizedDescription } from '../hooks/useNeighbourhoods';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSpots } from '../hooks/useSpots';
 import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
@@ -15,7 +15,7 @@ import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages
 export function NeighbourhoodDetailScreen() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { neighbourhoods, loading } = useNeighbourhoods();
   const { experiences } = useExperiences();
   const { spots } = useSpots();
@@ -55,6 +55,8 @@ export function NeighbourhoodDetailScreen() {
     );
   }
 
+  const tagline = localizedTagline(nbhd, i18n.language);
+  const description = localizedDescription(nbhd, i18n.language);
   const nbhdName = nbhd.name.trim().toLowerCase();
   const items = experiences.filter(
     e => e.neighbourhood?.trim().toLowerCase() === nbhdName,
@@ -73,7 +75,7 @@ export function NeighbourhoodDetailScreen() {
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
       <PageSEO
         title={t('neighbourhoodDetail.seoTitleSuffix', { name: nbhd.name })}
-        description={nbhd.description || nbhd.tagline || t('neighbourhoodDetail.seoDescFallback', { name: nbhd.name })}
+        description={description || tagline || t('neighbourhoodDetail.seoDescFallback', { name: nbhd.name })}
         canonical={`/neighbourhoods/${nbhd.slug || nbhd.id}`}
       />
 
@@ -101,16 +103,16 @@ export function NeighbourhoodDetailScreen() {
             <h1 className="font-serif text-3xl md:text-5xl text-white leading-tight flex items-center gap-2">
               <MapPin className="w-6 h-6 md:w-8 md:h-8 flex-shrink-0" /> {nbhd.name}
             </h1>
-            {nbhd.tagline && <p className="text-white/85 text-base md:text-lg mt-1.5">{nbhd.tagline}</p>}
+            {tagline && <p className="text-white/85 text-base md:text-lg mt-1.5">{tagline}</p>}
           </div>
         </div>
       </section>
 
       <div className="max-w-7xl mx-auto px-6 md:px-8 py-8 md:py-12 space-y-10">
         {/* Description — only shown here, on the neighbourhood's own page */}
-        {nbhd.description && (
+        {description && (
           <section className="max-w-3xl mx-auto text-center">
-            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{nbhd.description}</p>
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">{description}</p>
           </section>
         )}
 

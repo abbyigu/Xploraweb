@@ -12,7 +12,7 @@ export function CartScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const handleCheckout = async () => {
     if (items.length === 0) return;
@@ -39,7 +39,7 @@ export function CartScreen() {
         }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Checkout failed');
+      if (!res.ok) throw new Error(data.error || t('cart.checkoutFailed'));
       if (data.url) {
         analytics.beginCheckout(items, total);
         analytics.stagePurchase(items, total);
@@ -47,7 +47,7 @@ export function CartScreen() {
         window.location.href = data.url;
       }
     } catch (e: any) {
-      setError(e.message || 'Something went wrong. Please try again.');
+      setError(e.message || t('cart.genericError'));
     } finally {
       setLoading(false);
     }
@@ -100,7 +100,7 @@ export function CartScreen() {
                   <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{item.description}</p>
                   {(item.selectedDate || item.selectedTime) && (
                     <p className="text-xs text-primary mt-1">
-                      {item.selectedDate && new Date(item.selectedDate + 'T00:00:00').toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}
+                      {item.selectedDate && new Date(item.selectedDate + 'T00:00:00').toLocaleDateString(i18n.language === 'fr' ? 'fr-CA' : 'en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}
                       {item.selectedDate && item.selectedTime && ' · '}
                       {item.selectedTime && (() => {
                         const [h, m] = item.selectedTime!.split(':').map(Number);
@@ -150,7 +150,7 @@ export function CartScreen() {
             disabled={loading}
             className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity disabled:opacity-60 font-medium"
           >
-            {loading ? 'Redirecting to Stripe…' : t('cart.checkout')}
+            {loading ? t('cart.redirecting') : t('cart.checkout')}
           </button>
           <p className="text-xs text-center text-muted-foreground">{t('cart.secure')}</p>
         </div>

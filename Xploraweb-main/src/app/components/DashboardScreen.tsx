@@ -123,7 +123,7 @@ export function DashboardScreen() {
           <div className="flex items-center gap-3">
             <XploraLogo variant="icon" className="h-8 w-8" />
             <div>
-              <p className="text-xs text-muted-foreground">Dashboard</p>
+              <p className="text-xs text-muted-foreground">{t('account.dashboard')}</p>
               <p className="text-sm font-medium">{profile.name || profile.email}</p>
             </div>
           </div>
@@ -165,7 +165,7 @@ export function DashboardScreen() {
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'admin' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
               <Shield className="w-3.5 h-3.5" />
-              Admin
+              {t('account.adminTab')}
             </button>
           )}
         </div>

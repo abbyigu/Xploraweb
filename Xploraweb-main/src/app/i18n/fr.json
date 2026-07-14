@@ -52,6 +52,7 @@
     "anywhere": "Où — n'importe où",
     "anything": "Quoi — n'importe quoi",
     "anyBudget": "$ — tous budgets",
+    "freeOption": "Gratuit",
     "cta": "Trouvez-moi quelque chose",
     "again": "Essayer un autre",
     "noMatch": "Rien ne correspond encore — essayez d'assouplir un filtre."
@@ -208,6 +209,10 @@
     "featuredExperiences": "Expériences à la une",
     "whatPeopleSay": "Ce que les gens disent",
     "heroEyebrow": "Québec",
+    "heroHeadline": "Découvrez local.\nVivez plus.",
+    "heroSubheadline": "Des parcours à pied gratuits et autoguidés dans les meilleurs quartiers de Québec. Choisissez un itinéraire, suivez la carte, à votre rythme.",
+    "heroCtaLabel": "Obtenir mon parcours gratuit",
+    "bannerText": "Créé à Québec. Gratuit pour commencer, toujours.",
     "heroSeeHowItWorks": "Voir comment ça marche",
     "heroForBusiness": "Pour les entreprises",
     "whereToStart": "Par où commencer",
@@ -287,7 +292,9 @@
     "openInMaps": "Ouvrir dans Google Maps",
     "saveRoute": "Enregistrer le parcours",
     "saved": "Enregistré",
-    "saveError": "Impossible d'enregistrer le parcours — veuillez réessayer."
+    "saveError": "Impossible d'enregistrer le parcours — veuillez réessayer.",
+    "listView": "Liste",
+    "mapView": "Carte"
   },
   "howItWorks": {
     "title": "Comment ça marche",
@@ -345,7 +352,10 @@
     "easy": "Facile",
     "moderate": "Modéré",
     "challenging": "Difficile",
-    "reviews": "avis"
+    "reviews": "avis",
+    "save": "Sauvegarder",
+    "removeFromSaved": "Retirer des favoris",
+    "cityLabel": "Québec"
   },
   "events": {
     "today": "Aujourd'hui",
@@ -379,6 +389,7 @@
     "meetingPoint": "Point de rencontre",
     "getDirections": "Obtenir l'itinéraire →",
     "free": "Gratuit",
+    "noBookingNeeded": "Aucune réservation requise",
     "comingSoon": "Bientôt disponible",
     "comingSoonTitle": "Réservations bientôt disponibles",
     "comingSoonBody": "Les réservations ne sont pas encore ouvertes — revenez bientôt ou explorez nos parcours autonomes gratuits en attendant.",
@@ -405,6 +416,7 @@
     "reviewSubmit": "Envoyer l'avis",
     "reviewSubmitting": "Envoi en cours…",
     "reviewThanks": "Merci pour votre avis ! Il apparaîtra une fois approuvé.",
+    "anonymous": "Anonyme",
     "guests": "Participants",
     "bookNow": "Réserver maintenant",
     "bookingNow": "Réservation…",
@@ -446,6 +458,15 @@
     "preferencesTab": "Préférences",
     "savedTab": "Sauvegardé",
     "adminTab": "Admin",
+    "noCommentLeft": "Aucun commentaire laissé.",
+    "yourName": "Votre nom",
+    "fullNamePlaceholder": "Votre nom complet",
+    "locationPlaceholder": "Ville de Québec, QC",
+    "profileAlt": "Profil",
+    "businessName": "Nom de l'entreprise",
+    "businessType": "Type d'entreprise",
+    "website": "Site web",
+    "viewFullDetails": "Voir tous les détails →",
     "personalInfo": "Informations personnelles",
     "fullName": "Nom complet",
     "email": "Courriel",
@@ -481,7 +502,19 @@
     "showHiddenGems": "Me montrer des trésors cachés",
     "familyFriendly": "Inclure les activités familiales",
     "budgetFriendly": "Options économiques seulement",
-    "fullDashboard": "Tableau de bord complet"
+    "fullDashboard": "Tableau de bord complet",
+    "interestOptions": {
+      "foodDining": "Gastronomie",
+      "artCulture": "Art et culture",
+      "nightlife": "Vie nocturne",
+      "outdoorActivities": "Activités de plein air",
+      "history": "Histoire",
+      "shopping": "Magasinage",
+      "musicEvents": "Musique et événements",
+      "sports": "Sports",
+      "photography": "Photographie",
+      "architecture": "Architecture"
+    }
   },
   "accountSetup": {
     "title": "Complétez votre profil",
@@ -572,7 +605,10 @@
     "secure": "🔒 Paiement sécurisé par Stripe",
     "guestCheckout": "Aucun compte requis — paiement sans inscription disponible",
     "stepReview": "Vérifier",
-    "stepPay": "Payer"
+    "stepPay": "Payer",
+    "checkoutFailed": "Échec du paiement",
+    "genericError": "Une erreur s'est produite. Veuillez réessayer.",
+    "redirecting": "Redirection vers Stripe…"
   },
   "welcome": {
     "title": "Bienvenue sur Xplora",
@@ -600,6 +636,13 @@
     "storyLabel": "Pourquoi on a démarré",
     "story": "Xplora est né parce que les meilleures choses à faire à Québec étaient éparpillées — enfouies dans des groupes Facebook, transmises par bouche-à-oreille, ou tout simplement jamais écrites.",
     "storyDetail": "On voulait un seul endroit pour trouver ce qui vaut vraiment le détour : les balades qui donnent l'impression qu'un local vous fait visiter, les événements où on rencontre du monde, les adresses où vos amis reviennent sans cesse. Le savoir local, rendu accessible — pour les nouveaux arrivants, les visiteurs, et ceux qui habitent ici depuis des années.",
+    "heroEyebrow": "Xplora — Québec",
+    "backyardTitle": "Québec, c'est notre terrain de jeu",
+    "backyardPara1": "Découvrir son coin de pays a toujours été une tradition familiale. Il y a quelque chose de spécial à se retrouver dans un endroit où on n'était jamais allé — et Québec regorge de recoins cachés.",
+    "backyardPara2": "J'adore particulièrement ce sentiment de tomber par hasard sur un nouvel endroit — une rue, un café, une vue — qui n'était sur aucune liste. Xplora est né de cet esprit : rendre facile pour tout le monde de flâner, de découvrir et de tomber en amour avec ce qui est local.",
+    "founderCaption": "Fondateur, GoXplora",
+    "founderRole": "Fondateur",
+    "founderBio": "Salut, je suis Ariel — fondateur d'Xplora ✨ Enfant, explorer les cafés du coin, les trésors cachés et les petites villes était une tradition familiale. Ces expériences m'ont inspiré à créer Xplora — une plateforme conçue pour aider les gens à ralentir, à découvrir la culture locale et à vivre Québec de façon plus significative.",
     "stat1Value": "2026",
     "stat1Label": "Fondé à Québec",
     "stat2Value": "12+",
