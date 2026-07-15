@@ -188,13 +188,6 @@
   "home": {
     "welcomeBack": "Welcome back",
     "hey": "Hey",
-    "welcomeGreeting": "Welcome back, {{name}} — what do you feel like exploring today?",
-    "welcomeGreetingFallback": "Welcome back — what do you feel like exploring today?",
-    "welcomeSearchPlaceholder": "Search experiences...",
-    "welcomeFilterAll": "All",
-    "welcomeSectionTitle": "Fresh picks for you",
-    "welcomeSeeAll": "See all",
-    "welcomeNoResults": "No experiences match your search.",
     "businessDesc": "Manage your perks, track your listings, and grow your reach.",
     "dashboard": "Dashboard",
     "account": "Account",
