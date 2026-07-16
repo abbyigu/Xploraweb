@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, Building2, ExternalLink, MapPin, Map } from 'lucide-react';
+import { Heart, Bell, Lock, LogOut, Camera, X, ChevronDown, ChevronUp, Building2, ExternalLink, MapPin, Map, MessageSquare, Check } from 'lucide-react';
 import { supabase, upsertProfile } from '../lib/supabase';
+import { submitFeedback } from '../lib/feedback';
 import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
 import { buildGoogleMapsUrl } from '../lib/maps';
@@ -25,9 +26,11 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
   const [expandedExp, setExpandedExp] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | null>(null);
+  const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | 'feedback' | null>(null);
   const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
   const [passwordEmailSent, setPasswordEmailSent] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'loading' | 'done'>('idle');
   const [savedItineraries, setSavedItineraries] = useState<SavedItinerary[]>([]);
   const [savedPerks, setSavedPerks] = useState(() => {
     try {
@@ -40,7 +43,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
     fetchSavedItineraries().then(setSavedItineraries);
   }, []);
 
-  const toggleSection = (section: 'notifications' | 'privacy') =>
+  const toggleSection = (section: 'notifications' | 'privacy' | 'feedback') =>
     setOpenSection((prev) => (prev === section ? null : section));
 
   const handleChangePassword = async () => {
@@ -48,6 +51,15 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
     await supabase.auth.resetPasswordForEmail(profile.email, { redirectTo: window.location.origin });
     setPasswordEmailSent(true);
     setTimeout(() => setPasswordEmailSent(false), 4000);
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!feedbackMessage.trim() || feedbackStatus === 'loading') return;
+    setFeedbackStatus('loading');
+    await submitFeedback(feedbackMessage.trim(), profile.email);
+    setFeedbackMessage('');
+    setFeedbackStatus('done');
+    setTimeout(() => setFeedbackStatus('idle'), 3000);
   };
 
   const removeItinerary = async (id: string) => {
@@ -241,6 +253,41 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                   <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
                     {passwordEmailSent ? t('account.passwordSent') : t('account.changePassword')}
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* Feedback */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('feedback')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><MessageSquare className="w-5 h-5 text-muted-foreground" /><span>{t('account.feedback')}</span></div>
+                {openSection === 'feedback' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'feedback' && (
+                <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                  {feedbackStatus === 'done' ? (
+                    <p className="flex items-center gap-1.5 text-sm text-primary font-medium">
+                      <Check className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                      {t('feedback.successTitle')}
+                    </p>
+                  ) : (
+                    <>
+                      <textarea
+                        rows={3}
+                        value={feedbackMessage}
+                        onChange={(e) => setFeedbackMessage(e.target.value)}
+                        placeholder={t('feedback.messagePlaceholder')}
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                      />
+                      <button
+                        onClick={handleSubmitFeedback}
+                        disabled={!feedbackMessage.trim() || feedbackStatus === 'loading'}
+                        className="w-full text-center text-sm px-3 py-2 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-60"
+                      >
+                        {feedbackStatus === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

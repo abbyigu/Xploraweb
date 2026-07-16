@@ -47,6 +47,7 @@ const PrivacyScreen          = lazy(() => import('./components/PrivacyScreen').t
 const TermsScreen            = lazy(() => import('./components/TermsScreen').then(m => ({ default: m.TermsScreen })));
 const HowItWorksScreen       = lazy(() => import('./components/HowItWorksScreen').then(m => ({ default: m.HowItWorksScreen })));
 const ContactScreen          = lazy(() => import('./components/ContactScreen').then(m => ({ default: m.ContactScreen })));
+const FeedbackScreen         = lazy(() => import('./components/FeedbackScreen').then(m => ({ default: m.FeedbackScreen })));
 const FaqScreen              = lazy(() => import('./components/FaqScreen').then(m => ({ default: m.FaqScreen })));
 
 function AuthHandler() {
@@ -117,7 +118,7 @@ export default function App() {
       <div className="min-h-screen bg-background">
         <SkipLink />
         {content.bannerEnabled && (
-          <div className="bg-[#12343B] text-white text-center text-xs font-medium py-2 px-4 tracking-wide">
+          <div className="bg-[#12343B] text-white text-center text-[11px] leading-snug py-1.5 px-4 font-medium tracking-wide">
             {content.bannerText ?? t('home.bannerText')}
           </div>
         )}
@@ -154,6 +155,7 @@ export default function App() {
               <Route path="/terms" element={<TermsScreen />} />
               <Route path="/how-it-works" element={<HowItWorksScreen />} />
               <Route path="/contact" element={<ContactScreen />} />
+              <Route path="/feedback" element={<FeedbackScreen />} />
               <Route path="/faq" element={<FaqScreen />} />
             </Routes>
           </Suspense>

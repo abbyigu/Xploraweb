@@ -47,6 +47,7 @@ export function Footer() {
               <li><a href="#about" className="hover:text-white transition">{t('footer.linkAboutUs')}</a></li>
               <li><Link to="/business" className="hover:text-white transition">{t('footer.linkForBusinesses')}</Link></li>
               <li><a href="mailto:hello@goxplora.ca" className="hover:text-white transition">{t('footer.linkContactUs')}</a></li>
+              <li><Link to="/feedback" className="hover:text-white transition">{t('footer.linkFeedback')}</Link></li>
               <li><a href="mailto:press@goxplora.ca" className="hover:text-white transition">{t('footer.linkPress')}</a></li>
             </ul>
           </div>

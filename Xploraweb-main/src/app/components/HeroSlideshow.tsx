@@ -6,11 +6,11 @@ const SLIDES = [
   { src: '/hero/quebec-street-le-forgeron-dor.jpg', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_75%]' },
   { src: '/hero/brick-wall-cafe-interior.jpg', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[35%_80%]' },
   { src: '/hero/illy-cafe-terrace.jpg', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[55%_55%]' },
-  { src: '/hero/park-walk-dusk.jpg', altKey: 'home.heroSlideAlt4', desktopFocus: 'md:object-[50%_70%]' },
   { src: '/hero/petit-champlain-chateau-view.jpg', altKey: 'home.heroSlideAlt5', desktopFocus: 'md:object-[50%_85%]' },
   { src: '/hero/depanneur-cafe-storefront.jpg', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_80%]' },
   { src: '/hero/laval-statue-building.jpg', altKey: 'home.heroSlideAlt7', desktopFocus: 'md:object-[30%_85%]' },
-  { src: '/hero/blue-heritage-house.jpg', altKey: 'home.heroSlideAlt8', desktopFocus: 'md:object-[40%_80%]' },
+  { src: '/hero/friends-cafe-tablet.jpg', altKey: 'home.heroSlideAlt9', desktopFocus: 'md:object-[50%_40%]' },
+  { src: '/hero/woman-by-window.jpg', altKey: 'home.heroSlideAlt10', desktopFocus: 'md:object-[50%_35%]' },
 ];
 
 const SLIDE_DURATION_MS = 6000;
