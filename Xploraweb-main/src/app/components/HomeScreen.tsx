@@ -214,11 +214,16 @@ export function HomeScreen() {
             style={storyImageReveal.style}
             className={`relative rounded-3xl overflow-hidden aspect-[16/9] max-w-3xl mx-auto mb-16 ${storyImageReveal.className}`}
           >
-            <img
-              src="/hero/slate-roof-dormers.jpg"
-              alt={t('home.storyImageAlt')}
-              className="w-full h-full object-cover"
-            />
+            <picture>
+              <source srcSet="/hero/slate-roof-dormers.webp" type="image/webp" />
+              <img
+                src="/hero/slate-roof-dormers.jpg"
+                alt={t('home.storyImageAlt')}
+                loading="lazy"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-br from-[#12343B]/30 to-transparent" />
           </div>
 

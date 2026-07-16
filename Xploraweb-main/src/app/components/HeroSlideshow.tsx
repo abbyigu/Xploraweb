@@ -3,14 +3,14 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const SLIDES = [
-  { src: '/hero/quebec-street-le-forgeron-dor.jpg', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_75%]' },
-  { src: '/hero/brick-wall-cafe-interior.jpg', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[35%_80%]' },
-  { src: '/hero/illy-cafe-terrace.jpg', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[55%_55%]' },
-  { src: '/hero/petit-champlain-chateau-view.jpg', altKey: 'home.heroSlideAlt5', desktopFocus: 'md:object-[50%_85%]' },
-  { src: '/hero/depanneur-cafe-storefront.jpg', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_80%]' },
-  { src: '/hero/laval-statue-building.jpg', altKey: 'home.heroSlideAlt7', desktopFocus: 'md:object-[30%_85%]' },
-  { src: '/hero/friends-cafe-tablet.jpg', altKey: 'home.heroSlideAlt9', desktopFocus: 'md:object-[50%_40%]' },
-  { src: '/hero/woman-by-window.jpg', altKey: 'home.heroSlideAlt10', desktopFocus: 'md:object-[50%_35%]' },
+  { src: '/hero/quebec-street-le-forgeron-dor.jpg', webpSrc: '/hero/quebec-street-le-forgeron-dor.webp', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_75%]' },
+  { src: '/hero/brick-wall-cafe-interior.jpg', webpSrc: '/hero/brick-wall-cafe-interior.webp', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[35%_80%]' },
+  { src: '/hero/illy-cafe-terrace.jpg', webpSrc: '/hero/illy-cafe-terrace.webp', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[55%_55%]' },
+  { src: '/hero/petit-champlain-chateau-view.jpg', webpSrc: '/hero/petit-champlain-chateau-view.webp', altKey: 'home.heroSlideAlt5', desktopFocus: 'md:object-[50%_85%]' },
+  { src: '/hero/depanneur-cafe-storefront.jpg', webpSrc: '/hero/depanneur-cafe-storefront.webp', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_80%]' },
+  { src: '/hero/laval-statue-building.jpg', webpSrc: '/hero/laval-statue-building.webp', altKey: 'home.heroSlideAlt7', desktopFocus: 'md:object-[30%_85%]' },
+  { src: '/hero/friends-cafe-tablet.jpg', webpSrc: '/hero/friends-cafe-tablet.webp', altKey: 'home.heroSlideAlt9', desktopFocus: 'md:object-[50%_40%]' },
+  { src: '/hero/woman-by-window.jpg', webpSrc: '/hero/woman-by-window.webp', altKey: 'home.heroSlideAlt10', desktopFocus: 'md:object-[50%_35%]' },
 ];
 
 const SLIDE_DURATION_MS = 6000;
@@ -46,17 +46,19 @@ export function HeroSlideshow() {
     <div className="absolute inset-0">
       {SLIDES.map((slide, i) =>
         loadedSlides.has(i) ? (
-          <img
-            key={slide.src}
-            src={slide.src}
-            alt={t(slide.altKey)}
-            loading={i === 0 ? 'eager' : 'lazy'}
-            fetchPriority={i === 0 ? 'high' : 'low'}
-            decoding={i === 0 ? 'sync' : 'async'}
-            className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
-              i === activeIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          />
+          <picture key={slide.src}>
+            <source srcSet={slide.webpSrc} type="image/webp" />
+            <img
+              src={slide.src}
+              alt={t(slide.altKey)}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              fetchPriority={i === 0 ? 'high' : 'low'}
+              decoding={i === 0 ? 'sync' : 'async'}
+              className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
+                i === activeIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          </picture>
         ) : null
       )}
 
