@@ -1,10 +1,12 @@
 import { Link, useLocation } from 'react-router';
-import { Home, Compass, Info, MapPin, User } from 'lucide-react';
+import { Home, Compass, Info, MapPin, User, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useLanguage } from '../hooks/useLanguage';
 
 export function BottomNav() {
   const location = useLocation();
   const { t } = useTranslation();
+  const { language, setLanguage } = useLanguage();
   const isActive = (path: string) => location.pathname === path;
 
   const navItems = [
@@ -37,6 +39,15 @@ export function BottomNav() {
             <span className="text-[10px]">{label}</span>
           </Link>
         ))}
+        <button
+          type="button"
+          onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
+          aria-label={language === 'fr' ? t('a11y.switchToEn') : t('a11y.switchToFr')}
+          className="relative flex flex-col items-center gap-0.5 px-3 py-2.5 min-h-[44px] rounded-lg transition-all text-foreground hover:text-foreground hover:bg-muted/40"
+        >
+          <Languages className="w-4 h-4" />
+          <span className="text-[10px]" aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
+        </button>
       </div>
     </nav>
   );
