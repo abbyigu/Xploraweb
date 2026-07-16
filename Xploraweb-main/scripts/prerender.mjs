@@ -43,9 +43,7 @@ function singleLine(str) {
   return String(str ?? '').replace(/\s+/g, ' ').trim();
 }
 
-const DEFAULT_IMAGE = `${BASE_URL}/hero/petit-champlain.jpg`;
-
-function injectHead(html, { title, description, canonical, schemas = [], image = DEFAULT_IMAGE }) {
+function injectHead(html, { title, description, canonical, schemas = [] }) {
   const url = `${BASE_URL}${canonical}`;
   const oneLineDescription = singleLine(description);
   let out = html;
@@ -55,10 +53,8 @@ function injectHead(html, { title, description, canonical, schemas = [], image =
   out = replaceAttr(out, /(<meta property="og:title" content=")[^"]*("\s*\/>)/, title);
   out = replaceAttr(out, /(<meta property="og:description" content=")[^"]*("\s*\/>)/, oneLineDescription);
   out = replaceAttr(out, /(<meta property="og:url" content=")[^"]*("\s*\/>)/, url);
-  out = replaceAttr(out, /(<meta property="og:image" content=")[^"]*("\s*\/>)/, image);
   out = replaceAttr(out, /(<meta name="twitter:title" content=")[^"]*("\s*\/>)/, title);
   out = replaceAttr(out, /(<meta name="twitter:description" content=")[^"]*("\s*\/>)/, oneLineDescription);
-  out = replaceAttr(out, /(<meta name="twitter:image" content=")[^"]*("\s*\/>)/, image);
 
   const ldJson = schemas
     // Escape "</" so admin-entered text (e.g. a description containing the
@@ -203,13 +199,7 @@ for (const n of neighbourhoods) {
     <ul>${localExperiences.map(e => `<li><a href="/experience/${escapeHtml(e.id)}">${escapeHtml(e.name)}</a></li>`).join('')}</ul>` : ''}`;
 
   const html = injectBody(
-    injectHead(template, {
-      title,
-      description,
-      canonical: `/neighbourhoods/${slug}`,
-      schemas: [touristAttractionSchema],
-      image: n.cover_image_url || undefined,
-    }),
+    injectHead(template, { title, description, canonical: `/neighbourhoods/${slug}`, schemas: [touristAttractionSchema] }),
     bodyHtml,
   );
   writeSnapshot(`/neighbourhoods/${slug}`, html);
@@ -261,13 +251,7 @@ for (const e of experiences) {
     ${e.long_description.split('\n\n').map(p => `<p>${escapeHtml(p)}</p>`).join('')}` : ''}`;
 
   const html = injectBody(
-    injectHead(template, {
-      title,
-      description,
-      canonical: `/experience/${e.id}`,
-      schemas: [touristAttractionSchema],
-      image: e.image_url || undefined,
-    }),
+    injectHead(template, { title, description, canonical: `/experience/${e.id}`, schemas: [touristAttractionSchema] }),
     bodyHtml,
   );
   writeSnapshot(`/experience/${e.id}`, html);
