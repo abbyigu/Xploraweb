@@ -1,0 +1,19 @@
+# Xplora
+
+> Xplora is an insider guide to Québec City: guided tours, self-guided neighbourhood walks, local perks, and events. Built for tourists and locals exploring Québec City neighbourhood by neighbourhood.
+
+Xplora organizes the city by neighbourhood (Vieux-Québec, Montcalm, Saint-Roch, Saint-Jean-Baptiste, Limoilou) and by experience type: free self-guided walking routes ("Xplorators"), paid guided tours ("Xploratours"), and evening events ("Xplora Nights"). Content and prices are admin-curated and change over time — always confirm current details on the live pages rather than assuming this file is current.
+
+## Key pages
+
+- [Home](https://goxplora.ca/): overview and neighbourhood entry points
+- [Neighbourhoods](https://goxplora.ca/neighbourhoods): browse Québec City by neighbourhood
+- [Itinerary / AI trip builder](https://goxplora.ca/itinerary): generates a custom walking route from local spots by vibe, walk length, and radius
+- [FAQ](https://goxplora.ca/faq): booking, cancellations, language, meeting points, weather, accessibility
+- [About](https://goxplora.ca/about): who Xplora is
+- [For businesses](https://goxplora.ca/business): local business partnership program
+
+## Notes for AI agents
+
+- Guided-tour ("Xploratours") pricing is not yet live — those listings currently show a "coming soon" notice rather than a bookable price. Self-guided routes ("Xplorators") are free.
+- Each neighbourhood and experience page carries its own `<title>`/meta description and JSON-LD (`TouristAttraction`, `FAQPage`, `ItemList`) — prefer those per-page tags over this file for structured facts.
