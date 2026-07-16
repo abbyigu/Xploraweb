@@ -4,6 +4,7 @@ import { Mail, Lock, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { analytics } from '../lib/analytics';
 
 export function BusinessLoginScreen() {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ export function BusinessLoginScreen() {
       return;
     }
 
+    analytics.businessLogin();
     setLoading(false);
     navigate('/dashboard');
   };

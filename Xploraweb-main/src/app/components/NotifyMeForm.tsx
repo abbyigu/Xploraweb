@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { subscribeToNewsletter } from '../lib/newsletter';
+import { analytics } from '../lib/analytics';
 
-export function NotifyMeForm({ className = '' }: { className?: string }) {
+export function NotifyMeForm({ className = '', source = 'unknown' }: { className?: string; source?: string }) {
   const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle');
@@ -13,6 +14,7 @@ export function NotifyMeForm({ className = '' }: { className?: string }) {
     if (!email || status === 'loading') return;
     setStatus('loading');
     await subscribeToNewsletter(email);
+    analytics.leadCaptured(source);
     setStatus('done');
   }
 

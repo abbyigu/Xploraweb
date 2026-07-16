@@ -3,6 +3,7 @@ import { Check, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { submitFeedback } from '../lib/feedback';
+import { analytics } from '../lib/analytics';
 
 export function FeedbackScreen() {
   const { t } = useTranslation();
@@ -15,6 +16,7 @@ export function FeedbackScreen() {
     if (!message.trim() || status === 'loading') return;
     setStatus('loading');
     const result = await submitFeedback(message.trim(), email.trim());
+    if (result.ok) analytics.feedbackSubmitted();
     setStatus(result.ok ? 'done' : 'error');
   }
 

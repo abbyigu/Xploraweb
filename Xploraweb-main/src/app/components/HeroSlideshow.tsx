@@ -18,6 +18,16 @@ const SLIDE_DURATION_MS = 6000;
 export function HeroSlideshow() {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [loadedSlides, setLoadedSlides] = useState<Set<number>>(() => new Set([0]));
+
+  const markLoaded = (index: number) => {
+    setLoadedSlides((prev) => (prev.has(index) ? prev : new Set(prev).add(index)));
+  };
+
+  // Preload the next slide while the current one is showing, so the crossfade never reveals a blank frame.
+  useEffect(() => {
+    markLoaded((activeIndex + 1) % SLIDES.length);
+  }, [activeIndex]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -27,21 +37,28 @@ export function HeroSlideshow() {
   }, [activeIndex]);
 
   const goTo = (index: number) => {
-    setActiveIndex((index + SLIDES.length) % SLIDES.length);
+    const normalized = (index + SLIDES.length) % SLIDES.length;
+    markLoaded(normalized);
+    setActiveIndex(normalized);
   };
 
   return (
     <div className="absolute inset-0">
-      {SLIDES.map((slide, i) => (
-        <img
-          key={slide.src}
-          src={slide.src}
-          alt={t(slide.altKey)}
-          className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
-            i === activeIndex ? 'opacity-100' : 'opacity-0'
-          }`}
-        />
-      ))}
+      {SLIDES.map((slide, i) =>
+        loadedSlides.has(i) ? (
+          <img
+            key={slide.src}
+            src={slide.src}
+            alt={t(slide.altKey)}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchPriority={i === 0 ? 'high' : 'low'}
+            decoding={i === 0 ? 'sync' : 'async'}
+            className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
+              i === activeIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
+        ) : null
+      )}
 
       <button
         type="button"

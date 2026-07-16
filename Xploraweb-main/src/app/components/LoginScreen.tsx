@@ -5,6 +5,7 @@ import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { NotifyMeForm } from './NotifyMeForm';
+import { analytics } from '../lib/analytics';
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -29,6 +30,7 @@ export function LoginScreen() {
       return;
     }
 
+    analytics.login('email');
     setLoading(false);
     navigate('/home');
   };
@@ -47,7 +49,7 @@ export function LoginScreen() {
         <div className="rounded-2xl border border-border bg-primary/5 p-5 space-y-2 mb-6">
           <p className="text-sm font-medium">{t('itinerary.toursComingSoonTitle')}</p>
           <p className="text-sm text-muted-foreground">{t('itinerary.toursComingSoonBody')}</p>
-          <NotifyMeForm className="pt-1" />
+          <NotifyMeForm className="pt-1" source="login" />
         </div>
 
         {error && (

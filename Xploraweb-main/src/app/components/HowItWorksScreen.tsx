@@ -155,7 +155,7 @@ export function HowItWorksScreen() {
           </div>
           <div className="bg-muted/40 border border-border rounded-2xl p-5">
             <p className="text-sm text-muted-foreground mb-3">{t('howItWorks.notifyCaption')}</p>
-            <NotifyMeForm />
+            <NotifyMeForm source="how_it_works" />
           </div>
         </section>
 

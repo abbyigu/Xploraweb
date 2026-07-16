@@ -47,6 +47,46 @@ export const analytics = {
     push('page_view', { page_location: `https://goxplora.ca${path}` });
   },
 
+  signUp(method: string) {
+    push('sign_up', { method });
+  },
+
+  login(method: string) {
+    push('login', { method });
+  },
+
+  businessSignUp(businessType: string) {
+    push('business_sign_up', { business_type: businessType });
+  },
+
+  businessLogin() {
+    push('business_login');
+  },
+
+  generateItinerary(params: { walkLength: string; categories: string[]; neighbourhoods: string[] }) {
+    push('generate_itinerary', {
+      walk_length: params.walkLength,
+      categories: params.categories.join(','),
+      neighbourhood_count: params.neighbourhoods.length,
+    });
+  },
+
+  feedbackSubmitted() {
+    push('feedback_submitted');
+  },
+
+  leadCaptured(source: string) {
+    push('generate_lead', { source });
+  },
+
+  saveToggle(itemId: string, itemName: string, saved: boolean) {
+    push(saved ? 'add_to_wishlist' : 'remove_from_wishlist', { item_id: itemId, item_name: itemName });
+  },
+
+  directionsOpened(itemId: string, itemName: string) {
+    push('directions_opened', { item_id: itemId, item_name: itemName });
+  },
+
   viewItem(exp: Experience) {
     push('view_item', {
       currency: 'CAD',

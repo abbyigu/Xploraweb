@@ -84,7 +84,7 @@ export function MembershipScreen() {
 
           <div className="mt-4 text-left bg-muted/40 border border-border rounded-2xl p-4 space-y-2">
             <p className="text-sm text-muted-foreground">{t('membership.previewNotice')}</p>
-            <NotifyMeForm />
+            <NotifyMeForm source="membership" />
           </div>
         </div>
 

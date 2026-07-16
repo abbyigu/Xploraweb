@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { subscribeToNewsletter } from '../lib/newsletter';
 import { NotifyMeForm } from './NotifyMeForm';
+import { analytics } from '../lib/analytics';
 
 export function SignupScreen() {
   const navigate = useNavigate();
@@ -38,6 +39,8 @@ export function SignupScreen() {
       setLoading(false);
       return;
     }
+
+    analytics.signUp('email');
 
     const userId = signUpData?.user?.id;
     if (userId) {
@@ -73,7 +76,7 @@ export function SignupScreen() {
         <div className="rounded-2xl border border-border bg-primary/5 p-5 space-y-2 mb-6">
           <p className="text-sm font-medium">{t('itinerary.toursComingSoonTitle')}</p>
           <p className="text-sm text-muted-foreground">{t('itinerary.toursComingSoonBody')}</p>
-          <NotifyMeForm className="pt-1" />
+          <NotifyMeForm className="pt-1" source="signup" />
         </div>
 
         {error && (

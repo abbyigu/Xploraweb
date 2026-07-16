@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
+import { analytics } from '../lib/analytics';
 
 function Paywall() {
   const navigate = useNavigate();
@@ -178,7 +179,12 @@ export function PerksScreen() {
     });
     const data = await res.json();
     setBuyingId(null);
-    if (data.url) window.location.href = data.url;
+    if (data.url) {
+      const item = { id: exp.rawId, name: exp.title, price: exp.price_cents ?? 0, quantity: 1 };
+      analytics.beginCheckout([item], item.price);
+      analytics.stagePurchase([item], item.price);
+      window.location.href = data.url;
+    }
   }
 
   // Merge business perks (all unlocked) with static perks
