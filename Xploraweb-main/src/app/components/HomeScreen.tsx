@@ -1,12 +1,63 @@
+import { type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2 } from 'lucide-react';
+import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
+import { useReveal } from '../hooks/useReveal';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
+
+function FeatureTile({
+  label,
+  desc,
+  icon: Icon,
+  onClick,
+  delay,
+}: {
+  label: string;
+  desc: string;
+  icon: LucideIcon;
+  onClick: () => void;
+  delay: number;
+}) {
+  const { ref, className, style } = useReveal<HTMLButtonElement>({ delay });
+  return (
+    <button
+      ref={ref}
+      style={style}
+      onClick={onClick}
+      className={`text-left rounded-2xl border border-gray-200 bg-white p-4 md:p-5 hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className}`}
+    >
+      <div className="w-10 h-10 rounded-xl bg-[#c9e8e8]/60 flex items-center justify-center mb-3">
+        <Icon className="w-5 h-5 text-[#12343B]" />
+      </div>
+      <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
+      <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
+    </button>
+  );
+}
+
+function ValuePillar({ label, desc, icon, delay }: { label: string; desc: string; icon: ReactNode; delay: number }) {
+  const { ref, className, style } = useReveal<HTMLDivElement>({ delay });
+  const iconStyle = style ? { animationDelay: `${delay + 150}ms` } : undefined;
+  return (
+    <div ref={ref} style={style} className={`group text-center ${className}`}>
+      <div
+        style={iconStyle}
+        className={`w-12 h-12 rounded-2xl bg-[#c9e8e8]/60 flex items-center justify-center mx-auto mb-3 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 ${
+          className.includes('opacity-0') ? 'opacity-0' : 'animate-in zoom-in-75 fade-in duration-500 fill-mode-both'
+        }`}
+      >
+        {icon}
+      </div>
+      <p className="text-sm font-semibold text-gray-800 mb-1">{label}</p>
+      <p className="text-xs text-gray-400 leading-snug">{desc}</p>
+    </div>
+  );
+}
 
 export function HomeScreen() {
   const navigate = useNavigate();
@@ -15,6 +66,12 @@ export function HomeScreen() {
   const heroHeadline = siteContent.heroHeadline ?? t('home.heroHeadline');
   const heroSubheadline = siteContent.heroSubheadline ?? t('home.heroSubheadline');
   const heroCtaLabel = siteContent.heroCtaLabel ?? t('home.heroCtaLabel');
+
+  const moreWaysReveal = useReveal<HTMLAnchorElement>();
+  const quoteReveal = useReveal<HTMLDivElement>();
+  const storyTextReveal = useReveal<HTMLDivElement>();
+  const storyImageReveal = useReveal<HTMLDivElement>({ delay: 150 });
+  const businessReveal = useReveal<HTMLDivElement>();
 
   const FEATURE_TILES = [
     { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots' },
@@ -73,23 +130,24 @@ export function HomeScreen() {
         <div className="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center justify-center gap-8">
           {/* Wording — top */}
           <div className="flex flex-col items-center gap-5">
-            <p className="text-xs uppercase tracking-widest text-white/80">{t('home.heroEyebrow')}</p>
-            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow">
+            <p className="text-xs uppercase tracking-widest text-white/80 animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both">{t('home.heroEyebrow')}</p>
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
               {heroHeadline.split('\n').map((line, i, lines) => (
                 <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
               ))}
             </h1>
-            <p className="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm">
+            <p className="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">
               {heroSubheadline}
             </p>
           </div>
 
           {/* CTA */}
-          <div className="flex flex-col items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
             <Link
               to="/itinerary"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-full sm:w-auto justify-center"
             >
+              <img src="/goxplora-logo.png" alt="" className="sm:hidden h-5 w-auto flex-shrink-0" />
               {heroCtaLabel}
               <ArrowRight className="w-5 h-5" />
             </Link>
@@ -111,23 +169,15 @@ export function HomeScreen() {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.whereToStart')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {FEATURE_TILES.map(({ label, desc, icon: Icon, to }) => (
-              <button
-                key={label}
-                onClick={() => navigate(to)}
-                className="text-left rounded-2xl border border-gray-200 bg-white p-4 md:p-5 hover:shadow-lg hover:border-[#12343B]/30 transition-all"
-              >
-                <div className="w-10 h-10 rounded-xl bg-[#c9e8e8]/60 flex items-center justify-center mb-3">
-                  <Icon className="w-5 h-5 text-[#12343B]" />
-                </div>
-                <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
-                <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
-              </button>
+            {FEATURE_TILES.map(({ label, desc, icon, to }, i) => (
+              <FeatureTile key={label} label={label} desc={desc} icon={icon} onClick={() => navigate(to)} delay={i * 75} />
             ))}
           </div>
           <Link
+            ref={moreWaysReveal.ref}
+            style={moreWaysReveal.style}
             to="/how-it-works"
-            className="mt-3 flex items-center justify-between gap-4 rounded-2xl border border-[#b0d8d8]/60 bg-[#c9e8e8]/20 px-5 py-4 hover:bg-[#c9e8e8]/30 transition"
+            className={`mt-3 flex items-center justify-between gap-4 rounded-2xl border border-[#b0d8d8]/60 bg-[#c9e8e8]/20 px-5 py-4 hover:bg-[#c9e8e8]/30 hover:-translate-y-0.5 transition-all ${moreWaysReveal.className}`}
           >
             <div>
               <p className="text-sm font-semibold text-gray-900">{t('home.moreWaysTitle')}</p>
@@ -141,21 +191,29 @@ export function HomeScreen() {
       <SpotFinder />
 
       {/* Section break */}
-      <div className="bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center">
+      <div
+        ref={quoteReveal.ref}
+        style={quoteReveal.style}
+        className={`bg-[#c9e8e8]/30 border-t border-b border-[#b0d8d8]/40 py-10 px-6 text-center ${quoteReveal.className}`}
+      >
         <p className="font-serif text-2xl md:text-3xl text-[#12343B]">{t('home.sectionBreakQuote')}</p>
       </div>
 
       {/* About */}
       <section id="about" className="py-16 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-14">
+          <div ref={storyTextReveal.ref} style={storyTextReveal.style} className={`text-center mb-14 ${storyTextReveal.className}`}>
             <p className="text-xs uppercase tracking-widest text-gray-400 mb-3">{t('home.storyEyebrow')}</p>
             <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto leading-relaxed">
               {t('home.storyBody')}
             </p>
           </div>
 
-          <div className="relative rounded-3xl overflow-hidden aspect-[16/9] max-w-3xl mx-auto mb-16">
+          <div
+            ref={storyImageReveal.ref}
+            style={storyImageReveal.style}
+            className={`relative rounded-3xl overflow-hidden aspect-[16/9] max-w-3xl mx-auto mb-16 ${storyImageReveal.className}`}
+          >
             <img
               src="/hero/slate-roof-dormers.jpg"
               alt={t('home.storyImageAlt')}
@@ -166,14 +224,8 @@ export function HomeScreen() {
 
           {/* Value pillars */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-gray-100 pt-12">
-            {VALUE_PILLARS.map(({ label, desc, icon }) => (
-              <div key={label} className="text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[#c9e8e8]/60 flex items-center justify-center mx-auto mb-3">
-                  {icon}
-                </div>
-                <p className="text-sm font-semibold text-gray-800 mb-1">{label}</p>
-                <p className="text-xs text-gray-400 leading-snug">{desc}</p>
-              </div>
+            {VALUE_PILLARS.map(({ label, desc, icon }, i) => (
+              <ValuePillar key={label} label={label} desc={desc} icon={icon} delay={i * 100} />
             ))}
           </div>
         </div>
@@ -181,7 +233,7 @@ export function HomeScreen() {
 
       {/* For Business */}
       <section id="for-business" className="bg-[#12343B] text-white py-16 px-6 mt-8">
-        <div className="max-w-2xl mx-auto text-center">
+        <div ref={businessReveal.ref} style={businessReveal.style} className={`max-w-2xl mx-auto text-center ${businessReveal.className}`}>
           <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3 inline-flex items-center gap-2 justify-center">
             <Building2 className="w-3.5 h-3.5" /> {t('home.businessComingSoonEyebrow')}
           </p>
@@ -191,7 +243,7 @@ export function HomeScreen() {
           </p>
           <a
             href="mailto:hello@goxplora.ca"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 transition"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all"
           >
             <Mail className="w-5 h-5" />
             {t('home.businessComingSoonCta')}
