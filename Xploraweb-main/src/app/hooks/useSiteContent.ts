@@ -18,7 +18,7 @@ export const SITE_CONTENT_DEFAULTS = {
   bannerEnabled: true,
   bannerText: 'Built in Québec City. Free to start, always.',
   heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Free, self-guided walking routes through Québec City\'s best neighbourhoods. Pick a route, follow the map, go at your pace.',
+  heroSubheadline: 'Hotspots / Special Places / Curated Itineraries',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,
