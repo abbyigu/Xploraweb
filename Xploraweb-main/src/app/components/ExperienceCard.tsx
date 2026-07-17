@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router';
 import type { Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { normalizeDifficulty, DIFFICULTY_META, getRating } from '../lib/experienceMeta';
+import { analytics } from '../lib/analytics';
 
 export function ExperienceCard({ exp }: { exp: Product }) {
   const { addItem, items } = useCart();
@@ -26,6 +27,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
       navigate(`/experience/${exp.id}`);
     } else {
       addItem(exp);
+      analytics.addToCart({ id: exp.id, name: exp.name, price: exp.price, category: exp.category });
     }
   }
 
@@ -45,7 +47,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
 
         {/* Save / bookmark — AllTrails-style */}
         <button
-          onClick={e => { e.stopPropagation(); setSaved(s => !s); }}
+          onClick={e => { e.stopPropagation(); analytics.saveToggle(exp.id, exp.name, !saved); setSaved(s => !s); }}
           aria-label={saved ? t('experienceCard.removeFromSaved') : t('experienceCard.save')}
           aria-pressed={saved}
           className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 shadow-sm flex items-center justify-center hover:bg-white transition-colors"

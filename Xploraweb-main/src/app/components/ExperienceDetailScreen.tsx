@@ -257,6 +257,7 @@ export function ExperienceDetailScreen() {
                         href={`https://maps.google.com/?q=${encodeURIComponent(exp.meetingPoint)}`}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => analytics.directionsOpened(exp.id, exp.name)}
                         className="font-medium hover:text-primary transition-colors"
                       >
                         {exp.meetingPoint.split('—')[0].trim()}
@@ -392,7 +393,7 @@ export function ExperienceDetailScreen() {
                 )}
               </div>
 
-              {!isFree && <NotifyMeForm />}
+              {!isFree && <NotifyMeForm source="experience_detail" />}
 
               {isFree && (
                 <button

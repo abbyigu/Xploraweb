@@ -19,6 +19,7 @@ import type {
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
+import { analytics } from '../lib/analytics';
 
 type EventTimeBucket = 'today' | 'weekend' | 'month';
 type GeoStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unsupported';
@@ -140,6 +141,7 @@ export function ItineraryScreen() {
       setResult(data as GeneratedItinerary);
       setGenKey(k => k + 1);
       setGenState('success');
+      analytics.generateItinerary({ walkLength, categories, neighbourhoods });
     } catch {
       setErrorCode('LLM_ERROR');
       setGenState('error');
@@ -186,7 +188,7 @@ export function ItineraryScreen() {
           <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-10 text-center space-y-3 max-w-md mx-auto">
             <p className="font-medium">{t('events.comingSoonTitle')}</p>
             <p className="text-sm text-muted-foreground">{t('events.comingSoonBody')}</p>
-            <NotifyMeForm className="pt-1" />
+            <NotifyMeForm className="pt-1" source="itinerary" />
           </div>
         ) : (
           <div className="flex flex-col gap-3">

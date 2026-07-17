@@ -4,6 +4,7 @@ import { Mail, Lock, User, Globe, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { analytics } from '../lib/analytics';
 
 const BUSINESS_TYPES = [
   'Restaurant',
@@ -79,6 +80,7 @@ export function BusinessSignupScreen() {
       });
     }
 
+    analytics.businessSignUp(form.businessType);
     setLoading(false);
     navigate('/business/login');
   };
