@@ -30,8 +30,9 @@
       <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" />
       <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" />
       <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" /></noscript>
-      <!-- Preload LCP hero image -->
-      <link rel="preload" as="image" href="/hero/petit-champlain.jpg" />
+      <!-- Preload LCP hero image (must match HeroSlideshow.tsx SLIDES[0]) -->
+      <link rel="preload" as="image" href="/hero/park-garden-walk.webp" type="image/webp" fetchpriority="high" />
+      <link rel="preload" as="image" href="/hero/park-garden-walk.jpg" type="image/jpeg" fetchpriority="high" />
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
     </head>
 
