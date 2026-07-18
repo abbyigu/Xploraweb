@@ -5,6 +5,7 @@ import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
 import { Slider } from './ui/slider';
+import { Switch } from './ui/switch';
 import { ItineraryResult } from './ItineraryResult';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
@@ -81,6 +82,7 @@ export function ItineraryScreen() {
   const [walkLength, setWalkLength] = useState<WalkLengthBucket>('standard');
   const [radiusKm, setRadiusKm] = useState(RADIUS_KM_DEFAULT);
   const [categories, setCategories] = useState<SpotCategory[]>([]);
+  const [restaurantHopping, setRestaurantHopping] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
@@ -98,6 +100,10 @@ export function ItineraryScreen() {
   }
   function toggleCategory(c: SpotCategory) {
     setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  }
+  function handleRestaurantHoppingChange(next: boolean) {
+    setRestaurantHopping(next);
+    if (next) setCategories([]);
   }
   function toggleNeighbourhood(n: string) {
     setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
@@ -120,11 +126,12 @@ export function ItineraryScreen() {
       walkLength,
       radiusKm: geoStatus === 'granted' ? radiusKm : null,
       origin: geoStatus === 'granted' ? origin : null,
-      categories,
+      categories: restaurantHopping ? [] : categories,
       priceRanges,
       timeOfDay,
       neighbourhoods,
       language: i18n.language === 'fr' ? 'fr' : 'en',
+      restaurantHopping,
     };
     try {
       const res = await fetch('/api/generate-itinerary', {
@@ -320,15 +327,26 @@ export function ItineraryScreen() {
                 </div>
               </div>
 
-              {/* Categories */}
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.categories')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {SPOT_CATEGORIES.map(c => (
-                    <Chip key={c} active={categories.includes(c)} onClick={() => toggleCategory(c)}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</Chip>
-                  ))}
+              {/* Restaurant hopping */}
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-medium">{t('itineraryBuilder.restaurantHopping')}</p>
+                  <p className="text-xs text-muted-foreground">{t('itineraryBuilder.restaurantHoppingDescription')}</p>
                 </div>
+                <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
               </div>
+
+              {/* Categories */}
+              {!restaurantHopping && (
+                <div>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.categories')}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {SPOT_CATEGORIES.map(c => (
+                      <Chip key={c} active={categories.includes(c)} onClick={() => toggleCategory(c)}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</Chip>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Time of day */}
               <div>

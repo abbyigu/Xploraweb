@@ -50,6 +50,7 @@ export interface ItineraryGenerateRequest {
   timeOfDay: TimeOfDay | null;
   neighbourhoods: string[];
   language: 'en' | 'fr';
+  restaurantHopping: boolean;
 }
 
 export interface GeneratedItineraryStop {

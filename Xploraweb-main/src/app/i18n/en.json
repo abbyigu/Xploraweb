@@ -271,6 +271,8 @@
     "radius": "Search radius",
     "radiusUnit": "km",
     "categories": "Categories",
+    "restaurantHopping": "Restaurant hopping",
+    "restaurantHoppingDescription": "Fill this route with restaurants instead of just one.",
     "timeOfDay": "Time of day",
     "timeOfDayMorning": "Morning",
     "timeOfDayAfternoon": "Afternoon",
