@@ -20,6 +20,7 @@ const RequestSchema = z.object({
   timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).nullable(),
   neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
+  restaurantHopping: z.boolean().optional().default(false),
 });
 
 const StopSchema = z.object({
@@ -81,8 +82,8 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
   return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
 }
 
-function isFoodOnlyRequest(body: z.infer<typeof RequestSchema>): boolean {
-  return body.categories.length === 1 && body.categories[0] === 'Food';
+function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
+  return body.restaurantHopping === true;
 }
 
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
@@ -91,7 +92,7 @@ function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSc
     id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
   }));
-  const foodOnly = isFoodOnlyRequest(body);
+  const restaurantHopping = isRestaurantHopping(body);
   return `You are assembling a self-guided walking itinerary in Québec City from a fixed list of real places.
 
 Candidate spots (JSON, only use these — never invent an id):
@@ -102,9 +103,9 @@ Requirements:
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.timeOfDay ? `- This route is for the ${body.timeOfDay}; prefer spots that fit that time of day.` : ''}
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
-${body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
+${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
-${foodOnly ? '- This is a food-focused route: include 3-4 Food-category stops.' : '- Include at most 1 Food-category stop total; prioritize variety across other categories.'}
+${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total; prioritize variety across other categories.'}
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
@@ -147,7 +148,9 @@ export default async function handler(req: any, res: any) {
   if (body.neighbourhoods.length > 0) {
     candidates = candidates.filter(c => c.neighbourhood && body.neighbourhoods.includes(c.neighbourhood));
   }
-  if (body.categories.length > 0) {
+  if (isRestaurantHopping(body)) {
+    candidates = candidates.filter(c => c.category === 'Food');
+  } else if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));
   }
   if (body.priceRanges.length > 0) {
@@ -174,7 +177,7 @@ export default async function handler(req: any, res: any) {
 
   const candidateIds = new Set(candidates.map(c => c.id));
   const byId = new Map(candidates.map(c => [c.id, c]));
-  const foodCap = isFoodOnlyRequest(body) ? 4 : 1;
+  const foodCap = isRestaurantHopping(body) ? targetStops : 1;
   let foodCount = 0;
   const validStops = object.stops
     .filter(s => candidateIds.has(s.spotId))
