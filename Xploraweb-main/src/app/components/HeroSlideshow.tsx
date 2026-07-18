@@ -8,6 +8,7 @@ const SLIDES = [
   { src: '/hero/cafe-terrace-drinks.jpg', webpSrc: '/hero/cafe-terrace-drinks.webp', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[50%_65%]' },
   { src: '/hero/marina-sunset.jpg', webpSrc: '/hero/marina-sunset.webp', altKey: 'home.heroSlideAlt4', desktopFocus: 'md:object-[50%_55%]' },
   { src: '/hero/balloon-art-alley.jpg', webpSrc: '/hero/balloon-art-alley.webp', altKey: 'home.heroSlideAlt5', desktopFocus: 'md:object-[50%_40%]' },
+  { src: '/hero/winter-firepit-petit-champlain.jpg', webpSrc: '/hero/winter-firepit-petit-champlain.webp', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_75%]' },
 ];
 
 const SLIDE_DURATION_MS = 6000;

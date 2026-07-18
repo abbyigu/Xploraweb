@@ -102,10 +102,107 @@ if (eErr) {
 }
 
 const en = JSON.parse(readFileSync(join(ROOT, 'src/app/i18n/en.json'), 'utf-8'));
+const fr = JSON.parse(readFileSync(join(ROOT, 'src/app/i18n/fr.json'), 'utf-8'));
 
-// ---- /  (homepage: add Organization schema on top of existing static meta) ----
+const { data: siteContentRow } = await supabase
+  .from('site_content')
+  .select('*')
+  .eq('id', 'homepage')
+  .maybeSingle();
 
+// ---- /  (homepage: add Organization schema + above-the-fold static shell) ----
+//
+// Real visitors get a blank <div id="root"> today until React/Router/i18next/
+// Supabase all finish downloading + parsing + executing (~1.3s of main-thread
+// work even on a fast desktop — confirmed via local Lighthouse profiling).
+// This bakes in a static snapshot of just the above-the-fold content (banner +
+// Header + Hero, mirroring App.tsx/Header.tsx/HomeScreen.tsx/HeroSlideshow.tsx's
+// real markup and Tailwind classes 1:1) so real users see real pixels
+// immediately; React replaces it seamlessly on mount, same as the other
+// prerendered routes below. Below-the-fold sections (About, footer, feature
+// tiles) are intentionally omitted — they use useReveal()'s IntersectionObserver
+// gating and render invisible (opacity-0) until scrolled into view even in the
+// live app, so leaving them out of the snapshot changes nothing visible and
+// can't shift anything already in the viewport when React appends them later.
+//
+// Language: this is a single static file served to everyone, so it can't
+// detect a visitor's browser language before JS runs. Baked in French to
+// match the site's own `fallbackLng: 'fr'` (src/app/i18n/index.ts) — English
+// browsers see this French shell for ~1-1.5s before JS swaps to English.
 {
+  const bannerEnabled = siteContentRow?.banner_enabled ?? true;
+  const bannerText = siteContentRow?.banner_text || fr.home.bannerText;
+  const heroHeadline = siteContentRow?.hero_headline || fr.home.heroHeadline;
+  const heroSubheadline = siteContentRow?.hero_subheadline || fr.home.heroSubheadline;
+  const heroCtaLabel = siteContentRow?.hero_cta_label || fr.home.heroCtaLabel;
+
+  const headlineHtml = escapeHtml(heroHeadline)
+    .split('\n')
+    .map(line => `<span>${line}</span>`)
+    .join('<br>');
+
+  const bodyHtml = `
+    ${bannerEnabled ? `<div class="bg-[#12343B] text-white text-center text-[11px] leading-snug py-1.5 px-4 font-medium tracking-wide">${escapeHtml(bannerText)}</div>` : ''}
+    <header class="hidden md:block bg-white border-b sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center -ml-4">
+            <a href="/" aria-label="${escapeHtml(fr.header.home)}" class="block">
+              <img src="/goxplora-logo.png" alt="GoXplora" width="336" height="223" style="width:auto" class="h-28 block">
+            </a>
+          </div>
+          <nav aria-label="Main navigation" class="flex items-center gap-2 lg:gap-3">
+            <a href="/" aria-current="page" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap bg-primary/15 border-primary text-foreground font-medium">${escapeHtml(fr.header.home)}</a>
+            <a href="/itinerary" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.experiences)}</a>
+            <a href="/neighbourhoods" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.neighbourhoods)}</a>
+            <a href="/about" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.about)}</a>
+          </nav>
+          <div class="flex items-center gap-2 lg:gap-4">
+            <a href="/business" class="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">${escapeHtml(fr.header.forBusinesses)}</a>
+            <button aria-label="${escapeHtml(fr.a11y.switchToEn)}" class="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"><span aria-hidden="true">EN</span></button>
+            <a href="/dashboard" aria-label="${escapeHtml(fr.a11y.account)}">
+              <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
+                <span aria-hidden="true" class="text-sm">?</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="main-content">
+    <div class="md:max-w-none max-w-md mx-auto relative">
+    <div class="min-h-screen pb-24 md:pb-0 font-sans">
+      <section class="relative min-h-[520px] md:min-h-[600px] flex overflow-hidden">
+        <div class="absolute inset-0">
+          <picture>
+            <source srcset="/hero/park-garden-walk.webp" type="image/webp">
+            <img src="/hero/park-garden-walk.jpg" alt="${escapeHtml(fr.home.heroSlideAlt1)}" fetchpriority="high" decoding="sync" class="absolute inset-0 w-full h-full object-cover md:object-[50%_60%] opacity-100">
+          </picture>
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65"></div>
+        <div class="relative w-full max-w-3xl mx-auto px-6 py-12 md:py-16 text-center flex flex-col items-center justify-center gap-8">
+          <div class="flex flex-col items-center gap-5">
+            <p class="text-xs uppercase tracking-widest text-white/80 animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both">${escapeHtml(fr.home.heroEyebrow)}</p>
+            <h1 class="font-serif text-4xl sm:text-5xl md:text-6xl leading-tight text-white drop-shadow animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">${headlineHtml}</h1>
+            <p class="text-base md:text-lg text-white/90 max-w-xl drop-shadow-sm animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200 fill-mode-both">${escapeHtml(heroSubheadline)}</p>
+          </div>
+          <div class="flex flex-col items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
+            <a href="/itinerary" class="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-full sm:w-auto justify-center">
+              <img src="/goxplora-logo.png" alt="" width="336" height="223" class="sm:hidden h-5 w-auto flex-shrink-0">
+              ${escapeHtml(heroCtaLabel)}
+            </a>
+            <div class="flex items-center gap-3 text-sm">
+              <a href="/how-it-works" class="text-white/90 hover:text-white underline underline-offset-4 transition">${escapeHtml(fr.home.heroSeeHowItWorks)}</a>
+              <span class="text-white/40">·</span>
+              <a href="/business" class="text-white/90 hover:text-white underline underline-offset-4 transition">${escapeHtml(fr.home.heroForBusiness)}</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    </div>
+    </main>`;
+
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -120,12 +217,15 @@ const en = JSON.parse(readFileSync(join(ROOT, 'src/app/i18n/en.json'), 'utf-8'))
   };
   // Plain-text literals (not extracted from the already-HTML-escaped
   // template) since injectHead()/escapeHtml() will escape them itself.
-  const html = injectHead(template, {
-    title: 'Québec City Tours & Experiences — Xplora',
-    description: 'Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. Xplora is your insider guide to the city.',
-    canonical: '/',
-    schemas: [organizationSchema],
-  });
+  const html = injectBody(
+    injectHead(template, {
+      title: 'Québec City Tours & Experiences — Xplora',
+      description: 'Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. Xplora is your insider guide to the city.',
+      canonical: '/',
+      schemas: [organizationSchema],
+    }),
+    bodyHtml,
+  );
   writeSnapshot('/', html);
 }
 
