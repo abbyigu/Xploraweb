@@ -16,6 +16,8 @@ export function Footer() {
               <img
                 src="/goxplora-logo.png"
                 alt="GoXplora"
+                width={336}
+                height={223}
                 style={{ height: 100, marginTop: -24, marginLeft: -10, mixBlendMode: 'screen', filter: 'invert(1) hue-rotate(180deg) brightness(1.6)' }}
               />
             </div>

@@ -11,6 +11,8 @@ export function XploraLogo({
     <img
       src={variant === "icon" ? logoIcon : "/goxplora-logo.png"}
       alt="GoXplora"
+      width={variant === "icon" ? 256 : 336}
+      height={variant === "icon" ? 256 : 223}
       className={className}
       style={variant === "full" ? { mixBlendMode: 'multiply', width: 'auto' } : { width: 'auto' }}
       fetchPriority="high"

@@ -147,7 +147,7 @@ export function HomeScreen() {
               to="/itinerary"
               className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-full sm:w-auto justify-center"
             >
-              <img src="/goxplora-logo.png" alt="" className="sm:hidden h-5 w-auto flex-shrink-0" />
+              <img src="/goxplora-logo.png" alt="" width={336} height={223} className="sm:hidden h-5 w-auto flex-shrink-0" />
               {heroCtaLabel}
               <ArrowRight className="w-5 h-5" />
             </Link>
