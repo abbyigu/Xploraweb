@@ -10,9 +10,6 @@ import type { Spot } from '../data/products';
 // per neighbourhood, each in its own colour, click-through to its page, plus
 // every spot from the shared spots library plotted as a small dot in its
 // neighbourhood's colour.
-
-// Read-only overview map for the /neighbourhoods listing page: one pin/shape
-// per neighbourhood, each in its own colour, click-through to its page.
 // Vanilla Leaflet (not react-leaflet) — same approach as NeighbourhoodMap /
 // NeighbourhoodSpotsMap (react-leaflet v5 needs React 19 and crashes here).
 
@@ -53,12 +50,6 @@ interface Props {
 }
 
 export function NeighbourhoodsOverviewMap({ neighbourhoods, lang, spots = [] }: Props) {
-interface Props {
-  neighbourhoods: Neighbourhood[];
-  lang: string;
-}
-
-export function NeighbourhoodsOverviewMap({ neighbourhoods, lang }: Props) {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
