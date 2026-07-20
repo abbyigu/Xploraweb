@@ -36,7 +36,6 @@ export function Footer() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer.exploreHeading')}</p>
             <ul className="space-y-3 text-sm text-white/70">
-              <li><Link to="/itinerary" className="hover:text-white transition">{t('footer.linkNeighbourhoods')}</Link></li>
               <li><Link to="/itinerary" className="hover:text-white transition">{t('footer.linkWalks')}</Link></li>
               <li><Link to="/neighbourhoods" className="hover:text-white transition">{t('footer.linkMapView')}</Link></li>
             </ul>
