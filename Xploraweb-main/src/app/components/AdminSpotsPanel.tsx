@@ -36,6 +36,7 @@ export function AdminSpotsPanel() {
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
+  const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
   const [translating, setTranslating] = useState(false);
@@ -260,9 +261,9 @@ export function AdminSpotsPanel() {
 
   // Group spots by neighbourhood, ordered to match the neighbourhoods list (sort_order),
   // with unrecognized names after and unassigned spots last.
-  const groupedSpots = (() => {
+  const groupByNeighbourhood = (list: any[]): [string, any[]][] => {
     const groups = new Map<string, any[]>();
-    for (const spot of filtered) {
+    for (const spot of list) {
       const key = spot.neighbourhood || '';
       if (!groups.has(key)) groups.set(key, []);
       groups.get(key)!.push(spot);
@@ -273,7 +274,26 @@ export function AdminSpotsPanel() {
     const extra = extraNames.map(name => [name, groups.get(name)!] as [string, any[]]);
     const unassigned = groups.has('') ? [['', groups.get('')!] as [string, any[]]] : [];
     return [...known, ...extra, ...unassigned];
-  })();
+  };
+
+  // Full (unfiltered by search) grouping — powers the neighbourhood buttons and counters
+  // so they reflect the whole library, not just what's currently matched by the search box.
+  const groupedAll = groupByNeighbourhood(spots);
+
+  const categoryCounts = (list: any[]): [string, number][] => {
+    const counts = new Map<string, number>();
+    for (const spot of list) {
+      const cat = spot.category || 'Uncategorized';
+      counts.set(cat, (counts.get(cat) || 0) + 1);
+    }
+    return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  };
+
+  const activeNeighbourhoodSpots = selectedNeighbourhood
+    ? groupedAll.find(([name]) => name === selectedNeighbourhood)?.[1] || []
+    : spots;
+
+  const groupedSpots = groupByNeighbourhood(filtered).filter(([name]) => !selectedNeighbourhood || name === selectedNeighbourhood);
 
   return (
     <div className="space-y-4">
@@ -551,6 +571,46 @@ export function AdminSpotsPanel() {
           >
             {saved ? <><Check className="w-4 h-4" /> Saved!</> : saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Spot'}
           </button>
+        </div>
+      )}
+
+      {/* Neighbourhood filter buttons */}
+      {spots.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSelectedNeighbourhood(null)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              !selectedNeighbourhood ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+            }`}
+          >
+            All <span className="opacity-70">· {spots.length}</span>
+          </button>
+          {groupedAll.map(([name, group]) => (
+            <button
+              key={name || '__unassigned'}
+              onClick={() => setSelectedNeighbourhood(name === selectedNeighbourhood ? null : name)}
+              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                selectedNeighbourhood === name ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+              }`}
+            >
+              {name || 'Unassigned'} <span className="opacity-70">· {group.length}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Counters: category breakdown for the active view + grand total */}
+      {spots.length > 0 && (
+        <div className="bg-muted/50 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-semibold text-foreground whitespace-nowrap">
+            {selectedNeighbourhood || 'All neighbourhoods'} · {activeNeighbourhoodSpots.length} stop{activeNeighbourhoodSpots.length === 1 ? '' : 's'}
+          </span>
+          {categoryCounts(activeNeighbourhoodSpots).map(([cat, count]) => (
+            <span key={cat} className="px-2 py-0.5 rounded-full bg-background border border-border text-muted-foreground whitespace-nowrap">
+              {cat} <span className="text-foreground font-medium">{count}</span>
+            </span>
+          ))}
+          <span className="ml-auto text-muted-foreground whitespace-nowrap">{spots.length} stop{spots.length === 1 ? '' : 's'} across all neighbourhoods</span>
         </div>
       )}
 
