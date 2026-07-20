@@ -4,9 +4,12 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { Neighbourhood } from '../hooks/useNeighbourhoods';
 import { localizedTagline } from '../hooks/useNeighbourhoods';
+import type { Spot } from '../data/products';
 
 // Read-only overview map for the /neighbourhoods listing page: one pin/shape
-// per neighbourhood, each in its own colour, click-through to its page.
+// per neighbourhood, each in its own colour, click-through to its page, plus
+// every spot from the shared spots library plotted as a small dot in its
+// neighbourhood's colour.
 // Vanilla Leaflet (not react-leaflet) — same approach as NeighbourhoodMap /
 // NeighbourhoodSpotsMap (react-leaflet v5 needs React 19 and crashes here).
 
@@ -36,16 +39,22 @@ function markerIcon(color: string) {
   });
 }
 
+// Neutral fallback for spots whose `neighbourhood` text doesn't match any
+// known neighbourhood name (typo, or the field is empty).
+const UNMATCHED_SPOT_COLOR = '#9CA3AF';
+
 interface Props {
   neighbourhoods: Neighbourhood[];
   lang: string;
+  spots?: Spot[];
 }
 
-export function NeighbourhoodsOverviewMap({ neighbourhoods, lang }: Props) {
+export function NeighbourhoodsOverviewMap({ neighbourhoods, lang, spots = [] }: Props) {
   const navigate = useNavigate();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const layerGroupRef = useRef<L.LayerGroup | null>(null);
+  const spotLayerGroupRef = useRef<L.LayerGroup | null>(null);
   const navigateRef = useRef(navigate);
   navigateRef.current = navigate;
 
@@ -62,6 +71,7 @@ export function NeighbourhoodsOverviewMap({ neighbourhoods, lang }: Props) {
     }).addTo(map);
 
     layerGroupRef.current = L.layerGroup().addTo(map);
+    spotLayerGroupRef.current = L.layerGroup().addTo(map);
 
     setTimeout(() => map.invalidateSize(), 80);
 
@@ -69,6 +79,7 @@ export function NeighbourhoodsOverviewMap({ neighbourhoods, lang }: Props) {
       map.remove();
       mapRef.current = null;
       layerGroupRef.current = null;
+      spotLayerGroupRef.current = null;
     };
   }, []);
 
@@ -114,6 +125,43 @@ export function NeighbourhoodsOverviewMap({ neighbourhoods, lang }: Props) {
       map.fitBounds(L.latLngBounds(fitPoints), { padding: [30, 30], maxZoom: 15 });
     }
   }, [neighbourhoods, lang]);
+
+  // Rebuild spot dots whenever the spots list (or neighbourhood colours)
+  // change. Kept in a separate layer/effect from the neighbourhood
+  // pins/shapes above so re-fitting the map to neighbourhoods never jumps
+  // around just because a spot loaded a moment later.
+  useEffect(() => {
+    const map = mapRef.current;
+    const spotGroup = spotLayerGroupRef.current;
+    if (!map || !spotGroup) return;
+    spotGroup.clearLayers();
+
+    const colorByNeighbourhood = new Map<string, string>();
+    neighbourhoods.forEach((n, i) => {
+      if (n.name) colorByNeighbourhood.set(n.name.trim().toLowerCase(), colorFor(i));
+    });
+
+    spots.forEach(spot => {
+      if (spot.lat == null || spot.lng == null) return;
+      const color = spot.neighbourhood
+        ? colorByNeighbourhood.get(spot.neighbourhood.trim().toLowerCase()) ?? UNMATCHED_SPOT_COLOR
+        : UNMATCHED_SPOT_COLOR;
+
+      L.circleMarker([spot.lat, spot.lng], {
+        radius: 6,
+        color: '#ffffff',
+        weight: 1.5,
+        fillColor: color,
+        fillOpacity: 0.9,
+      })
+        .addTo(spotGroup)
+        .bindPopup(
+          `<div style="font-family:inherit"><div style="font-size:13px;font-weight:600">${spot.name}</div>${
+            spot.neighbourhood ? `<div style="font-size:11px;color:#6b7280;margin-top:2px">${spot.neighbourhood}</div>` : ''
+          }</div>`,
+        );
+    });
+  }, [spots, neighbourhoods]);
 
   return (
     <div

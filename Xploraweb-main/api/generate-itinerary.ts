@@ -13,7 +13,6 @@ const CANDIDATE_CAP = 40;
 
 const RequestSchema = z.object({
   walkLength: z.enum(['quick', 'standard', 'long']),
-  origin: z.object({ lat: z.number(), lng: z.number() }).nullable(),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
   neighbourhoods: z.array(z.string()),

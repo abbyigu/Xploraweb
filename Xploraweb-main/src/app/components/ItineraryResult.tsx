@@ -11,10 +11,9 @@ import type { GeneratedItinerary } from '../data/itineraryFilters';
 
 interface Props {
   result: GeneratedItinerary;
-  origin: { lat: number; lng: number } | null;
 }
 
-export function ItineraryResult({ result, origin }: Props) {
+export function ItineraryResult({ result }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
@@ -37,9 +36,7 @@ export function ItineraryResult({ result, origin }: Props) {
   const stopsWithCoords = result.stops.filter(s => s.spot.lat != null && s.spot.lng != null);
   const route: [number, number][] = stopsWithCoords.map(s => [s.spot.lat!, s.spot.lng!]);
   const firstStop = stopsWithCoords[0]?.spot;
-  const center: [number, number] | null = origin
-    ? [origin.lat, origin.lng]
-    : firstStop ? [firstStop.lat!, firstStop.lng!] : null;
+  const center: [number, number] | null = firstStop ? [firstStop.lat!, firstStop.lng!] : null;
 
   return (
     <div className="max-w-7xl mx-auto mt-8">

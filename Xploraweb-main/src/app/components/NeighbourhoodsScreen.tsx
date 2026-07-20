@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { useNeighbourhoods, localizedTagline, type Neighbourhood } from '../hooks/useNeighbourhoods';
+import { useSpots } from '../hooks/useSpots';
 import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { NeighbourhoodsOverviewMap } from './NeighbourhoodsOverviewMap';
 
@@ -21,6 +22,7 @@ export function NeighbourhoodsScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { neighbourhoods, loading } = useNeighbourhoods();
+  const { spots } = useSpots();
   const [searchParams] = useSearchParams();
   const sortNew = searchParams.get('sort') === 'new';
 
@@ -59,7 +61,7 @@ export function NeighbourhoodsScreen() {
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">
             {t('neighbourhoods.mapTitle', 'Neighbourhoods on the map')}
           </h2>
-          <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} />
+          <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} spots={spots} />
         </section>
       )}
 
