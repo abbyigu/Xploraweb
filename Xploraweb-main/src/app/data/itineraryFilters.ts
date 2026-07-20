@@ -33,21 +33,11 @@ export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
   { key: 'long', minMin: 90, maxMin: 180, targetStops: 8 },
 ];
 
-export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
-
-export const TIME_OF_DAY_OPTIONS: TimeOfDay[] = ['morning', 'afternoon', 'evening', 'night'];
-
-export const RADIUS_KM_MIN = 0.5;
-export const RADIUS_KM_MAX = 10;
-export const RADIUS_KM_DEFAULT = 3;
-
 export interface ItineraryGenerateRequest {
   walkLength: WalkLengthBucket;
-  radiusKm: number | null;
   origin: { lat: number; lng: number } | null;
   categories: SpotCategory[];
   priceRanges: PriceRange[];
-  timeOfDay: TimeOfDay | null;
   neighbourhoods: string[];
   language: 'en' | 'fr';
   restaurantHopping: boolean;

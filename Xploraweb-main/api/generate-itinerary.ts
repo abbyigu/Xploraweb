@@ -13,11 +13,9 @@ const CANDIDATE_CAP = 40;
 
 const RequestSchema = z.object({
   walkLength: z.enum(['quick', 'standard', 'long']),
-  radiusKm: z.number().min(0.5).max(10).nullable(),
   origin: z.object({ lat: z.number(), lng: z.number() }).nullable(),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
-  timeOfDay: z.enum(['morning', 'afternoon', 'evening', 'night']).nullable(),
   neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
   restaurantHopping: z.boolean().optional().default(false),
@@ -74,14 +72,6 @@ function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
   };
 }
 
-function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const R = 6371;
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
-}
-
 function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
 }
@@ -101,7 +91,6 @@ ${JSON.stringify(candidateList)}
 Requirements:
 - Target about ${bucket.targetStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
-${body.timeOfDay ? `- This route is for the ${body.timeOfDay}; prefer spots that fit that time of day.` : ''}
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
@@ -139,12 +128,6 @@ export default async function handler(req: any, res: any) {
     .map(r => mapSpotRow(r, body.language))
     .filter(c => c.lat != null && c.lng != null);
 
-  if (body.origin && body.radiusKm) {
-    const origin = body.origin;
-    candidates = candidates
-      .filter(c => haversineKm(origin, { lat: c.lat!, lng: c.lng! }) <= body.radiusKm!)
-      .sort((a, b) => haversineKm(origin, { lat: a.lat!, lng: a.lng! }) - haversineKm(origin, { lat: b.lat!, lng: b.lng! }));
-  }
   if (body.neighbourhoods.length > 0) {
     candidates = candidates.filter(c => c.neighbourhood && body.neighbourhoods.includes(c.neighbourhood));
   }
@@ -160,7 +143,7 @@ export default async function handler(req: any, res: any) {
 
   const targetStops = WALK_LENGTH_BUCKETS[body.walkLength].targetStops;
   if (candidates.length < Math.min(2, targetStops)) {
-    return res.status(422).json({ error: 'No spots match your filters yet — try a bigger radius or fewer filters.', code: 'NO_CANDIDATES' });
+    return res.status(422).json({ error: 'No spots match your filters yet — try fewer filters.', code: 'NO_CANDIDATES' });
   }
 
   let object: z.infer<typeof ItinerarySchema>;
