@@ -63,9 +63,9 @@ export const analytics = {
     push('business_login');
   },
 
-  generateItinerary(params: { walkLength: string; categories: string[]; neighbourhoods: string[] }) {
+  generateItinerary(params: { stopCount: string; categories: string[]; neighbourhoods: string[] }) {
     push('generate_itinerary', {
-      walk_length: params.walkLength,
+      stop_count: params.stopCount,
       categories: params.categories.join(','),
       neighbourhood_count: params.neighbourhoods.length,
     });
