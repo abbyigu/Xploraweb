@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, MapPin, Wand2, Loader2 } from 'lucide-react';
+import { Lock, Wand2, Loader2 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -21,7 +21,6 @@ import { PageSEO } from './PageSEO';
 import { analytics } from '../lib/analytics';
 
 type EventTimeBucket = 'today' | 'weekend' | 'month';
-type GeoStatus = 'idle' | 'requesting' | 'granted' | 'denied' | 'unsupported';
 type GenState = 'idle' | 'loading' | 'success' | 'error';
 
 const ERROR_KEY: Record<ItineraryErrorCode, string> = {
@@ -83,9 +82,6 @@ export function ItineraryScreen() {
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
 
-  const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
-  const [geoStatus, setGeoStatus] = useState<GeoStatus>('idle');
-
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
   const [result, setResult] = useState<GeneratedItinerary | null>(null);
@@ -105,22 +101,11 @@ export function ItineraryScreen() {
     setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
   }
 
-  function requestLocation() {
-    if (!('geolocation' in navigator)) { setGeoStatus('unsupported'); return; }
-    setGeoStatus('requesting');
-    navigator.geolocation.getCurrentPosition(
-      pos => { setOrigin({ lat: pos.coords.latitude, lng: pos.coords.longitude }); setGeoStatus('granted'); },
-      () => { setOrigin(null); setGeoStatus('denied'); },
-      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60_000 },
-    );
-  }
-
   async function handleGenerate() {
     setGenState('loading');
     setErrorCode(null);
     const body: ItineraryGenerateRequest = {
       walkLength,
-      origin: geoStatus === 'granted' ? origin : null,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
       neighbourhoods,
@@ -283,28 +268,6 @@ export function ItineraryScreen() {
                 </div>
               </div>
 
-              {/* Location */}
-              <div>
-                {geoStatus === 'idle' || geoStatus === 'requesting' ? (
-                  <button
-                    type="button"
-                    onClick={requestLocation}
-                    disabled={geoStatus === 'requesting'}
-                    className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline disabled:opacity-60"
-                  >
-                    <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                    {geoStatus === 'requesting' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                    {t('itineraryBuilder.useMyLocation')}
-                  </button>
-                ) : geoStatus === 'granted' ? (
-                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                    <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> {t('itineraryBuilder.locationGranted')}
-                  </p>
-                ) : (
-                  <p className="text-xs text-muted-foreground">{t('itineraryBuilder.locationDenied')}</p>
-                )}
-              </div>
-
               {/* Restaurant hopping */}
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -346,7 +309,7 @@ export function ItineraryScreen() {
           </div>
 
           {genState === 'success' && result && (
-            <ItineraryResult key={genKey} result={result} origin={origin} />
+            <ItineraryResult key={genKey} result={result} />
           )}
         </>
       )}

@@ -38,7 +38,7 @@ export function Footer() {
             <ul className="space-y-3 text-sm text-white/70">
               <li><Link to="/itinerary" className="hover:text-white transition">{t('footer.linkNeighbourhoods')}</Link></li>
               <li><Link to="/itinerary" className="hover:text-white transition">{t('footer.linkWalks')}</Link></li>
-              <li><Link to="/itinerary" className="hover:text-white transition">{t('footer.linkMapView')}</Link></li>
+              <li><Link to="/neighbourhoods" className="hover:text-white transition">{t('footer.linkMapView')}</Link></li>
             </ul>
           </div>
 
