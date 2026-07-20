@@ -24,14 +24,15 @@ export interface WalkLengthOption {
   key: WalkLengthBucket;
   minMin: number;
   maxMin: number;
-  targetStops: number;
+  minStops: number;
+  maxStops: number;
 }
 
 export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
-  { key: 'quick', minMin: 20, maxMin: 45, targetStops: 3 },
-  { key: 'standard', minMin: 45, maxMin: 90, targetStops: 5 },
-  { key: 'long', minMin: 90, maxMin: 180, targetStops: 8 },
-  { key: 'extended', minMin: 240, maxMin: 360, targetStops: 12 },
+  { key: 'quick', minMin: 20, maxMin: 45, minStops: 2, maxStops: 3 },
+  { key: 'standard', minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
+  { key: 'long', minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
+  { key: 'extended', minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
 ];
 
 export interface ItineraryGenerateRequest {

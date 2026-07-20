@@ -4,13 +4,20 @@ import { z } from 'zod';
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
-const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
-  quick: { minMin: 20, maxMin: 45, targetStops: 3 },
-  standard: { minMin: 45, maxMin: 90, targetStops: 5 },
-  long: { minMin: 90, maxMin: 180, targetStops: 8 },
-  extended: { minMin: 240, maxMin: 360, targetStops: 12 },
+const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; minStops: number; maxStops: number }> = {
+  quick: { minMin: 20, maxMin: 45, minStops: 2, maxStops: 3 },
+  standard: { minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
+  long: { minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
+  extended: { minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
 };
 const CANDIDATE_CAP = 40;
+const RESTAURANT_HOPPING_MAX_STOPS = 7;
+
+function getStopRange(bucket: { minStops: number; maxStops: number }, restaurantHopping: boolean) {
+  const maxStops = restaurantHopping ? Math.min(bucket.maxStops, RESTAURANT_HOPPING_MAX_STOPS) : bucket.maxStops;
+  const minStops = Math.min(bucket.minStops, maxStops);
+  return { minStops, maxStops };
+}
 
 const RequestSchema = z.object({
   walkLength: z.enum(['quick', 'standard', 'long', 'extended']),
@@ -83,13 +90,14 @@ function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSc
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
   }));
   const restaurantHopping = isRestaurantHopping(body);
+  const { minStops, maxStops } = getStopRange(bucket, restaurantHopping);
   return `You are assembling a self-guided walking itinerary in Québec City from a fixed list of real places.
 
 Candidate spots (JSON, only use these — never invent an id):
 ${JSON.stringify(candidateList)}
 
 Requirements:
-- Target about ${bucket.targetStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
+- Target ${minStops}-${maxStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
@@ -141,8 +149,7 @@ export default async function handler(req: any, res: any) {
   }
   candidates = candidates.slice(0, CANDIDATE_CAP);
 
-  const targetStops = WALK_LENGTH_BUCKETS[body.walkLength].targetStops;
-  if (candidates.length < Math.min(2, targetStops)) {
+  if (candidates.length < 2) {
     return res.status(422).json({ error: 'No spots match your filters yet — try fewer filters.', code: 'NO_CANDIDATES' });
   }
 
@@ -160,7 +167,7 @@ export default async function handler(req: any, res: any) {
 
   const candidateIds = new Set(candidates.map(c => c.id));
   const byId = new Map(candidates.map(c => [c.id, c]));
-  const foodCap = isRestaurantHopping(body) ? targetStops : 1;
+  const foodCap = isRestaurantHopping(body) ? getStopRange(WALK_LENGTH_BUCKETS[body.walkLength], true).maxStops : 1;
   let foodCount = 0;
   const validStops = object.stops
     .filter(s => candidateIds.has(s.spotId))
