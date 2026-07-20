@@ -62,6 +62,7 @@ export function NeighbourhoodsScreen() {
             {t('neighbourhoods.mapTitle', 'Neighbourhoods on the map')}
           </h2>
           <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} spots={spots} />
+          <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} />
         </section>
       )}
 

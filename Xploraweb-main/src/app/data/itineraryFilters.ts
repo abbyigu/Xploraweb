@@ -36,6 +36,7 @@ export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
 
 export interface ItineraryGenerateRequest {
   walkLength: WalkLengthBucket;
+  origin: { lat: number; lng: number } | null;
   categories: SpotCategory[];
   priceRanges: PriceRange[];
   neighbourhoods: string[];

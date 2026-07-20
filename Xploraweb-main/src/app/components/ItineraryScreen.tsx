@@ -106,6 +106,7 @@ export function ItineraryScreen() {
     setErrorCode(null);
     const body: ItineraryGenerateRequest = {
       walkLength,
+      origin: geoStatus === 'granted' ? origin : null,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
       neighbourhoods,
@@ -266,6 +267,28 @@ export function ItineraryScreen() {
                     </Chip>
                   ))}
                 </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                {geoStatus === 'idle' || geoStatus === 'requesting' ? (
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    disabled={geoStatus === 'requesting'}
+                    className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline disabled:opacity-60"
+                  >
+                    <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                    {geoStatus === 'requesting' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    {t('itineraryBuilder.useMyLocation')}
+                  </button>
+                ) : geoStatus === 'granted' ? (
+                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> {t('itineraryBuilder.locationGranted')}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{t('itineraryBuilder.locationDenied')}</p>
+                )}
               </div>
 
               {/* Restaurant hopping */}
