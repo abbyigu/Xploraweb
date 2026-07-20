@@ -18,7 +18,7 @@ export const VIBE_KEY: Record<string, string> = {
 export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 export type PriceRange = (typeof PRICE_RANGES)[number];
 
-export type WalkLengthBucket = 'quick' | 'standard' | 'long' | 'extended';
+export type StopCountBucket = 'quick' | 'standard' | 'long' | 'extended';
 
 export interface WalkLengthOption {
   key: WalkLengthBucket;
@@ -39,8 +39,18 @@ export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
   { key: 'extended', minMin: 240, maxMin: 360, targetStops: 12 },
 ];
 
+// Restaurant hopping caps how many stops a route can have, regardless of the
+// selected bucket, since eating at 10+ places back-to-back isn't realistic.
+export const RESTAURANT_HOPPING_MAX_STOPS = 7;
+
+export function getEffectiveStopRange(bucket: StopCountOption, restaurantHopping: boolean): { minStops: number; maxStops: number } {
+  const maxStops = restaurantHopping ? Math.min(bucket.maxStops, RESTAURANT_HOPPING_MAX_STOPS) : bucket.maxStops;
+  const minStops = Math.min(bucket.minStops, maxStops);
+  return { minStops, maxStops };
+}
+
 export interface ItineraryGenerateRequest {
-  walkLength: WalkLengthBucket;
+  stopCount: StopCountBucket;
   categories: SpotCategory[];
   priceRanges: PriceRange[];
   neighbourhoods: string[];

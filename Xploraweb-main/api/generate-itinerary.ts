@@ -25,7 +25,7 @@ function getStopRange(bucket: { minStops: number; maxStops: number }, restaurant
 }
 
 const RequestSchema = z.object({
-  walkLength: z.enum(['quick', 'standard', 'long', 'extended']),
+  stopCount: z.enum(['quick', 'standard', 'long', 'extended']),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
   neighbourhoods: z.array(z.string()),
@@ -89,7 +89,7 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
 }
 
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
-  const bucket = WALK_LENGTH_BUCKETS[body.walkLength];
+  const bucket = STOP_COUNT_BUCKETS[body.stopCount];
   const candidateList = candidates.map(c => ({
     id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
