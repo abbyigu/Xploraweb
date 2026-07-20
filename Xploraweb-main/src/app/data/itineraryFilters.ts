@@ -18,7 +18,7 @@ export const VIBE_KEY: Record<string, string> = {
 export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 export type PriceRange = (typeof PRICE_RANGES)[number];
 
-export type WalkLengthBucket = 'quick' | 'standard' | 'long';
+export type WalkLengthBucket = 'quick' | 'standard' | 'long' | 'extended';
 
 export interface WalkLengthOption {
   key: WalkLengthBucket;
@@ -31,6 +31,7 @@ export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
   { key: 'quick', minMin: 20, maxMin: 45, targetStops: 3 },
   { key: 'standard', minMin: 45, maxMin: 90, targetStops: 5 },
   { key: 'long', minMin: 90, maxMin: 180, targetStops: 8 },
+  { key: 'extended', minMin: 240, maxMin: 360, targetStops: 12 },
 ];
 
 export interface ItineraryGenerateRequest {

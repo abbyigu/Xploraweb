@@ -8,11 +8,12 @@ const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targ
   quick: { minMin: 20, maxMin: 45, targetStops: 3 },
   standard: { minMin: 45, maxMin: 90, targetStops: 5 },
   long: { minMin: 90, maxMin: 180, targetStops: 8 },
+  extended: { minMin: 240, maxMin: 360, targetStops: 12 },
 };
 const CANDIDATE_CAP = 40;
 
 const RequestSchema = z.object({
-  walkLength: z.enum(['quick', 'standard', 'long']),
+  walkLength: z.enum(['quick', 'standard', 'long', 'extended']),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
   neighbourhoods: z.array(z.string()),

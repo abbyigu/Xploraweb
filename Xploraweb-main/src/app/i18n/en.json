@@ -270,6 +270,7 @@
     "walkLengthQuick": "Quick (20–45 min)",
     "walkLengthStandard": "Standard (45–90 min)",
     "walkLengthLong": "Long (1.5–3h)",
+    "walkLengthExtended": "Extended (4–6h)",
     "categories": "Categories",
     "restaurantHopping": "Restaurant hopping",
     "restaurantHoppingDescription": "Fill this route with restaurants instead of just one.",
