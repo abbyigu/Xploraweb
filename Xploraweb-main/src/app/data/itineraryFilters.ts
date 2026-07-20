@@ -18,29 +18,33 @@ export const VIBE_KEY: Record<string, string> = {
 export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 export type PriceRange = (typeof PRICE_RANGES)[number];
 
-export type WalkLengthBucket = 'quick' | 'standard' | 'long' | 'extended';
+export type StopCountBucket = 'quick' | 'standard' | 'long' | 'extended';
 
-export interface WalkLengthOption {
-  key: WalkLengthBucket;
-  minMin: number;
-  maxMin: number;
+export interface StopCountOption {
+  key: StopCountBucket;
   minStops: number;
   maxStops: number;
 }
 
-export const WALK_LENGTH_BUCKETS: WalkLengthOption[] = [
-  { key: 'quick', minMin: 20, maxMin: 45, minStops: 2, maxStops: 3 },
-  { key: 'standard', minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
-  { key: 'long', minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
-  { key: 'extended', minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
-  { key: 'quick', minMin: 20, maxMin: 45, targetStops: 3 },
-  { key: 'standard', minMin: 45, maxMin: 90, targetStops: 5 },
-  { key: 'long', minMin: 90, maxMin: 180, targetStops: 8 },
-  { key: 'extended', minMin: 240, maxMin: 360, targetStops: 12 },
+export const STOP_COUNT_BUCKETS: StopCountOption[] = [
+  { key: 'quick', minStops: 2, maxStops: 3 },
+  { key: 'standard', minStops: 4, maxStops: 5 },
+  { key: 'long', minStops: 6, maxStops: 8 },
+  { key: 'extended', minStops: 10, maxStops: 14 },
 ];
 
+// Restaurant hopping caps how many stops a route can have, regardless of the
+// selected bucket, since eating at 10+ places back-to-back isn't realistic.
+export const RESTAURANT_HOPPING_MAX_STOPS = 7;
+
+export function getEffectiveStopRange(bucket: StopCountOption, restaurantHopping: boolean): { minStops: number; maxStops: number } {
+  const maxStops = restaurantHopping ? Math.min(bucket.maxStops, RESTAURANT_HOPPING_MAX_STOPS) : bucket.maxStops;
+  const minStops = Math.min(bucket.minStops, maxStops);
+  return { minStops, maxStops };
+}
+
 export interface ItineraryGenerateRequest {
-  walkLength: WalkLengthBucket;
+  stopCount: StopCountBucket;
   categories: SpotCategory[];
   priceRanges: PriceRange[];
   neighbourhoods: string[];

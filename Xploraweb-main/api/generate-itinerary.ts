@@ -4,11 +4,11 @@ import { z } from 'zod';
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
-const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; minStops: number; maxStops: number }> = {
-  quick: { minMin: 20, maxMin: 45, minStops: 2, maxStops: 3 },
-  standard: { minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
-  long: { minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
-  extended: { minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
+const STOP_COUNT_BUCKETS: Record<string, { minStops: number; maxStops: number }> = {
+  quick: { minStops: 2, maxStops: 3 },
+  standard: { minStops: 4, maxStops: 5 },
+  long: { minStops: 6, maxStops: 8 },
+  extended: { minStops: 10, maxStops: 14 },
 };
 const CANDIDATE_CAP = 40;
 const RESTAURANT_HOPPING_MAX_STOPS = 7;
@@ -20,7 +20,7 @@ function getStopRange(bucket: { minStops: number; maxStops: number }, restaurant
 }
 
 const RequestSchema = z.object({
-  walkLength: z.enum(['quick', 'standard', 'long', 'extended']),
+  stopCount: z.enum(['quick', 'standard', 'long', 'extended']),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
   neighbourhoods: z.array(z.string()),
@@ -84,7 +84,7 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
 }
 
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
-  const bucket = WALK_LENGTH_BUCKETS[body.walkLength];
+  const bucket = STOP_COUNT_BUCKETS[body.stopCount];
   const candidateList = candidates.map(c => ({
     id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
@@ -97,7 +97,8 @@ Candidate spots (JSON, only use these — never invent an id):
 ${JSON.stringify(candidateList)}
 
 Requirements:
-- Target ${minStops}-${maxStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
+- Target ${minStops}-${maxStops} stops.
+- Estimate a realistic total walking + visiting duration and distance for the route you assemble, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
@@ -167,7 +168,7 @@ export default async function handler(req: any, res: any) {
 
   const candidateIds = new Set(candidates.map(c => c.id));
   const byId = new Map(candidates.map(c => [c.id, c]));
-  const foodCap = isRestaurantHopping(body) ? getStopRange(WALK_LENGTH_BUCKETS[body.walkLength], true).maxStops : 1;
+  const foodCap = isRestaurantHopping(body) ? getStopRange(STOP_COUNT_BUCKETS[body.stopCount], true).maxStops : 1;
   let foodCount = 0;
   const validStops = object.stops
     .filter(s => candidateIds.has(s.spotId))
