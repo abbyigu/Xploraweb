@@ -9,11 +9,6 @@ const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; minS
   standard: { minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
   long: { minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
   extended: { minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
-const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
-  quick: { minMin: 20, maxMin: 45, targetStops: 3 },
-  standard: { minMin: 45, maxMin: 90, targetStops: 5 },
-  long: { minMin: 90, maxMin: 180, targetStops: 8 },
-  extended: { minMin: 240, maxMin: 360, targetStops: 12 },
 };
 const CANDIDATE_CAP = 40;
 const RESTAURANT_HOPPING_MAX_STOPS = 7;
