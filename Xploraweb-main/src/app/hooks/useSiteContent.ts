@@ -16,9 +16,9 @@ export interface SiteContent {
 // English copy used only to prefill the admin "Site Content" form.
 export const SITE_CONTENT_DEFAULTS = {
   bannerEnabled: true,
-  bannerText: 'Built in Québec City. Free to start, always.',
+  bannerText: 'Québec City–crafted. Walk. Discover. Repeat.',
   heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Hotspots / Special Places / Curated Itineraries',
+  heroSubheadline: 'Hotspots, Special Places & Curated Itineraries',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,

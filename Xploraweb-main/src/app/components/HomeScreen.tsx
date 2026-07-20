@@ -14,12 +14,16 @@ function FeatureTile({
   label,
   desc,
   icon: Icon,
+  image,
+  imagePosition,
   onClick,
   delay,
 }: {
   label: string;
   desc: string;
   icon: LucideIcon;
+  image: string;
+  imagePosition?: string;
   onClick: () => void;
   delay: number;
 }) {
@@ -29,13 +33,26 @@ function FeatureTile({
       ref={ref}
       style={style}
       onClick={onClick}
-      className={`text-left rounded-2xl border border-gray-200 bg-white p-4 md:p-5 hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className}`}
+      className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className}`}
     >
-      <div className="w-10 h-10 rounded-xl bg-[#c9e8e8]/60 flex items-center justify-center mb-3">
-        <Icon className="w-5 h-5 text-[#12343B]" />
+      <div className="relative aspect-[4/3] overflow-hidden">
+        <img
+          src={image}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={{ objectPosition: imagePosition ?? 'center' }}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent" />
+        <div className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
+          <Icon className="w-4 h-4 text-[#12343B]" />
+        </div>
       </div>
-      <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
-      <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
+      <div className="p-4 md:p-5">
+        <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
+        <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
+      </div>
     </button>
   );
 }
@@ -74,10 +91,10 @@ export function HomeScreen() {
   const businessReveal = useReveal<HTMLDivElement>();
 
   const FEATURE_TILES = [
-    { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots' },
-    { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved' },
-    { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary' },
-    { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new' },
+    { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg' },
+    { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', imagePosition: 'center 15%' },
+    { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg' },
+    { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg' },
   ];
 
   const VALUE_PILLARS = [
@@ -145,10 +162,10 @@ export function HomeScreen() {
           <div className="flex flex-col items-center gap-4 w-full sm:w-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
             <Link
               to="/itinerary"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-full sm:w-auto justify-center"
+              className="inline-flex items-center gap-0 px-4 py-2 sm:gap-2 sm:px-8 sm:py-4 bg-[#12343B] text-white rounded-full text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-auto justify-center"
             >
-              <img src="/goxplora-logo.png" alt="" width={336} height={223} className="sm:hidden h-5 w-auto flex-shrink-0" />
-              {heroCtaLabel}
+              <img src="/goxplora-logo.png" alt="" width={336} height={223} className="sm:hidden h-16 w-auto flex-shrink-0" />
+              <span className="hidden sm:inline">{heroCtaLabel}</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
             <div className="flex items-center gap-3 text-sm">
@@ -169,8 +186,8 @@ export function HomeScreen() {
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.whereToStart')}</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-            {FEATURE_TILES.map(({ label, desc, icon, to }, i) => (
-              <FeatureTile key={label} label={label} desc={desc} icon={icon} onClick={() => navigate(to)} delay={i * 75} />
+            {FEATURE_TILES.map(({ label, desc, icon, to, image, imagePosition }, i) => (
+              <FeatureTile key={label} label={label} desc={desc} icon={icon} image={image} imagePosition={imagePosition} onClick={() => navigate(to)} delay={i * 75} />
             ))}
           </div>
           <Link
