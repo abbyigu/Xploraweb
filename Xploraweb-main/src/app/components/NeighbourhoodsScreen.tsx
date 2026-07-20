@@ -5,6 +5,7 @@ import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { useNeighbourhoods, localizedTagline, type Neighbourhood } from '../hooks/useNeighbourhoods';
 import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
+import { NeighbourhoodsOverviewMap } from './NeighbourhoodsOverviewMap';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
 // missing), so the page is never empty.
@@ -27,6 +28,7 @@ export function NeighbourhoodsScreen() {
   const list = sortNew
     ? [...base].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
     : base;
+  const hasMapData = list.some(n => (n.lat != null && n.lng != null) || (n.boundary && n.boundary.length >= 3));
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -50,6 +52,16 @@ export function NeighbourhoodsScreen() {
           </p>
         </div>
       </section>
+
+      {/* Map */}
+      {hasMapData && (
+        <section className="max-w-7xl mx-auto px-6 md:px-8 pt-10 md:pt-14">
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">
+            {t('neighbourhoods.mapTitle', 'Neighbourhoods on the map')}
+          </h2>
+          <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} />
+        </section>
+      )}
 
       {/* Grid */}
       <section className="max-w-7xl mx-auto px-6 md:px-8 py-10 md:py-14">

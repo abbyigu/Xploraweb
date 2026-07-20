@@ -4,18 +4,16 @@ import { Lock, MapPin, Wand2, Loader2 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
-import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { ItineraryResult } from './ItineraryResult';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import {
-  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, WALK_LENGTH_BUCKETS, TIME_OF_DAY_OPTIONS,
-  RADIUS_KM_MIN, RADIUS_KM_MAX, RADIUS_KM_DEFAULT,
+  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, WALK_LENGTH_BUCKETS,
 } from '../data/itineraryFilters';
 import type {
-  WalkLengthBucket, TimeOfDay, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
+  WalkLengthBucket, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -80,11 +78,9 @@ export function ItineraryScreen() {
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
   const [walkLength, setWalkLength] = useState<WalkLengthBucket>('standard');
-  const [radiusKm, setRadiusKm] = useState(RADIUS_KM_DEFAULT);
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [restaurantHopping, setRestaurantHopping] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay | null>(null);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
 
   const [origin, setOrigin] = useState<{ lat: number; lng: number } | null>(null);
@@ -124,11 +120,9 @@ export function ItineraryScreen() {
     setErrorCode(null);
     const body: ItineraryGenerateRequest = {
       walkLength,
-      radiusKm: geoStatus === 'granted' ? radiusKm : null,
       origin: geoStatus === 'granted' ? origin : null,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
-      timeOfDay,
       neighbourhoods,
       language: i18n.language === 'fr' ? 'fr' : 'en',
       restaurantHopping,
@@ -205,8 +199,6 @@ export function ItineraryScreen() {
       </div>
     );
   }
-
-  const radiusDisabled = geoStatus !== 'granted';
 
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
@@ -291,40 +283,26 @@ export function ItineraryScreen() {
                 </div>
               </div>
 
-              {/* Radius */}
+              {/* Location */}
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground">{t('itineraryBuilder.radius')}</p>
-                  <span className="text-sm font-medium">{radiusKm} {t('itineraryBuilder.radiusUnit')}</span>
-                </div>
-                <Slider
-                  min={RADIUS_KM_MIN}
-                  max={RADIUS_KM_MAX}
-                  step={0.5}
-                  value={[radiusKm]}
-                  onValueChange={([v]) => setRadiusKm(v)}
-                  disabled={radiusDisabled}
-                />
-                <div className="mt-2">
-                  {geoStatus === 'idle' || geoStatus === 'requesting' ? (
-                    <button
-                      type="button"
-                      onClick={requestLocation}
-                      disabled={geoStatus === 'requesting'}
-                      className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline disabled:opacity-60"
-                    >
-                      <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
-                      {geoStatus === 'requesting' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
-                      {t('itineraryBuilder.useMyLocation')}
-                    </button>
-                  ) : geoStatus === 'granted' ? (
-                    <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> {t('itineraryBuilder.locationGranted')}
-                    </p>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">{t('itineraryBuilder.locationDenied')}</p>
-                  )}
-                </div>
+                {geoStatus === 'idle' || geoStatus === 'requesting' ? (
+                  <button
+                    type="button"
+                    onClick={requestLocation}
+                    disabled={geoStatus === 'requesting'}
+                    className="inline-flex items-center gap-1.5 text-sm text-primary font-medium hover:underline disabled:opacity-60"
+                  >
+                    <MapPin className="w-3.5 h-3.5" aria-hidden="true" />
+                    {geoStatus === 'requesting' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : null}
+                    {t('itineraryBuilder.useMyLocation')}
+                  </button>
+                ) : geoStatus === 'granted' ? (
+                  <p className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5 text-primary" aria-hidden="true" /> {t('itineraryBuilder.locationGranted')}
+                  </p>
+                ) : (
+                  <p className="text-xs text-muted-foreground">{t('itineraryBuilder.locationDenied')}</p>
+                )}
               </div>
 
               {/* Restaurant hopping */}
@@ -347,18 +325,6 @@ export function ItineraryScreen() {
                   </div>
                 </div>
               )}
-
-              {/* Time of day */}
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.timeOfDay')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {TIME_OF_DAY_OPTIONS.map(tod => (
-                    <Chip key={tod} active={timeOfDay === tod} onClick={() => setTimeOfDay(prev => prev === tod ? null : tod)}>
-                      {t(`itineraryBuilder.timeOfDay${tod[0].toUpperCase()}${tod.slice(1)}`)}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
             </div>
 
             <button
