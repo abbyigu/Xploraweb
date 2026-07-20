@@ -252,7 +252,7 @@
   },
   "itinerary": {
     "title": "Balades autonomes à Québec",
-    "subtitle": "Choisissez une gamme de prix et une durée de marche — nous créons un parcours autonome à explorer à votre rythme.",
+    "subtitle": "Choisissez une gamme de prix et un nombre d'arrêts — nous créons un parcours autonome à explorer à votre rythme.",
     "price": "Prix",
     "neighbourhood": "Quartiers",
     "paywallTitle": "Connectez-vous pour déverrouiller",
@@ -261,18 +261,17 @@
     "toursComingSoonTitle": "Les parcours autonomes sont gratuits et prêts dès aujourd'hui",
     "toursComingSoonBody": "Les visites guidées, parcours premium et événements en soirée arrivent bientôt. Envie d'être averti dès leur lancement ?",
     "seoTitle": "Balades autoguidées à Québec | Xplora",
-    "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, durée de marche et catégorie — puis explorez à votre rythme."
+    "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, nombre d'arrêts et catégorie — puis explorez à votre rythme."
   },
   "itineraryBuilder": {
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
-    "walkLength": "Durée de la marche",
-    "walkLengthQuick": "Rapide (20–45 min)",
-    "walkLengthStandard": "Standard (45–90 min)",
-    "walkLengthLong": "Longue (1,5–3h)",
-    "walkLengthExtended": "Prolongée (4–6h)",
+    "stopCount": "Nombre d'arrêts",
+    "stopCountSingle": "{{count}} arrêts",
+    "stopCountRange": "{{min}}–{{max}} arrêts",
     "categories": "Catégories",
     "restaurantHopping": "Tournée de restaurants",
     "restaurantHoppingDescription": "Remplir cet itinéraire de restaurants plutôt qu'un seul.",
+    "restaurantHoppingExplainer": "Une tournée de restaurants est un parcours autonome qui enchaîne plusieurs restaurants, cafés et bars en une seule promenade — pour grignoter ou prendre un verre à chaque arrêt plutôt que de vous limiter à un seul repas.",
     "generate": "Générer mon parcours",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
     "generating": "Création de votre parcours…",

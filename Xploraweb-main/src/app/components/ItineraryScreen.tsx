@@ -10,10 +10,10 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import {
-  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, WALK_LENGTH_BUCKETS,
+  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, STOP_COUNT_BUCKETS, getEffectiveStopRange,
 } from '../data/itineraryFilters';
 import type {
-  WalkLengthBucket, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
+  StopCountBucket, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ export function ItineraryScreen() {
   const isNightsView = searchParams.get('category') === 'xploranights';
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
-  const [walkLength, setWalkLength] = useState<WalkLengthBucket>('standard');
+  const [stopCount, setStopCount] = useState<StopCountBucket>('standard');
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [restaurantHopping, setRestaurantHopping] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
@@ -105,7 +105,7 @@ export function ItineraryScreen() {
     setGenState('loading');
     setErrorCode(null);
     const body: ItineraryGenerateRequest = {
-      walkLength,
+      stopCount,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
       neighbourhoods,
@@ -127,7 +127,7 @@ export function ItineraryScreen() {
       setResult(data as GeneratedItinerary);
       setGenKey(k => k + 1);
       setGenState('success');
-      analytics.generateItinerary({ walkLength, categories, neighbourhoods });
+      analytics.generateItinerary({ stopCount, categories, neighbourhoods });
     } catch {
       setErrorCode('LLM_ERROR');
       setGenState('error');
@@ -256,25 +256,37 @@ export function ItineraryScreen() {
                 </div>
               </div>
 
-              {/* Walk length */}
+              {/* Stop count */}
               <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.walkLength')}</p>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.stopCount')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {WALK_LENGTH_BUCKETS.map(b => (
-                    <Chip key={b.key} active={walkLength === b.key} onClick={() => setWalkLength(b.key)}>
-                      {t(`itineraryBuilder.walkLength${b.key[0].toUpperCase()}${b.key.slice(1)}`)}
-                    </Chip>
-                  ))}
+                  {STOP_COUNT_BUCKETS.map(b => {
+                    const { minStops, maxStops } = getEffectiveStopRange(b, restaurantHopping);
+                    return (
+                      <Chip key={b.key} active={stopCount === b.key} onClick={() => setStopCount(b.key)}>
+                        {minStops === maxStops
+                          ? t('itineraryBuilder.stopCountSingle', { count: minStops })
+                          : t('itineraryBuilder.stopCountRange', { min: minStops, max: maxStops })}
+                      </Chip>
+                    );
+                  })}
                 </div>
               </div>
 
               {/* Restaurant hopping */}
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-sm font-medium">{t('itineraryBuilder.restaurantHopping')}</p>
-                  <p className="text-xs text-muted-foreground">{t('itineraryBuilder.restaurantHoppingDescription')}</p>
+              <div>
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium">{t('itineraryBuilder.restaurantHopping')}</p>
+                    <p className="text-xs text-muted-foreground">{t('itineraryBuilder.restaurantHoppingDescription')}</p>
+                  </div>
+                  <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
                 </div>
-                <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
+                {restaurantHopping && (
+                  <p className="text-xs text-muted-foreground mt-2 bg-primary/5 rounded-xl px-3 py-2">
+                    {t('itineraryBuilder.restaurantHoppingExplainer')}
+                  </p>
+                )}
               </div>
 
               {/* Categories */}
