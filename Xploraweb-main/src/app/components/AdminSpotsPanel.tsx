@@ -5,8 +5,6 @@ import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
 
-const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'date night', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'cute', 'brunch'];
-
 const PRICE_OPTIONS = [
   { value: 'Free', label: 'Free', hint: 'No cost' },
   { value: '$', label: '$', hint: 'Budget' },
@@ -17,7 +15,7 @@ const PRICE_OPTIONS = [
 
 const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
-  website: '', neighbourhood: '', category: '', visit_time: '', price_range: '', vibes: '',
+  website: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
   name_fr: '', description_fr: '', xplora_tips_fr: '',
   is_brunch: false,
@@ -167,7 +165,6 @@ export function AdminSpotsPanel() {
       category: spot.category || '',
       visit_time: spot.visit_time || '',
       price_range: spot.price_range || '',
-      vibes: (spot.vibes || []).join(', '),
       xplora_tips: (spot.xplora_tips || []).join('\n'),
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
@@ -205,7 +202,6 @@ export function AdminSpotsPanel() {
         category: form.category || null,
         visit_time: form.visit_time.trim() || null,
         price_range: form.price_range || null,
-        vibes: form.vibes ? form.vibes.split(',').map(s => s.trim()).filter(Boolean) : null,
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
         name_fr: form.name_fr.trim() || null,
         description_fr: form.description_fr.trim() || null,
@@ -243,12 +239,6 @@ export function AdminSpotsPanel() {
     const next = spot.status === 'active' ? 'draft' : 'active';
     await supabase.from('xplora_spots').update({ status: next }).eq('id', spot.id);
     await load();
-  };
-
-  const toggleVibe = (v: string) => {
-    const current = form.vibes.split(',').map(s => s.trim()).filter(Boolean);
-    const next = current.includes(v) ? current.filter(s => s !== v) : [...current, v];
-    setForm(f => ({ ...f, vibes: next.join(', ') }));
   };
 
   const filtered = spots.filter(s => {
@@ -459,25 +449,6 @@ export function AdminSpotsPanel() {
                   Place We Love
                 </button>
                 <p className="text-[11px] text-muted-foreground mt-1">Featured on the home "Places We Love" tile.</p>
-              </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Vibes</label>
-              <div className="flex flex-wrap gap-2 mt-2">
-                {VIBE_OPTIONS.map(v => {
-                  const active = form.vibes.split(',').map(s => s.trim()).includes(v);
-                  return (
-                    <button
-                      key={v}
-                      type="button"
-                      onClick={() => toggleVibe(v)}
-                      className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'}`}
-                    >
-                      {v}
-                    </button>
-                  );
-                })}
               </div>
             </div>
 
