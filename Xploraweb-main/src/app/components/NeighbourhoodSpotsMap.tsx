@@ -24,6 +24,20 @@ const SPOT_ICON = L.divIcon({
   popupAnchor: [0, -34],
 });
 
+// Numbered pin used for itinerary stops so travel order is visible on the map.
+function numberedSpotIcon(n: number): L.DivIcon {
+  return L.divIcon({
+    className: 'xplora-spot-marker-numbered',
+    html: `<svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B"/>
+      <text x="15" y="15" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="14" font-weight="700" font-family="inherit">${n}</text>
+    </svg>`,
+    iconSize: [30, 38],
+    iconAnchor: [15, 38],
+    popupAnchor: [0, -34],
+  });
+}
+
 function spotPopupHtml(spot: Spot, websiteLabel: string, categoryLabel: (cat: string) => string): string {
   const meta = [spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ');
   const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
@@ -49,6 +63,8 @@ interface Props {
   websiteLabel?: string;
   activeCategory?: string | null;
   onCategoryChange?: (category: string | null) => void;
+  /** Show 1, 2, 3… markers reflecting spot order instead of plain pins (used for itinerary stops). */
+  numbered?: boolean;
 }
 
 export function NeighbourhoodSpotsMap({
@@ -59,6 +75,7 @@ export function NeighbourhoodSpotsMap({
   websiteLabel = 'Website',
   activeCategory = null,
   onCategoryChange,
+  numbered = false,
 }: Props) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,11 +114,12 @@ export function NeighbourhoodSpotsMap({
     }
 
     markerLayersRef.current = [];
-    spots.forEach(spot => {
+    spots.forEach((spot, index) => {
       if (spot.lat == null || spot.lng == null) return;
       const pos: [number, number] = [spot.lat, spot.lng];
       fitPoints.push(pos);
-      const marker = L.marker(pos, { icon: SPOT_ICON })
+      const icon = numbered ? numberedSpotIcon(index + 1) : SPOT_ICON;
+      const marker = L.marker(pos, { icon })
         .addTo(map)
         .bindPopup(spotPopupHtml(spot, websiteLabel, categoryLabel), { closeButton: true, minWidth: 180 });
       markerLayersRef.current.push({ marker, category: spot.category ?? '' });
