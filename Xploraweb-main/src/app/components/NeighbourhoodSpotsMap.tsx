@@ -39,7 +39,6 @@ function numberedSpotIcon(n: number): L.DivIcon {
 }
 
 function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, categoryLabel: (cat: string) => string): string {
-function spotPopupHtml(spot: Spot, websiteLabel: string, categoryLabel: (cat: string) => string): string {
   const meta = [spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ');
   const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
   const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
