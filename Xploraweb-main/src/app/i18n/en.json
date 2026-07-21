@@ -26,6 +26,13 @@
     "seoTitle": "Places We Love in Québec City — Xplora",
     "seoDesc": "Our favorite local finds, handpicked by the Xplora team in Québec City."
   },
+  "michelin": {
+    "title": "Michelin Guide",
+    "subtitle": "Every spot in Québec City listed in the Michelin Guide.",
+    "empty": "No Michelin Guide spots yet — check back soon.",
+    "seoTitle": "Michelin Guide spots in Québec City — Xplora",
+    "seoDesc": "Every restaurant in Québec City listed in the Michelin Guide, handpicked by Xplora."
+  },
   "neighbourhoodDetail": {
     "back": "All neighbourhoods",
     "notFound": "Neighbourhood not found.",
@@ -222,6 +229,8 @@
     "tileHotspotsDesc": "Buzzing spots nearby",
     "tileLovedLabel": "Places We Love",
     "tileLovedDesc": "Our favorite local finds",
+    "tileMichelinLabel": "Michelin Guide",
+    "tileMichelinDesc": "Guide-listed restaurants",
     "tileWalkLabel": "New Walk",
     "tileWalkDesc": "Fresh self-guided routes",
     "tileHoodsLabel": "New Neighbourhoods",

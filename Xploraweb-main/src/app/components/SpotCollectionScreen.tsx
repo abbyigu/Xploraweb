@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Flame, Heart } from 'lucide-react';
+import { Flame, Heart, Award } from 'lucide-react';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { SpotCard } from './SpotCard';
@@ -87,6 +87,22 @@ export function HotspotsScreen() {
       seoTitle={t('hotspots.seoTitle', 'Hotspots in Québec City — Xplora')}
       seoDesc={t('hotspots.seoDesc', 'The buzzing spots our team keeps coming back to in Québec City.')}
       canonical="/hotspots"
+    />
+  );
+}
+
+export function MichelinScreen() {
+  const { t } = useTranslation();
+  return (
+    <SpotCollectionScreen
+      title={t('michelin.title', 'Michelin Guide')}
+      subtitle={t('michelin.subtitle', 'Every spot in Québec City listed in the Michelin Guide.')}
+      emptyMessage={t('michelin.empty', 'No Michelin Guide spots yet — check back soon.')}
+      icon={<Award className="w-6 h-6 text-red-600" />}
+      filter={spot => !!spot.michelinUrl}
+      seoTitle={t('michelin.seoTitle', 'Michelin Guide spots in Québec City — Xplora')}
+      seoDesc={t('michelin.seoDesc', 'Every restaurant in Québec City listed in the Michelin Guide, handpicked by Xplora.')}
+      canonical="/michelin"
     />
   );
 }

@@ -26,6 +26,13 @@
     "seoTitle": "Nos coups de cœur à Québec — Xplora",
     "seoDesc": "Nos endroits préférés à Québec, triés sur le volet par l'équipe Xplora."
   },
+  "michelin": {
+    "title": "Guide Michelin",
+    "subtitle": "Tous les lieux de Québec figurant au Guide Michelin.",
+    "empty": "Aucun lieu du Guide Michelin pour le moment — revenez bientôt.",
+    "seoTitle": "Lieux du Guide Michelin à Québec — Xplora",
+    "seoDesc": "Tous les restaurants de Québec figurant au Guide Michelin, sélectionnés par Xplora."
+  },
   "neighbourhoodDetail": {
     "back": "Tous les quartiers",
     "notFound": "Quartier introuvable.",
@@ -222,6 +229,8 @@
     "tileHotspotsDesc": "Des endroits animés près de vous",
     "tileLovedLabel": "Nos coups de cœur",
     "tileLovedDesc": "Nos découvertes locales préférées",
+    "tileMichelinLabel": "Guide Michelin",
+    "tileMichelinDesc": "Restaurants au Guide Michelin",
     "tileWalkLabel": "Nouvelle balade",
     "tileWalkDesc": "De nouveaux parcours autoguidés",
     "tileHoodsLabel": "Nouveaux quartiers",

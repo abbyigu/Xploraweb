@@ -19,6 +19,8 @@ export function ItineraryResult({ result }: Props) {
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [isGuest, setIsGuest] = useState(false);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [michelinOnly, setMichelinOnly] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setIsGuest(!session?.user));
@@ -98,12 +100,12 @@ export function ItineraryResult({ result }: Props) {
         </div>
 
         <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
-          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} numbered />
+          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} activeCategory={activeCategory} onCategoryChange={setActiveCategory} michelinOnly={michelinOnly} onMichelinChange={setMichelinOnly} numbered />
         </div>
 
         {mobileView === 'map' && (
           <div className="md:hidden h-[calc(100vh-13rem)] w-full">
-            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} numbered />
+            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} activeCategory={activeCategory} onCategoryChange={setActiveCategory} michelinOnly={michelinOnly} onMichelinChange={setMichelinOnly} numbered />
           </div>
         )}
       </div>

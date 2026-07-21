@@ -5,6 +5,15 @@ import 'leaflet/dist/leaflet.css';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 
+// Inline award/ribbon glyph — matches the icon used elsewhere for the Michelin badge.
+function AwardIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2l2.9 6.26L21.5 9l-4.8 4.4 1.3 6.6L12 16.9 5.9 20l1.3-6.6L2.5 9l6.6-.74z" />
+    </svg>
+  );
+}
+
 // Read-only map showing a neighbourhood's boundary/centre and its local spots.
 // Vanilla Leaflet (not react-leaflet) so it works under React 18 — same
 // approach as ExperienceMap / NeighbourhoodMap.
@@ -71,6 +80,8 @@ interface Props {
   michelinLabel?: string;
   activeCategory?: string | null;
   onCategoryChange?: (category: string | null) => void;
+  michelinOnly?: boolean;
+  onMichelinChange?: (michelinOnly: boolean) => void;
   /** Show 1, 2, 3… markers reflecting spot order instead of plain pins (used for itinerary stops). */
   numbered?: boolean;
 }
@@ -84,15 +95,18 @@ export function NeighbourhoodSpotsMap({
   michelinLabel = 'Michelin Guide',
   activeCategory = null,
   onCategoryChange,
+  michelinOnly = false,
+  onMichelinChange,
   numbered = false,
 }: Props) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markerLayersRef = useRef<{ marker: L.Marker; category: string }[]>([]);
+  const markerLayersRef = useRef<{ marker: L.Marker; category: string; michelin: boolean }[]>([]);
 
   const categories = Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort();
   const categoryLabel = (cat: string) => SPOT_CATEGORY_KEY[cat] ? t(`categories.${SPOT_CATEGORY_KEY[cat]}`, cat) : cat;
+  const hasMichelinSpots = spots.some(s => !!s.michelinUrl);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -131,7 +145,7 @@ export function NeighbourhoodSpotsMap({
       const marker = L.marker(pos, { icon })
         .addTo(map)
         .bindPopup(spotPopupHtml(spot, websiteLabel, michelinLabel, categoryLabel), { closeButton: true, minWidth: 180 });
-      markerLayersRef.current.push({ marker, category: spot.category ?? '' });
+      markerLayersRef.current.push({ marker, category: spot.category ?? '', michelin: !!spot.michelinUrl });
     });
 
     if (fitPoints.length === 1) {
@@ -150,22 +164,23 @@ export function NeighbourhoodSpotsMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Show/hide markers when the category filter changes
+  // Show/hide markers when the category or Michelin filter changes
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-    markerLayersRef.current.forEach(({ marker, category }) => {
-      if (!activeCategory || category === activeCategory) {
+    markerLayersRef.current.forEach(({ marker, category, michelin }) => {
+      const matches = (!activeCategory || category === activeCategory) && (!michelinOnly || michelin);
+      if (matches) {
         if (!map.hasLayer(marker)) marker.addTo(map);
       } else {
         if (map.hasLayer(marker)) marker.remove();
       }
     });
-  }, [activeCategory]);
+  }, [activeCategory, michelinOnly]);
 
   return (
     <div className="w-full space-y-2">
-      {categories.length > 1 && (
+      {(categories.length > 1 || hasMichelinSpots) && (
         <div className="flex flex-wrap gap-2">
           {categories.map(cat => (
             <button
@@ -180,6 +195,18 @@ export function NeighbourhoodSpotsMap({
               {categoryLabel(cat)}
             </button>
           ))}
+          {hasMichelinSpots && (
+            <button
+              onClick={() => onMichelinChange?.(!michelinOnly)}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
+                michelinOnly
+                  ? 'bg-red-600 text-white border-red-600'
+                  : 'bg-white text-red-600 border-red-600/30 hover:bg-red-50'
+              }`}
+            >
+              <AwardIcon className="w-3 h-3" /> {michelinLabel}
+            </button>
+          )}
         </div>
       )}
       <div
