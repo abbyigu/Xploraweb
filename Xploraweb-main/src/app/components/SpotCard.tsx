@@ -1,4 +1,4 @@
-import { MapPin, Clock, ExternalLink, Lightbulb, Star } from 'lucide-react';
+import { MapPin, Clock, ExternalLink, Lightbulb, Star, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
@@ -28,6 +28,17 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
           <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm">
             <Star className="w-3 h-3 fill-white" /> {t('neighbourhoodDetail.brunch', 'Brunch')}
           </span>
+        )}
+        {spot.michelinUrl && (
+          <a
+            href={spot.michelinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full bg-red-600 text-white shadow-sm hover:bg-red-700 transition-colors"
+          >
+            <Award className="w-3 h-3 fill-white" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
+          </a>
         )}
 
         {spot.xploraTips && spot.xploraTips.length > 0 && (
@@ -71,30 +82,17 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
         </div>
         {spot.description && <p className="text-sm text-gray-600 line-clamp-3">{spot.description}</p>}
         {spot.address && <p className="text-xs text-muted-foreground mt-0.5">{spot.address}</p>}
-        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          {spot.website && (
-            <a
-              href={spot.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
-            >
-              <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.website', 'Website')}
-            </a>
-          )}
-          {spot.michelinUrl && (
-            <a
-              href={spot.michelinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
-              className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
-            >
-              <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
-            </a>
-          )}
-        </span>
+        {spot.website && (
+          <a
+            href={spot.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
+          >
+            <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.website', 'Website')}
+          </a>
+        )}
       </div>
     </div>
   );
