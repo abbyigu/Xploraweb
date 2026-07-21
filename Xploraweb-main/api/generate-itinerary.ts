@@ -97,7 +97,8 @@ Candidate spots (JSON, only use these — never invent an id):
 ${JSON.stringify(candidateList)}
 
 Requirements:
-- Target ${minStops}-${maxStops} stops for a walk lasting roughly ${bucket.minMin}-${bucket.maxMin} minutes total.
+- Target ${minStops}-${maxStops} stops.
+- Estimate a realistic total walking + visiting duration and distance for the route you assemble, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
@@ -162,6 +163,7 @@ export default async function handler(req: any, res: any) {
     });
     object = result.object;
   } catch (err: any) {
+    console.error('generate-itinerary LLM call failed:', err?.message || err, err?.cause || '');
     return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });
   }
 

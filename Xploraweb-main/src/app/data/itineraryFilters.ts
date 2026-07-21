@@ -33,6 +33,11 @@ export const STOP_COUNT_BUCKETS: WalkLengthOption[] = [
   { key: 'standard', minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
   { key: 'long', minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
   { key: 'extended', minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
+export const STOP_COUNT_BUCKETS: StopCountOption[] = [
+  { key: 'quick', minStops: 2, maxStops: 3 },
+  { key: 'standard', minStops: 4, maxStops: 5 },
+  { key: 'long', minStops: 6, maxStops: 8 },
+  { key: 'extended', minStops: 10, maxStops: 14 },
 ];
 
 // Restaurant hopping caps how many stops a route can have, regardless of the
