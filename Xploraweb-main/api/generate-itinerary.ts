@@ -160,7 +160,7 @@ export default async function handler(req: any, res: any) {
   let object: z.infer<typeof ItinerarySchema>;
   try {
     const result = await generateObject({
-      model: groq('llama-3.3-70b-versatile'),
+      model: groq('openai/gpt-oss-120b'),
       schema: ItinerarySchema,
       prompt: buildPrompt(candidates, body),
     });
