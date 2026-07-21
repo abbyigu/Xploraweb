@@ -157,7 +157,7 @@ export default async function handler(req: any, res: any) {
   let object: z.infer<typeof ItinerarySchema>;
   try {
     const result = await generateObject({
-      model: 'anthropic/claude-haiku-4.5',
+      model: 'openai/gpt-4o-mini',
       schema: ItinerarySchema,
       prompt: buildPrompt(candidates, body),
     });
