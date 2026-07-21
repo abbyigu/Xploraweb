@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Sparkles, RefreshCw } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSpots } from '../hooks/useSpots';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES, SPOT_CATEGORY_KEY } from '../data/products';
-import { VIBE_OPTIONS, VIBE_KEY } from '../data/itineraryFilters';
 import { SpotCard } from './SpotCard';
 import type { Spot } from '../data/products';
 
@@ -38,33 +37,15 @@ export function SpotFinder() {
   const { neighbourhoods } = useNeighbourhoods();
   const [neighbourhood, setNeighbourhood] = useState('');
   const [category, setCategory] = useState('');
-  const [vibe, setVibe] = useState('');
   const [price, setPrice] = useState('');
   const [result, setResult] = useState<Spot | null>(null);
   const [searched, setSearched] = useState(false);
 
-  // Spots matching Where/What/$ only — used both to pick the final result (once
-  // a vibe is also chosen) and to figure out which vibes are worth offering.
-  const baseMatches = useMemo(() => spots.filter(s =>
+  const matches = useMemo(() => spots.filter(s =>
     (!neighbourhood || s.neighbourhood === neighbourhood)
     && (!category || s.category === category)
     && (!price || s.priceRange === price),
   ), [spots, neighbourhood, category, price]);
-
-  const availableVibes = useMemo(
-    () => VIBE_OPTIONS.filter(v => baseMatches.some(s => s.vibes?.includes(v))),
-    [baseMatches],
-  );
-
-  // Where/What/$ changed enough to drop the vibe currently selected — clear it
-  // rather than silently filtering on a vibe that no longer applies here.
-  useEffect(() => {
-    if (vibe && !availableVibes.includes(vibe)) setVibe('');
-  }, [vibe, availableVibes]);
-
-  const matches = useMemo(() => baseMatches.filter(s =>
-    !vibe || s.vibes?.includes(vibe),
-  ), [baseMatches, vibe]);
 
   const handleFind = () => {
     setSearched(true);
@@ -110,26 +91,6 @@ export function SpotFinder() {
             {PRICE_OPTIONS.map(p => <option key={p} value={p}>{p === 'Free' ? t('spotFinder.freeOption') : p}</option>)}
           </select>
         </div>
-
-        {availableVibes.length > 0 && (
-          <div className="flex flex-wrap gap-2 justify-center mb-5">
-            {availableVibes.map(v => {
-              const active = vibe === v;
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  onClick={() => { setVibe(active ? '' : v); setSearched(false); }}
-                  className={`px-3 py-1.5 rounded-full text-sm capitalize transition-colors ${
-                    active ? 'bg-[#12343B] text-white' : 'bg-[#12343B]/10 text-[#12343B] hover:bg-[#12343B]/20'
-                  }`}
-                >
-                  {t(`vibes.${VIBE_KEY[v]}`, v)}
-                </button>
-              );
-            })}
-          </div>
-        )}
 
         <div className="flex justify-center">
           <button
