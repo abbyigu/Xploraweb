@@ -71,17 +71,30 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
         </div>
         {spot.description && <p className="text-sm text-gray-600 line-clamp-3">{spot.description}</p>}
         {spot.address && <p className="text-xs text-muted-foreground mt-0.5">{spot.address}</p>}
-        {spot.website && (
-          <a
-            href={spot.website}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={e => e.stopPropagation()}
-            className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
-          >
-            <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.website', 'Website')}
-          </a>
-        )}
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          {spot.website && (
+            <a
+              href={spot.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.website', 'Website')}
+            </a>
+          )}
+          {spot.michelinUrl && (
+            <a
+              href={spot.michelinUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
+            >
+              <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
+            </a>
+          )}
+        </span>
       </div>
     </div>
   );

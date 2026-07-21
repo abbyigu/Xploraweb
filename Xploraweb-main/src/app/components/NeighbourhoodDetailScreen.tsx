@@ -216,6 +216,7 @@ export function NeighbourhoodDetailScreen() {
                   boundary={nbhd.boundary}
                   route={nbhd.route}
                   websiteLabel={t('neighbourhoodDetail.website', 'Website')}
+                  michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
                   activeCategory={activeCategory}
                   onCategoryChange={setActiveCategory}
                 />

@@ -27,6 +27,7 @@ export interface Spot {
   lat?: number;
   lng?: number;
   website?: string;
+  michelinUrl?: string; // link to this spot's Michelin Guide page, if listed
   image?: string;
   neighbourhood?: string;
   vibes?: string[];

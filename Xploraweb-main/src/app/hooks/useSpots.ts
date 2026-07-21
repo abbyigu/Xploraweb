@@ -20,6 +20,7 @@ export function mapSpotRow(row: any): Spot {
     lat: row.lat ?? undefined,
     lng: row.lng ?? undefined,
     website: row.website || undefined,
+    michelinUrl: row.michelin_url || undefined,
     image: row.image_url || undefined,
     neighbourhood: row.neighbourhood || undefined,
     vibes: row.vibes || undefined,
