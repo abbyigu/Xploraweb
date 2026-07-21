@@ -86,6 +86,40 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
 }
 
+function haversineMeters(a: CandidateSpot, b: CandidateSpot): number {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat! - a.lat!);
+  const dLng = toRad(b.lng! - a.lng!);
+  const la1 = toRad(a.lat!);
+  const la2 = toRad(b.lat!);
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+// The LLM is asked to avoid backtracking, but its spatial reasoning over raw
+// lat/lng isn't reliable — it can pick a sensible spot selection while still
+// ordering them in a way that zigzags across the map. Keep its chosen
+// starting stop (reflects the intended narrative opener) but re-sequence
+// everything after it by nearest-neighbour distance, computed from the
+// spots' real coordinates, so the route on the map never backtracks.
+function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(stops: T[]): T[] {
+  if (stops.length <= 2) return stops;
+  const remaining = [...stops];
+  const ordered: T[] = [remaining.shift()!];
+  while (remaining.length > 0) {
+    const last = ordered[ordered.length - 1].spot;
+    let nearestIndex = 0;
+    let nearestDist = Infinity;
+    remaining.forEach((s, i) => {
+      const d = haversineMeters(last, s.spot);
+      if (d < nearestDist) { nearestDist = d; nearestIndex = i; }
+    });
+    ordered.push(remaining.splice(nearestIndex, 1)[0]);
+  }
+  return ordered;
+}
+
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
   const bucket = STOP_COUNT_BUCKETS[body.stopCount];
   const candidateList = candidates.map(c => ({
@@ -174,7 +208,7 @@ export default async function handler(req: any, res: any) {
   const byId = new Map(candidates.map(c => [c.id, c]));
   const foodCap = isRestaurantHopping(body) ? getStopRange(STOP_COUNT_BUCKETS[body.stopCount], true).maxStops : 1;
   let foodCount = 0;
-  const validStops = object.stops
+  const filteredStops = object.stops
     .filter(s => candidateIds.has(s.spotId))
     .sort((a, b) => a.order - b.order)
     .filter(s => {
@@ -182,11 +216,13 @@ export default async function handler(req: any, res: any) {
       foodCount += 1;
       return foodCount <= foodCap;
     })
-    .map((s, i) => ({ order: i + 1, note: s.note, spot: byId.get(s.spotId)! }));
+    .map(s => ({ note: s.note, spot: byId.get(s.spotId)! }));
 
-  if (validStops.length < 2) {
+  if (filteredStops.length < 2) {
     return res.status(502).json({ error: 'The AI returned an invalid itinerary. Please try again.', code: 'LLM_ERROR' });
   }
+
+  const validStops = orderByNearestNeighbor(filteredStops).map((s, i) => ({ order: i + 1, note: s.note, spot: s.spot }));
 
   return res.status(200).json({
     title: object.title,
