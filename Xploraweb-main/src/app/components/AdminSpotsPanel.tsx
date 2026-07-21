@@ -15,7 +15,7 @@ const PRICE_OPTIONS = [
 
 const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
-  website: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
+  website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
   name_fr: '', description_fr: '', xplora_tips_fr: '',
   is_brunch: false,
@@ -161,6 +161,7 @@ export function AdminSpotsPanel() {
       lat: spot.lat != null ? String(spot.lat) : '',
       lng: spot.lng != null ? String(spot.lng) : '',
       website: spot.website || '',
+      michelin_url: spot.michelin_url || '',
       neighbourhood: spot.neighbourhood || '',
       category: spot.category || '',
       visit_time: spot.visit_time || '',
@@ -197,6 +198,7 @@ export function AdminSpotsPanel() {
         lat: isNaN(lat) ? null : lat,
         lng: isNaN(lng) ? null : lng,
         website: form.website.trim() || null,
+        michelin_url: form.michelin_url.trim() || null,
         image_url: imageUrl,
         neighbourhood: form.neighbourhood.trim() || null,
         category: form.category || null,
@@ -377,6 +379,10 @@ export function AdminSpotsPanel() {
             <div>
               <label className="text-xs text-muted-foreground">Website</label>
               <input value={form.website} onChange={set('website')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://…" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Michelin Guide URL</label>
+              <input value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Suggested visit time</label>

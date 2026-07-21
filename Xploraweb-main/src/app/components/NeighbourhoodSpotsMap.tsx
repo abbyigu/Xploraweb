@@ -38,12 +38,15 @@ function numberedSpotIcon(n: number): L.DivIcon {
   });
 }
 
-function spotPopupHtml(spot: Spot, websiteLabel: string, categoryLabel: (cat: string) => string): string {
+function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, categoryLabel: (cat: string) => string): string {
   const meta = [spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ');
   const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
   const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
   const site = spot.website
     ? `<a href="${spot.website}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px">${websiteLabel} ↗</a>`
+    : '';
+  const michelin = spot.michelinUrl
+    ? `<a href="${spot.michelinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px;margin-left:${spot.website ? '10px' : '0'}">${michelinLabel} ↗</a>`
     : '';
   return `
     <div style="width:180px;font-family:inherit">
@@ -51,7 +54,7 @@ function spotPopupHtml(spot: Spot, websiteLabel: string, categoryLabel: (cat: st
       ${cat}
       <div style="font-size:14px;font-weight:600;line-height:1.25">${spot.name}</div>
       ${addr}
-      ${site}
+      ${site}${michelin}
     </div>`;
 }
 
@@ -61,6 +64,7 @@ interface Props {
   boundary: [number, number][] | null;
   route?: [number, number][] | null;
   websiteLabel?: string;
+  michelinLabel?: string;
   activeCategory?: string | null;
   onCategoryChange?: (category: string | null) => void;
   /** Show 1, 2, 3… markers reflecting spot order instead of plain pins (used for itinerary stops). */
@@ -73,6 +77,7 @@ export function NeighbourhoodSpotsMap({
   boundary,
   route,
   websiteLabel = 'Website',
+  michelinLabel = 'Michelin Guide',
   activeCategory = null,
   onCategoryChange,
   numbered = false,
@@ -121,7 +126,7 @@ export function NeighbourhoodSpotsMap({
       const icon = numbered ? numberedSpotIcon(index + 1) : SPOT_ICON;
       const marker = L.marker(pos, { icon })
         .addTo(map)
-        .bindPopup(spotPopupHtml(spot, websiteLabel, categoryLabel), { closeButton: true, minWidth: 180 });
+        .bindPopup(spotPopupHtml(spot, websiteLabel, michelinLabel, categoryLabel), { closeButton: true, minWidth: 180 });
       markerLayersRef.current.push({ marker, category: spot.category ?? '' });
     });
 

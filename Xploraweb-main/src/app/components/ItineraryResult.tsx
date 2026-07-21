@@ -98,12 +98,12 @@ export function ItineraryResult({ result }: Props) {
         </div>
 
         <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
-          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} numbered />
+          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} numbered />
         </div>
 
         {mobileView === 'map' && (
           <div className="md:hidden h-[calc(100vh-13rem)] w-full">
-            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} numbered />
+            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} numbered />
           </div>
         )}
       </div>
