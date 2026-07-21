@@ -10,10 +10,10 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import {
-  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, STOP_COUNT_BUCKETS, getEffectiveStopRange,
+  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, REGULAR_STOP_COUNTS, FOOD_HOP_STOP_COUNTS, getStopCountOptions,
 } from '../data/itineraryFilters';
 import type {
-  StopCountBucket, PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
+  PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -76,7 +76,7 @@ export function ItineraryScreen() {
   const isNightsView = searchParams.get('category') === 'xploranights';
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
-  const [stopCount, setStopCount] = useState<StopCountBucket>('standard');
+  const [stopCount, setStopCount] = useState<number>(5);
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [restaurantHopping, setRestaurantHopping] = useState(false);
   const [michelinOnly, setMichelinOnly] = useState(false);
@@ -96,6 +96,8 @@ export function ItineraryScreen() {
   }
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
+    const options: readonly number[] = next ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS;
+    setStopCount(prev => (options.includes(prev) ? prev : options[0]));
     if (next) setCategories([]);
     else setMichelinOnly(false);
   }
@@ -263,16 +265,11 @@ export function ItineraryScreen() {
               <div>
                 <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.stopCount')}</p>
                 <div className="flex flex-wrap gap-2">
-                  {STOP_COUNT_BUCKETS.map(b => {
-                    const { minStops, maxStops } = getEffectiveStopRange(b, restaurantHopping);
-                    return (
-                      <Chip key={b.key} active={stopCount === b.key} onClick={() => setStopCount(b.key)}>
-                        {minStops === maxStops
-                          ? t('itineraryBuilder.stopCountSingle', { count: minStops })
-                          : t('itineraryBuilder.stopCountRange', { min: minStops, max: maxStops })}
-                      </Chip>
-                    );
-                  })}
+                  {getStopCountOptions(restaurantHopping).map(count => (
+                    <Chip key={count} active={stopCount === count} onClick={() => setStopCount(count)}>
+                      {t('itineraryBuilder.stopCountSingle', { count })}
+                    </Chip>
+                  ))}
                 </div>
               </div>
 

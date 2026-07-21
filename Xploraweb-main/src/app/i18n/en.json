@@ -277,7 +277,6 @@
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
     "stopCount": "Number of stops",
     "stopCountSingle": "{{count}} stops",
-    "stopCountRange": "{{min}}–{{max}} stops",
     "categories": "Categories",
     "restaurantHopping": "Restaurant hopping",
     "restaurantHoppingDescription": "Fill this route with restaurants instead of just one.",

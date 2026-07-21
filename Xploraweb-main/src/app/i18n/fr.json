@@ -277,7 +277,6 @@
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
     "stopCount": "Nombre d'arrêts",
     "stopCountSingle": "{{count}} arrêts",
-    "stopCountRange": "{{min}}–{{max}} arrêts",
     "categories": "Catégories",
     "restaurantHopping": "Tournée de restaurants",
     "restaurantHoppingDescription": "Remplir cet itinéraire de restaurants plutôt qu'un seul.",
