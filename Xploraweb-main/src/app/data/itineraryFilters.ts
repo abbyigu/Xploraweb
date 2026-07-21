@@ -50,6 +50,7 @@ export interface ItineraryGenerateRequest {
   neighbourhoods: string[];
   language: 'en' | 'fr';
   restaurantHopping: boolean;
+  michelinOnly: boolean;
 }
 
 export interface GeneratedItineraryStop {

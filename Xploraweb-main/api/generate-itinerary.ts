@@ -29,6 +29,7 @@ const RequestSchema = z.object({
   neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
   restaurantHopping: z.boolean().optional().default(false),
+  michelinOnly: z.boolean().optional().default(false),
 });
 
 const StopSchema = z.object({
@@ -59,6 +60,7 @@ interface CandidateSpot {
   visitTime: string | null;
   priceRange: string | null;
   xploraTips: string[];
+  michelinUrl: string | null;
 }
 
 function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
@@ -79,11 +81,16 @@ function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
     visitTime: row.visit_time ?? null,
     priceRange: row.price_range ?? null,
     xploraTips: pickArr(row.xplora_tips_fr, row.xplora_tips),
+    michelinUrl: row.michelin_url ?? null,
   };
 }
 
 function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
+}
+
+function isMichelinOnly(body: z.infer<typeof RequestSchema>): boolean {
+  return isRestaurantHopping(body) && body.michelinOnly === true;
 }
 
 function haversineMeters(a: CandidateSpot, b: CandidateSpot): number {
@@ -141,6 +148,7 @@ ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neigh
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
 ${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total; prioritize variety across other categories.'}
+${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
@@ -179,6 +187,9 @@ export default async function handler(req: any, res: any) {
   }
   if (isRestaurantHopping(body)) {
     candidates = candidates.filter(c => c.category === 'Food');
+    if (isMichelinOnly(body)) {
+      candidates = candidates.filter(c => c.michelinUrl != null);
+    }
   } else if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));
   }

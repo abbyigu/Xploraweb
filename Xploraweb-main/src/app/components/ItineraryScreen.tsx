@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2 } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -79,6 +79,7 @@ export function ItineraryScreen() {
   const [stopCount, setStopCount] = useState<StopCountBucket>('standard');
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [restaurantHopping, setRestaurantHopping] = useState(false);
+  const [michelinOnly, setMichelinOnly] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
 
@@ -96,6 +97,7 @@ export function ItineraryScreen() {
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
     if (next) setCategories([]);
+    else setMichelinOnly(false);
   }
   function toggleNeighbourhood(n: string) {
     setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
@@ -111,6 +113,7 @@ export function ItineraryScreen() {
       neighbourhoods,
       language: i18n.language === 'fr' ? 'fr' : 'en',
       restaurantHopping,
+      michelinOnly: restaurantHopping && michelinOnly,
     };
     try {
       const res = await fetch('/api/generate-itinerary', {
@@ -283,9 +286,21 @@ export function ItineraryScreen() {
                   <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
                 </div>
                 {restaurantHopping && (
-                  <p className="text-xs text-muted-foreground mt-2 bg-primary/5 rounded-xl px-3 py-2">
-                    {t('itineraryBuilder.restaurantHoppingExplainer')}
-                  </p>
+                  <>
+                    <p className="text-xs text-muted-foreground mt-2 bg-primary/5 rounded-xl px-3 py-2">
+                      {t('itineraryBuilder.restaurantHoppingExplainer')}
+                    </p>
+                    <div className="flex items-center justify-between gap-3 mt-3 pl-3 border-l-2 border-red-600/30">
+                      <div>
+                        <p className="text-sm font-medium flex items-center gap-1.5">
+                          <Award className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />
+                          {t('itineraryBuilder.michelinOnly')}
+                        </p>
+                        <p className="text-xs text-muted-foreground">{t('itineraryBuilder.michelinOnlyDescription')}</p>
+                      </div>
+                      <Switch checked={michelinOnly} onCheckedChange={setMichelinOnly} />
+                    </div>
+                  </>
                 )}
               </div>
 

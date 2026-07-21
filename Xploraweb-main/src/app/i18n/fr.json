@@ -273,6 +273,8 @@
     "restaurantHopping": "Tournée de restaurants",
     "restaurantHoppingDescription": "Remplir cet itinéraire de restaurants plutôt qu'un seul.",
     "restaurantHoppingExplainer": "Une tournée de restaurants est un parcours autonome qui enchaîne plusieurs restaurants, cafés et bars en une seule promenade — pour grignoter ou prendre un verre à chaque arrêt plutôt que de vous limiter à un seul repas.",
+    "michelinOnly": "Guide Michelin seulement",
+    "michelinOnlyDescription": "N'inclure que les restaurants figurant au Guide Michelin.",
     "generate": "Générer mon parcours",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
     "generating": "Création de votre parcours…",
