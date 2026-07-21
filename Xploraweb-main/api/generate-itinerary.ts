@@ -1,9 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateObject } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
 
-const google = createGoogleGenerativeAI({ apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY });
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
@@ -160,7 +160,7 @@ export default async function handler(req: any, res: any) {
   let object: z.infer<typeof ItinerarySchema>;
   try {
     const result = await generateObject({
-      model: google('gemini-2.5-flash'),
+      model: groq('llama-3.3-70b-versatile'),
       schema: ItinerarySchema,
       prompt: buildPrompt(candidates, body),
     });

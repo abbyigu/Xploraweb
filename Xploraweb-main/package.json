@@ -8,7 +8,7 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@ai-sdk/google": "^4.0.21",
+    "@ai-sdk/groq": "^4.0.13",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
     "@figma/astraui-kit": "0.1.3",
