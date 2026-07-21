@@ -4,16 +4,11 @@ import { z } from 'zod';
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
-const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; minStops: number; maxStops: number }> = {
+const STOP_COUNT_BUCKETS: Record<string, { minMin: number; maxMin: number; minStops: number; maxStops: number }> = {
   quick: { minMin: 20, maxMin: 45, minStops: 2, maxStops: 3 },
   standard: { minMin: 45, maxMin: 90, minStops: 4, maxStops: 5 },
   long: { minMin: 90, maxMin: 180, minStops: 6, maxStops: 8 },
   extended: { minMin: 240, maxMin: 360, minStops: 10, maxStops: 14 },
-const WALK_LENGTH_BUCKETS: Record<string, { minMin: number; maxMin: number; targetStops: number }> = {
-  quick: { minMin: 20, maxMin: 45, targetStops: 3 },
-  standard: { minMin: 45, maxMin: 90, targetStops: 5 },
-  long: { minMin: 90, maxMin: 180, targetStops: 8 },
-  extended: { minMin: 240, maxMin: 360, targetStops: 12 },
 };
 const CANDIDATE_CAP = 40;
 const RESTAURANT_HOPPING_MAX_STOPS = 7;
@@ -172,7 +167,7 @@ export default async function handler(req: any, res: any) {
 
   const candidateIds = new Set(candidates.map(c => c.id));
   const byId = new Map(candidates.map(c => [c.id, c]));
-  const foodCap = isRestaurantHopping(body) ? getStopRange(WALK_LENGTH_BUCKETS[body.walkLength], true).maxStops : 1;
+  const foodCap = isRestaurantHopping(body) ? getStopRange(STOP_COUNT_BUCKETS[body.stopCount], true).maxStops : 1;
   let foodCount = 0;
   const validStops = object.stops
     .filter(s => candidateIds.has(s.spotId))
