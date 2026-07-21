@@ -58,6 +58,7 @@ function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, 
       <div style="font-size:14px;font-weight:600;line-height:1.25">${spot.name}</div>
       ${addr}
       <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">${site}${michelin}</div>
+      ${site}${michelin}
     </div>`;
 }
 
