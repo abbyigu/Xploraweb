@@ -1,6 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateObject } from 'ai';
+import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
@@ -157,7 +160,7 @@ export default async function handler(req: any, res: any) {
   let object: z.infer<typeof ItinerarySchema>;
   try {
     const result = await generateObject({
-      model: 'anthropic/claude-haiku-4.5',
+      model: groq('openai/gpt-oss-120b'),
       schema: ItinerarySchema,
       prompt: buildPrompt(candidates, body),
     });
