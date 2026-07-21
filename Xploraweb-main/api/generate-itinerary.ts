@@ -163,6 +163,7 @@ export default async function handler(req: any, res: any) {
     });
     object = result.object;
   } catch (err: any) {
+    console.error('generate-itinerary LLM call failed:', err?.message || err, err?.cause || '');
     return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });
   }
 
