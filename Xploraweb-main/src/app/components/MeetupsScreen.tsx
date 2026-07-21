@@ -17,7 +17,6 @@ export function MeetupsScreen() {
       location: "Le Perché",
       address: "Downtown rooftop",
       image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "casual drinks",
       host: "Alex + 4 regulars",
     },
     {
@@ -31,7 +30,6 @@ export function MeetupsScreen() {
       location: "Café Névé",
       address: "Saint-Roch",
       image: "https://images.unsplash.com/photo-1774758959178-094de5122e29?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "work & chill",
       host: "Marie + friends",
     },
     {
@@ -45,7 +43,6 @@ export function MeetupsScreen() {
       location: "Starting at Café Névé",
       address: "Saint-Roch",
       image: "https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "explore",
       host: "Thomas B.",
     },
     {
@@ -59,7 +56,6 @@ export function MeetupsScreen() {
       location: "Petit-Champlain Wine Bar",
       address: "Old Quebec",
       image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "intimate",
       host: "Sophie M.",
     },
     {
@@ -73,7 +69,6 @@ export function MeetupsScreen() {
       location: "Old Port riverside",
       address: "Meeting at the pier",
       image: "https://images.unsplash.com/photo-1628269797237-3338449ecd9f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "active",
       host: "Emma R.",
     },
     {
@@ -87,7 +82,6 @@ export function MeetupsScreen() {
       location: "Dufferin Terrace",
       address: "Old Quebec",
       image: "https://images.unsplash.com/photo-1485675067348-b5ac01cfc282?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
-      vibe: "creative",
       host: "Lucas P.",
     },
   ];

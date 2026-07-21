@@ -107,7 +107,7 @@ export function FaqScreen() {
         {
           q: t('faq.q_kids'),
           a: t('faq.a_kids'),
-          link: { label: t('faq.link_family'), to: '/itinerary?vibe=familyFriendly' },
+          link: { label: t('faq.link_family'), to: '/itinerary' },
         },
         { q: t('faq.q_age'), a: t('faq.a_age') },
       ],
