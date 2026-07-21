@@ -501,10 +501,10 @@ export function AdminSpotsPanel() {
               )}
             </div>
 
-            {/* Optional French translations */}
+            {/* French translations */}
             <div className="md:col-span-2 border-t border-border pt-3">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Français (optionnel)</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Français</p>
                 <button
                   type="button"
                   onClick={autoTranslate}
@@ -522,11 +522,11 @@ export function AdminSpotsPanel() {
                   <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom du lieu" />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">Description (FR)</label>
+                  <label className="text-xs text-muted-foreground">Description (FR) *</label>
                   <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Description courte" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted-foreground">Xplora Tips (FR)</label>
+                  <label className="text-xs text-muted-foreground">Xplora Tips (FR) *</label>
                   <textarea
                     value={form.xplora_tips_fr}
                     onChange={set('xplora_tips_fr')}
@@ -534,7 +534,7 @@ export function AdminSpotsPanel() {
                     className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     placeholder={"Arrivez tôt pour éviter la foule\nDemandez le chocolat chaud hors-menu"}
                   />
-                  <p className="text-[11px] text-muted-foreground mt-1">Un conseil par ligne. Laissez vide pour afficher les conseils anglais aux visiteurs francophones.</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Un conseil par ligne.</p>
                 </div>
               </div>
             </div>
@@ -543,7 +543,7 @@ export function AdminSpotsPanel() {
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
-            disabled={saving || !form.name.trim()}
+            disabled={saving || !form.name.trim() || !form.description_fr.trim() || !form.xplora_tips_fr.trim()}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {saved ? <><Check className="w-4 h-4" /> Saved!</> : saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Spot'}
