@@ -46,7 +46,10 @@ function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, 
     ? `<a href="${spot.website}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px">${websiteLabel} ↗</a>`
     : '';
   const michelin = spot.michelinUrl
-    ? `<a href="${spot.michelinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px;margin-left:${spot.website ? '10px' : '0'}">${michelinLabel} ↗</a>`
+    ? `<a href="${spot.michelinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#ffffff;background:#dc2626;padding:3px 8px;border-radius:9999px;margin-top:6px">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.9 6.26L21.5 9l-4.8 4.4 1.3 6.6L12 16.9 5.9 20l1.3-6.6L2.5 9l6.6-.74z"/></svg>
+        ${michelinLabel}
+      </a>`
     : '';
   return `
     <div style="width:180px;font-family:inherit">
@@ -54,6 +57,7 @@ function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, 
       ${cat}
       <div style="font-size:14px;font-weight:600;line-height:1.25">${spot.name}</div>
       ${addr}
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">${site}${michelin}</div>
       ${site}${michelin}
     </div>`;
 }
