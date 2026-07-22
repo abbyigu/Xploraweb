@@ -1,5 +1,8 @@
 import { generateObject } from 'ai';
+import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
+
+const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const RequestSchema = z.object({
   name: z.string().max(200),
@@ -29,19 +32,28 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'A name, description, or tip is required.' });
   }
 
-  try {
-    const result = await generateObject({
-      model: 'anthropic/claude-haiku-4.5',
-      schema: ResultSchema,
-      prompt: `Translate this Québec City tourist spot listing from English to French (Québécois French, natural tone used in local tourism copy). Keep proper nouns and place names as-is. If a field is empty, return an empty string for it. The tips field is a list of insider tips, one per line — translate each line and keep them in the same one-per-line format (same number of lines, same order).
+  const prompt = `Translate this Québec City tourist spot listing from English to French (Québécois French, natural tone used in local tourism copy). Keep proper nouns and place names as-is. If a field is empty, return an empty string for it. The tips field is a list of insider tips, one per line — translate each line and keep them in the same one-per-line format (same number of lines, same order).
 
 Name: ${name || '(none)'}
 Description: ${description || '(none)'}
 Tips:
-${tips || '(none)'}`,
-    });
-    return res.status(200).json(result.object);
-  } catch (err: any) {
-    return res.status(502).json({ error: 'Translation failed. Please try again.' });
+${tips || '(none)'}`;
+
+  // Two independent Groq free-tier TPM budgets — fail fast on the primary
+  // (maxRetries: 0) and fall back to the other model rather than retrying
+  // the same exhausted budget, mirroring generate-itinerary.ts.
+  for (const modelId of ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'] as const) {
+    try {
+      const result = await generateObject({
+        model: groq(modelId),
+        schema: ResultSchema,
+        prompt,
+        maxRetries: 0,
+      });
+      return res.status(200).json(result.object);
+    } catch (err: any) {
+      console.error(`translate-spot LLM call failed (${modelId}):`, err?.message || err, err?.cause || '');
+    }
   }
+  return res.status(502).json({ error: 'Translation failed. Please try again.' });
 }
