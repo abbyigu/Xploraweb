@@ -9,7 +9,7 @@ const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping',
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
-const CANDIDATE_CAP = 40;
+const CANDIDATE_CAP = 24;
 
 const RequestSchema = z.object({
   stopCount: z.number().int(),
@@ -194,16 +194,28 @@ export default async function handler(req: any, res: any) {
     return res.status(422).json({ error: 'No spots match your filters yet — try fewer filters.', code: 'NO_CANDIDATES' });
   }
 
-  let object: z.infer<typeof ItinerarySchema>;
-  try {
-    const result = await generateObject({
-      model: groq('openai/gpt-oss-120b'),
-      schema: ItinerarySchema,
-      prompt: buildPrompt(candidates, body),
-    });
-    object = result.object;
-  } catch (err: any) {
-    console.error('generate-itinerary LLM call failed:', err?.message || err, err?.cause || '');
+  // Both models support structured output, each with its own separate
+  // Groq free-tier tokens-per-minute budget. If the primary model is
+  // rate-limited, fail fast (maxRetries: 0 — retrying the same exhausted
+  // budget just burns function time) and fall back to the other model's
+  // budget instead of retrying the same one repeatedly.
+  const prompt = buildPrompt(candidates, body);
+  let object: z.infer<typeof ItinerarySchema> | undefined;
+  for (const modelId of ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'] as const) {
+    try {
+      const result = await generateObject({
+        model: groq(modelId),
+        schema: ItinerarySchema,
+        prompt,
+        maxRetries: 0,
+      });
+      object = result.object;
+      break;
+    } catch (err: any) {
+      console.error(`generate-itinerary LLM call failed (${modelId}):`, err?.message || err, err?.cause || '');
+    }
+  }
+  if (!object) {
     return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });
   }
 
