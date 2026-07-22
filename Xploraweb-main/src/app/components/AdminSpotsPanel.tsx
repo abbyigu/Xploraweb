@@ -37,6 +37,7 @@ export function AdminSpotsPanel() {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
   const [translating, setTranslating] = useState(false);
@@ -250,6 +251,7 @@ export function AdminSpotsPanel() {
   };
 
   const filtered = spots.filter(s => {
+    if (selectedCategory && (s.category || 'Uncategorized') !== selectedCategory) return false;
     if (!query.trim()) return true;
     const q = query.toLowerCase();
     return (s.name || '').toLowerCase().includes(q)
@@ -628,10 +630,28 @@ export function AdminSpotsPanel() {
             {selectedNeighbourhood || 'All neighbourhoods'} · {activeNeighbourhoodSpots.length} stop{activeNeighbourhoodSpots.length === 1 ? '' : 's'}
           </span>
           {categoryCounts(activeNeighbourhoodSpots).map(([cat, count]) => (
-            <span key={cat} className="px-2 py-0.5 rounded-full bg-background border border-border text-muted-foreground whitespace-nowrap">
-              {cat} <span className="text-foreground font-medium">{count}</span>
-            </span>
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+              className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                selectedCategory === cat
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
+              }`}
+            >
+              {cat} <span className={selectedCategory === cat ? 'font-medium' : 'text-foreground font-medium'}>{count}</span>
+            </button>
           ))}
+          {selectedCategory && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategory(null)}
+              className="px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground whitespace-nowrap text-xs"
+            >
+              Clear category ✕
+            </button>
+          )}
           <span className="ml-auto text-muted-foreground whitespace-nowrap">{spots.length} stop{spots.length === 1 ? '' : 's'} across all neighbourhoods</span>
         </div>
       )}
