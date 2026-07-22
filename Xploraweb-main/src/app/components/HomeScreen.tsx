@@ -18,6 +18,7 @@ function FeatureTile({
   imagePosition,
   onClick,
   delay,
+  className: extraClassName,
 }: {
   label: string;
   desc: string;
@@ -26,6 +27,7 @@ function FeatureTile({
   imagePosition?: string;
   onClick: () => void;
   delay: number;
+  className?: string;
 }) {
   const { ref, className, style } = useReveal<HTMLButtonElement>({ delay });
   return (
@@ -33,7 +35,7 @@ function FeatureTile({
       ref={ref}
       style={style}
       onClick={onClick}
-      className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className}`}
+      className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className} ${extraClassName ?? ''}`}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
@@ -93,7 +95,7 @@ export function HomeScreen() {
   const FEATURE_TILES = [
     { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg' },
     { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', imagePosition: 'center 15%' },
-    { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/cafe-terrace-drinks.jpg' },
+    { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/michelin-plated-dish.jpg' },
     { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg' },
     { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg' },
   ];
@@ -186,9 +188,9 @@ export function HomeScreen() {
       <section className="pt-8 pb-4">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.whereToStart')}</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 -mx-6 px-6 md:mx-0 md:px-0">
             {FEATURE_TILES.map(({ label, desc, icon, to, image, imagePosition }, i) => (
-              <FeatureTile key={label} label={label} desc={desc} icon={icon} image={image} imagePosition={imagePosition} onClick={() => navigate(to)} delay={i * 75} />
+              <FeatureTile key={label} label={label} desc={desc} icon={icon} image={image} imagePosition={imagePosition} onClick={() => navigate(to)} delay={i * 75} className="w-[42%] md:w-[23%] flex-shrink-0 snap-start" />
             ))}
           </div>
           <Link
