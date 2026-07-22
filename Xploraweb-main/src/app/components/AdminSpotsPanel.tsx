@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart, Award, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
@@ -153,6 +153,8 @@ export function AdminSpotsPanel() {
     setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setTranslateError(''); setMichelinEnabled(false); setShowForm(true);
   };
 
+  const formRef = useRef<HTMLDivElement>(null);
+
   const openEdit = (spot: any) => {
     setImageFile(null);
     setImagePreview(spot.image_url || '');
@@ -184,6 +186,10 @@ export function AdminSpotsPanel() {
     setGeocodeMsg('');
     setShowForm(true);
   };
+
+  useEffect(() => {
+    if (showForm) formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [showForm, editing]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -315,7 +321,7 @@ export function AdminSpotsPanel() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
+        <div ref={formRef} className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between mb-1">
             <h4 className="font-medium">{editing ? 'Edit Spot' : 'New Spot'}</h4>
             <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
