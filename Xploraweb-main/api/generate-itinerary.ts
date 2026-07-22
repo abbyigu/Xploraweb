@@ -123,6 +123,7 @@ function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSc
   const candidateList = candidates.map(c => ({
     id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
+    ...(c.vibes.length > 0 ? { tags: c.vibes } : {}),
   }));
   const restaurantHopping = isRestaurantHopping(body);
   return `You are assembling a self-guided walking itinerary in Québec City from a fixed list of real places.
@@ -139,6 +140,7 @@ ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.ca
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
 ${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total; prioritize variety across other categories.'}
 ${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
+- Each candidate's "tags" (when present) describe what's actually notable there (e.g. specific dishes, drinks, or features) — use them to pick a varied, well-fitting set of stops and to ground each note in something concrete.
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;

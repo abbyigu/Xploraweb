@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart, Award } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart, Award, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
+import { TagInput } from './TagInput';
 
 const PRICE_OPTIONS = [
   { value: 'Free', label: 'Free', hint: 'No cost' },
@@ -17,6 +18,7 @@ const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
   website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
+  tags: [] as string[],
   name_fr: '', description_fr: '', xplora_tips_fr: '',
   is_brunch: false,
   is_hotspot: false,
@@ -169,6 +171,7 @@ export function AdminSpotsPanel() {
       visit_time: spot.visit_time || '',
       price_range: spot.price_range || '',
       xplora_tips: (spot.xplora_tips || []).join('\n'),
+      tags: spot.vibes || [],
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
       xplora_tips_fr: (spot.xplora_tips_fr || []).join('\n'),
@@ -207,6 +210,7 @@ export function AdminSpotsPanel() {
         visit_time: form.visit_time.trim() || null,
         price_range: form.price_range || null,
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        vibes: form.tags.length > 0 ? form.tags : null,
         name_fr: form.name_fr.trim() || null,
         description_fr: form.description_fr.trim() || null,
         xplora_tips_fr: form.xplora_tips_fr ? form.xplora_tips_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
@@ -273,6 +277,9 @@ export function AdminSpotsPanel() {
   // Full (unfiltered by search) grouping — powers the neighbourhood buttons and counters
   // so they reflect the whole library, not just what's currently matched by the search box.
   const groupedAll = groupByNeighbourhood(spots);
+
+  // Distinct tags already used across the library, offered as suggestions in the tag input.
+  const tagSuggestions = [...new Set(spots.flatMap(s => (s.vibes as string[] | null) || []))].sort();
 
   const categoryCounts = (list: any[]): [string, number][] => {
     const counts = new Map<string, number>();
@@ -481,6 +488,20 @@ export function AdminSpotsPanel() {
                 <input value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
               </div>
             )}
+
+            <div className="md:col-span-2 border-t border-border pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Tag className="w-4 h-4 text-primary" />
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tags</p>
+              </div>
+              <TagInput
+                value={form.tags}
+                onChange={next => setForm(f => ({ ...f, tags: next }))}
+                suggestions={tagSuggestions}
+                placeholder="e.g. pizza, drinks, dessert — type and press comma"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">Not shown to explorers — helps the AI itinerary generator understand what's actually here.</p>
+            </div>
 
             <div className="md:col-span-2 border-t border-border pt-3">
               <div className="flex items-center gap-2 mb-2">
