@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2, type LucideIcon } from 'lucide-react';
+import { ArrowRight, Flame, Heart, Compass, MapPin, Mail, Building2, Award, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useReveal } from '../hooks/useReveal';
@@ -93,6 +93,7 @@ export function HomeScreen() {
   const FEATURE_TILES = [
     { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg' },
     { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', imagePosition: 'center 15%' },
+    { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/cafe-terrace-drinks.jpg' },
     { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg' },
     { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg' },
   ];

@@ -7,29 +7,22 @@ const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
-const STOP_COUNT_BUCKETS: Record<string, { minStops: number; maxStops: number }> = {
-  quick: { minStops: 2, maxStops: 3 },
-  standard: { minStops: 4, maxStops: 5 },
-  long: { minStops: 6, maxStops: 8 },
-  extended: { minStops: 10, maxStops: 14 },
-};
+const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
+const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 const CANDIDATE_CAP = 40;
-const RESTAURANT_HOPPING_MAX_STOPS = 7;
-
-function getStopRange(bucket: { minStops: number; maxStops: number }, restaurantHopping: boolean) {
-  const maxStops = restaurantHopping ? Math.min(bucket.maxStops, RESTAURANT_HOPPING_MAX_STOPS) : bucket.maxStops;
-  const minStops = Math.min(bucket.minStops, maxStops);
-  return { minStops, maxStops };
-}
 
 const RequestSchema = z.object({
-  stopCount: z.enum(['quick', 'standard', 'long', 'extended']),
+  stopCount: z.number().int(),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
   priceRanges: z.array(z.enum(PRICE_RANGES)),
   neighbourhoods: z.array(z.string()),
   language: z.enum(['en', 'fr']),
   restaurantHopping: z.boolean().optional().default(false),
-});
+  michelinOnly: z.boolean().optional().default(false),
+}).refine(
+  body => (body.restaurantHopping ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS).includes(body.stopCount),
+  { message: 'Invalid stop count for the selected mode.', path: ['stopCount'] },
+);
 
 const StopSchema = z.object({
   spotId: z.string(),
@@ -59,6 +52,7 @@ interface CandidateSpot {
   visitTime: string | null;
   priceRange: string | null;
   xploraTips: string[];
+  michelinUrl: string | null;
 }
 
 function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
@@ -79,11 +73,16 @@ function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
     visitTime: row.visit_time ?? null,
     priceRange: row.price_range ?? null,
     xploraTips: pickArr(row.xplora_tips_fr, row.xplora_tips),
+    michelinUrl: row.michelin_url ?? null,
   };
 }
 
 function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
+}
+
+function isMichelinOnly(body: z.infer<typeof RequestSchema>): boolean {
+  return isRestaurantHopping(body) && body.michelinOnly === true;
 }
 
 function haversineMeters(a: CandidateSpot, b: CandidateSpot): number {
@@ -121,26 +120,27 @@ function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(stops: T[]): 
 }
 
 function buildPrompt(candidates: CandidateSpot[], body: z.infer<typeof RequestSchema>): string {
-  const bucket = STOP_COUNT_BUCKETS[body.stopCount];
   const candidateList = candidates.map(c => ({
     id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
     neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
+    ...(c.vibes.length > 0 ? { tags: c.vibes } : {}),
   }));
   const restaurantHopping = isRestaurantHopping(body);
-  const { minStops, maxStops } = getStopRange(bucket, restaurantHopping);
   return `You are assembling a self-guided walking itinerary in Québec City from a fixed list of real places.
 
 Candidate spots (JSON, only use these — never invent an id):
 ${JSON.stringify(candidateList)}
 
 Requirements:
-- Target ${minStops}-${maxStops} stops.
+- Include exactly ${body.stopCount} stops.
 - Estimate a realistic total walking + visiting duration and distance for the route you assemble, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
 - Order the stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
 ${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total; prioritize variety across other categories.'}
+${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
+- Each candidate's "tags" (when present) describe what's actually notable there (e.g. specific dishes, drinks, or features) — use them to pick a varied, well-fitting set of stops and to ground each note in something concrete.
 - Write the title and summary in ${body.language === 'fr' ? 'French' : 'English'}.
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
@@ -179,6 +179,9 @@ export default async function handler(req: any, res: any) {
   }
   if (isRestaurantHopping(body)) {
     candidates = candidates.filter(c => c.category === 'Food');
+    if (isMichelinOnly(body)) {
+      candidates = candidates.filter(c => c.michelinUrl != null);
+    }
   } else if (body.categories.length > 0) {
     candidates = candidates.filter(c => c.category && body.categories.includes(c.category as any));
   }
@@ -206,7 +209,7 @@ export default async function handler(req: any, res: any) {
 
   const candidateIds = new Set(candidates.map(c => c.id));
   const byId = new Map(candidates.map(c => [c.id, c]));
-  const foodCap = isRestaurantHopping(body) ? getStopRange(STOP_COUNT_BUCKETS[body.stopCount], true).maxStops : 1;
+  const foodCap = isRestaurantHopping(body) ? body.stopCount : 1;
   let foodCount = 0;
   const filteredStops = object.stops
     .filter(s => candidateIds.has(s.spotId))

@@ -18,38 +18,23 @@ export const VIBE_KEY: Record<string, string> = {
 export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 export type PriceRange = (typeof PRICE_RANGES)[number];
 
-export type StopCountBucket = 'quick' | 'standard' | 'long' | 'extended';
+// Regular routes offer a wider spread of stop counts; restaurant-hopping
+// routes cap lower since eating at 6+ places back-to-back is already a lot.
+export const REGULAR_STOP_COUNTS = [3, 5, 7, 9] as const;
+export const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6] as const;
 
-export interface StopCountOption {
-  key: StopCountBucket;
-  minStops: number;
-  maxStops: number;
-}
-
-export const STOP_COUNT_BUCKETS: StopCountOption[] = [
-  { key: 'quick', minStops: 2, maxStops: 3 },
-  { key: 'standard', minStops: 4, maxStops: 5 },
-  { key: 'long', minStops: 6, maxStops: 8 },
-  { key: 'extended', minStops: 10, maxStops: 14 },
-];
-
-// Restaurant hopping caps how many stops a route can have, regardless of the
-// selected bucket, since eating at 10+ places back-to-back isn't realistic.
-export const RESTAURANT_HOPPING_MAX_STOPS = 7;
-
-export function getEffectiveStopRange(bucket: StopCountOption, restaurantHopping: boolean): { minStops: number; maxStops: number } {
-  const maxStops = restaurantHopping ? Math.min(bucket.maxStops, RESTAURANT_HOPPING_MAX_STOPS) : bucket.maxStops;
-  const minStops = Math.min(bucket.minStops, maxStops);
-  return { minStops, maxStops };
+export function getStopCountOptions(restaurantHopping: boolean): readonly number[] {
+  return restaurantHopping ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS;
 }
 
 export interface ItineraryGenerateRequest {
-  stopCount: StopCountBucket;
+  stopCount: number;
   categories: SpotCategory[];
   priceRanges: PriceRange[];
   neighbourhoods: string[];
   language: 'en' | 'fr';
   restaurantHopping: boolean;
+  michelinOnly: boolean;
 }
 
 export interface GeneratedItineraryStop {

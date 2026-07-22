@@ -26,6 +26,13 @@
     "seoTitle": "Nos coups de cœur à Québec — Xplora",
     "seoDesc": "Nos endroits préférés à Québec, triés sur le volet par l'équipe Xplora."
   },
+  "michelin": {
+    "title": "Guide Michelin",
+    "subtitle": "Tous les lieux de Québec figurant au Guide Michelin.",
+    "empty": "Aucun lieu du Guide Michelin pour le moment — revenez bientôt.",
+    "seoTitle": "Lieux du Guide Michelin à Québec — Xplora",
+    "seoDesc": "Tous les restaurants de Québec figurant au Guide Michelin, sélectionnés par Xplora."
+  },
   "neighbourhoodDetail": {
     "back": "Tous les quartiers",
     "notFound": "Quartier introuvable.",
@@ -222,6 +229,8 @@
     "tileHotspotsDesc": "Des endroits animés près de vous",
     "tileLovedLabel": "Nos coups de cœur",
     "tileLovedDesc": "Nos découvertes locales préférées",
+    "tileMichelinLabel": "Guide Michelin",
+    "tileMichelinDesc": "Restaurants au Guide Michelin",
     "tileWalkLabel": "Nouvelle balade",
     "tileWalkDesc": "De nouveaux parcours autoguidés",
     "tileHoodsLabel": "Nouveaux quartiers",
@@ -268,11 +277,12 @@
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
     "stopCount": "Nombre d'arrêts",
     "stopCountSingle": "{{count}} arrêts",
-    "stopCountRange": "{{min}}–{{max}} arrêts",
     "categories": "Catégories",
     "restaurantHopping": "Tournée de restaurants",
     "restaurantHoppingDescription": "Remplir cet itinéraire de restaurants plutôt qu'un seul.",
     "restaurantHoppingExplainer": "Une tournée de restaurants est un parcours autonome qui enchaîne plusieurs restaurants, cafés et bars en une seule promenade — pour grignoter ou prendre un verre à chaque arrêt plutôt que de vous limiter à un seul repas.",
+    "michelinOnly": "Guide Michelin seulement",
+    "michelinOnlyDescription": "N'inclure que les restaurants figurant au Guide Michelin.",
     "generate": "Générer mon parcours",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
     "generating": "Création de votre parcours…",

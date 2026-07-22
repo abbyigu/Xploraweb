@@ -63,7 +63,7 @@ export const analytics = {
     push('business_login');
   },
 
-  generateItinerary(params: { stopCount: string; categories: string[]; neighbourhoods: string[] }) {
+  generateItinerary(params: { stopCount: number; categories: string[]; neighbourhoods: string[] }) {
     push('generate_itinerary', {
       stop_count: params.stopCount,
       categories: params.categories.join(','),

@@ -28,6 +28,7 @@ const NeighbourhoodsScreen   = lazy(() => import('./components/NeighbourhoodsScr
 const NeighbourhoodDetailScreen = lazy(() => import('./components/NeighbourhoodDetailScreen').then(m => ({ default: m.NeighbourhoodDetailScreen })));
 const HotspotsScreen         = lazy(() => import('./components/SpotCollectionScreen').then(m => ({ default: m.HotspotsScreen })));
 const PlacesWeLoveScreen     = lazy(() => import('./components/SpotCollectionScreen').then(m => ({ default: m.PlacesWeLoveScreen })));
+const MichelinScreen         = lazy(() => import('./components/SpotCollectionScreen').then(m => ({ default: m.MichelinScreen })));
 const ExperienceDetailScreen = lazy(() => import('./components/ExperienceDetailScreen').then(m => ({ default: m.ExperienceDetailScreen })));
 const WelcomeScreen          = lazy(() => import('./components/WelcomeScreen').then(m => ({ default: m.WelcomeScreen })));
 const SignupScreen            = lazy(() => import('./components/SignupScreen').then(m => ({ default: m.SignupScreen })));
@@ -133,6 +134,7 @@ export default function App() {
               <Route path="/neighbourhoods/:slug" element={<NeighbourhoodDetailScreen />} />
               <Route path="/hotspots" element={<HotspotsScreen />} />
               <Route path="/loved" element={<PlacesWeLoveScreen />} />
+              <Route path="/michelin" element={<MichelinScreen />} />
               <Route path="/about" element={<AboutScreen />} />
               <Route path="/welcome" element={<WelcomeScreen />} />
               <Route path="/signup" element={<SignupScreen />} />

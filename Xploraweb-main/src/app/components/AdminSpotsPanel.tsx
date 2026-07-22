@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart } from 'lucide-react';
+import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Languages, Loader2, Star, Flame, Heart, Award, Tag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { SPOT_CATEGORIES } from '../data/products';
+import { TagInput } from './TagInput';
 
 const PRICE_OPTIONS = [
   { value: 'Free', label: 'Free', hint: 'No cost' },
@@ -17,6 +18,7 @@ const BLANK = {
   name: '', description: '', address: '', lat: '', lng: '',
   website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
+  tags: [] as string[],
   name_fr: '', description_fr: '', xplora_tips_fr: '',
   is_brunch: false,
   is_hotspot: false,
@@ -35,10 +37,12 @@ export function AdminSpotsPanel() {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState('');
+  const [michelinEnabled, setMichelinEnabled] = useState(false);
   const { neighbourhoods } = useNeighbourhoods();
 
   const autoTranslate = async () => {
@@ -146,7 +150,7 @@ export function AdminSpotsPanel() {
 
   const openNew = () => {
     setForm({ ...BLANK }); setEditing(null);
-    setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setTranslateError(''); setShowForm(true);
+    setImageFile(null); setImagePreview(''); setError(''); setGeocodeMsg(''); setTranslateError(''); setMichelinEnabled(false); setShowForm(true);
   };
 
   const openEdit = (spot: any) => {
@@ -154,6 +158,7 @@ export function AdminSpotsPanel() {
     setImagePreview(spot.image_url || '');
     setError('');
     setTranslateError('');
+    setMichelinEnabled(!!spot.michelin_url);
     setForm({
       name: spot.name || '',
       description: spot.description || '',
@@ -167,6 +172,7 @@ export function AdminSpotsPanel() {
       visit_time: spot.visit_time || '',
       price_range: spot.price_range || '',
       xplora_tips: (spot.xplora_tips || []).join('\n'),
+      tags: spot.vibes || [],
       name_fr: spot.name_fr || '',
       description_fr: spot.description_fr || '',
       xplora_tips_fr: (spot.xplora_tips_fr || []).join('\n'),
@@ -205,6 +211,7 @@ export function AdminSpotsPanel() {
         visit_time: form.visit_time.trim() || null,
         price_range: form.price_range || null,
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
+        vibes: form.tags.length > 0 ? form.tags : null,
         name_fr: form.name_fr.trim() || null,
         description_fr: form.description_fr.trim() || null,
         xplora_tips_fr: form.xplora_tips_fr ? form.xplora_tips_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
@@ -244,6 +251,7 @@ export function AdminSpotsPanel() {
   };
 
   const filtered = spots.filter(s => {
+    if (selectedCategory && (s.category || 'Uncategorized') !== selectedCategory) return false;
     if (!query.trim()) return true;
     const q = query.toLowerCase();
     return (s.name || '').toLowerCase().includes(q)
@@ -271,6 +279,9 @@ export function AdminSpotsPanel() {
   // Full (unfiltered by search) grouping — powers the neighbourhood buttons and counters
   // so they reflect the whole library, not just what's currently matched by the search box.
   const groupedAll = groupByNeighbourhood(spots);
+
+  // Distinct tags already used across the library, offered as suggestions in the tag input.
+  const tagSuggestions = [...new Set(spots.flatMap(s => (s.vibes as string[] | null) || []))].sort();
 
   const categoryCounts = (list: any[]): [string, number][] => {
     const counts = new Map<string, number>();
@@ -381,10 +392,6 @@ export function AdminSpotsPanel() {
               <input value={form.website} onChange={set('website')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://…" />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Michelin Guide URL</label>
-              <input value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
-            </div>
-            <div>
               <label className="text-xs text-muted-foreground">Suggested visit time</label>
               <input value={form.visit_time} onChange={set('visit_time')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 20 min" />
             </div>
@@ -456,6 +463,46 @@ export function AdminSpotsPanel() {
                 </button>
                 <p className="text-[11px] text-muted-foreground mt-1">Featured on the home "Places We Love" tile.</p>
               </div>
+              <div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !michelinEnabled;
+                    setMichelinEnabled(next);
+                    if (!next) setForm(f => ({ ...f, michelin_url: '' }));
+                  }}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    michelinEnabled
+                      ? 'bg-red-600 text-white'
+                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                  }`}
+                >
+                  <Award className={`w-4 h-4 ${michelinEnabled ? 'fill-white' : ''}`} />
+                  Michelin Guide
+                </button>
+                <p className="text-[11px] text-muted-foreground mt-1">Shows the Michelin Guide badge on this spot.</p>
+              </div>
+            </div>
+
+            {michelinEnabled && (
+              <div className="md:col-span-2">
+                <label className="text-xs text-muted-foreground">Michelin Guide URL *</label>
+                <input value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
+              </div>
+            )}
+
+            <div className="md:col-span-2 border-t border-border pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <Tag className="w-4 h-4 text-primary" />
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Tags</p>
+              </div>
+              <TagInput
+                value={form.tags}
+                onChange={next => setForm(f => ({ ...f, tags: next }))}
+                suggestions={tagSuggestions}
+                placeholder="e.g. pizza, drinks, dessert — type and press comma"
+              />
+              <p className="text-[11px] text-muted-foreground mt-1">Not shown to explorers — helps the AI itinerary generator understand what's actually here.</p>
             </div>
 
             <div className="md:col-span-2 border-t border-border pt-3">
@@ -501,10 +548,10 @@ export function AdminSpotsPanel() {
               )}
             </div>
 
-            {/* Optional French translations */}
+            {/* French translations */}
             <div className="md:col-span-2 border-t border-border pt-3">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Français (optionnel)</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Français</p>
                 <button
                   type="button"
                   onClick={autoTranslate}
@@ -522,11 +569,11 @@ export function AdminSpotsPanel() {
                   <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom du lieu" />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">Description (FR)</label>
+                  <label className="text-xs text-muted-foreground">Description (FR) *</label>
                   <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Description courte" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted-foreground">Xplora Tips (FR)</label>
+                  <label className="text-xs text-muted-foreground">Xplora Tips (FR) *</label>
                   <textarea
                     value={form.xplora_tips_fr}
                     onChange={set('xplora_tips_fr')}
@@ -534,7 +581,7 @@ export function AdminSpotsPanel() {
                     className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     placeholder={"Arrivez tôt pour éviter la foule\nDemandez le chocolat chaud hors-menu"}
                   />
-                  <p className="text-[11px] text-muted-foreground mt-1">Un conseil par ligne. Laissez vide pour afficher les conseils anglais aux visiteurs francophones.</p>
+                  <p className="text-[11px] text-muted-foreground mt-1">Un conseil par ligne.</p>
                 </div>
               </div>
             </div>
@@ -543,7 +590,7 @@ export function AdminSpotsPanel() {
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
-            disabled={saving || !form.name.trim()}
+            disabled={saving || !form.name.trim() || !form.description_fr.trim() || !form.xplora_tips_fr.trim() || (michelinEnabled && !form.michelin_url.trim())}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {saved ? <><Check className="w-4 h-4" /> Saved!</> : saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Spot'}
@@ -583,10 +630,28 @@ export function AdminSpotsPanel() {
             {selectedNeighbourhood || 'All neighbourhoods'} · {activeNeighbourhoodSpots.length} stop{activeNeighbourhoodSpots.length === 1 ? '' : 's'}
           </span>
           {categoryCounts(activeNeighbourhoodSpots).map(([cat, count]) => (
-            <span key={cat} className="px-2 py-0.5 rounded-full bg-background border border-border text-muted-foreground whitespace-nowrap">
-              {cat} <span className="text-foreground font-medium">{count}</span>
-            </span>
+            <button
+              key={cat}
+              type="button"
+              onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+              className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                selectedCategory === cat
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
+              }`}
+            >
+              {cat} <span className={selectedCategory === cat ? 'font-medium' : 'text-foreground font-medium'}>{count}</span>
+            </button>
           ))}
+          {selectedCategory && (
+            <button
+              type="button"
+              onClick={() => setSelectedCategory(null)}
+              className="px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground whitespace-nowrap text-xs"
+            >
+              Clear category ✕
+            </button>
+          )}
           <span className="ml-auto text-muted-foreground whitespace-nowrap">{spots.length} stop{spots.length === 1 ? '' : 's'} across all neighbourhoods</span>
         </div>
       )}

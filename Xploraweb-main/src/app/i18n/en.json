@@ -26,6 +26,13 @@
     "seoTitle": "Places We Love in Québec City — Xplora",
     "seoDesc": "Our favorite local finds, handpicked by the Xplora team in Québec City."
   },
+  "michelin": {
+    "title": "Michelin Guide",
+    "subtitle": "Every spot in Québec City listed in the Michelin Guide.",
+    "empty": "No Michelin Guide spots yet — check back soon.",
+    "seoTitle": "Michelin Guide spots in Québec City — Xplora",
+    "seoDesc": "Every restaurant in Québec City listed in the Michelin Guide, handpicked by Xplora."
+  },
   "neighbourhoodDetail": {
     "back": "All neighbourhoods",
     "notFound": "Neighbourhood not found.",
@@ -222,6 +229,8 @@
     "tileHotspotsDesc": "Buzzing spots nearby",
     "tileLovedLabel": "Places We Love",
     "tileLovedDesc": "Our favorite local finds",
+    "tileMichelinLabel": "Michelin Guide",
+    "tileMichelinDesc": "Guide-listed restaurants",
     "tileWalkLabel": "New Walk",
     "tileWalkDesc": "Fresh self-guided routes",
     "tileHoodsLabel": "New Neighbourhoods",
@@ -268,11 +277,12 @@
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
     "stopCount": "Number of stops",
     "stopCountSingle": "{{count}} stops",
-    "stopCountRange": "{{min}}–{{max}} stops",
     "categories": "Categories",
     "restaurantHopping": "Restaurant hopping",
     "restaurantHoppingDescription": "Fill this route with restaurants instead of just one.",
     "restaurantHoppingExplainer": "A food hop is a self-guided crawl that strings together multiple restaurants, cafés, and bars in one walk — so you can grab a bite or a drink at each stop instead of committing to a single meal.",
+    "michelinOnly": "Michelin Guide only",
+    "michelinOnlyDescription": "Only include restaurants listed in the Michelin Guide.",
     "generate": "Generate my route",
     "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
     "generating": "Building your route…",

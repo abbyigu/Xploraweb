@@ -21,6 +21,7 @@ export function NeighbourhoodDetailScreen() {
   const { spots } = useSpots();
   const [activeStreet, setActiveStreet] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [activeMichelinOnly, setActiveMichelinOnly] = useState(false);
   const spotsRef = React.useRef<HTMLElement>(null);
 
   function selectStreet(street: string) {
@@ -67,9 +68,12 @@ export function NeighbourhoodDetailScreen() {
   const streetSpots = activeStreet
     ? allLocalSpots.filter(s => s.address?.toLowerCase().includes(activeStreet.toLowerCase()))
     : allLocalSpots;
-  const localSpots = activeCategory
+  const categorySpots = activeCategory
     ? streetSpots.filter(s => s.category === activeCategory)
     : streetSpots;
+  const localSpots = activeMichelinOnly
+    ? categorySpots.filter(s => !!s.michelinUrl)
+    : categorySpots;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -199,9 +203,9 @@ export function NeighbourhoodDetailScreen() {
           <section ref={spotsRef} className="scroll-mt-24">
             <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-1.5">
               {t('neighbourhoodDetail.spots', 'Local spots')}
-              {(activeStreet || activeCategory) && (
+              {(activeStreet || activeCategory || activeMichelinOnly) && (
                 <span className="ml-2 text-base font-normal text-[#12343B]">
-                  — {[activeStreet, activeCategory].filter(Boolean).join(' · ')}
+                  — {[activeStreet, activeCategory, activeMichelinOnly ? t('neighbourhoodDetail.michelinGuide', 'Michelin Guide') : null].filter(Boolean).join(' · ')}
                 </span>
               )}
             </h2>
@@ -219,6 +223,8 @@ export function NeighbourhoodDetailScreen() {
                   michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
                   activeCategory={activeCategory}
                   onCategoryChange={setActiveCategory}
+                  michelinOnly={activeMichelinOnly}
+                  onMichelinChange={setActiveMichelinOnly}
                 />
               </div>
             )}
@@ -228,7 +234,7 @@ export function NeighbourhoodDetailScreen() {
                   {t('neighbourhoodDetail.noSpotsOnStreet', 'No spots found here yet.')}
                 </p>
                 <button
-                  onClick={() => { setActiveStreet(null); setActiveCategory(null); }}
+                  onClick={() => { setActiveStreet(null); setActiveCategory(null); setActiveMichelinOnly(false); }}
                   className="mt-3 text-sm text-[#12343B] font-medium hover:underline"
                 >
                   {t('neighbourhoodDetail.showAllSpots', 'Show all spots')}
