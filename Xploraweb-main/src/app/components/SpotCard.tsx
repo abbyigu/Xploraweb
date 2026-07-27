@@ -1,4 +1,4 @@
-import { MapPin, Clock, ExternalLink, Star, Award } from 'lucide-react';
+import { MapPin, Clock, ExternalLink, Star, Award, CalendarCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
@@ -77,6 +77,17 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
               className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
             >
               <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
+            </a>
+          )}
+          {spot.reservationUrl && (
+            <a
+              href={spot.reservationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={e => e.stopPropagation()}
+              className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white bg-[#12343B] px-3 py-1.5 rounded-full hover:bg-[#12343B]/90 transition-colors"
+            >
+              <CalendarCheck className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.reservation', 'Reserve a table')}
             </a>
           )}
         </span>
