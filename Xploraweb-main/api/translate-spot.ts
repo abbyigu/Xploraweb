@@ -6,13 +6,11 @@ const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
 const RequestSchema = z.object({
   name: z.string().max(200),
-  description: z.string().max(2000),
   tips: z.string().max(3000).optional(),
 });
 
 const ResultSchema = z.object({
   name_fr: z.string(),
-  description_fr: z.string(),
   tips_fr: z.string(),
 });
 
@@ -25,17 +23,16 @@ export default async function handler(req: any, res: any) {
 
   const parsed = RequestSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ error: 'A name or description is required.' });
+    return res.status(400).json({ error: 'A name or tip is required.' });
   }
-  const { name, description, tips } = parsed.data;
-  if (!name.trim() && !description.trim() && !(tips || '').trim()) {
-    return res.status(400).json({ error: 'A name, description, or tip is required.' });
+  const { name, tips } = parsed.data;
+  if (!name.trim() && !(tips || '').trim()) {
+    return res.status(400).json({ error: 'A name or tip is required.' });
   }
 
-  const prompt = `Translate this Québec City tourist spot listing from English to French (Québécois French, natural tone used in local tourism copy). Keep proper nouns and place names as-is. If a field is empty, return an empty string for it. The tips field is a list of insider tips, one per line — translate each line and keep them in the same one-per-line format (same number of lines, same order).
+  const prompt = `Translate this Québec City tourist spot listing from English to French (Québécois French, natural tone used in local tourism copy). Keep proper nouns and place names as-is. If a field is empty, return an empty string for it. The tips field is a list of insider tips, one per line — these double as the spot's description, so translate each line naturally and keep them in the same one-per-line format (same number of lines, same order).
 
 Name: ${name || '(none)'}
-Description: ${description || '(none)'}
 Tips:
 ${tips || '(none)'}`;
 
