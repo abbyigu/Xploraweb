@@ -12,10 +12,13 @@ function pickArr(fr: string[] | null | undefined, en: string[] | null | undefine
 }
 
 export function mapSpotRow(row: any): Spot {
+  const tips = pickArr(row.xplora_tips_fr, row.xplora_tips);
   return {
     id: row.id,
     name: pick(row.name_fr, row.name),
-    description: pick(row.description_fr, row.description) || undefined,
+    // The tips an admin enters are the spot's description — they read as a
+    // single blurb everywhere a description is shown (e.g. SpotCard).
+    description: (tips && tips.length > 0) ? tips.join(' · ') : (pick(row.description_fr, row.description) || undefined),
     address: row.address || undefined,
     lat: row.lat ?? undefined,
     lng: row.lng ?? undefined,
@@ -30,7 +33,7 @@ export function mapSpotRow(row: any): Spot {
     isLoved: row.is_loved || undefined,
     visitTime: row.visit_time || undefined,
     priceRange: row.price_range || undefined,
-    xploraTips: pickArr(row.xplora_tips_fr, row.xplora_tips),
+    xploraTips: tips,
     status: row.status || undefined,
   };
 }

@@ -10,7 +10,7 @@ import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import {
-  PRICE_RANGES, SPOT_CATEGORIES, SPOT_CATEGORY_KEY, REGULAR_STOP_COUNTS, FOOD_HOP_STOP_COUNTS, getStopCountOptions,
+  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, REGULAR_STOP_COUNTS, FOOD_HOP_STOP_COUNTS, getStopCountOptions,
 } from '../data/itineraryFilters';
 import type {
   PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
@@ -306,7 +306,7 @@ export function ItineraryScreen() {
                 <div>
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.categories')}</p>
                   <div className="flex flex-wrap gap-2">
-                    {SPOT_CATEGORIES.map(c => (
+                    {ITINERARY_CATEGORIES.map(c => (
                       <Chip key={c} active={categories.includes(c)} onClick={() => toggleCategory(c)}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</Chip>
                     ))}
                   </div>

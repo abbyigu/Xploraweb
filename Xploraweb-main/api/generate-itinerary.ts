@@ -172,7 +172,8 @@ export default async function handler(req: any, res: any) {
 
   let candidates = (rows || [])
     .map(r => mapSpotRow(r, body.language))
-    .filter(c => c.lat != null && c.lng != null);
+    .filter(c => c.lat != null && c.lng != null)
+    .filter(c => c.category !== 'Stays');
 
   if (body.neighbourhoods.length > 0) {
     candidates = candidates.filter(c => c.neighbourhood && body.neighbourhoods.includes(c.neighbourhood));

@@ -15,11 +15,11 @@ const PRICE_OPTIONS = [
 ];
 
 const BLANK = {
-  name: '', description: '', address: '', lat: '', lng: '',
+  name: '', address: '', lat: '', lng: '',
   website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
   tags: [] as string[],
-  name_fr: '', description_fr: '', xplora_tips_fr: '',
+  name_fr: '', xplora_tips_fr: '',
   is_brunch: false,
   is_hotspot: false,
   is_loved: false,
@@ -46,18 +46,18 @@ export function AdminSpotsPanel() {
   const { neighbourhoods } = useNeighbourhoods();
 
   const autoTranslate = async () => {
-    if (!form.name.trim() && !form.description.trim() && !form.xplora_tips.trim()) return;
+    if (!form.name.trim() && !form.xplora_tips.trim()) return;
     setTranslating(true);
     setTranslateError('');
     try {
       const res = await fetch('/api/translate-spot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: form.name, description: form.description, tips: form.xplora_tips }),
+        body: JSON.stringify({ name: form.name, tips: form.xplora_tips }),
       });
       const data = await res.json();
       if (!res.ok) { setTranslateError(data?.error || 'Translation failed.'); return; }
-      setForm(f => ({ ...f, name_fr: data.name_fr || f.name_fr, description_fr: data.description_fr || f.description_fr, xplora_tips_fr: data.tips_fr || f.xplora_tips_fr }));
+      setForm(f => ({ ...f, name_fr: data.name_fr || f.name_fr, xplora_tips_fr: data.tips_fr || f.xplora_tips_fr }));
     } catch {
       setTranslateError('Translation failed — check your connection.');
     } finally {
@@ -163,7 +163,6 @@ export function AdminSpotsPanel() {
     setMichelinEnabled(!!spot.michelin_url);
     setForm({
       name: spot.name || '',
-      description: spot.description || '',
       address: spot.address || '',
       lat: spot.lat != null ? String(spot.lat) : '',
       lng: spot.lng != null ? String(spot.lng) : '',
@@ -176,7 +175,6 @@ export function AdminSpotsPanel() {
       xplora_tips: (spot.xplora_tips || []).join('\n'),
       tags: spot.vibes || [],
       name_fr: spot.name_fr || '',
-      description_fr: spot.description_fr || '',
       xplora_tips_fr: (spot.xplora_tips_fr || []).join('\n'),
       is_brunch: !!spot.is_brunch,
       is_hotspot: !!spot.is_hotspot,
@@ -205,7 +203,6 @@ export function AdminSpotsPanel() {
       const lng = parseFloat(form.lng);
       const payload = {
         name: form.name.trim(),
-        description: form.description.trim() || null,
         address: form.address.trim() || null,
         lat: isNaN(lat) ? null : lat,
         lng: isNaN(lng) ? null : lng,
@@ -219,7 +216,6 @@ export function AdminSpotsPanel() {
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
         vibes: form.tags.length > 0 ? form.tags : null,
         name_fr: form.name_fr.trim() || null,
-        description_fr: form.description_fr.trim() || null,
         xplora_tips_fr: form.xplora_tips_fr ? form.xplora_tips_fr.split('\n').map(s => s.trim()).filter(Boolean) : null,
         is_brunch: form.is_brunch,
         is_hotspot: form.is_hotspot,
@@ -332,11 +328,6 @@ export function AdminSpotsPanel() {
             <div className="md:col-span-2">
               <label className="text-xs text-muted-foreground">Name *</label>
               <input value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Café Largo" />
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Description</label>
-              <textarea value={form.description} onChange={set('description')} rows={2} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="A neighbourhood staple with exposed brick and rotating art" />
             </div>
 
             <div className="md:col-span-2">
@@ -514,7 +505,7 @@ export function AdminSpotsPanel() {
             <div className="md:col-span-2 border-t border-border pt-3">
               <div className="flex items-center gap-2 mb-2">
                 <Lightbulb className="w-4 h-4 text-primary" />
-                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Xplora Tips</p>
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Description</p>
               </div>
               <textarea
                 value={form.xplora_tips}
@@ -523,7 +514,7 @@ export function AdminSpotsPanel() {
                 className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                 placeholder={"Go early to beat the crowd\nAsk for the off-menu hot chocolate\nBest light for photos is late afternoon"}
               />
-              <p className="text-[11px] text-muted-foreground mt-1">One tip per line — insider advice shown to explorers.</p>
+              <p className="text-[11px] text-muted-foreground mt-1">One tip per line — shown to explorers as the spot's description.</p>
             </div>
 
             <div className="md:col-span-2">
@@ -561,7 +552,7 @@ export function AdminSpotsPanel() {
                 <button
                   type="button"
                   onClick={autoTranslate}
-                  disabled={translating || (!form.name.trim() && !form.description.trim() && !form.xplora_tips.trim())}
+                  disabled={translating || (!form.name.trim() && !form.xplora_tips.trim())}
                   className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   {translating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Languages className="w-3.5 h-3.5" />}
@@ -574,12 +565,8 @@ export function AdminSpotsPanel() {
                   <label className="text-xs text-muted-foreground">Nom (FR)</label>
                   <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom du lieu" />
                 </div>
-                <div>
-                  <label className="text-xs text-muted-foreground">Description (FR) *</label>
-                  <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Description courte" />
-                </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted-foreground">Xplora Tips (FR) *</label>
+                  <label className="text-xs text-muted-foreground">Description (FR) *</label>
                   <textarea
                     value={form.xplora_tips_fr}
                     onChange={set('xplora_tips_fr')}
@@ -596,7 +583,7 @@ export function AdminSpotsPanel() {
           {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
-            disabled={saving || !form.name.trim() || !form.description_fr.trim() || !form.xplora_tips_fr.trim() || (michelinEnabled && !form.michelin_url.trim())}
+            disabled={saving || !form.name.trim() || !form.xplora_tips_fr.trim() || (michelinEnabled && !form.michelin_url.trim())}
             className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition-opacity disabled:opacity-60 flex items-center justify-center gap-2"
           >
             {saved ? <><Check className="w-4 h-4" /> Saved!</> : saving ? 'Saving…' : editing ? 'Save Changes' : 'Add Spot'}
