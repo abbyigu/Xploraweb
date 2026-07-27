@@ -16,7 +16,7 @@ const PRICE_OPTIONS = [
 
 const BLANK = {
   name: '', address: '', lat: '', lng: '',
-  website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
+  website: '', michelin_url: '', reservation_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
   tags: [] as string[],
   name_fr: '', xplora_tips_fr: '',
@@ -168,6 +168,7 @@ export function AdminSpotsPanel() {
       lng: spot.lng != null ? String(spot.lng) : '',
       website: spot.website || '',
       michelin_url: spot.michelin_url || '',
+      reservation_url: spot.reservation_url || '',
       neighbourhood: spot.neighbourhood || '',
       category: spot.category || '',
       visit_time: spot.visit_time || '',
@@ -208,6 +209,7 @@ export function AdminSpotsPanel() {
         lng: isNaN(lng) ? null : lng,
         website: form.website.trim() || null,
         michelin_url: form.michelin_url.trim() || null,
+        reservation_url: form.reservation_url.trim() || null,
         image_url: imageUrl,
         neighbourhood: form.neighbourhood.trim() || null,
         category: form.category || null,
@@ -387,6 +389,11 @@ export function AdminSpotsPanel() {
             <div>
               <label className="text-xs text-muted-foreground">Website</label>
               <input value={form.website} onChange={set('website')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://…" />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Reservation link</label>
+              <input value={form.reservation_url} onChange={set('reservation_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://opentable.com/…" />
+              <p className="text-[11px] text-muted-foreground mt-1">Shows a "Reserve a table" button on this spot. Leave blank if not applicable.</p>
             </div>
             <div>
               <label className="text-xs text-muted-foreground">Suggested visit time</label>

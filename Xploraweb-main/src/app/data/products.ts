@@ -28,6 +28,7 @@ export interface Spot {
   lng?: number;
   website?: string;
   michelinUrl?: string; // link to this spot's Michelin Guide page, if listed
+  reservationUrl?: string; // link to book a table (e.g. OpenTable/Resy), if the spot takes reservations
   image?: string;
   neighbourhood?: string;
   vibes?: string[];
