@@ -4,6 +4,10 @@ import type { SpotCategory, Spot } from './products';
 export { SPOT_CATEGORIES, SPOT_CATEGORY_KEY };
 export type { SpotCategory };
 
+// Stays are accommodations, not places to visit — exclude them from the
+// itinerary builder's category picker.
+export const ITINERARY_CATEGORIES = SPOT_CATEGORIES.filter(c => c !== 'Stays');
+
 // Shared between the browse page (ItineraryScreen) and the AI builder
 // (ItineraryBuilderScreen) so both filter on the same vibe vocabulary.
 export const VIBE_OPTIONS = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'brunch'];
