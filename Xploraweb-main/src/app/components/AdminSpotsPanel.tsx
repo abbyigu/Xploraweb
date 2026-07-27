@@ -16,7 +16,7 @@ const PRICE_OPTIONS = [
 
 const BLANK = {
   name: '', address: '', lat: '', lng: '',
-  website: '', michelin_url: '', reservation_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
+  website: '', michelin_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
   xplora_tips: '',
   tags: [] as string[],
   name_fr: '', xplora_tips_fr: '',

@@ -1,4 +1,5 @@
 import { MapPin, Clock, ExternalLink, Star, Award, CalendarCheck } from 'lucide-react';
+import { MapPin, Clock, ExternalLink, Star, Award } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
