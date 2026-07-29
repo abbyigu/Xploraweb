@@ -19,6 +19,17 @@ const LOCAL_IMAGES: Record<string, string> = {
   [norm('Limoilou')]: '/nbhd/limoilou.jpeg',
 };
 
+// WebP companions for the local JPEGs above (smaller, used as the preferred
+// <source> — falls back to the JPEG in LOCAL_IMAGES for browsers/paths that
+// don't have one).
+const LOCAL_IMAGES_WEBP: Record<string, string> = {
+  [norm('Old Port')]: '/nbhd/old-port.webp',
+  [norm('Vieux-Port')]: '/nbhd/old-port.webp',
+  [norm('Petit-Champlain')]: '/nbhd/champlain.webp',
+  [norm('Montcalm')]: '/nbhd/montcalm.webp',
+  [norm('Limoilou')]: '/nbhd/limoilou.webp',
+};
+
 /**
  * Resolve the image for a neighbourhood: an explicit cover image wins,
  * otherwise reuse the main-page artwork for a matching name, otherwise the
@@ -27,4 +38,14 @@ const LOCAL_IMAGES: Record<string, string> = {
 export function neighbourhoodImage(name: string, coverImage?: string | null): string {
   if (coverImage) return coverImage;
   return LOCAL_IMAGES[norm(name)] || DEFAULT_NBHD_IMG;
+}
+
+/**
+ * WebP variant of neighbourhoodImage(), only available for the local
+ * fallback artwork (not for admin-set coverImage URLs, which may point
+ * anywhere). Returns null when there's no local webp companion.
+ */
+export function neighbourhoodImageWebp(name: string, coverImage?: string | null): string | null {
+  if (coverImage) return null;
+  return LOCAL_IMAGES_WEBP[norm(name)] || null;
 }

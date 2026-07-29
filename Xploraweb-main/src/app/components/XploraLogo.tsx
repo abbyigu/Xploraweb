@@ -7,15 +7,32 @@ export function XploraLogo({
   className?: string;
   variant?: "icon" | "full";
 }) {
+  if (variant === "icon") {
+    return (
+      <img
+        src={logoIcon}
+        alt="GoXplora"
+        width={256}
+        height={256}
+        className={className}
+        style={{ width: 'auto' }}
+        fetchPriority="high"
+      />
+    );
+  }
+
   return (
-    <img
-      src={variant === "icon" ? logoIcon : "/goxplora-logo.png"}
-      alt="GoXplora"
-      width={variant === "icon" ? 256 : 336}
-      height={variant === "icon" ? 256 : 223}
-      className={className}
-      style={variant === "full" ? { mixBlendMode: 'multiply', width: 'auto' } : { width: 'auto' }}
-      fetchPriority="high"
-    />
+    <picture>
+      <source srcSet="/goxplora-logo.webp" type="image/webp" />
+      <img
+        src="/goxplora-logo.png"
+        alt="GoXplora"
+        width={336}
+        height={223}
+        className={className}
+        style={{ mixBlendMode: 'multiply', width: 'auto' }}
+        fetchPriority="high"
+      />
+    </picture>
   );
 }

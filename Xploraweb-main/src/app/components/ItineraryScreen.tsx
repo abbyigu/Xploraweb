@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
 import { Lock, Wand2, Loader2, Award } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
 import { Switch } from './ui/switch';
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from './ui/dialog';
 import { ItineraryResult } from './ItineraryResult';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { supabase } from '../lib/supabase';
 import {
   PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, REGULAR_STOP_COUNTS, FOOD_HOP_STOP_COUNTS, getStopCountOptions,
 } from '../data/itineraryFilters';
@@ -22,6 +26,9 @@ import { analytics } from '../lib/analytics';
 
 type EventTimeBucket = 'today' | 'weekend' | 'month';
 type GenState = 'idle' | 'loading' | 'success' | 'error';
+
+const GEN_COUNT_KEY = 'xplora_itinerary_gen_count';
+const SIGNUP_NUDGE_AT = 3;
 
 const ERROR_KEY: Record<ItineraryErrorCode, string> = {
   INVALID_INPUT: 'itineraryBuilder.errorLlm',
@@ -87,6 +94,12 @@ export function ItineraryScreen() {
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
   const [result, setResult] = useState<GeneratedItinerary | null>(null);
   const [genKey, setGenKey] = useState(0);
+  const [isGuest, setIsGuest] = useState(false);
+  const [showSignupNudge, setShowSignupNudge] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => setIsGuest(!session?.user));
+  }, []);
 
   function togglePriceRange(p: PriceRange) {
     setPriceRanges(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
@@ -133,6 +146,11 @@ export function ItineraryScreen() {
       setGenKey(k => k + 1);
       setGenState('success');
       analytics.generateItinerary({ stopCount, categories, neighbourhoods });
+      if (isGuest) {
+        const count = Number(localStorage.getItem(GEN_COUNT_KEY) || '0') + 1;
+        localStorage.setItem(GEN_COUNT_KEY, String(count));
+        if (count === SIGNUP_NUDGE_AT) setShowSignupNudge(true);
+      }
     } catch {
       setErrorCode('LLM_ERROR');
       setGenState('error');
@@ -337,6 +355,31 @@ export function ItineraryScreen() {
           )}
         </>
       )}
+
+      <Dialog open={showSignupNudge} onOpenChange={setShowSignupNudge}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t('itineraryBuilder.signupNudgeTitle', { count: SIGNUP_NUDGE_AT })}</DialogTitle>
+            <DialogDescription>{t('itineraryBuilder.signupNudgeBody')}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setShowSignupNudge(false)}
+              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/50 transition"
+            >
+              {t('itineraryBuilder.signupNudgeDismiss')}
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate('/signup')}
+              className="px-4 py-2 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+            >
+              {t('itineraryBuilder.signupNudgeCta')}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Footer />
     </div>

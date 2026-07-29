@@ -7,6 +7,7 @@ import { useReveal } from '../hooks/useReveal';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
+import { SiteSearch } from './SiteSearch';
 
 const AVATAR_SEEDS = ['Alex', 'Béa', 'Cam', 'Dana'];
 
@@ -15,6 +16,7 @@ function FeatureTile({
   desc,
   icon: Icon,
   image,
+  webpImage,
   imagePosition,
   onClick,
   delay,
@@ -24,6 +26,7 @@ function FeatureTile({
   desc: string;
   icon: LucideIcon;
   image: string;
+  webpImage?: string;
   imagePosition?: string;
   onClick: () => void;
   delay: number;
@@ -38,14 +41,17 @@ function FeatureTile({
       className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className} ${extraClassName ?? ''}`}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
-          src={image}
-          alt=""
-          loading="lazy"
-          decoding="async"
-          style={{ objectPosition: imagePosition ?? 'center' }}
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-        />
+        <picture>
+          {webpImage && <source srcSet={webpImage} type="image/webp" />}
+          <img
+            src={image}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            style={{ objectPosition: imagePosition ?? 'center' }}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent" />
         <div className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
           <Icon className="w-4 h-4 text-[#12343B]" />
@@ -93,11 +99,11 @@ export function HomeScreen() {
   const businessReveal = useReveal<HTMLDivElement>();
 
   const FEATURE_TILES = [
-    { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg' },
-    { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', imagePosition: 'center 15%' },
-    { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/michelin-plated-dish.jpg' },
-    { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg' },
-    { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg' },
+    { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg', webpImage: '/hero/jazz-band-night-tile.webp' },
+    { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', webpImage: '/hero/balloon-art-alley-tile.webp', imagePosition: 'center 15%' },
+    { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/michelin-plated-dish.jpg', webpImage: '/hero/michelin-plated-dish.webp' },
+    { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg', webpImage: '/hero/park-garden-walk-tile.webp' },
+    { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg', webpImage: '/nbhd/montcalm.webp' },
   ];
 
   const VALUE_PILLARS = [
@@ -167,7 +173,10 @@ export function HomeScreen() {
               to="/itinerary"
               className="inline-flex items-center gap-0 px-4 py-2 sm:gap-2 sm:px-8 sm:py-4 bg-[#12343B] text-white rounded-full text-base font-medium hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all w-auto justify-center"
             >
-              <img src="/goxplora-logo.png" alt="" width={336} height={223} className="sm:hidden h-16 w-auto flex-shrink-0" />
+              <picture>
+                <source srcSet="/goxplora-logo.webp" type="image/webp" />
+                <img src="/goxplora-logo.png" alt="" width={336} height={223} className="sm:hidden h-16 w-auto flex-shrink-0" />
+              </picture>
               <span className="hidden sm:inline">{heroCtaLabel}</span>
               <ArrowRight className="w-5 h-5" />
             </Link>
@@ -180,6 +189,7 @@ export function HomeScreen() {
                 {t('home.heroForBusiness')}
               </Link>
             </div>
+            <SiteSearch variant="hero" className="w-full max-w-sm" />
           </div>
         </div>
       </section>
@@ -188,10 +198,13 @@ export function HomeScreen() {
       <section className="pt-8 pb-4">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.whereToStart')}</h2>
-          <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 -mx-6 px-6 md:mx-0 md:px-0">
-            {FEATURE_TILES.map(({ label, desc, icon, to, image, imagePosition }, i) => (
-              <FeatureTile key={label} label={label} desc={desc} icon={icon} image={image} imagePosition={imagePosition} onClick={() => navigate(to)} delay={i * 75} className="w-[42%] md:w-[23%] flex-shrink-0 snap-start" />
-            ))}
+          <div className="relative">
+            <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 -mx-6 px-6 md:mx-0 md:px-0">
+              {FEATURE_TILES.map(({ label, desc, icon, to, image, webpImage, imagePosition }, i) => (
+                <FeatureTile key={label} label={label} desc={desc} icon={icon} image={image} webpImage={webpImage} imagePosition={imagePosition} onClick={() => navigate(to)} delay={i * 75} className="w-[42%] md:w-[23%] flex-shrink-0 snap-start" />
+              ))}
+            </div>
+            <div className="pointer-events-none absolute top-0 right-0 bottom-1 w-10 md:w-16 bg-gradient-to-l from-background to-transparent" />
           </div>
           <Link
             ref={moreWaysReveal.ref}
@@ -257,20 +270,24 @@ export function HomeScreen() {
       </section>
 
       {/* For Business */}
-      <section id="for-business" className="bg-[#12343B] text-white py-16 px-6 mt-8">
-        <div ref={businessReveal.ref} style={businessReveal.style} className={`max-w-2xl mx-auto text-center ${businessReveal.className}`}>
+      <section id="for-business" className="px-6 py-10 md:py-12">
+        <div
+          ref={businessReveal.ref}
+          style={businessReveal.style}
+          className={`max-w-2xl mx-auto text-center bg-[#12343B] text-white rounded-3xl p-8 md:p-10 ${businessReveal.className}`}
+        >
           <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3 inline-flex items-center gap-2 justify-center">
             <Building2 className="w-3.5 h-3.5" /> {t('home.businessComingSoonEyebrow')}
           </p>
-          <h2 className="font-serif text-3xl md:text-4xl text-white mb-4">{t('home.businessComingSoonTitle')}</h2>
-          <p className="text-white/60 text-base md:text-lg max-w-xl mx-auto mb-8">
+          <h2 className="font-serif text-2xl md:text-3xl text-white mb-3">{t('home.businessComingSoonTitle')}</h2>
+          <p className="text-white/60 text-sm md:text-base max-w-xl mx-auto mb-6">
             {t('home.businessComingSoonBody')}
           </p>
           <a
             href="mailto:hello@goxplora.ca"
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-base font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[#7ecfcf] text-[#0d2328] rounded-2xl text-sm font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all"
           >
-            <Mail className="w-5 h-5" />
+            <Mail className="w-4 h-4" />
             {t('home.businessComingSoonCta')}
           </a>
         </div>

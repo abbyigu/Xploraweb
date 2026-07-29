@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router';
 import { LogOut, Shield, Building2, User } from 'lucide-react';
 import { supabase, getProfile } from '../lib/supabase';
@@ -7,7 +7,11 @@ import { XploraLogo } from './XploraLogo';
 import { useTranslation } from 'react-i18next';
 import { DashboardProfilePanel } from './DashboardProfilePanel';
 import { DashboardBusinessPanel } from './DashboardBusinessPanel';
-import { AdminPanel } from './AdminPanel';
+
+// Lazy: pulls in all four admin CRUD panels (spots/experiences/neighbourhoods/
+// site content), only ever rendered for the one is_admin account — keeping it
+// a static import bloated this chunk for every /dashboard visitor.
+const AdminPanel = lazy(() => import('./AdminPanel').then(m => ({ default: m.AdminPanel })));
 
 export interface DashboardProfile {
   name: string;
@@ -164,7 +168,11 @@ export function DashboardScreen() {
 
         {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} />}
         {section === 'business' && showBusiness && <DashboardBusinessPanel profile={profile} />}
-        {section === 'admin' && showAdmin && <AdminPanel />}
+        {section === 'admin' && showAdmin && (
+          <Suspense fallback={<div className="flex justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
+            <AdminPanel />
+          </Suspense>
+        )}
       </div>
 
       <Footer />

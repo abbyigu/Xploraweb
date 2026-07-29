@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 const SLIDES = [
-  { src: '/hero/park-garden-walk.jpg', webpSrc: '/hero/park-garden-walk.webp', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_60%]' },
+  { src: '/hero/park-garden-walk.jpg', webpSrc: '/hero/park-garden-walk.webp', webpSrcSet: '/hero/park-garden-walk-900.webp 900w, /hero/park-garden-walk.webp 1440w', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_60%]' },
   { src: '/hero/jazz-band-night.jpg', webpSrc: '/hero/jazz-band-night.webp', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[50%_45%]' },
   { src: '/hero/cafe-terrace-drinks.jpg', webpSrc: '/hero/cafe-terrace-drinks.webp', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[50%_65%]' },
   { src: '/hero/marina-sunset.jpg', webpSrc: '/hero/marina-sunset.webp', altKey: 'home.heroSlideAlt4', desktopFocus: 'md:object-[50%_55%]' },
@@ -45,7 +45,7 @@ export function HeroSlideshow() {
       {SLIDES.map((slide, i) =>
         loadedSlides.has(i) ? (
           <picture key={slide.src}>
-            <source srcSet={slide.webpSrc} type="image/webp" />
+            <source srcSet={slide.webpSrcSet ?? slide.webpSrc} sizes={slide.webpSrcSet ? '100vw' : undefined} type="image/webp" />
             <img
               src={slide.src}
               alt={t(slide.altKey)}
