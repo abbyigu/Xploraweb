@@ -40,6 +40,9 @@ export interface Spot {
   priceRange?: string;  // relative cost, e.g. "$", "$$", "$$$"
   xploraTips?: string[]; // insider tips shown to explorers
   status?: string;
+  placeId?: string;            // Google Places id, resolved offline (see scripts/fetch-google-place-ids.mjs)
+  googleRating?: number;       // cached Google rating (e.g. 4.6), refreshed weekly server-side
+  googleReviewCount?: number;  // cached Google review count
 }
 
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [

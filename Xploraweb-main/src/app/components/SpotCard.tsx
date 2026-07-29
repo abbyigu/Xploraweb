@@ -1,9 +1,10 @@
+import { memo } from 'react';
 import { MapPin, Clock, ExternalLink, Star, Award, CalendarCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 
-export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode }) {
+export const SpotCard = memo(function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode }) {
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col">
@@ -54,6 +55,16 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
             )}
           </span>
         </div>
+        {typeof spot.googleRating === 'number' && (
+          <span className="flex items-center gap-1 text-xs text-foreground">
+            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
+            <span className="font-medium">{spot.googleRating.toFixed(1)}</span>
+            {typeof spot.googleReviewCount === 'number' && (
+              <span className="text-muted-foreground">({spot.googleReviewCount})</span>
+            )}
+            <span className="text-muted-foreground">· Google</span>
+          </span>
+        )}
         {spot.description && <p className="text-sm text-gray-600 line-clamp-3">{spot.description}</p>}
         {spot.address && <p className="text-xs text-muted-foreground mt-0.5">{spot.address}</p>}
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -94,4 +105,4 @@ export function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode 
       </div>
     </div>
   );
-}
+});

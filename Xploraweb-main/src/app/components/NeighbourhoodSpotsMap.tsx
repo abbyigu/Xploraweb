@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -84,6 +84,8 @@ interface Props {
   onMichelinChange?: (michelinOnly: boolean) => void;
   /** Show 1, 2, 3… markers reflecting spot order instead of plain pins (used for itinerary stops). */
   numbered?: boolean;
+  /** Whether this map's container is currently visible (e.g. behind a mobile list/map toggle). Triggers a Leaflet size recalculation instead of a costly full remount. */
+  visible?: boolean;
 }
 
 export function NeighbourhoodSpotsMap({
@@ -98,15 +100,19 @@ export function NeighbourhoodSpotsMap({
   michelinOnly = false,
   onMichelinChange,
   numbered = false,
+  visible = true,
 }: Props) {
   const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markerLayersRef = useRef<{ marker: L.Marker; category: string; michelin: boolean }[]>([]);
 
-  const categories = Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort();
+  const categories = useMemo(
+    () => Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort(),
+    [spots],
+  );
   const categoryLabel = (cat: string) => SPOT_CATEGORY_KEY[cat] ? t(`categories.${SPOT_CATEGORY_KEY[cat]}`, cat) : cat;
-  const hasMichelinSpots = spots.some(s => !!s.michelinUrl);
+  const hasMichelinSpots = useMemo(() => spots.some(s => !!s.michelinUrl), [spots]);
 
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
@@ -163,6 +169,15 @@ export function NeighbourhoodSpotsMap({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Recalculate tile layout when the container becomes visible again (e.g. a
+  // mobile list/map toggle) — the map was mounted once while hidden, so its
+  // cached size is stale rather than needing a full, expensive remount.
+  useEffect(() => {
+    if (!visible || !mapRef.current) return;
+    const id = setTimeout(() => mapRef.current?.invalidateSize(), 50);
+    return () => clearTimeout(id);
+  }, [visible]);
 
   // Show/hide markers when the category or Michelin filter changes
   useEffect(() => {

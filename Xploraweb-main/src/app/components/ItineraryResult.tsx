@@ -99,15 +99,13 @@ export function ItineraryResult({ result }: Props) {
           </div>
         </div>
 
-        <div className="hidden md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen">
-          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} activeCategory={activeCategory} onCategoryChange={setActiveCategory} michelinOnly={michelinOnly} onMichelinChange={setMichelinOnly} numbered />
+        {/* Single map instance, kept mounted across the mobile list/map toggle — swapping visibility via
+            CSS instead of unmount/remount avoids re-running Leaflet's expensive init on every tap. */}
+        <div
+          className={`${mobileView === 'map' ? 'block h-[calc(100vh-13rem)]' : 'hidden'} md:block md:w-2/5 lg:w-[38%] md:sticky md:top-0 md:self-start md:h-screen w-full`}
+        >
+          <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} activeCategory={activeCategory} onCategoryChange={setActiveCategory} michelinOnly={michelinOnly} onMichelinChange={setMichelinOnly} numbered visible={mobileView === 'map'} />
         </div>
-
-        {mobileView === 'map' && (
-          <div className="md:hidden h-[calc(100vh-13rem)] w-full">
-            <NeighbourhoodSpotsMap spots={stopsWithCoords.map(s => s.spot)} center={center} boundary={null} route={route} websiteLabel={t('neighbourhoodDetail.website', 'Website')} michelinLabel={t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')} activeCategory={activeCategory} onCategoryChange={setActiveCategory} michelinOnly={michelinOnly} onMichelinChange={setMichelinOnly} numbered />
-          </div>
-        )}
       </div>
 
       <button

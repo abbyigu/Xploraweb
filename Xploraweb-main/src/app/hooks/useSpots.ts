@@ -36,6 +36,9 @@ export function mapSpotRow(row: any): Spot {
     priceRange: row.price_range || undefined,
     xploraTips: tips,
     status: row.status || undefined,
+    placeId: row.place_id || undefined,
+    googleRating: row.google_rating ?? undefined,
+    googleReviewCount: row.google_review_count ?? undefined,
   };
 }
 
