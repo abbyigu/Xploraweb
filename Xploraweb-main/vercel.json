@@ -1,5 +1,6 @@
 {
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "crons": [{ "path": "/api/refresh-google-ratings", "schedule": "0 6 * * 1" }],
   "headers": [
     {
       "source": "/(.*)",

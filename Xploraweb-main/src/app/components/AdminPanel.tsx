@@ -5,7 +5,15 @@ import { AdminExperiencePanel } from './AdminExperiencePanel';
 import { AdminSpotsPanel } from './AdminSpotsPanel';
 import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { AdminSiteContentPanel } from './AdminSiteContentPanel';
+import { AdminNeighbourhoodReviewCard } from './AdminNeighbourhoodReviewCard';
 import { experiences as staticExperiences } from '../data/products';
+import {
+  type PendingNeighbourhoodReview,
+  getPendingNeighbourhoodReviews,
+  approveNeighbourhoodReview,
+  rejectNeighbourhoodReview,
+  postNeighbourhoodReviewPublicReply,
+} from '../lib/neighbourhoodReviews';
 
 interface Stats {
   total: number;
@@ -71,13 +79,14 @@ export function AdminPanel() {
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, free: 0, paid: 0, totalSpots: 0, spotsTotal: 0, partnerOffers: 0, archived: 0 });
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
+  const [pendingNeighbourhoodReviews, setPendingNeighbourhoodReviews] = useState<PendingNeighbourhoodReview[]>([]);
   const [adminBusinesses, setAdminBusinesses] = useState<AdminBusiness[]>([]);
   const [adminPerks, setAdminPerks] = useState<AdminPerk[]>([]);
   const [adminXperiences, setAdminXperiences] = useState<AdminPerk[]>([]);
   const [adminExpanded, setAdminExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadBusinesses()]).finally(() => setLoading(false));
+    Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadPendingNeighbourhoodReviews(), loadBusinesses()]).finally(() => setLoading(false));
   }, []);
 
   async function loadStats() {
@@ -128,6 +137,10 @@ export function AdminPanel() {
     setPendingReviews(reviews.map(r => ({ ...r, experience_name: expMap[r.experience_id] || r.experience_id })));
   }
 
+  async function loadPendingNeighbourhoodReviews() {
+    setPendingNeighbourhoodReviews(await getPendingNeighbourhoodReviews());
+  }
+
   async function loadBusinesses() {
     const [bizRes, allPerksRes, xperiencesRes] = await Promise.all([
       supabase.from('profiles').select('id, business_name, name, email, stripe_connect_onboarded, created_at').eq('account_type', 'business').order('created_at', { ascending: false }),
@@ -147,6 +160,21 @@ export function AdminPanel() {
   async function handleReject(id: string) {
     await supabase.from('experience_reviews').update({ status: 'rejected' }).eq('id', id);
     setPendingReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handleApproveNeighbourhoodReview(id: string) {
+    await approveNeighbourhoodReview(id);
+    setPendingNeighbourhoodReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handleRejectNeighbourhoodReview(id: string) {
+    await rejectNeighbourhoodReview(id);
+    setPendingNeighbourhoodReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handlePostNeighbourhoodReviewPublicReply(id: string, reply: string) {
+    await postNeighbourhoodReviewPublicReply(id, reply);
+    setPendingNeighbourhoodReviews(prev => prev.map(r => r.id === id ? { ...r, admin_reply: reply } : r));
   }
 
   async function handleRestore(id: string) {
@@ -239,8 +267,8 @@ export function AdminPanel() {
           >
             <MessageSquare className="w-3.5 h-3.5" />
             Reviews
-            {pendingReviews.length > 0 && (
-              <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length}</span>
+            {(pendingReviews.length + pendingNeighbourhoodReviews.length) > 0 && (
+              <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length + pendingNeighbourhoodReviews.length}</span>
             )}
           </button>
           <button
@@ -431,6 +459,30 @@ export function AdminPanel() {
                       </div>
                     </div>
                   </div>
+                ))}
+              </div>
+            )}
+
+            <div className="pt-4">
+              <h3 className="text-lg">Pending Neighbourhood Reviews</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">4 stars and below require approval before going live. Once you post a public reply, further messages to the reviewer are private (sent by email).</p>
+            </div>
+
+            {pendingNeighbourhoodReviews.length === 0 ? (
+              <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No neighbourhood reviews pending approval.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingNeighbourhoodReviews.map(review => (
+                  <AdminNeighbourhoodReviewCard
+                    key={review.id}
+                    review={review}
+                    onApprove={handleApproveNeighbourhoodReview}
+                    onReject={handleRejectNeighbourhoodReview}
+                    onPostPublicReply={handlePostNeighbourhoodReviewPublicReply}
+                  />
                 ))}
               </div>
             )}

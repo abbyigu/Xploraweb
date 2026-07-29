@@ -14,6 +14,7 @@ export function useNeighbourhoodRating(neighbourhoodId: string) {
   const [loading, setLoading] = useState(true);
   const [myRating, setMyRating] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     const stored = window.localStorage.getItem(storageKey(neighbourhoodId));
@@ -33,14 +34,17 @@ export function useNeighbourhoodRating(neighbourhoodId: string) {
   async function rate(value: number) {
     if (submitting || myRating != null) return;
     setSubmitting(true);
+    setError(false);
     const result = await submitNeighbourhoodRating(neighbourhoodId, value);
     if (result.ok) {
       window.localStorage.setItem(storageKey(neighbourhoodId), String(value));
       setMyRating(value);
       setSummary(await getNeighbourhoodRatingSummary(neighbourhoodId));
+    } else {
+      setError(true);
     }
     setSubmitting(false);
   }
 
-  return { summary, loading, myRating, submitting, rate };
+  return { summary, loading, myRating, submitting, error, rate };
 }

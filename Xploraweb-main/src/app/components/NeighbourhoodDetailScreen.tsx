@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router';
 import { ArrowLeft, ArrowRight, MapPin, Signpost, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,6 +37,30 @@ export function NeighbourhoodDetailScreen() {
   }
 
   const nbhd = neighbourhoods.find(n => n.slug === slug || n.id === slug);
+  const nbhdName = nbhd?.name.trim().toLowerCase() ?? '';
+
+  const items = useMemo(
+    () => experiences.filter(e => e.neighbourhood?.trim().toLowerCase() === nbhdName),
+    [experiences, nbhdName],
+  );
+  const allLocalSpots = useMemo(
+    () => spots.filter(s => s.neighbourhood?.trim().toLowerCase() === nbhdName),
+    [spots, nbhdName],
+  );
+  const streetSpots = useMemo(
+    () => (activeStreet
+      ? allLocalSpots.filter(s => s.address?.toLowerCase().includes(activeStreet.toLowerCase()))
+      : allLocalSpots),
+    [allLocalSpots, activeStreet],
+  );
+  const categorySpots = useMemo(
+    () => (activeCategory ? streetSpots.filter(s => s.category === activeCategory) : streetSpots),
+    [streetSpots, activeCategory],
+  );
+  const localSpots = useMemo(
+    () => (activeMichelinOnly ? categorySpots.filter(s => !!s.michelinUrl) : categorySpots),
+    [categorySpots, activeMichelinOnly],
+  );
 
   if (loading && !nbhd) {
     return (
@@ -59,22 +83,6 @@ export function NeighbourhoodDetailScreen() {
 
   const tagline = localizedTagline(nbhd, i18n.language);
   const description = localizedDescription(nbhd, i18n.language);
-  const nbhdName = nbhd.name.trim().toLowerCase();
-  const items = experiences.filter(
-    e => e.neighbourhood?.trim().toLowerCase() === nbhdName,
-  );
-  const allLocalSpots = spots.filter(
-    s => s.neighbourhood?.trim().toLowerCase() === nbhdName,
-  );
-  const streetSpots = activeStreet
-    ? allLocalSpots.filter(s => s.address?.toLowerCase().includes(activeStreet.toLowerCase()))
-    : allLocalSpots;
-  const categorySpots = activeCategory
-    ? streetSpots.filter(s => s.category === activeCategory)
-    : streetSpots;
-  const localSpots = activeMichelinOnly
-    ? categorySpots.filter(s => !!s.michelinUrl)
-    : categorySpots;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">

@@ -57,8 +57,18 @@
     "noRatingsYet": "Aucune évaluation pour l'instant — soyez le premier",
     "tapToRate": "Touchez une étoile pour évaluer",
     "thanksForRating": "Merci — vous avez donné {{value}} / 5",
-    "reviewsComingSoonTitle": "Les avis écrits arrivent bientôt",
-    "reviewsComingSoonBody": "Nous développons un vrai système d'avis pour que les futurs explorateurs puissent lire ce que les autres ont pensé. Voulez-vous être averti du lancement?"
+    "ratingError": "Impossible d'enregistrer votre évaluation — veuillez réessayer.",
+    "writeReviewTitle": "Rédigez un avis",
+    "reviewNamePlaceholder": "Votre nom (facultatif)",
+    "reviewEmailPlaceholder": "Votre courriel (facultatif, si jamais on vous répond)",
+    "reviewCommentPlaceholder": "Partagez votre avis (facultatif)",
+    "reviewSubmit": "Envoyer l'avis",
+    "reviewSubmitting": "Envoi en cours…",
+    "reviewThanksLive": "Merci — votre avis est maintenant en ligne!",
+    "reviewThanksPending": "Merci! Votre avis apparaîtra une fois approuvé.",
+    "reviewError": "Impossible d'enregistrer votre avis — veuillez réessayer.",
+    "reviewsTitle": "Ce que disent les explorateurs",
+    "adminReplyLabel": "Réponse de Xplora"
   },
   "spotFinder": {
     "title": "Pas sûr de quoi faire?",
