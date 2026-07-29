@@ -57,8 +57,18 @@
     "noRatingsYet": "No ratings yet — be the first",
     "tapToRate": "Tap a star to rate",
     "thanksForRating": "Thanks — you rated this {{value}} / 5",
-    "reviewsComingSoonTitle": "Written reviews are coming soon",
-    "reviewsComingSoonBody": "We're building a real review system so future explorers can read what others thought. Want to know when it launches?"
+    "ratingError": "Couldn't save your rating — please try again.",
+    "writeReviewTitle": "Write a review",
+    "reviewNamePlaceholder": "Your name (optional)",
+    "reviewEmailPlaceholder": "Your email (optional, in case we follow up)",
+    "reviewCommentPlaceholder": "Share what you thought (optional)",
+    "reviewSubmit": "Submit review",
+    "reviewSubmitting": "Submitting…",
+    "reviewThanksLive": "Thanks — your review is live!",
+    "reviewThanksPending": "Thanks! Your review will appear once it's approved.",
+    "reviewError": "Couldn't save your review — please try again.",
+    "reviewsTitle": "What explorers are saying",
+    "adminReplyLabel": "Xplora replied"
   },
   "spotFinder": {
     "title": "Not sure what to do?",
