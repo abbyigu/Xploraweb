@@ -16,9 +16,9 @@ export interface SiteContent {
 // English copy used only to prefill the admin "Site Content" form.
 export const SITE_CONTENT_DEFAULTS = {
   bannerEnabled: true,
-  bannerText: 'Québec City–crafted. Walk. Discover. Repeat.',
+  bannerText: 'Free self-guided walks in Québec City — no signup required.',
   heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Hotspots, Special Places & Curated Itineraries',
+  heroSubheadline: 'Free self-guided walking routes through Québec City — no signup required.',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,

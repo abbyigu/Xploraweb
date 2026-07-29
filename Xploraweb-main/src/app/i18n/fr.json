@@ -51,7 +51,14 @@
     "empty": "Aucun parcours ici pour le moment — revenez bientôt.",
     "browseAll": "Voir toutes les expériences",
     "seoTitleSuffix": "{{name}} — Xplora",
-    "seoDescFallback": "Découvrez les expériences à {{name}}, Québec."
+    "seoDescFallback": "Découvrez les expériences à {{name}}, Québec.",
+    "ratingTitle": "Évaluez ce quartier",
+    "ratingSummary": "{{average}} · {{count}} évaluations",
+    "noRatingsYet": "Aucune évaluation pour l'instant — soyez le premier",
+    "tapToRate": "Touchez une étoile pour évaluer",
+    "thanksForRating": "Merci — vous avez donné {{value}} / 5",
+    "reviewsComingSoonTitle": "Les avis écrits arrivent bientôt",
+    "reviewsComingSoonBody": "Nous développons un vrai système d'avis pour que les futurs explorateurs puissent lire ce que les autres ont pensé. Voulez-vous être averti du lancement?"
   },
   "spotFinder": {
     "title": "Pas sûr de quoi faire?",
@@ -220,9 +227,9 @@
     "whatPeopleSay": "Ce que les gens disent",
     "heroEyebrow": "Québec",
     "heroHeadline": "Découvrez local.\nVivez plus.",
-    "heroSubheadline": "Incontournables / Lieux spéciaux / Itinéraires sur mesure",
+    "heroSubheadline": "Parcours autoguidés gratuits à Québec — aucune inscription requise.",
     "heroCtaLabel": "Obtenir mon parcours gratuit",
-    "bannerText": "Créé à Québec. Gratuit pour commencer, toujours.",
+    "bannerText": "Parcours autoguidés gratuits à Québec — aucune inscription requise.",
     "heroSeeHowItWorks": "Voir comment ça marche",
     "heroForBusiness": "Pour les entreprises",
     "whereToStart": "Par où commencer",
@@ -297,7 +304,11 @@
     "saved": "Enregistré",
     "saveError": "Impossible d'enregistrer le parcours — veuillez réessayer.",
     "listView": "Liste",
-    "mapView": "Carte"
+    "mapView": "Carte",
+    "signupNudgeTitle": "Vous avez généré {{count}} parcours",
+    "signupNudgeBody": "Créez un compte gratuit pour enregistrer vos parcours, y accéder hors ligne et recevoir de nouveaux lieux à Québec chaque semaine.",
+    "signupNudgeCta": "Créer un compte gratuit",
+    "signupNudgeDismiss": "Plus tard"
   },
   "howItWorks": {
     "title": "Comment ça marche",
@@ -741,7 +752,10 @@
     "dateNight": "🍷 Soirée en amoureux",
     "chillSolo": "🌿 Solo tranquille",
     "withFriends": "🎉 Entre amis",
-    "somethingNew": "🎨 Quelque chose de nouveau"
+    "somethingNew": "🎨 Quelque chose de nouveau",
+    "placeholder": "Rechercher un lieu ou un quartier",
+    "noResults": "Aucun résultat — essayez une autre recherche.",
+    "neighbourhoodLabel": "Quartier"
   },
   "business": {
     "dashboardTitle": "Tableau de bord partenaire",
@@ -933,7 +947,8 @@
     "perPerson": "/ personne",
     "validUntil": "Valide jusqu'au",
     "remove": "Retirer",
-    "close": "Fermer"
+    "close": "Fermer",
+    "clear": "Effacer"
   },
   "faq": {
     "headline": "Questions et réponses",
@@ -1008,6 +1023,7 @@
     "removeItem": "Retirer {{name}} du panier",
     "decreaseQty": "Diminuer la quantité de {{name}}",
     "increaseQty": "Augmenter la quantité de {{name}}",
+    "siteSearch": "Rechercher un lieu ou un quartier",
     "goToPhoto": "Aller à la photo {{n}}"
   },
   "testimonials": {

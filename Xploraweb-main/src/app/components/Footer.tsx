@@ -13,13 +13,16 @@ export function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="overflow-hidden mb-3" style={{ width: 178, height: 46 }}>
-              <img
-                src="/goxplora-logo.png"
-                alt="GoXplora"
-                width={336}
-                height={223}
-                style={{ height: 100, marginTop: -24, marginLeft: -10, mixBlendMode: 'screen', filter: 'invert(1) hue-rotate(180deg) brightness(1.6)' }}
-              />
+              <picture>
+                <source srcSet="/goxplora-logo.webp" type="image/webp" />
+                <img
+                  src="/goxplora-logo.png"
+                  alt="GoXplora"
+                  width={336}
+                  height={223}
+                  style={{ height: 100, marginTop: -24, marginLeft: -10, mixBlendMode: 'screen', filter: 'invert(1) hue-rotate(180deg) brightness(1.6)' }}
+                />
+              </picture>
             </div>
             <p className="text-sm text-white/50 leading-relaxed">{t('footer.brandTagline')}</p>
             <div className="flex gap-3 mt-5">

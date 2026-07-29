@@ -5,7 +5,7 @@ import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
 import { useNeighbourhoods, localizedTagline, type Neighbourhood } from '../hooks/useNeighbourhoods';
 import { useSpots } from '../hooks/useSpots';
-import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
+import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { NeighbourhoodsOverviewMap } from './NeighbourhoodsOverviewMap';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
@@ -80,12 +80,18 @@ export function NeighbourhoodsScreen() {
                 className="group text-left rounded-2xl overflow-hidden border border-gray-200 bg-white hover:shadow-lg transition-shadow"
               >
                 <div className="relative aspect-[3/2] overflow-hidden">
-                  <img
-                    src={neighbourhoodImage(n.name, n.coverImage)}
-                    alt={n.name}
-                    onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
+                  <picture>
+                    {neighbourhoodImageWebp(n.name, n.coverImage) && (
+                      <source srcSet={neighbourhoodImageWebp(n.name, n.coverImage)!} type="image/webp" />
+                    )}
+                    <img
+                      src={neighbourhoodImage(n.name, n.coverImage)}
+                      alt={n.name}
+                      loading="lazy"
+                      onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  </picture>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
                   {sortNew && i < 3 && (
                     <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-[#12343B] text-white">

@@ -7,10 +7,11 @@ import { PageSEO } from './PageSEO';
 import { ExperienceCard } from './ExperienceCard';
 import { NeighbourhoodSpotsMap } from './NeighbourhoodSpotsMap';
 import { SpotCard } from './SpotCard';
+import { NeighbourhoodRating } from './NeighbourhoodRating';
 import { useNeighbourhoods, localizedTagline, localizedDescription } from '../hooks/useNeighbourhoods';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSpots } from '../hooks/useSpots';
-import { neighbourhoodImage, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
+import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 
 export function NeighbourhoodDetailScreen() {
   const { slug } = useParams();
@@ -86,12 +87,18 @@ export function NeighbourhoodDetailScreen() {
       {/* Hero */}
       <section className="relative">
         <div className="relative h-64 md:h-96 overflow-hidden">
-          <img
-            src={neighbourhoodImage(nbhd.name, nbhd.coverImage)}
-            alt={nbhd.name}
-            onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
-            className="w-full h-full object-cover"
-          />
+          <picture>
+            {neighbourhoodImageWebp(nbhd.name, nbhd.coverImage) && (
+              <source srcSet={neighbourhoodImageWebp(nbhd.name, nbhd.coverImage)!} type="image/webp" />
+            )}
+            <img
+              src={neighbourhoodImage(nbhd.name, nbhd.coverImage)}
+              alt={nbhd.name}
+              fetchPriority="high"
+              onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
+              className="w-full h-full object-cover"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
 
           {/* Floating back-to-all-neighbourhoods button */}
@@ -119,6 +126,8 @@ export function NeighbourhoodDetailScreen() {
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">{description}</p>
           </section>
         )}
+
+        <NeighbourhoodRating neighbourhoodId={nbhd.id} />
 
         {/* Preset tours for this neighbourhood */}
         <section>

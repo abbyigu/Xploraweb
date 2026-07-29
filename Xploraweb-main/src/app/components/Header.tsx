@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../hooks/useLanguage';
+import { User } from 'lucide-react';
+import { SiteSearch } from './SiteSearch';
 
-function getInitials(name: string): string {
-  return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
+function getInitials(name: string): string | null {
+  return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || null;
 }
 
 export function Header() {
@@ -58,6 +60,8 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2 lg:gap-4">
+            <SiteSearch variant="header" />
+
             <Link to="/business" className="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">{t('header.forBusinesses')}</Link>
 
             <button
@@ -72,7 +76,9 @@ export function Header() {
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
                   ? <img src={avatar.url} alt="" aria-hidden="true" className="w-full h-full object-cover" />
-                  : <span aria-hidden="true" className="text-sm">{avatar.name ? getInitials(avatar.name) : '?'}</span>
+                  : (getInitials(avatar.name)
+                      ? <span aria-hidden="true" className="text-sm">{getInitials(avatar.name)}</span>
+                      : <User aria-hidden="true" className="w-5 h-5" />)
                 }
               </div>
             </Link>
