@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import { GoogleMap, InfoWindowF, MarkerF, PolygonF, PolylineF } from '@react-google-maps/api';
+import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 
@@ -15,60 +15,27 @@ function AwardIcon({ className }: { className?: string }) {
 }
 
 // Read-only map showing a neighbourhood's boundary/centre and its local spots.
-// Vanilla Leaflet (not react-leaflet) so it works under React 18 — same
-// approach as ExperienceMap / NeighbourhoodMap.
 
-const QC_CENTRE: [number, number] = [46.8139, -71.2080];
+const QC_CENTRE = { lat: 46.8139, lng: -71.208 };
 
-// Self-contained SVG pin so we never depend on Leaflet's external marker PNGs
-// (which can fail to load and render as a broken image).
-const SPOT_ICON = L.divIcon({
-  className: 'xplora-spot-marker',
-  html: `<svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B"/>
-    <circle cx="15" cy="15" r="5.5" fill="#ffffff"/>
-  </svg>`,
-  iconSize: [30, 38],
-  iconAnchor: [15, 38],
-  popupAnchor: [0, -34],
-});
+// Teardrop pin path (30x38 viewBox, anchored at the tip) shared by both
+// marker variants below.
+const PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z';
 
-// Numbered pin used for itinerary stops so travel order is visible on the map.
-function numberedSpotIcon(n: number): L.DivIcon {
-  return L.divIcon({
-    className: 'xplora-spot-marker-numbered',
-    html: `<svg width="30" height="38" viewBox="0 0 30 38" xmlns="http://www.w3.org/2000/svg">
-      <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B"/>
-      <text x="15" y="15" text-anchor="middle" dominant-baseline="central" fill="#ffffff" font-size="14" font-weight="700" font-family="inherit">${n}</text>
-    </svg>`,
-    iconSize: [30, 38],
-    iconAnchor: [15, 38],
-    popupAnchor: [0, -34],
-  });
+function spotIcon(): google.maps.Symbol {
+  return {
+    path: PIN_PATH,
+    fillColor: '#12343B',
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 1,
+    anchor: new google.maps.Point(15, 38),
+  };
 }
 
-function spotPopupHtml(spot: Spot, websiteLabel: string, michelinLabel: string, categoryLabel: (cat: string) => string): string {
-  const meta = [spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ');
-  const cat = meta ? `<div style="font-size:11px;color:#12343B;font-weight:600;margin-bottom:2px">${meta}</div>` : '';
-  const addr = spot.address ? `<div style="font-size:12px;color:#6b7280;margin-top:4px">${spot.address}</div>` : '';
-  const site = spot.website
-    ? `<a href="${spot.website}" target="_blank" rel="noopener noreferrer" style="display:inline-block;font-size:12px;font-weight:600;color:#12343B;margin-top:6px">${websiteLabel} ↗</a>`
-    : '';
-  const michelin = spot.michelinUrl
-    ? `<a href="${spot.michelinUrl}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:#ffffff;background:#dc2626;padding:3px 8px;border-radius:9999px;margin-top:6px">
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff" xmlns="http://www.w3.org/2000/svg"><path d="M12 2l2.9 6.26L21.5 9l-4.8 4.4 1.3 6.6L12 16.9 5.9 20l1.3-6.6L2.5 9l6.6-.74z"/></svg>
-        ${michelinLabel}
-      </a>`
-    : '';
-  return `
-    <div style="width:180px;font-family:inherit">
-      ${spot.image ? `<img src="${spot.image}" alt="" style="width:100%;height:90px;object-fit:cover;border-radius:8px;margin-bottom:8px" />` : ''}
-      ${cat}
-      <div style="font-size:14px;font-weight:600;line-height:1.25">${spot.name}</div>
-      ${addr}
-      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px">${site}${michelin}</div>
-      ${site}${michelin}
-    </div>`;
+// Numbered pin used for itinerary stops so travel order is visible on the map.
+function numberedSpotIcon(): google.maps.Symbol {
+  return spotIcon();
 }
 
 interface Props {
@@ -84,9 +51,11 @@ interface Props {
   onMichelinChange?: (michelinOnly: boolean) => void;
   /** Show 1, 2, 3… markers reflecting spot order instead of plain pins (used for itinerary stops). */
   numbered?: boolean;
-  /** Whether this map's container is currently visible (e.g. behind a mobile list/map toggle). Triggers a Leaflet size recalculation instead of a costly full remount. */
+  /** Whether this map's container is currently visible (e.g. behind a mobile list/map toggle). Triggers a resize instead of a costly full remount. */
   visible?: boolean;
 }
+
+const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false };
 
 export function NeighbourhoodSpotsMap({
   spots,
@@ -103,9 +72,9 @@ export function NeighbourhoodSpotsMap({
   visible = true,
 }: Props) {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markerLayersRef = useRef<{ marker: L.Marker; category: string; michelin: boolean }[]>([]);
+  const { isLoaded } = useGoogleMaps();
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const [openSpotIndex, setOpenSpotIndex] = useState<number | null>(null);
 
   const categories = useMemo(
     () => Array.from(new Set(spots.map(s => s.category).filter(Boolean) as string[])).sort(),
@@ -114,84 +83,61 @@ export function NeighbourhoodSpotsMap({
   const categoryLabel = (cat: string) => SPOT_CATEGORY_KEY[cat] ? t(`categories.${SPOT_CATEGORY_KEY[cat]}`, cat) : cat;
   const hasMichelinSpots = useMemo(() => spots.some(s => !!s.michelinUrl), [spots]);
 
-  useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+  const visibleSpots = useMemo(
+    () =>
+      spots
+        .map((spot, index) => ({ spot, index }))
+        .filter(({ spot }) => {
+          const matches = (!activeCategory || spot.category === activeCategory) && (!michelinOnly || !!spot.michelinUrl);
+          return matches && spot.lat != null && spot.lng != null;
+        }),
+    [spots, activeCategory, michelinOnly],
+  );
 
-    const map = L.map(containerRef.current, { scrollWheelZoom: false, zoomControl: true })
-      .setView(center ?? QC_CENTRE, 14);
+  const boundaryPath = useMemo(
+    () => (boundary && boundary.length >= 3 ? boundary.map(([lat, lng]) => ({ lat, lng })) : null),
+    [boundary],
+  );
+  const routePath = useMemo(
+    () => (route && route.length >= 2 ? route.map(([lat, lng]) => ({ lat, lng })) : null),
+    [route],
+  );
+
+  const fitToContent = (map: google.maps.Map) => {
+    const bounds = new google.maps.LatLngBounds();
+    let count = 0;
+    boundaryPath?.forEach(p => { bounds.extend(p); count++; });
+    routePath?.forEach(p => { bounds.extend(p); count++; });
+    visibleSpots.forEach(({ spot }) => { bounds.extend({ lat: spot.lat!, lng: spot.lng! }); count++; });
+
+    if (count === 1) {
+      map.setCenter(bounds.getCenter());
+      map.setZoom(15);
+    } else if (count > 1) {
+      map.fitBounds(bounds, 40);
+    }
+  };
+
+  const onLoad = (map: google.maps.Map) => {
     mapRef.current = map;
+    fitToContent(map);
+  };
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    }).addTo(map);
+  const onUnmount = () => {
+    mapRef.current = null;
+  };
 
-    const fitPoints: [number, number][] = [];
-
-    if (boundary && boundary.length >= 3) {
-      const poly = L.polygon(boundary, {
-        color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.12, weight: 2,
-      }).addTo(map);
-      (poly.getLatLngs()[0] as L.LatLng[]).forEach(ll => fitPoints.push([ll.lat, ll.lng]));
-    }
-
-    if (route && route.length >= 2) {
-      const line = L.polyline(route, {
-        color: '#12343B', weight: 6, opacity: 0.9, lineCap: 'round', lineJoin: 'round',
-      }).addTo(map);
-      (line.getLatLngs() as L.LatLng[]).forEach(ll => fitPoints.push([ll.lat, ll.lng]));
-    }
-
-    markerLayersRef.current = [];
-    spots.forEach((spot, index) => {
-      if (spot.lat == null || spot.lng == null) return;
-      const pos: [number, number] = [spot.lat, spot.lng];
-      fitPoints.push(pos);
-      const icon = numbered ? numberedSpotIcon(index + 1) : SPOT_ICON;
-      const marker = L.marker(pos, { icon })
-        .addTo(map)
-        .bindPopup(spotPopupHtml(spot, websiteLabel, michelinLabel, categoryLabel), { closeButton: true, minWidth: 180 });
-      markerLayersRef.current.push({ marker, category: spot.category ?? '', michelin: !!spot.michelinUrl });
-    });
-
-    if (fitPoints.length === 1) {
-      map.setView(fitPoints[0], 15);
-    } else if (fitPoints.length > 1) {
-      map.fitBounds(L.latLngBounds(fitPoints), { padding: [40, 40], maxZoom: 16 });
-    }
-
-    setTimeout(() => map.invalidateSize(), 80);
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      markerLayersRef.current = [];
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Recalculate tile layout when the container becomes visible again (e.g. a
-  // mobile list/map toggle) — the map was mounted once while hidden, so its
-  // cached size is stale rather than needing a full, expensive remount.
+  // Recalculate layout when the container becomes visible again (e.g. a
+  // mobile list/map toggle) — the map was mounted once while hidden.
   useEffect(() => {
     if (!visible || !mapRef.current) return;
-    const id = setTimeout(() => mapRef.current?.invalidateSize(), 50);
+    const id = setTimeout(() => {
+      google.maps.event.trigger(mapRef.current!, 'resize');
+      fitToContent(mapRef.current!);
+    }, 50);
     return () => clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible]);
-
-  // Show/hide markers when the category or Michelin filter changes
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    markerLayersRef.current.forEach(({ marker, category, michelin }) => {
-      const matches = (!activeCategory || category === activeCategory) && (!michelinOnly || michelin);
-      if (matches) {
-        if (!map.hasLayer(marker)) marker.addTo(map);
-      } else {
-        if (map.hasLayer(marker)) marker.remove();
-      }
-    });
-  }, [activeCategory, michelinOnly]);
 
   return (
     <div className="w-full space-y-2">
@@ -225,10 +171,79 @@ export function NeighbourhoodSpotsMap({
         </div>
       )}
       <div
-        ref={containerRef}
         className="w-full rounded-2xl overflow-hidden border border-gray-200"
         style={{ height: 360, background: '#e8eef0' }}
-      />
+      >
+        {isLoaded && (
+          <GoogleMap
+            mapContainerStyle={{ width: '100%', height: '100%' }}
+            center={center ? { lat: center[0], lng: center[1] } : QC_CENTRE}
+            zoom={14}
+            options={MAP_OPTIONS}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+          >
+            {boundaryPath && (
+              <PolygonF
+                path={boundaryPath}
+                options={{ strokeColor: '#12343B', strokeWeight: 2, fillColor: '#7ecfcf', fillOpacity: 0.12 }}
+              />
+            )}
+            {routePath && (
+              <PolylineF
+                path={routePath}
+                options={{ strokeColor: '#12343B', strokeWeight: 6, strokeOpacity: 0.9 }}
+              />
+            )}
+            {visibleSpots.map(({ spot, index }) => (
+              <MarkerF
+                key={spot.id}
+                position={{ lat: spot.lat!, lng: spot.lng! }}
+                icon={numbered ? numberedSpotIcon() : spotIcon()}
+                label={numbered ? { text: String(index + 1), color: '#ffffff', fontSize: '14px', fontWeight: '700' } : undefined}
+                onClick={() => setOpenSpotIndex(index)}
+              >
+                {openSpotIndex === index && (
+                  <InfoWindowF onCloseClick={() => setOpenSpotIndex(null)}>
+                    <div style={{ width: 180, fontFamily: 'inherit' }}>
+                      {spot.image && (
+                        <img src={spot.image} alt="" style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
+                      )}
+                      {(spot.category || spot.priceRange) && (
+                        <div style={{ fontSize: 11, color: '#12343B', fontWeight: 600, marginBottom: 2 }}>
+                          {[spot.category ? categoryLabel(spot.category) : undefined, spot.priceRange].filter(Boolean).join(' · ')}
+                        </div>
+                      )}
+                      <div style={{ fontSize: 14, fontWeight: 600, lineHeight: 1.25 }}>{spot.name}</div>
+                      {spot.address && <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>{spot.address}</div>}
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 10, marginTop: 6 }}>
+                        {spot.website && (
+                          <a href={spot.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, fontWeight: 600, color: '#12343B' }}>
+                            {websiteLabel} ↗
+                          </a>
+                        )}
+                        {spot.michelinUrl && (
+                          <a
+                            href={spot.michelinUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600,
+                              color: '#ffffff', background: '#dc2626', padding: '3px 8px', borderRadius: 9999,
+                            }}
+                          >
+                            <AwardIcon className="w-2.5 h-2.5" /> {michelinLabel}
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </InfoWindowF>
+                )}
+              </MarkerF>
+            ))}
+          </GoogleMap>
+        )}
+      </div>
     </div>
   );
 }

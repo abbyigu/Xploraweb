@@ -1,21 +1,12 @@
 import { useEffect, useRef } from 'react';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
-import '@geoman-io/leaflet-geoman-free';
-import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css';
+import { useGoogleMaps } from '../hooks/useGoogleMaps';
 
-// Rendered with vanilla Leaflet (not react-leaflet): react-leaflet v5 requires
-// React 19 and crashes under React 18, blanking the page. Same approach as
-// ExperienceMap.
+// Uses the raw Google Maps JS API imperatively (not the declarative
+// <GoogleMap>/<PolygonF> components) so live vertex edits from the drawing
+// library never fight with React re-rendering a controlled `path` prop —
+// mirrors the mount-once imperative style the old Leaflet version used.
 
-// Fix Leaflet default marker icons broken by Vite bundling
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9/dist/images/marker-shadow.png',
-});
-
-const QC: [number, number] = [46.8139, -71.208];
+const QC = { lat: 46.8139, lng: -71.208 };
 
 export interface MapState {
   lat: number | null;
@@ -29,156 +20,162 @@ interface Props {
   onChange: (v: MapState) => void;
 }
 
-// Style for the highlighted walk route (e.g. "stroll rue du Petit-Champlain").
-const ROUTE_STYLE: L.PolylineOptions = {
-  color: '#12343B', weight: 6, opacity: 0.9, lineCap: 'round', lineJoin: 'round',
+const BOUNDARY_STYLE: google.maps.PolygonOptions = {
+  strokeColor: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, strokeWeight: 2,
+  editable: true, draggable: false,
 };
 
-function ringOf(layer: L.Polygon): [number, number][] {
-  const lls = layer.getLatLngs()[0] as L.LatLng[];
-  return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
+// Style for the highlighted walk route (e.g. "stroll rue du Petit-Champlain").
+const ROUTE_STYLE: google.maps.PolylineOptions = {
+  strokeColor: '#12343B', strokeWeight: 6, strokeOpacity: 0.9, editable: true, draggable: false,
+};
+
+function ringOf(path: google.maps.MVCArray<google.maps.LatLng>): [number, number][] {
+  return path.getArray().map(ll => [+ll.lat().toFixed(6), +ll.lng().toFixed(6)]);
 }
 
-function lineOf(layer: L.Polyline): [number, number][] {
-  const lls = layer.getLatLngs() as L.LatLng[];
-  return lls.map(ll => [+ll.lat.toFixed(6), +ll.lng.toFixed(6)]);
+function lineOf(path: google.maps.MVCArray<google.maps.LatLng>): [number, number][] {
+  return path.getArray().map(ll => [+ll.lat().toFixed(6), +ll.lng().toFixed(6)]);
 }
 
 export function NeighbourhoodMap({ value, onChange }: Props) {
+  const { isLoaded } = useGoogleMaps();
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
-  const markerRef = useRef<L.Marker | null>(null);
-  const polyRef = useRef<L.Polygon | null>(null);
-  const routeRef = useRef<L.Polyline | null>(null);
+  const mapRef = useRef<google.maps.Map | null>(null);
+  const markerRef = useRef<google.maps.Marker | null>(null);
+  const polyRef = useRef<google.maps.Polygon | null>(null);
+  const routeRef = useRef<google.maps.Polyline | null>(null);
+  const drawingManagerRef = useRef<google.maps.drawing.DrawingManager | null>(null);
 
-  // Keep the latest value/onChange reachable from Leaflet event handlers
+  // Keep the latest value/onChange reachable from map event handlers
   // without re-initialising the map.
   const valueRef = useRef(value);
   valueRef.current = value;
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
-  // ── Init map once ───────────────────────────────────────────────────────────
+  // ── Init map once (after the SDK has loaded) ────────────────────────────────
   useEffect(() => {
-    if (!containerRef.current || mapRef.current) return;
+    if (!isLoaded || !containerRef.current || mapRef.current) return;
 
-    const map = L.map(containerRef.current).setView(
-      value.lat != null && value.lng != null ? [value.lat, value.lng] : QC,
-      14,
-    );
+    const map = new google.maps.Map(containerRef.current, {
+      center: value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : QC,
+      zoom: 14,
+      streetViewControl: false,
+      mapTypeControl: false,
+    });
     mapRef.current = map;
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    }).addTo(map);
-
     // Click to set the centre pin.
-    map.on('click', (e: L.LeafletMouseEvent) => {
+    map.addListener('click', (e: google.maps.MapMouseEvent) => {
+      if (!e.latLng) return;
       onChangeRef.current({
         ...valueRef.current,
-        lat: +e.latlng.lat.toFixed(6),
-        lng: +e.latlng.lng.toFixed(6),
+        lat: +e.latLng.lat().toFixed(6),
+        lng: +e.latLng.lng().toFixed(6),
       });
     });
 
     const syncBoundary = () =>
-      onChangeRef.current({ ...valueRef.current, boundary: polyRef.current ? ringOf(polyRef.current) : null });
+      onChangeRef.current({ ...valueRef.current, boundary: polyRef.current ? ringOf(polyRef.current.getPath()) : null });
     const syncRoute = () =>
-      onChangeRef.current({ ...valueRef.current, route: routeRef.current ? lineOf(routeRef.current) : null });
+      onChangeRef.current({ ...valueRef.current, route: routeRef.current ? lineOf(routeRef.current.getPath()) : null });
+
+    const attachPathListeners = (path: google.maps.MVCArray<google.maps.LatLng>, sync: () => void) => {
+      path.addListener('insert_at', sync);
+      path.addListener('remove_at', sync);
+      path.addListener('set_at', sync);
+    };
 
     // Seed an existing boundary as an editable polygon.
     if (value.boundary && value.boundary.length >= 3) {
-      polyRef.current = L.polygon(value.boundary, {
-        color: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, weight: 2,
-      }).addTo(map);
-      polyRef.current.on('pm:edit', syncBoundary);
+      const polygon = new google.maps.Polygon({ ...BOUNDARY_STYLE, paths: value.boundary.map(([lat, lng]) => ({ lat, lng })) });
+      polygon.setMap(map);
+      polyRef.current = polygon;
+      attachPathListeners(polygon.getPath(), syncBoundary);
     }
 
     // Seed an existing walk route as an editable polyline.
     if (value.route && value.route.length >= 2) {
-      routeRef.current = L.polyline(value.route, ROUTE_STYLE).addTo(map);
-      routeRef.current.on('pm:edit', syncRoute);
+      const polyline = new google.maps.Polyline({ ...ROUTE_STYLE, path: value.route.map(([lat, lng]) => ({ lat, lng })) });
+      polyline.setMap(map);
+      routeRef.current = polyline;
+      attachPathListeners(polyline.getPath(), syncRoute);
     }
 
-    // Geoman drawing toolbar (boundary polygon + walk-route polyline).
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const pm = (map as any).pm;
-    if (pm) {
-      pm.addControls({
-        position: 'topright',
-        drawMarker: false, drawCircleMarker: false, drawPolyline: true,
-        drawRectangle: false, drawCircle: false, drawText: false,
-        drawPolygon: true, editMode: true, dragMode: false,
-        cutPolygon: false, removalMode: true, rotateMode: false,
-      });
+    // Drawing toolbar (boundary polygon + walk-route polyline).
+    const drawingManager = new google.maps.drawing.DrawingManager({
+      drawingMode: null,
+      drawingControl: true,
+      drawingControlOptions: {
+        position: google.maps.ControlPosition.TOP_RIGHT,
+        drawingModes: [google.maps.drawing.OverlayType.POLYGON, google.maps.drawing.OverlayType.POLYLINE],
+      },
+      polygonOptions: BOUNDARY_STYLE,
+      polylineOptions: ROUTE_STYLE,
+    });
+    drawingManager.setMap(map);
+    drawingManagerRef.current = drawingManager;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      map.on('pm:create', (e: any) => {
-        if (e.shape === 'Line') {
-          // Keep a single walk route: drop the previously seeded/drawn line.
-          if (routeRef.current && routeRef.current !== e.layer) map.removeLayer(routeRef.current);
-          routeRef.current = e.layer as L.Polyline;
-          routeRef.current.setStyle(ROUTE_STYLE);
-          e.layer.on('pm:edit', syncRoute);
-          syncRoute();
-        } else {
-          // Keep a single boundary: drop the previously seeded/drawn polygon.
-          if (polyRef.current && polyRef.current !== e.layer) map.removeLayer(polyRef.current);
-          polyRef.current = e.layer as L.Polygon;
-          e.layer.on('pm:edit', syncBoundary);
-          syncBoundary();
-        }
-      });
+    drawingManager.addListener('overlaycomplete', (e: google.maps.drawing.OverlayCompleteEvent) => {
+      drawingManager.setDrawingMode(null); // exit draw mode after finishing one shape
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      map.on('pm:remove', (e: any) => {
-        if (e.layer === routeRef.current) { routeRef.current = null; syncRoute(); }
-        else if (e.layer === polyRef.current) { polyRef.current = null; syncBoundary(); }
-      });
-    }
-
-    // Container may mount at zero size inside the form; recompute after paint.
-    setTimeout(() => map.invalidateSize(), 0);
+      if (e.type === google.maps.drawing.OverlayType.POLYLINE) {
+        const line = e.overlay as google.maps.Polyline;
+        // Keep a single walk route: drop the previously seeded/drawn line.
+        if (routeRef.current && routeRef.current !== line) routeRef.current.setMap(null);
+        routeRef.current = line;
+        attachPathListeners(line.getPath(), syncRoute);
+        syncRoute();
+      } else {
+        const polygon = e.overlay as google.maps.Polygon;
+        // Keep a single boundary: drop the previously seeded/drawn polygon.
+        if (polyRef.current && polyRef.current !== polygon) polyRef.current.setMap(null);
+        polyRef.current = polygon;
+        attachPathListeners(polygon.getPath(), syncBoundary);
+        syncBoundary();
+      }
+    });
 
     return () => {
-      map.remove();
+      drawingManager.setMap(null);
+      polyRef.current?.setMap(null);
+      routeRef.current?.setMap(null);
+      markerRef.current?.setMap(null);
       mapRef.current = null;
       markerRef.current = null;
       polyRef.current = null;
       routeRef.current = null;
+      drawingManagerRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isLoaded]);
 
   // ── Sync the centre marker to value (covers clicks + "Clear all") ───────────
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (value.lat != null && value.lng != null) {
-      if (markerRef.current) markerRef.current.setLatLng([value.lat, value.lng]);
-      else markerRef.current = L.marker([value.lat, value.lng]).addTo(map);
+      if (markerRef.current) markerRef.current.setPosition({ lat: value.lat, lng: value.lng });
+      else markerRef.current = new google.maps.Marker({ position: { lat: value.lat, lng: value.lng }, map });
     } else if (markerRef.current) {
-      map.removeLayer(markerRef.current);
+      markerRef.current.setMap(null);
       markerRef.current = null;
     }
   }, [value.lat, value.lng]);
 
   // ── Remove the boundary polygon when cleared from outside ───────────────────
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
     if ((!value.boundary || value.boundary.length < 3) && polyRef.current) {
-      map.removeLayer(polyRef.current);
+      polyRef.current.setMap(null);
       polyRef.current = null;
     }
   }, [value.boundary]);
 
   // ── Remove the walk route when cleared from outside ─────────────────────────
   useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
     if ((!value.route || value.route.length < 2) && routeRef.current) {
-      map.removeLayer(routeRef.current);
+      routeRef.current.setMap(null);
       routeRef.current = null;
     }
   }, [value.route]);
