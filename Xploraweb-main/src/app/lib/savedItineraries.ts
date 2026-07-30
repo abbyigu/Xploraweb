@@ -1,6 +1,11 @@
 import { supabase } from './supabase';
 import type { GeneratedItinerary, GeneratedItineraryStop } from '../data/itineraryFilters';
 
+export interface ScrapbookPhoto {
+  url: string;
+  addedAt: string;
+}
+
 export interface SavedItinerary {
   id: string;
   title: string;
@@ -9,6 +14,17 @@ export interface SavedItinerary {
   estimatedDistanceKm: number;
   stops: GeneratedItineraryStop[];
   createdAt: string;
+  photos: ScrapbookPhoto[];
+  notes: string;
+  extraSpots: string[];
+  stopRatings: Record<string, number>;
+}
+
+export interface SavedItineraryScrapbookPatch {
+  photos?: ScrapbookPhoto[];
+  notes?: string;
+  extraSpots?: string[];
+  stopRatings?: Record<string, number>;
 }
 
 function mapRow(row: any): SavedItinerary {
@@ -20,6 +36,10 @@ function mapRow(row: any): SavedItinerary {
     estimatedDistanceKm: row.estimated_distance_km ?? 0,
     stops: row.stops || [],
     createdAt: row.created_at,
+    photos: row.photos || [],
+    notes: row.notes || '',
+    extraSpots: row.extra_spots || [],
+    stopRatings: row.stop_ratings || {},
   };
 }
 
@@ -54,4 +74,18 @@ export async function fetchSavedItineraries(): Promise<SavedItinerary[]> {
 
 export async function deleteSavedItinerary(id: string): Promise<void> {
   await supabase.from('xplora_saved_itineraries').delete().eq('id', id);
+}
+
+export async function updateItineraryScrapbook(
+  id: string,
+  patch: SavedItineraryScrapbookPatch
+): Promise<{ ok: boolean; error?: string }> {
+  const dbPatch: Record<string, unknown> = {};
+  if (patch.photos !== undefined) dbPatch.photos = patch.photos;
+  if (patch.notes !== undefined) dbPatch.notes = patch.notes;
+  if (patch.extraSpots !== undefined) dbPatch.extra_spots = patch.extraSpots;
+  if (patch.stopRatings !== undefined) dbPatch.stop_ratings = patch.stopRatings;
+
+  const { error } = await supabase.from('xplora_saved_itineraries').update(dbPatch).eq('id', id);
+  return error ? { ok: false, error: error.message } : { ok: true };
 }
