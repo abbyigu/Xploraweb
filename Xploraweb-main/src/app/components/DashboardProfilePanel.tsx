@@ -5,6 +5,7 @@ import { submitFeedback } from '../lib/feedback';
 import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
 import { buildGoogleMapsUrl } from '../lib/maps';
+import { ItineraryScrapbook } from './ItineraryScrapbook';
 import { useNavigate } from 'react-router';
 import { useExperiences } from '../hooks/useExperiences';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
   });
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved'>('profile');
   const [expandedExp, setExpandedExp] = useState<string | null>(null);
+  const [expandedItinerary, setExpandedItinerary] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | 'feedback' | null>(null);
@@ -440,8 +442,13 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                 <div className="space-y-3">
                   {savedItineraries.map((item) => {
                     const mapsUrl = buildGoogleMapsUrl(item.stops);
+                    const isItinOpen = expandedItinerary === item.id;
                     return (
-                    <div key={item.id} className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors">
+                    <div
+                      key={item.id}
+                      className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors cursor-pointer"
+                      onClick={() => setExpandedItinerary(isItinOpen ? null : item.id)}
+                    >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 min-w-0">
                           <Heart className="w-5 h-5 text-secondary fill-secondary flex-shrink-0 mt-0.5" />
@@ -453,19 +460,29 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                             </p>
                           </div>
                         </div>
-                        <button onClick={() => removeItinerary(item.id)} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors flex-shrink-0" aria-label={t('common.remove')}>
-                          <X className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button onClick={(e) => { e.stopPropagation(); removeItinerary(item.id); }} className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors" aria-label={t('common.remove')}>
+                            <X className="w-4 h-4" />
+                          </button>
+                          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isItinOpen ? 'rotate-180' : ''}`} />
+                        </div>
                       </div>
                       {mapsUrl && (
                         <a
                           href={mapsUrl}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
                         >
                           {t('account.openMaps')} <ExternalLink className="w-3.5 h-3.5" />
                         </a>
+                      )}
+                      {isItinOpen && (
+                        <ItineraryScrapbook
+                          itinerary={item}
+                          onChange={(updated) => setSavedItineraries((prev) => prev.map((si) => (si.id === updated.id ? updated : si)))}
+                        />
                       )}
                     </div>
                     );
