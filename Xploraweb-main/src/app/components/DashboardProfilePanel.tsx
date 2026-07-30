@@ -23,7 +23,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
   const [purchasedIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
   });
-  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved' | 'settings'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'saved' | 'settings'>('profile');
   const [expandedExp, setExpandedExp] = useState<string | null>(null);
   const [expandedItinerary, setExpandedItinerary] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -152,7 +152,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
 
       <div className="border-b border-border">
         <div className="flex gap-6 overflow-x-auto">
-          {(['profile', 'preferences', 'saved', 'settings'] as const).map((tab) => (
+          {(['profile', 'saved', 'settings'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -161,7 +161,6 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
               }`}
             >
               {tab === 'profile' ? t('account.profileTab')
-                : tab === 'preferences' ? t('account.preferencesTab')
                 : tab === 'saved' ? t('account.savedTab')
                 : t('account.settingsTab')}
             </button>
@@ -237,83 +236,8 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
       )}
 
       {activeTab === 'settings' && (
-        <div className="space-y-2">
-          {/* Notifications */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>{t('account.notifications')}</span></div>
-              {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-            </button>
-            {openSection === 'notifications' && (
-              <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                {([
-                  { key: 'email', label: t('account.emailNotifs') },
-                  { key: 'push', label: t('account.pushNotifs') },
-                  { key: 'newsletter', label: t('account.newsletter') },
-                ] as const).map(({ key, label }) => (
-                  <label key={key} className="flex items-center justify-between text-sm">
-                    <span>{label}</span>
-                    <input type="checkbox" checked={notifPrefs[key]} onChange={(e) => setNotifPrefs((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Privacy & Security */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>{t('account.privacySecurity')}</span></div>
-              {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-            </button>
-            {openSection === 'privacy' && (
-              <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
-                <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
-                  {passwordEmailSent ? t('account.passwordSent') : t('account.changePassword')}
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Feedback */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden">
-            <button onClick={() => toggleSection('feedback')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
-              <div className="flex items-center gap-3"><MessageSquare className="w-5 h-5 text-muted-foreground" /><span>{t('account.feedback')}</span></div>
-              {openSection === 'feedback' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-            </button>
-            {openSection === 'feedback' && (
-              <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
-                {feedbackStatus === 'done' ? (
-                  <p className="flex items-center gap-1.5 text-sm text-primary font-medium">
-                    <Check className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                    {t('feedback.successTitle')}
-                  </p>
-                ) : (
-                  <>
-                    <textarea
-                      rows={3}
-                      value={feedbackMessage}
-                      onChange={(e) => setFeedbackMessage(e.target.value)}
-                      placeholder={t('feedback.messagePlaceholder')}
-                      className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                    />
-                    <button
-                      onClick={handleSubmitFeedback}
-                      disabled={!feedbackMessage.trim() || feedbackStatus === 'loading'}
-                      className="w-full text-center text-sm px-3 py-2 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-60"
-                    >
-                      {feedbackStatus === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {activeTab === 'preferences' && (
         <div className="space-y-4">
+          {/* Interests */}
           <div className="bg-card rounded-xl p-4 border border-border">
             <h3 className="text-lg mb-4">{t('account.interests')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -329,12 +253,87 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
             </div>
           </div>
 
+          {/* Explore options */}
           <div className="bg-card rounded-xl p-4 border border-border">
             <h3 className="text-lg mb-4 flex items-center gap-2"><SlidersHorizontal className="w-4 h-4 text-muted-foreground" />{t('account.exploreOptions')}</h3>
             <div className="space-y-3">
               <label className="flex items-center justify-between"><span>{t('account.showHiddenGems')}</span><input type="checkbox" checked={exploreToggles.hiddenGems} onChange={() => toggleExplorePref('hiddenGems')} className="rounded" /></label>
               <label className="flex items-center justify-between"><span>{t('account.familyFriendly')}</span><input type="checkbox" checked={exploreToggles.familyFriendly} onChange={() => toggleExplorePref('familyFriendly')} className="rounded" /></label>
               <label className="flex items-center justify-between"><span>{t('account.budgetFriendly')}</span><input type="checkbox" checked={exploreToggles.budgetFriendly} onChange={() => toggleExplorePref('budgetFriendly')} className="rounded" /></label>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            {/* Notifications */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('notifications')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><Bell className="w-5 h-5 text-muted-foreground" /><span>{t('account.notifications')}</span></div>
+                {openSection === 'notifications' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'notifications' && (
+                <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+                  {([
+                    { key: 'email', label: t('account.emailNotifs') },
+                    { key: 'push', label: t('account.pushNotifs') },
+                    { key: 'newsletter', label: t('account.newsletter') },
+                  ] as const).map(({ key, label }) => (
+                    <label key={key} className="flex items-center justify-between text-sm">
+                      <span>{label}</span>
+                      <input type="checkbox" checked={notifPrefs[key]} onChange={(e) => setNotifPrefs((p) => ({ ...p, [key]: e.target.checked }))} className="rounded" />
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Privacy & Security */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('privacy')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><Lock className="w-5 h-5 text-muted-foreground" /><span>{t('account.privacySecurity')}</span></div>
+                {openSection === 'privacy' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'privacy' && (
+                <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                  <button onClick={handleChangePassword} className="w-full text-left text-sm px-3 py-2 rounded-lg border border-border hover:bg-muted transition-colors">
+                    {passwordEmailSent ? t('account.passwordSent') : t('account.changePassword')}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Feedback */}
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <button onClick={() => toggleSection('feedback')} className="w-full p-4 flex items-center justify-between hover:bg-muted transition-colors">
+                <div className="flex items-center gap-3"><MessageSquare className="w-5 h-5 text-muted-foreground" /><span>{t('account.feedback')}</span></div>
+                {openSection === 'feedback' ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              </button>
+              {openSection === 'feedback' && (
+                <div className="px-4 pb-4 border-t border-border pt-3 space-y-3">
+                  {feedbackStatus === 'done' ? (
+                    <p className="flex items-center gap-1.5 text-sm text-primary font-medium">
+                      <Check className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                      {t('feedback.successTitle')}
+                    </p>
+                  ) : (
+                    <>
+                      <textarea
+                        rows={3}
+                        value={feedbackMessage}
+                        onChange={(e) => setFeedbackMessage(e.target.value)}
+                        placeholder={t('feedback.messagePlaceholder')}
+                        className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                      />
+                      <button
+                        onClick={handleSubmitFeedback}
+                        disabled={!feedbackMessage.trim() || feedbackStatus === 'loading'}
+                        className="w-full text-center text-sm px-3 py-2 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-60"
+                      >
+                        {feedbackStatus === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
