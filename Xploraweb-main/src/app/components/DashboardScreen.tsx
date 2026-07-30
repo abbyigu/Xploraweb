@@ -137,34 +137,37 @@ export function DashboardScreen() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-        {/* Section tabs */}
-        <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
-          <button
-            onClick={() => setSection('profile')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'profile' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-          >
-            <User className="w-3.5 h-3.5" />
-            {t('account.title')}
-          </button>
-          {showBusiness && (
+        {/* Top-level area switcher — only shown when there's more than one area (business/admin),
+            so regular members never see a single-item tab bar */}
+        {(showBusiness || showAdmin) && (
+          <div className="flex gap-1 bg-muted rounded-xl p-1 w-fit">
             <button
-              onClick={() => setSection('business')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'business' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              onClick={() => setSection('profile')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'profile' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              <Building2 className="w-3.5 h-3.5" />
-              {t('business.dashboardTitle')}
+              <User className="w-3.5 h-3.5" />
+              {t('account.title')}
             </button>
-          )}
-          {showAdmin && (
-            <button
-              onClick={() => setSection('admin')}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'admin' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              <Shield className="w-3.5 h-3.5" />
-              {t('account.adminTab')}
-            </button>
-          )}
-        </div>
+            {showBusiness && (
+              <button
+                onClick={() => setSection('business')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'business' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <Building2 className="w-3.5 h-3.5" />
+                {t('business.dashboardTitle')}
+              </button>
+            )}
+            {showAdmin && (
+              <button
+                onClick={() => setSection('admin')}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${section === 'admin' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                <Shield className="w-3.5 h-3.5" />
+                {t('account.adminTab')}
+              </button>
+            )}
+          </div>
+        )}
 
         {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} />}
         {section === 'business' && showBusiness && <DashboardBusinessPanel profile={profile} />}
