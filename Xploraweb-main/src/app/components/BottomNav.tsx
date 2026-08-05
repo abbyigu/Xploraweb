@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router';
-import { Home, Compass, Info, MapPin, User, Languages } from 'lucide-react';
+import { Home, Compass, Heart, MapPin, User, Languages } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../hooks/useLanguage';
 
@@ -7,14 +7,20 @@ export function BottomNav() {
   const location = useLocation();
   const { t } = useTranslation();
   const { language, setLanguage } = useLanguage();
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    const [targetPath, targetQuery] = path.split('?');
+    if (location.pathname !== targetPath) return false;
+    const targetTab = new URLSearchParams(targetQuery).get('tab');
+    const currentTab = new URLSearchParams(location.search).get('tab');
+    return targetTab === currentTab;
+  };
 
   const navItems = [
-    { path: '/',              icon: Home,    label: t('bottomNav.home'),    badge: 0 },
-    { path: '/itinerary',     icon: Compass, label: t('bottomNav.walks'),   badge: 0 },
-    { path: '/about',         icon: Info,    label: t('bottomNav.about'),   badge: 0 },
-    { path: '/neighbourhoods', icon: MapPin, label: t('bottomNav.hoods'),   badge: 0 },
-    { path: '/dashboard',     icon: User,    label: t('bottomNav.account'), badge: 0 },
+    { path: '/',                    icon: Home,    label: t('bottomNav.home'),    badge: 0 },
+    { path: '/itinerary',           icon: Compass, label: t('bottomNav.walks'),   badge: 0 },
+    { path: '/dashboard?tab=saved', icon: Heart,   label: t('bottomNav.saved'),   badge: 0 },
+    { path: '/neighbourhoods',      icon: MapPin,  label: t('bottomNav.hoods'),   badge: 0 },
+    { path: '/dashboard',           icon: User,    label: t('bottomNav.account'), badge: 0 },
   ];
 
   return (
