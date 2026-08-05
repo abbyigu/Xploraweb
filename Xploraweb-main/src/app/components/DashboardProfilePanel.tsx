@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
-import { Heart, Bell, Lock, Camera, X, ChevronDown, ChevronUp, Building2, ExternalLink, MapPin, Map, MessageSquare, Check, SlidersHorizontal } from 'lucide-react';
+import { Heart, Bell, Lock, Camera, X, ChevronDown, ChevronUp, Building2, ExternalLink, MapPin, Map, MessageSquare, Check, SlidersHorizontal, Info } from 'lucide-react';
 import { supabase, upsertProfile } from '../lib/supabase';
 import { submitFeedback } from '../lib/feedback';
 import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
 import { buildGoogleMapsUrl } from '../lib/maps';
 import { ItineraryScrapbook } from './ItineraryScrapbook';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { useExperiences } from '../hooks/useExperiences';
 import { useTranslation } from 'react-i18next';
 import type { DashboardProfile } from './DashboardScreen';
@@ -317,6 +317,15 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
               </div>
             )}
           </div>
+
+          {/* Our Story */}
+          <Link
+            to="/about"
+            className="bg-card rounded-xl border border-border overflow-hidden p-4 flex items-center justify-between hover:bg-muted transition-colors"
+          >
+            <div className="flex items-center gap-3"><Info className="w-5 h-5 text-muted-foreground" /><span>{t('account.ourStory')}</span></div>
+            <ChevronDown className="w-4 h-4 text-muted-foreground -rotate-90" />
+          </Link>
         </div>
       )}
 

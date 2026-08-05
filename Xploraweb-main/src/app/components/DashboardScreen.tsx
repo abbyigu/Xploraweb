@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useNavigate, useSearchParams } from 'react-router';
+import { Link, useNavigate, useSearchParams } from 'react-router';
 import { LogOut, Shield, Building2, User } from 'lucide-react';
 import { supabase, getProfile } from '../lib/supabase';
 import { Footer } from './Footer';
@@ -85,34 +85,41 @@ export function DashboardScreen() {
 
   if (isGuest) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-12">
-        <div className="max-w-sm w-full text-center">
-          <div className="flex justify-center mb-6">
-            <XploraLogo variant="full" className="h-14" />
-          </div>
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex items-center justify-center px-6 py-12">
+          <div className="max-w-sm w-full text-center">
+            <div className="flex justify-center mb-6">
+              <XploraLogo variant="full" className="h-14" />
+            </div>
 
-          <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-            <User className="w-9 h-9 text-muted-foreground" />
-          </div>
+            <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
+              <User className="w-9 h-9 text-muted-foreground" />
+            </div>
 
-          <h1 className="text-2xl mb-2">{t('account.title')}</h1>
-          <p className="text-muted-foreground mb-8">{t('account.guestPrompt')}</p>
+            <h1 className="text-2xl mb-2">{t('account.title')}</h1>
+            <p className="text-muted-foreground mb-8">{t('account.guestPrompt')}</p>
 
-          <div className="space-y-3">
-            <button
-              onClick={() => navigate('/login')}
-              className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity font-medium"
-            >
-              {t('account.logIn')}
-            </button>
-            <button
-              onClick={() => navigate('/signup')}
-              className="w-full border border-border py-3 rounded-xl hover:bg-muted transition-colors font-medium"
-            >
-              {t('account.createAccount')}
-            </button>
+            <div className="space-y-3">
+              <button
+                onClick={() => navigate('/login')}
+                className="w-full bg-primary text-primary-foreground py-3 rounded-xl hover:opacity-90 transition-opacity font-medium"
+              >
+                {t('account.logIn')}
+              </button>
+              <button
+                onClick={() => navigate('/signup')}
+                className="w-full border border-border py-3 rounded-xl hover:bg-muted transition-colors font-medium"
+              >
+                {t('account.createAccount')}
+              </button>
+            </div>
+
+            <Link to="/about" className="inline-block mt-6 text-sm text-muted-foreground hover:text-foreground underline">
+              {t('account.ourStory')}
+            </Link>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
