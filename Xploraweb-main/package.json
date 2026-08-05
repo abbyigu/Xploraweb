@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/generate-sitemap.mjs && vite build && node scripts/prerender.mjs",
-    "dev": "vite"
+    "dev": "vite",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.13",
@@ -85,7 +86,8 @@
     "@types/node": "22.15.3",
     "@vitejs/plugin-react": "4.7.0",
     "tailwindcss": "4.1.12",
-    "vite": "6.3.5"
+    "vite": "6.3.5",
+    "vitest": "^4.1.10"
   },
   "pnpm": {
     "overrides": {

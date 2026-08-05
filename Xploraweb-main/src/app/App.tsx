@@ -24,6 +24,7 @@ function SkipLink() {
   );
 }
 const ItineraryScreen        = lazy(() => import('./components/ItineraryScreen').then(m => ({ default: m.ItineraryScreen })));
+const SharedItineraryScreen  = lazy(() => import('./components/SharedItineraryScreen').then(m => ({ default: m.SharedItineraryScreen })));
 const NeighbourhoodsScreen   = lazy(() => import('./components/NeighbourhoodsScreen').then(m => ({ default: m.NeighbourhoodsScreen })));
 const NeighbourhoodDetailScreen = lazy(() => import('./components/NeighbourhoodDetailScreen').then(m => ({ default: m.NeighbourhoodDetailScreen })));
 const HotspotsScreen         = lazy(() => import('./components/SpotCollectionScreen').then(m => ({ default: m.HotspotsScreen })));
@@ -144,6 +145,7 @@ export default function App() {
               <Route path="/account-setup" element={<AccountSetupScreen />} />
               <Route path="/account" element={<Navigate to="/dashboard" replace />} />
               <Route path="/itinerary" element={<ItineraryScreen />} />
+              <Route path="/i/:slug" element={<SharedItineraryScreen />} />
               <Route path="/experience/:id" element={<ExperienceDetailScreen />} />
               <Route path="/notifications" element={<NotificationsScreen />} />
               <Route path="/cart" element={<CartScreen />} />

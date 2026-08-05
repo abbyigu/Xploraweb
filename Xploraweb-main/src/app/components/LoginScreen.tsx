@@ -2,10 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
+import { emailSignIn } from '../lib/useEmailAuth';
 import { NotifyMeForm } from './NotifyMeForm';
-import { analytics } from '../lib/analytics';
 
 export function LoginScreen() {
   const navigate = useNavigate();
@@ -19,18 +18,14 @@ export function LoginScreen() {
     setError('');
     setLoading(true);
 
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: formData.email,
-      password: formData.password,
-    });
+    const result = await emailSignIn(formData.email, formData.password);
 
-    if (signInError) {
+    if (!result.ok) {
       setError(t('login.error'));
       setLoading(false);
       return;
     }
 
-    analytics.login('email');
     setLoading(false);
     navigate('/home');
   };

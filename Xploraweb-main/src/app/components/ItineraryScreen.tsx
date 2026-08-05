@@ -1,23 +1,22 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2, Award } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award, ChevronDown, SlidersHorizontal } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
 import { Switch } from './ui/switch';
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
-} from './ui/dialog';
-import { ItineraryResult } from './ItineraryResult';
+import { ItineraryResultsGrid } from './ItineraryResultsGrid';
+import { PremiumLimitModal } from './PremiumLimitModal';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
-import { supabase } from '../lib/supabase';
+import { useGenerationUsage } from '../hooks/useGenerationUsage';
+import { getItineraryIdentityHeaders } from '../lib/itineraryIdentityHeaders';
 import {
-  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, REGULAR_STOP_COUNTS, FOOD_HOP_STOP_COUNTS, getStopCountOptions,
+  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket,
 } from '../data/itineraryFilters';
 import type {
-  PriceRange, ItineraryGenerateRequest, GeneratedItinerary, ItineraryErrorCode,
+  PriceRange, ItineraryGenerateRequest, GeneratedItinerary, GeneratedItinerarySet, ItineraryErrorCode, Pace, DurationBucket,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -27,15 +26,13 @@ import { analytics } from '../lib/analytics';
 type EventTimeBucket = 'today' | 'weekend' | 'month';
 type GenState = 'idle' | 'loading' | 'success' | 'error';
 
-const GEN_COUNT_KEY = 'xplora_itinerary_gen_count';
-const SIGNUP_NUDGE_AT = 3;
-
 const ERROR_KEY: Record<ItineraryErrorCode, string> = {
   INVALID_INPUT: 'itineraryBuilder.errorLlm',
   NOT_CONFIGURED: 'itineraryBuilder.errorNotConfigured',
   NO_CANDIDATES: 'itineraryBuilder.errorNoCandidates',
   LLM_ERROR: 'itineraryBuilder.errorLlm',
   METHOD_NOT_ALLOWED: 'itineraryBuilder.errorLlm',
+  LIMIT_REACHED: 'itineraryBuilder.errorLlm',
 };
 
 function getEventTimeBucket(dateStr?: string): EventTimeBucket | 'future' | null {
@@ -81,25 +78,45 @@ export function ItineraryScreen() {
   const { neighbourhoods: neighbourhoodOptions } = useNeighbourhoods();
   const [searchParams] = useSearchParams();
   const isNightsView = searchParams.get('category') === 'xploranights';
+  const similarTo = searchParams.get('similarTo');
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
-  const [stopCount, setStopCount] = useState<number>(5);
+  const [durationKey, setDurationKey] = useState<DurationBucket['key']>('half');
+  const [pace, setPace] = useState<Pace>('moderate');
   const [categories, setCategories] = useState<SpotCategory[]>([]);
   const [restaurantHopping, setRestaurantHopping] = useState(false);
   const [michelinOnly, setMichelinOnly] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
+  const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
 
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
-  const [result, setResult] = useState<GeneratedItinerary | null>(null);
+  const [results, setResults] = useState<GeneratedItinerary[] | null>(null);
   const [genKey, setGenKey] = useState(0);
-  const [isGuest, setIsGuest] = useState(false);
-  const [showSignupNudge, setShowSignupNudge] = useState(false);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const { usage, setUsage, refresh: refreshUsage } = useGenerationUsage();
 
+  // "Generate something similar" from the /i/:slug page — prefill neighbourhood(s)
+  // and duration from the shared itinerary's stops, but don't auto-submit.
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setIsGuest(!session?.user));
-  }, []);
+    if (!similarTo) return;
+    fetch(`/api/get-shared-itinerary?slug=${encodeURIComponent(similarTo)}`)
+      .then(res => (res.ok ? res.json() : null))
+      .then((data: GeneratedItinerary | null) => {
+        if (!data) return;
+        const stopNeighbourhoods = Array.from(
+          new Set(data.stops.map(s => s.spot?.neighbourhood).filter((n): n is string => !!n)),
+        );
+        if (stopNeighbourhoods.length > 0) setNeighbourhoods(stopNeighbourhoods);
+        const count = data.stops.length;
+        const closest = DURATION_BUCKETS.reduce((best, b) =>
+          Math.abs(stopCountForBucket(b, false) - count) < Math.abs(stopCountForBucket(best, false) - count) ? b : best);
+        setDurationKey(closest.key);
+      })
+      .catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [similarTo]);
 
   function togglePriceRange(p: PriceRange) {
     setPriceRanges(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
@@ -109,8 +126,6 @@ export function ItineraryScreen() {
   }
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
-    const options: readonly number[] = next ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS;
-    setStopCount(prev => (options.includes(prev) ? prev : options[0]));
     if (next) setCategories([]);
     else setMichelinOnly(false);
   }
@@ -119,8 +134,14 @@ export function ItineraryScreen() {
   }
 
   async function handleGenerate() {
+    if (!usage.premium && usage.count >= usage.limit) {
+      setPremiumModalOpen(true);
+      return;
+    }
     setGenState('loading');
     setErrorCode(null);
+    const bucket = DURATION_BUCKETS.find(b => b.key === durationKey) || DURATION_BUCKETS[1];
+    const stopCount = stopCountForBucket(bucket, restaurantHopping);
     const body: ItineraryGenerateRequest = {
       stopCount,
       categories: restaurantHopping ? [] : categories,
@@ -129,28 +150,33 @@ export function ItineraryScreen() {
       language: i18n.language === 'fr' ? 'fr' : 'en',
       restaurantHopping,
       michelinOnly: restaurantHopping && michelinOnly,
+      pace,
     };
     try {
+      const identityHeaders = await getItineraryIdentityHeaders();
       const res = await fetch('/api/generate-itinerary', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...identityHeaders },
         body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) {
+        if (data?.code === 'LIMIT_REACHED') {
+          if (data.usage) setUsage(data.usage);
+          setGenState('idle');
+          setPremiumModalOpen(true);
+          return;
+        }
         setErrorCode((data?.code as ItineraryErrorCode) || 'LLM_ERROR');
         setGenState('error');
         return;
       }
-      setResult(data as GeneratedItinerary);
+      const set = data as GeneratedItinerarySet;
+      setResults(set.itineraries);
+      setUsage(set.usage);
       setGenKey(k => k + 1);
       setGenState('success');
       analytics.generateItinerary({ stopCount, categories, neighbourhoods });
-      if (isGuest) {
-        const count = Number(localStorage.getItem(GEN_COUNT_KEY) || '0') + 1;
-        localStorage.setItem(GEN_COUNT_KEY, String(count));
-        if (count === SIGNUP_NUDGE_AT) setShowSignupNudge(true);
-      }
     } catch {
       setErrorCode('LLM_ERROR');
       setGenState('error');
@@ -249,10 +275,10 @@ export function ItineraryScreen() {
                 {t('itineraryBuilder.subtitle')}
               </div>
 
-              {/* Neighbourhood */}
+              {/* Location */}
               {neighbourhoodOptions.length > 0 && (
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.neighbourhood')}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.location')}</p>
                   <div className="flex flex-wrap gap-2">
                     {neighbourhoodOptions.map(n => (
                       <Chip
@@ -267,62 +293,10 @@ export function ItineraryScreen() {
                 </div>
               )}
 
-              {/* Price */}
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {PRICE_RANGES.map(p => (
-                    <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
-                      {p}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stop count */}
-              <div>
-                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.stopCount')}</p>
-                <div className="flex flex-wrap gap-2">
-                  {getStopCountOptions(restaurantHopping).map(count => (
-                    <Chip key={count} active={stopCount === count} onClick={() => setStopCount(count)}>
-                      {t('itineraryBuilder.stopCountSingle', { count })}
-                    </Chip>
-                  ))}
-                </div>
-              </div>
-
-              {/* Restaurant hopping */}
-              <div>
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium">{t('itineraryBuilder.restaurantHopping')}</p>
-                    <p className="text-xs text-muted-foreground">{t('itineraryBuilder.restaurantHoppingDescription')}</p>
-                  </div>
-                  <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
-                </div>
-                {restaurantHopping && (
-                  <>
-                    <p className="text-xs text-muted-foreground mt-2 bg-primary/5 rounded-xl px-3 py-2">
-                      {t('itineraryBuilder.restaurantHoppingExplainer')}
-                    </p>
-                    <div className="flex items-center justify-between gap-3 mt-3 pl-3 border-l-2 border-red-600/30">
-                      <div>
-                        <p className="text-sm font-medium flex items-center gap-1.5">
-                          <Award className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />
-                          {t('itineraryBuilder.michelinOnly')}
-                        </p>
-                        <p className="text-xs text-muted-foreground">{t('itineraryBuilder.michelinOnlyDescription')}</p>
-                      </div>
-                      <Switch checked={michelinOnly} onCheckedChange={setMichelinOnly} />
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Categories */}
+              {/* Interests */}
               {!restaurantHopping && (
                 <div>
-                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.categories')}</p>
+                  <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.interests')}</p>
                   <div className="flex flex-wrap gap-2">
                     {ITINERARY_CATEGORIES.map(c => (
                       <Chip key={c} active={categories.includes(c)} onClick={() => toggleCategory(c)}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</Chip>
@@ -330,6 +304,89 @@ export function ItineraryScreen() {
                   </div>
                 </div>
               )}
+
+              {/* Time available */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.timeAvailable')}</p>
+                <div className="flex flex-wrap gap-2">
+                  {DURATION_BUCKETS.map(b => (
+                    <Chip key={b.key} active={durationKey === b.key} onClick={() => setDurationKey(b.key)}>
+                      {t(`itineraryBuilder.duration.${b.key}`)}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
+              {/* Pace */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.pace')}</p>
+                <div className="flex flex-wrap gap-2">
+                  {PACE_OPTIONS.map(p => (
+                    <Chip key={p} active={pace === p} onClick={() => setPace(p)}>
+                      {t(`itineraryBuilder.paceOption.${p}`)}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
+              {/* More filters */}
+              <div className="border-t border-border pt-4">
+                <button
+                  type="button"
+                  onClick={() => setMoreFiltersOpen(v => !v)}
+                  className="w-full flex items-center justify-between text-sm font-medium"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <SlidersHorizontal className="w-4 h-4" aria-hidden="true" />
+                    {t('itineraryBuilder.moreFilters')}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${moreFiltersOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                </button>
+
+                {moreFiltersOpen && (
+                  <div className="mt-4 space-y-5">
+                    {/* Price */}
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {PRICE_RANGES.map(p => (
+                          <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
+                            {p}
+                          </Chip>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Restaurant hopping */}
+                    <div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-medium">{t('itineraryBuilder.restaurantHopping')}</p>
+                          <p className="text-xs text-muted-foreground">{t('itineraryBuilder.restaurantHoppingDescription')}</p>
+                        </div>
+                        <Switch checked={restaurantHopping} onCheckedChange={handleRestaurantHoppingChange} />
+                      </div>
+                      {restaurantHopping && (
+                        <>
+                          <p className="text-xs text-muted-foreground mt-2 bg-primary/5 rounded-xl px-3 py-2">
+                            {t('itineraryBuilder.restaurantHoppingExplainer')}
+                          </p>
+                          <div className="flex items-center justify-between gap-3 mt-3 pl-3 border-l-2 border-red-600/30">
+                            <div>
+                              <p className="text-sm font-medium flex items-center gap-1.5">
+                                <Award className="w-3.5 h-3.5 text-red-600" aria-hidden="true" />
+                                {t('itineraryBuilder.michelinOnly')}
+                              </p>
+                              <p className="text-xs text-muted-foreground">{t('itineraryBuilder.michelinOnlyDescription')}</p>
+                            </div>
+                            <Switch checked={michelinOnly} onCheckedChange={setMichelinOnly} />
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
             <button
@@ -343,43 +400,31 @@ export function ItineraryScreen() {
                 <><Wand2 className="w-4 h-4" aria-hidden="true" /> {genState === 'success' ? t('itineraryBuilder.regenerate') : t('itineraryBuilder.generate')}</>
               )}
             </button>
-            <p className="text-xs text-muted-foreground text-center -mt-3">{t('itineraryBuilder.generateDescription')}</p>
+
+            <div className="flex items-center justify-center gap-2 -mt-3 text-xs text-muted-foreground">
+              <span>{t('itineraryBuilder.usageCount', { count: usage.count, limit: usage.limit })}</span>
+              {!usage.premium && (
+                <>
+                  <span aria-hidden="true">·</span>
+                  <button type="button" onClick={() => setPremiumModalOpen(true)} className="text-primary hover:underline">
+                    {t('itineraryBuilder.viewPremiumOptions')}
+                  </button>
+                </>
+              )}
+            </div>
 
             {genState === 'error' && errorCode && (
               <p className="text-sm text-red-600 text-center">{t(ERROR_KEY[errorCode])}</p>
             )}
           </div>
 
-          {genState === 'success' && result && (
-            <ItineraryResult key={genKey} result={result} />
+          {genState === 'success' && results && (
+            <ItineraryResultsGrid key={genKey} itineraries={results} />
           )}
         </>
       )}
 
-      <Dialog open={showSignupNudge} onOpenChange={setShowSignupNudge}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{t('itineraryBuilder.signupNudgeTitle', { count: SIGNUP_NUDGE_AT })}</DialogTitle>
-            <DialogDescription>{t('itineraryBuilder.signupNudgeBody')}</DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <button
-              type="button"
-              onClick={() => setShowSignupNudge(false)}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted/50 transition"
-            >
-              {t('itineraryBuilder.signupNudgeDismiss')}
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate('/signup')}
-              className="px-4 py-2 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
-            >
-              {t('itineraryBuilder.signupNudgeCta')}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <PremiumLimitModal open={premiumModalOpen} onOpenChange={(open) => { setPremiumModalOpen(open); if (!open) refreshUsage(); }} />
 
       <Footer />
     </div>

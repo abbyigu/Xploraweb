@@ -3,7 +3,14 @@ import { Plus, Trash2, Edit2, X, Check, MapPin, Lightbulb, LocateFixed, Language
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
-import { SPOT_CATEGORIES } from '../data/products';
+import { SPOT_CATEGORIES, SPOT_ROLES, inferDefaultRole, validateSpotRole, canAppearAsJourneyStep } from '../data/products';
+import type { SpotRole } from '../data/products';
+
+const ROLE_LABEL: Record<SpotRole, string> = {
+  destination: 'Destination (general)', restaurant: 'Restaurant', cafe: 'Café', bar: 'Bar',
+  shop: 'Shop', museum: 'Museum', gallery: 'Gallery', park: 'Park', viewpoint: 'Viewpoint',
+  landmark: 'Landmark', experience: 'Experience', transportation: 'Transportation', connector: 'Walking connector',
+};
 import { TagInput } from './TagInput';
 
 const PRICE_OPTIONS = [
@@ -16,7 +23,7 @@ const PRICE_OPTIONS = [
 
 const BLANK = {
   name: '', address: '', lat: '', lng: '',
-  website: '', michelin_url: '', reservation_url: '', neighbourhood: '', category: '', visit_time: '', price_range: '',
+  website: '', michelin_url: '', reservation_url: '', neighbourhood: '', category: '', role: '', visit_time: '', price_range: '',
   xplora_tips: '',
   tags: [] as string[],
   name_fr: '', xplora_tips_fr: '',
@@ -171,6 +178,7 @@ export function AdminSpotsPanel() {
       reservation_url: spot.reservation_url || '',
       neighbourhood: spot.neighbourhood || '',
       category: spot.category || '',
+      role: spot.role || '',
       visit_time: spot.visit_time || '',
       price_range: spot.price_range || '',
       xplora_tips: (spot.xplora_tips || []).join('\n'),
@@ -190,9 +198,15 @@ export function AdminSpotsPanel() {
     if (showForm) formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [showForm, editing]);
 
+  // Role isn't touched yet on this form pass — show what it would default to
+  // from the current category, without locking it in until save.
+  const displayedRole: SpotRole = (form.role as SpotRole) || inferDefaultRole(form.category);
+
   const handleSave = async () => {
     setSaving(true);
     setError('');
+    const roleError = validateSpotRole({ role: displayedRole, isBrunch: form.is_brunch, isHotspot: form.is_hotspot, isLoved: form.is_loved });
+    if (roleError) { setError(roleError); setSaving(false); return; }
     try {
       let imageUrl: string | null = imagePreview && !imageFile ? imagePreview : null;
       if (imageFile) {
@@ -213,6 +227,7 @@ export function AdminSpotsPanel() {
         image_url: imageUrl,
         neighbourhood: form.neighbourhood.trim() || null,
         category: form.category || null,
+        role: displayedRole,
         visit_time: form.visit_time.trim() || null,
         price_range: form.price_range || null,
         xplora_tips: form.xplora_tips ? form.xplora_tips.split('\n').map(s => s.trim()).filter(Boolean) : null,
@@ -385,6 +400,29 @@ export function AdminSpotsPanel() {
                 {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Role</label>
+              <select
+                value={displayedRole}
+                onChange={e => {
+                  const role = e.target.value as SpotRole;
+                  const isTransit = role === 'transportation' || role === 'connector';
+                  setForm(f => ({
+                    ...f, role,
+                    ...(isTransit ? { is_brunch: false, is_hotspot: false, is_loved: false } : {}),
+                  }));
+                }}
+                className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+              >
+
+                {SPOT_ROLES.map(r => <option key={r} value={r}>{ROLE_LABEL[r]}</option>)}
+              </select>
+              <p className="text-[11px] text-muted-foreground mt-1">
+                {displayedRole === 'transportation' || displayedRole === 'connector'
+                  ? 'Shown only as a journey step between stops — never a numbered itinerary stop.'
+                  : 'Defaults from category — set to Transportation/Walking connector for things like a funicular or a staircase.'}
+              </p>
+            </div>
 
             <div>
               <label className="text-xs text-muted-foreground">Website</label>
@@ -425,8 +463,9 @@ export function AdminSpotsPanel() {
               <div>
                 <button
                   type="button"
+                  disabled={canAppearAsJourneyStep(displayedRole)}
                   onClick={() => setForm(f => ({ ...f, is_brunch: !f.is_brunch }))}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                     form.is_brunch
                       ? 'bg-gradient-to-r from-amber-400 to-orange-400 text-white'
                       : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
@@ -440,8 +479,9 @@ export function AdminSpotsPanel() {
               <div>
                 <button
                   type="button"
+                  disabled={canAppearAsJourneyStep(displayedRole)}
                   onClick={() => setForm(f => ({ ...f, is_hotspot: !f.is_hotspot }))}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                     form.is_hotspot
                       ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white'
                       : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
@@ -455,8 +495,9 @@ export function AdminSpotsPanel() {
               <div>
                 <button
                   type="button"
+                  disabled={canAppearAsJourneyStep(displayedRole)}
                   onClick={() => setForm(f => ({ ...f, is_loved: !f.is_loved }))}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                     form.is_loved
                       ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'
                       : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
@@ -699,6 +740,7 @@ export function AdminSpotsPanel() {
                       </p>
                       <p className="text-xs text-muted-foreground truncate">
                         {[spot.category, spot.price_range].filter(Boolean).join(' · ') || 'No location'}
+                        {spot.role === 'transportation' || spot.role === 'connector' ? ` · ${ROLE_LABEL[spot.role as SpotRole]}` : ''}
                         {spot.lat == null || spot.lng == null ? ' · ⚠ no coords' : ''}
                       </p>
                     </div>

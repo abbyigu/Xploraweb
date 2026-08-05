@@ -31,6 +31,34 @@ export function getStopCountOptions(restaurantHopping: boolean): readonly number
   return restaurantHopping ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS;
 }
 
+// "Time available" chips shown by default in the simplified generator — each
+// bucket maps to an existing valid stopCount so the API's stop-count
+// validation (REGULAR_STOP_COUNTS/FOOD_HOP_STOP_COUNTS) keeps working
+// unchanged; this is purely a friendlier label over the same underlying value.
+export interface DurationBucket {
+  key: 'short' | 'half' | 'full';
+  stopCount: number;
+  foodHopStopCount: number;
+}
+
+export const DURATION_BUCKETS: DurationBucket[] = [
+  { key: 'short', stopCount: 3, foodHopStopCount: 3 },
+  { key: 'half', stopCount: 5, foodHopStopCount: 4 },
+  { key: 'full', stopCount: 9, foodHopStopCount: 6 },
+];
+
+export function stopCountForBucket(bucket: DurationBucket, restaurantHopping: boolean): number {
+  return restaurantHopping ? bucket.foodHopStopCount : bucket.stopCount;
+}
+
+export function bucketForStopCount(stopCount: number, restaurantHopping: boolean): DurationBucket['key'] | null {
+  const match = DURATION_BUCKETS.find(b => stopCountForBucket(b, restaurantHopping) === stopCount);
+  return match?.key ?? null;
+}
+
+export const PACE_OPTIONS = ['relaxed', 'moderate', 'packed'] as const;
+export type Pace = (typeof PACE_OPTIONS)[number];
+
 export interface ItineraryGenerateRequest {
   stopCount: number;
   categories: SpotCategory[];
@@ -39,12 +67,31 @@ export interface ItineraryGenerateRequest {
   language: 'en' | 'fr';
   restaurantHopping: boolean;
   michelinOnly: boolean;
+  pace: Pace;
+  // Stops the user pinned on a previous generation — carried into the next
+  // regeneration so they survive it instead of being reshuffled away.
+  pinnedSpotIds?: string[];
 }
 
 export interface GeneratedItineraryStop {
+  type?: 'stop'; // absent on itineraries saved before journey steps existed — treat as 'stop'
   order: number;
   note: string;
   spot: Spot;
+}
+
+// A connector/transportation spot shown between two stops (e.g. a staircase
+// or the funicular) — never numbered, never pinnable, never a generation stop.
+export interface JourneyStep {
+  type: 'journeyStep';
+  description: string;
+  spot: Spot;
+}
+
+export type ItineraryItem = GeneratedItineraryStop | JourneyStep;
+
+export function isJourneyStep(item: ItineraryItem): item is JourneyStep {
+  return item.type === 'journeyStep';
 }
 
 export interface GeneratedItinerary {
@@ -52,7 +99,19 @@ export interface GeneratedItinerary {
   summary: string;
   estimatedDurationMin: number;
   estimatedDistanceKm: number;
-  stops: GeneratedItineraryStop[];
+  stops: ItineraryItem[];
+  alternates?: Spot[];
 }
 
-export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED';
+export interface GenerationUsage {
+  count: number;
+  limit: number;
+  premium: boolean;
+}
+
+export interface GeneratedItinerarySet {
+  itineraries: GeneratedItinerary[];
+  usage: GenerationUsage;
+}
+
+export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED' | 'LIMIT_REACHED';

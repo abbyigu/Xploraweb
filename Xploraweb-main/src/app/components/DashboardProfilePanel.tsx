@@ -16,14 +16,14 @@ function getInitials(name: string): string {
   return name.trim().split(' ').filter(Boolean).slice(0, 2).map((n) => n[0].toUpperCase()).join('') || '?';
 }
 
-export function DashboardProfilePanel({ profile, setProfile }: { profile: DashboardProfile; setProfile: React.Dispatch<React.SetStateAction<DashboardProfile>> }) {
+export function DashboardProfilePanel({ profile, setProfile, initialTab }: { profile: DashboardProfile; setProfile: React.Dispatch<React.SetStateAction<DashboardProfile>>; initialTab?: 'profile' | 'preferences' | 'saved' | 'settings' }) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const { experiences } = useExperiences();
   const [purchasedIds] = useState<string[]>(() => {
     try { return JSON.parse(localStorage.getItem('xplora_purchased') || '[]'); } catch { return []; }
   });
-  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved' | 'settings'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'saved' | 'settings'>(initialTab || 'profile');
   const [expandedExp, setExpandedExp] = useState<string | null>(null);
   const [expandedItinerary, setExpandedItinerary] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -34,6 +34,7 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'loading' | 'done'>('idle');
   const [savedItineraries, setSavedItineraries] = useState<SavedItinerary[]>([]);
+  const [copiedItineraryId, setCopiedItineraryId] = useState<string | null>(null);
   const [savedPerks, setSavedPerks] = useState(() => {
     try {
       const raw = localStorage.getItem('xplora_saved_perks');
@@ -73,6 +74,13 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
   const removeItinerary = async (id: string) => {
     setSavedItineraries((prev) => prev.filter((i) => i.id !== id));
     await deleteSavedItinerary(id);
+  };
+
+  const copyItineraryLink = (slug: string, id: string) => {
+    navigator.clipboard.writeText(`${window.location.origin}/i/${slug}`).then(() => {
+      setCopiedItineraryId(id);
+      setTimeout(() => setCopiedItineraryId((prev) => (prev === id ? null : prev)), 2000);
+    });
   };
 
   const removePerk = (id: number) => {
@@ -451,14 +459,14 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
               {savedItineraries.length === 0 ? (
                 <p className="text-sm text-muted-foreground py-2">{t('account.noItineraries')}</p>
               ) : (
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {savedItineraries.map((item) => {
                     const mapsUrl = buildGoogleMapsUrl(item.stops);
                     const isItinOpen = expandedItinerary === item.id;
                     return (
                     <div
                       key={item.id}
-                      className="bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors cursor-pointer"
+                      className={`bg-card rounded-xl p-4 border border-border hover:bg-muted transition-colors cursor-pointer ${isItinOpen ? 'md:col-span-2 lg:col-span-3' : ''}`}
                       onClick={() => setExpandedItinerary(isItinOpen ? null : item.id)}
                     >
                       <div className="flex items-start justify-between gap-3">
@@ -479,17 +487,35 @@ export function DashboardProfilePanel({ profile, setProfile }: { profile: Dashbo
                           <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isItinOpen ? 'rotate-180' : ''}`} />
                         </div>
                       </div>
-                      {mapsUrl && (
-                        <a
-                          href={mapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="mt-3 inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
-                        >
-                          {t('account.openMaps')} <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      )}
+                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5">
+                        {mapsUrl && (
+                          <a
+                            href={mapsUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                          >
+                            {t('account.openMaps')} <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        )}
+                        {item.slug && (
+                          <>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); navigate(`/i/${item.slug}`, { state: { owned: true, itineraryId: item.id } }); }}
+                              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                            >
+                              {t('account.openItinerary')}
+                            </button>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); copyItineraryLink(item.slug!, item.id); }}
+                              className="inline-flex items-center gap-1.5 text-sm text-primary hover:underline"
+                            >
+                              {copiedItineraryId === item.id ? t('itineraryBuilder.linkCopied') : t('account.copyLink')}
+                            </button>
+                          </>
+                        )}
+                      </div>
                       {isItinOpen && (
                         <ItineraryScrapbook
                           itinerary={item}

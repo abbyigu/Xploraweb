@@ -2,11 +2,9 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
-import { supabase } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
-import { subscribeToNewsletter } from '../lib/newsletter';
+import { emailSignUp } from '../lib/useEmailAuth';
 import { NotifyMeForm } from './NotifyMeForm';
-import { analytics } from '../lib/analytics';
 
 export function SignupScreen() {
   const navigate = useNavigate();
@@ -26,39 +24,19 @@ export function SignupScreen() {
     }
 
     setLoading(true);
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    const result = await emailSignUp({
+      name: formData.name,
       email: formData.email,
       password: formData.password,
-      options: {
-        data: { name: formData.name, account_type: 'member' },
-      },
+      newsletter,
     });
 
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
+    setLoading(false);
+    if (!result.ok) {
+      setError(result.error || '');
       return;
     }
 
-    analytics.signUp('email');
-
-    const userId = signUpData?.user?.id;
-    if (userId) {
-      await supabase.from('profiles').upsert({
-        id: userId,
-        name: formData.name,
-        email: formData.email,
-        location: 'Quebec City, QC',
-        interests: [],
-        avatar_url: null,
-      });
-    }
-
-    if (newsletter) {
-      await subscribeToNewsletter(formData.email, formData.name);
-    }
-
-    setLoading(false);
     navigate('/account-setup');
   };
 
