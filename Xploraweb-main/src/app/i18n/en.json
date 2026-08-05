@@ -289,7 +289,9 @@
     "toursComingSoonTitle": "Self-guided routes are free and ready today",
     "toursComingSoonBody": "Guided tours, premium routes, and evening events are coming soon. Want to know the moment they launch?",
     "seoTitle": "Self-Guided Walks in Québec City | Xplora",
-    "seoDesc": "Build a custom self-guided walking route in Québec City. Filter by price, number of stops, and category — then explore at your own pace."
+    "seoDesc": "Build a custom self-guided walking route in Québec City. Filter by price, number of stops, and category — then explore at your own pace.",
+    "resultsTitle": "Your Itinerary Suggestions",
+    "resultsSubtitle": "We've crafted {{count}} unique itineraries based on your preferences. Click on any itinerary to see all the details and choose your favourite!"
   },
   "itineraryBuilder": {
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
@@ -342,7 +344,17 @@
     "copyLink": "Copy link",
     "linkCopied": "Copied!",
     "viewSavedItinerary": "View saved itinerary",
-    "viewItinerary": "View itinerary"
+    "viewItinerary": "View Details",
+    "modify": "Modify",
+    "locationFixed": "Québec City",
+    "interestsAny": "Anything goes",
+    "resultDurationLabel": "~{{duration}} min",
+    "resultDistanceLabel": "{{distance}} km",
+    "freePlanTitle": "{{limit}} free itineraries per month",
+    "freePlanUsed": "You've used {{count}} of {{limit}} free itineraries.",
+    "unlockUnlimitedTitle": "Unlock unlimited itineraries!",
+    "unlockUnlimitedBody": "Create as many personalized itineraries as you want with GoXplora Premium.",
+    "seePlans": "See Plans"
   },
   "authModal": {
     "title": "Save your itinerary for later",

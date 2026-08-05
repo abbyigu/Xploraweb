@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2, Award, ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award, ChevronDown, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -89,6 +89,7 @@ export function ItineraryScreen() {
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
+  const [filtersOpen, setFiltersOpen] = useState(true);
 
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
@@ -176,6 +177,7 @@ export function ItineraryScreen() {
       setUsage(set.usage);
       setGenKey(k => k + 1);
       setGenState('success');
+      setFiltersOpen(false);
       analytics.generateItinerary({ stopCount, categories, neighbourhoods });
     } catch {
       setErrorCode('LLM_ERROR');
@@ -234,6 +236,14 @@ export function ItineraryScreen() {
     );
   }
 
+  const showResults = !isNightsView && !siteContent.itineraryPaywalled && genState === 'success' && !!results;
+  const interestsLabel = restaurantHopping
+    ? t('itineraryBuilder.restaurantHopping')
+    : categories.length > 0
+      ? categories.map(c => t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)).join(', ')
+      : t('itineraryBuilder.interestsAny');
+  const locationLabel = neighbourhoods.length > 0 ? neighbourhoods.join(', ') : t('itineraryBuilder.locationFixed');
+
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO
@@ -243,8 +253,17 @@ export function ItineraryScreen() {
       />
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-2xl md:text-3xl mb-1">{t('itinerary.title')}</h1>
-          <p className="text-sm md:text-base opacity-90">{t('itinerary.subtitle')}</p>
+          {showResults ? (
+            <h1 className="text-2xl md:text-3xl mb-1 inline-flex items-center gap-2">
+              {t('itinerary.resultsTitle')}
+              <Sparkles className="w-5 h-5 text-xplora-ink" aria-hidden="true" />
+            </h1>
+          ) : (
+            <h1 className="text-2xl md:text-3xl mb-1">{t('itinerary.title')}</h1>
+          )}
+          <p className="text-sm md:text-base opacity-90">
+            {showResults ? t('itinerary.resultsSubtitle', { count: results!.length }) : t('itinerary.subtitle')}
+          </p>
         </div>
       </div>
 
@@ -269,6 +288,35 @@ export function ItineraryScreen() {
       ) : (
         <>
           <div className="max-w-3xl mx-auto px-6 md:px-8 pt-6 pb-10 space-y-6">
+            {!filtersOpen ? (
+              <div className="bg-muted/40 border border-border rounded-3xl p-4 md:p-5 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <MapPin className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                  {locationLabel}
+                </span>
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Heart className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                  {interestsLabel}
+                </span>
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                  {t(`itineraryBuilder.duration.${durationKey}`)}
+                </span>
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Footprints className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                  {t(`itineraryBuilder.paceOption.${pace}`)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setFiltersOpen(true)}
+                  className="ml-auto inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition"
+                >
+                  <Pencil className="w-3.5 h-3.5" aria-hidden="true" />
+                  {t('itineraryBuilder.modify')}
+                </button>
+              </div>
+            ) : (
+            <>
             <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 space-y-5">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <Wand2 className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
@@ -416,10 +464,51 @@ export function ItineraryScreen() {
             {genState === 'error' && errorCode && (
               <p className="text-sm text-red-600 text-center">{t(ERROR_KEY[errorCode])}</p>
             )}
+            </>
+            )}
           </div>
 
           {genState === 'success' && results && (
             <ItineraryResultsGrid key={genKey} itineraries={results} />
+          )}
+
+          {showResults && !usage.premium && (
+            <div className="max-w-7xl mx-auto px-6 md:px-8 mt-6">
+              <div className="bg-muted/40 border border-border rounded-3xl p-5 md:p-6 flex flex-col md:flex-row items-center gap-5 md:gap-8">
+                <div className="flex items-center gap-3 flex-1 w-full">
+                  <div className="w-9 h-9 rounded-full bg-xplora-icon-bg flex items-center justify-center flex-shrink-0">
+                    <Gift className="w-4 h-4 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{t('itineraryBuilder.freePlanTitle', { limit: usage.limit })}</p>
+                    <p className="text-xs text-muted-foreground mb-1.5">{t('itineraryBuilder.freePlanUsed', { count: usage.count, limit: usage.limit })}</p>
+                    <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-primary"
+                        style={{ width: `${Math.min(100, (usage.count / usage.limit) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="hidden md:block w-px h-12 bg-border flex-shrink-0" />
+                <div className="flex items-center gap-3 flex-1 w-full">
+                  <div className="w-9 h-9 rounded-full bg-xplora-icon-bg flex items-center justify-center flex-shrink-0">
+                    <Lock className="w-4 h-4 text-primary" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">{t('itineraryBuilder.unlockUnlimitedTitle')}</p>
+                    <p className="text-xs text-muted-foreground">{t('itineraryBuilder.unlockUnlimitedBody')}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPremiumModalOpen(true)}
+                    className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0"
+                  >
+                    {t('itineraryBuilder.seePlans')}
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
         </>
       )}

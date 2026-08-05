@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Clock, Heart, Loader2, MapPin, Copy, Check } from 'lucide-react';
+import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 import { ItineraryFullView } from './ItineraryFullView';
 import { AuthModal } from './AuthModal';
@@ -11,6 +11,7 @@ import type { GeneratedItinerary } from '../data/itineraryFilters';
 
 interface Props {
   itinerary: GeneratedItinerary;
+  index?: number;
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -23,7 +24,16 @@ function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
   return seen;
 }
 
-export function ItineraryResultCard({ itinerary }: Props) {
+function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
+  const prices = [...new Set(itinerary.stops.map(s => s.spot.priceRange).filter((p): p is string => !!p))]
+    .sort((a, b) => a.length - b.length);
+  if (prices.length === 0) return null;
+  const min = prices[0];
+  const max = prices[prices.length - 1];
+  return min === max ? min : `${min}-${max}`;
+}
+
+export function ItineraryResultCard({ itinerary, index }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -34,6 +44,7 @@ export function ItineraryResultCard({ itinerary }: Props) {
 
   const coverImage = itinerary.stops[0]?.spot.image || null;
   const categories = topCategories(itinerary);
+  const priceLabel = priceRangeSummary(itinerary);
   const shareUrl = savedSlug ? `${window.location.origin}/i/${savedSlug}` : null;
 
   function copyShareLink() {
@@ -102,19 +113,28 @@ export function ItineraryResultCard({ itinerary }: Props) {
               <MapPin className="w-8 h-8" aria-hidden="true" />
             </div>
           )}
+          {typeof index === 'number' && (
+            <div className="absolute top-3 left-3 w-7 h-7 rounded-full bg-xplora-ink text-white text-sm font-medium flex items-center justify-center ring-2 ring-white/80">
+              {index + 1}
+            </div>
+          )}
         </div>
         <div className="p-4 md:p-5 flex flex-col gap-2 flex-1">
           <h3 className="text-base md:text-lg font-medium leading-tight">{itinerary.title}</h3>
           <p className="text-sm text-muted-foreground line-clamp-1">{itinerary.summary}</p>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="inline-flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.resultMeta', { duration: itinerary.estimatedDurationMin, distance: itinerary.estimatedDistanceKm })}
+              <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.resultDurationLabel', { duration: itinerary.estimatedDurationMin })}
             </span>
+            <span className="inline-flex items-center gap-1">
+              <Footprints className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.resultDistanceLabel', { distance: itinerary.estimatedDistanceKm })}
+            </span>
+            {priceLabel && <span className="inline-flex items-center gap-1">{priceLabel}</span>}
           </div>
           {categories.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-1">
               {categories.map(c => (
-                <span key={c} className="text-[11px] font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
+                <span key={c} className="text-[11px] font-medium px-2 py-1 rounded-full bg-muted text-foreground/80 border border-border">
                   {t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}
                 </span>
               ))}
@@ -125,7 +145,7 @@ export function ItineraryResultCard({ itinerary }: Props) {
           <button
             type="button"
             onClick={() => setViewOpen(true)}
-            className="text-sm font-medium text-[#12343B] hover:underline"
+            className="text-sm font-medium text-xplora-ink hover:underline"
           >
             {t('itineraryBuilder.viewItinerary')}
           </button>

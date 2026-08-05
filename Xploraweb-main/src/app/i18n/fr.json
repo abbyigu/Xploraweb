@@ -289,7 +289,9 @@
     "toursComingSoonTitle": "Les parcours autonomes sont gratuits et prêts dès aujourd'hui",
     "toursComingSoonBody": "Les visites guidées, parcours premium et événements en soirée arrivent bientôt. Envie d'être averti dès leur lancement ?",
     "seoTitle": "Balades autoguidées à Québec | Xplora",
-    "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, nombre d'arrêts et catégorie — puis explorez à votre rythme."
+    "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, nombre d'arrêts et catégorie — puis explorez à votre rythme.",
+    "resultsTitle": "Vos suggestions d'itinéraires",
+    "resultsSubtitle": "Nous avons créé {{count}} itinéraires uniques selon vos préférences. Cliquez sur un itinéraire pour voir tous les détails et choisir votre favori!"
   },
   "itineraryBuilder": {
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
@@ -342,7 +344,17 @@
     "copyLink": "Copier le lien",
     "linkCopied": "Copié!",
     "viewSavedItinerary": "Voir l'itinéraire sauvegardé",
-    "viewItinerary": "Voir l'itinéraire"
+    "viewItinerary": "Voir les détails",
+    "modify": "Modifier",
+    "locationFixed": "Ville de Québec",
+    "interestsAny": "Tout m'intéresse",
+    "resultDurationLabel": "~{{duration}} min",
+    "resultDistanceLabel": "{{distance}} km",
+    "freePlanTitle": "{{limit}} itinéraires gratuits par mois",
+    "freePlanUsed": "Vous avez utilisé {{count}} de {{limit}} itinéraires gratuits.",
+    "unlockUnlimitedTitle": "Débloquez les itinéraires illimités!",
+    "unlockUnlimitedBody": "Créez autant d'itinéraires personnalisés que vous voulez avec GoXplora Premium.",
+    "seePlans": "Voir les forfaits"
   },
   "authModal": {
     "title": "Sauvegardez votre itinéraire pour plus tard",
