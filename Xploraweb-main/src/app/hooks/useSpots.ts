@@ -29,6 +29,7 @@ export function mapSpotRow(row: any): Spot {
     neighbourhood: row.neighbourhood || undefined,
     vibes: row.vibes || undefined,
     category: row.category || undefined,
+    role: row.role || undefined,
     isBrunch: row.is_brunch || undefined,
     isHotspot: row.is_hotspot || undefined,
     isLoved: row.is_loved || undefined,

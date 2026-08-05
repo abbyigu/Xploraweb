@@ -301,13 +301,13 @@
     "restaurantHoppingExplainer": "A food hop is a self-guided crawl that strings together multiple restaurants, cafés, and bars in one walk — so you can grab a bite or a drink at each stop instead of committing to a single meal.",
     "michelinOnly": "Michelin Guide only",
     "michelinOnlyDescription": "Only include restaurants listed in the Michelin Guide.",
-    "generate": "Generate my route",
+    "generate": "Generate 3 itineraries",
     "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
-    "generating": "Building your route…",
+    "generating": "Creating 3 local adventures for you…",
     "regenerate": "Generate a different route",
     "errorNotConfigured": "This feature isn't available right now — please check back later.",
     "errorNoCandidates": "No spots match your filters yet — try fewer filters.",
-    "errorLlm": "Something went wrong generating your route. Please try again.",
+    "errorLlm": "We couldn't create your itineraries. Please adjust your preferences and try again.",
     "resultMeta": "~{{duration}} min · {{distance}} km",
     "openInMaps": "Open in Google Maps",
     "saveRoute": "Save route",
@@ -318,7 +318,68 @@
     "signupNudgeTitle": "You've generated {{count}} routes",
     "signupNudgeBody": "Create a free account to save your routes, access them offline, and get new Québec City spots delivered weekly.",
     "signupNudgeCta": "Create Free Account",
-    "signupNudgeDismiss": "Maybe later"
+    "signupNudgeDismiss": "Maybe later",
+    "location": "Location",
+    "interests": "Interests",
+    "timeAvailable": "Time available",
+    "pace": "Pace",
+    "duration": {
+      "short": "1–2 hrs",
+      "half": "Half day",
+      "full": "Full day"
+    },
+    "paceOption": {
+      "relaxed": "Relaxed",
+      "moderate": "Moderate",
+      "packed": "Packed"
+    },
+    "moreFilters": "More filters",
+    "usageCount": "{{count}} of {{limit}} free generations used this month",
+    "viewPremiumOptions": "View Premium options",
+    "saveThisItinerary": "Save this itinerary",
+    "savedTitle": "Your itinerary is saved!",
+    "savedBody": "You can now access it from your profile or share the link with friends.",
+    "copyLink": "Copy link",
+    "linkCopied": "Copied!",
+    "viewSavedItinerary": "View saved itinerary",
+    "viewItinerary": "View itinerary"
+  },
+  "authModal": {
+    "title": "Save your itinerary for later",
+    "body": "Create a free GoXplora profile to save this itinerary, access it from any device, and receive a link you can share.",
+    "createButton": "Create free profile",
+    "hasAccount": "Already have a profile?",
+    "signinLink": "Sign in",
+    "signinTitle": "Sign in",
+    "signinBody": "Sign in to save this itinerary and access it from any device.",
+    "signinButton": "Sign in",
+    "noAccount": "Need a profile?",
+    "signupLink": "Create one",
+    "genericError": "Something went wrong. Please try again."
+  },
+  "premiumModal": {
+    "title": "You've used your 9 free generations",
+    "body": "Upgrade to GoXplora Premium to keep creating personalized itineraries without a monthly limit.",
+    "benefit": {
+      "unlimitedGeneration": "Unlimited itinerary generation",
+      "saveOrganize": "Save and organize favourites",
+      "anyDevice": "Access itineraries on any device",
+      "moreCustomization": "More customization options",
+      "earlyAccess": "Early access to new planning features"
+    },
+    "unlockButton": "Unlock Premium",
+    "viewSavedButton": "View my saved itineraries",
+    "checkoutError": "Couldn't start checkout. Please try again."
+  },
+  "sharedItinerary": {
+    "notFoundTitle": "Itinerary not found",
+    "notFoundBody": "This link may be broken or the itinerary may have been removed.",
+    "backToGenerator": "Back to itinerary generator",
+    "copyLink": "Copy link",
+    "share": "Share",
+    "remove": "Remove from saved",
+    "returnToSaved": "Return to saved itineraries",
+    "generateSimilar": "Generate something similar"
   },
   "howItWorks": {
     "title": "How it works",
@@ -556,7 +617,9 @@
       "sports": "Sports",
       "photography": "Photography",
       "architecture": "Architecture"
-    }
+    },
+    "openItinerary": "Open itinerary",
+    "copyLink": "Copy link"
   },
   "accountSetup": {
     "title": "Complete Your Profile",

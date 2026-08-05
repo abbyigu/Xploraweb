@@ -14,6 +14,91 @@ export const SPOT_CATEGORY_KEY: Record<string, string> = {
 };
 
 /**
+ * A spot's structural role in an itinerary — separate from `category`, which
+ * is the topical label shown to explorers (Food/Culture/Nature/...). `role`
+ * answers "can this be a numbered stop on its own?", which `category` can't:
+ * a staircase or funicular can carry `category: 'History'` while still being
+ * a connector, never a destination.
+ */
+export const SPOT_ROLES = [
+  'destination', 'restaurant', 'cafe', 'bar', 'shop', 'museum', 'gallery',
+  'park', 'viewpoint', 'landmark', 'experience', 'transportation', 'connector',
+] as const;
+export type SpotRole = (typeof SPOT_ROLES)[number];
+
+/** Roles that describe transit between destinations, not a destination itself. */
+const NON_STOP_ROLES: readonly SpotRole[] = ['transportation', 'connector'];
+
+/** True for roles the generator/admin should treat as a primary, cardable destination. */
+export function isPrimaryDestination(role: SpotRole): boolean {
+  return !NON_STOP_ROLES.includes(role);
+}
+
+/** True if a spot with this role may be generated as a numbered itinerary stop. */
+export function canBeGeneratedAsStop(role: SpotRole): boolean {
+  return isPrimaryDestination(role);
+}
+
+/** True if a spot with this role may appear as a journey step between stops. */
+export function canAppearAsJourneyStep(role: SpotRole): boolean {
+  return NON_STOP_ROLES.includes(role);
+}
+
+/**
+ * Existing rows (and rows an admin saves without touching the new Role field)
+ * have no `role` yet. Rather than persisting three redundant booleans per
+ * spot, derive a safe default from the topical `category` so old data keeps
+ * behaving as a normal destination until an admin explicitly reclassifies it
+ * (e.g. flags the funicular or a staircase as `transportation`/`connector`).
+ */
+export function inferDefaultRole(category?: SpotCategory | string): SpotRole {
+  switch (category) {
+    case 'Food':
+    case 'Sweets':
+      return 'restaurant';
+    case 'Cafe':
+      return 'cafe';
+    case 'Bar':
+      return 'bar';
+    case 'Shopping':
+      return 'shop';
+    case 'Nature':
+      return 'park';
+    case 'Culture':
+    case 'History':
+      return 'landmark';
+    case 'Family':
+      return 'experience';
+    default:
+      return 'destination';
+  }
+}
+
+/** Resolves the effective role for a spot, falling back to the category-based default. */
+export function effectiveRole(spot: { role?: SpotRole | string | null; category?: SpotCategory | string }): SpotRole {
+  return (SPOT_ROLES as readonly string[]).includes(spot.role || '')
+    ? (spot.role as SpotRole)
+    : inferDefaultRole(spot.category);
+}
+
+/**
+ * Rejects role/category/flag combinations that can't make sense together, so
+ * the admin form can't save an invalid spot. Connectors/transportation are
+ * transit, not curated highlights — they can't also be marked as a brunch
+ * pick or a homepage hotspot/loved feature.
+ */
+export function validateSpotRole(spot: { role?: SpotRole | string | null; isBrunch?: boolean; isHotspot?: boolean; isLoved?: boolean }): string | null {
+  if (spot.role && !(SPOT_ROLES as readonly string[]).includes(spot.role)) {
+    return `Unknown role "${spot.role}".`;
+  }
+  const role = spot.role as SpotRole | undefined;
+  if (role && canAppearAsJourneyStep(role) && (spot.isBrunch || spot.isHotspot || spot.isLoved)) {
+    return 'Transportation and connector spots cannot be marked as brunch/hotspot/loved highlights.';
+  }
+  return null;
+}
+
+/**
  * A Spot is a single, reusable place (a café, lookout, mural). Spots are the
  * atomic building blocks the AI assembles into trails/treks by vibe. They live
  * in their own library (xplora_spots) and carry NO distance or stop count —
@@ -33,6 +118,7 @@ export interface Spot {
   neighbourhood?: string;
   vibes?: string[];
   category?: SpotCategory | string;
+  role?: SpotRole;       // structural role (destination/connector/transportation/...); see inferDefaultRole for legacy rows
   isBrunch?: boolean;    // special highlight — spot is a great brunch pick
   isHotspot?: boolean;   // admin-curated — surfaced on the "Hotspots" home tile
   isLoved?: boolean;     // admin-curated — surfaced on the "Places We Love" home tile

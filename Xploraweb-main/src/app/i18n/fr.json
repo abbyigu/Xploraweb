@@ -301,13 +301,13 @@
     "restaurantHoppingExplainer": "Une tournée de restaurants est un parcours autonome qui enchaîne plusieurs restaurants, cafés et bars en une seule promenade — pour grignoter ou prendre un verre à chaque arrêt plutôt que de vous limiter à un seul repas.",
     "michelinOnly": "Guide Michelin seulement",
     "michelinOnlyDescription": "N'inclure que les restaurants figurant au Guide Michelin.",
-    "generate": "Générer mon parcours",
+    "generate": "Générer 3 itinéraires",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
-    "generating": "Création de votre parcours…",
+    "generating": "Création de 3 aventures locales pour vous…",
     "regenerate": "Générer un autre parcours",
     "errorNotConfigured": "Cette fonctionnalité n'est pas encore disponible — revenez bientôt.",
     "errorNoCandidates": "Aucun lieu ne correspond à vos filtres — essayez moins de filtres.",
-    "errorLlm": "Une erreur est survenue lors de la création du parcours. Veuillez réessayer.",
+    "errorLlm": "Nous n'avons pas pu créer vos itinéraires. Ajustez vos préférences et réessayez.",
     "resultMeta": "~{{duration}} min · {{distance}} km",
     "openInMaps": "Ouvrir dans Google Maps",
     "saveRoute": "Enregistrer le parcours",
@@ -318,7 +318,68 @@
     "signupNudgeTitle": "Vous avez généré {{count}} parcours",
     "signupNudgeBody": "Créez un compte gratuit pour enregistrer vos parcours, y accéder hors ligne et recevoir de nouveaux lieux à Québec chaque semaine.",
     "signupNudgeCta": "Créer un compte gratuit",
-    "signupNudgeDismiss": "Plus tard"
+    "signupNudgeDismiss": "Plus tard",
+    "location": "Emplacement",
+    "interests": "Intérêts",
+    "timeAvailable": "Temps disponible",
+    "pace": "Rythme",
+    "duration": {
+      "short": "1-2 h",
+      "half": "Demi-journée",
+      "full": "Journée complète"
+    },
+    "paceOption": {
+      "relaxed": "Détendu",
+      "moderate": "Modéré",
+      "packed": "Intensif"
+    },
+    "moreFilters": "Plus de filtres",
+    "usageCount": "{{count}} générations gratuites sur {{limit}} utilisées ce mois-ci",
+    "viewPremiumOptions": "Voir les options Premium",
+    "saveThisItinerary": "Sauvegarder cet itinéraire",
+    "savedTitle": "Votre itinéraire est sauvegardé!",
+    "savedBody": "Vous pouvez maintenant y accéder depuis votre profil ou partager le lien avec vos amis.",
+    "copyLink": "Copier le lien",
+    "linkCopied": "Copié!",
+    "viewSavedItinerary": "Voir l'itinéraire sauvegardé",
+    "viewItinerary": "Voir l'itinéraire"
+  },
+  "authModal": {
+    "title": "Sauvegardez votre itinéraire pour plus tard",
+    "body": "Créez un profil GoXplora gratuit pour sauvegarder cet itinéraire, y accéder depuis n'importe quel appareil et obtenir un lien à partager.",
+    "createButton": "Créer un profil gratuit",
+    "hasAccount": "Vous avez déjà un profil?",
+    "signinLink": "Se connecter",
+    "signinTitle": "Se connecter",
+    "signinBody": "Connectez-vous pour sauvegarder cet itinéraire et y accéder depuis n'importe quel appareil.",
+    "signinButton": "Se connecter",
+    "noAccount": "Besoin d'un profil?",
+    "signupLink": "En créer un",
+    "genericError": "Une erreur est survenue. Veuillez réessayer."
+  },
+  "premiumModal": {
+    "title": "Vous avez utilisé vos 9 générations gratuites",
+    "body": "Passez à GoXplora Premium pour continuer à créer des itinéraires personnalisés sans limite mensuelle.",
+    "benefit": {
+      "unlimitedGeneration": "Génération d'itinéraires illimitée",
+      "saveOrganize": "Sauvegardez et organisez vos favoris",
+      "anyDevice": "Accès aux itinéraires sur tous vos appareils",
+      "moreCustomization": "Plus d'options de personnalisation",
+      "earlyAccess": "Accès en avant-première aux nouvelles fonctionnalités"
+    },
+    "unlockButton": "Débloquer Premium",
+    "viewSavedButton": "Voir mes itinéraires sauvegardés",
+    "checkoutError": "Impossible de démarrer le paiement. Veuillez réessayer."
+  },
+  "sharedItinerary": {
+    "notFoundTitle": "Itinéraire introuvable",
+    "notFoundBody": "Ce lien est peut-être brisé ou l'itinéraire a été supprimé.",
+    "backToGenerator": "Retour au générateur d'itinéraires",
+    "copyLink": "Copier le lien",
+    "share": "Partager",
+    "remove": "Retirer des favoris",
+    "returnToSaved": "Retour aux itinéraires sauvegardés",
+    "generateSimilar": "Générer un itinéraire similaire"
   },
   "howItWorks": {
     "title": "Comment ça marche",
@@ -556,7 +617,9 @@
       "sports": "Sports",
       "photography": "Photographie",
       "architecture": "Architecture"
-    }
+    },
+    "openItinerary": "Ouvrir l'itinéraire",
+    "copyLink": "Copier le lien"
   },
   "accountSetup": {
     "title": "Complétez votre profil",

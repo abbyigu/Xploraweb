@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import { LogOut, Shield, Building2, User } from 'lucide-react';
 import { supabase, getProfile } from '../lib/supabase';
 import { Footer } from './Footer';
@@ -38,6 +38,8 @@ type Section = 'profile' | 'business' | 'admin';
 export function DashboardScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const initialProfileTab = searchParams.get('tab') === 'saved' ? 'saved' : undefined;
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [profile, setProfile] = useState<DashboardProfile>(EMPTY_PROFILE);
@@ -169,7 +171,7 @@ export function DashboardScreen() {
           </div>
         )}
 
-        {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} />}
+        {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} initialTab={initialProfileTab} />}
         {section === 'business' && showBusiness && <DashboardBusinessPanel profile={profile} />}
         {section === 'admin' && showAdmin && (
           <Suspense fallback={<div className="flex justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>
