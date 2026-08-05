@@ -2,17 +2,67 @@ import { type ReactNode, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowRight, ArrowLeft, Flame, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useReveal } from '../hooks/useReveal';
 import { useNeighbourhoods, localizedTagline } from '../hooks/useNeighbourhoods';
 import { useSpots } from '../hooks/useSpots';
-import { SPOT_CATEGORY_KEY } from '../data/products';
+import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
 import { SiteSearch } from './SiteSearch';
 import { NEIGHBOURHOODS_FALLBACK } from './NeighbourhoodsScreen';
+
+// Small read-only map used inside the "How Goxplora works" phone mockup —
+// shows a couple of real nearby spots instead of decorative fake pins.
+const PHONE_PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15C0 26 15 38 15 38C15 38 30 26 30 15C30 6.7 23.3 0 15 0Z';
+const PHONE_PIN_COLORS = ['#119FB3', '#33C0A3', '#119FB3'];
+const PHONE_MAP_OPTIONS: google.maps.MapOptions = {
+  disableDefaultUI: true,
+  gestureHandling: 'none',
+  keyboardShortcuts: false,
+  clickableIcons: false,
+  draggable: false,
+};
+
+function phonePinIcon(color: string): google.maps.Symbol {
+  return {
+    path: PHONE_PIN_PATH,
+    fillColor: color,
+    fillOpacity: 1,
+    strokeWeight: 0,
+    scale: 0.7,
+    anchor: new google.maps.Point(15, 38),
+  };
+}
+
+function HowItWorksMap({ spots }: { spots: Spot[] }) {
+  const { isLoaded } = useGoogleMaps();
+  if (!isLoaded || spots.length === 0) {
+    return <div className="absolute inset-0 bg-[#ECEEE8]" />;
+  }
+  return (
+    <GoogleMap
+      mapContainerStyle={{ width: '100%', height: '100%' }}
+      center={{ lat: spots[0].lat!, lng: spots[0].lng! }}
+      zoom={14}
+      options={PHONE_MAP_OPTIONS}
+      onLoad={map => {
+        if (spots.length < 2) return;
+        const bounds = new google.maps.LatLngBounds();
+        spots.forEach(s => bounds.extend({ lat: s.lat!, lng: s.lng! }));
+        map.fitBounds(bounds, 30);
+      }}
+    >
+      {spots.map((spot, i) => (
+        <MarkerF key={spot.id} position={{ lat: spot.lat!, lng: spot.lng! }} icon={phonePinIcon(PHONE_PIN_COLORS[i % PHONE_PIN_COLORS.length])} />
+      ))}
+    </GoogleMap>
+  );
+}
 
 function FeatureTile({
   label,
@@ -276,6 +326,14 @@ export function HomeScreen() {
     return [...loved, ...hot].slice(0, 5);
   }, [spots]);
 
+  // A couple of real, geolocated spots for the "How Goxplora works" phone
+  // mockup map — prefers the same curated set as Hidden gems.
+  const phoneMapSpots = useMemo(() => {
+    const withCoords = (list: typeof spots) => list.filter(s => s.lat != null && s.lng != null);
+    const curated = withCoords(gemSpots);
+    return (curated.length ? curated : withCoords(spots)).slice(0, 3);
+  }, [gemSpots, spots]);
+
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
 
@@ -321,29 +379,14 @@ export function HomeScreen() {
               </div>
             </div>
 
-            {/* Floating AI itinerary preview card — right */}
+            {/* Floating spot finder card — right */}
             <div className="hidden md:block flex-shrink-0 w-[320px] bg-white/97 rounded-[20px] shadow-2xl shadow-[#12343B]/25 p-[26px] animate-in fade-in slide-in-from-right-6 duration-700 delay-300 fill-mode-both">
               <div className="inline-flex items-center gap-1.5 bg-[#E6F6F8] text-[#119FB3] px-3 py-[5px] rounded-full text-[11px] font-semibold mb-4">
                 <Sparkles className="w-2.5 h-2.5" />
                 {t('home.previewEyebrow')}
               </div>
-              <p className="font-serif text-[21px] font-semibold text-[#12343B] mb-4">{t('home.previewTitle')}</p>
-              <div className="flex items-center gap-2.5 bg-[#F7F8F5] rounded-xl px-3.5 py-[13px] mb-2.5">
-                <MapPin className="w-[15px] h-[15px] text-gray-500 flex-shrink-0" />
-                <span className="text-sm text-[#12343B]">{t('home.previewLocationValue')}</span>
-              </div>
-              <div className="flex items-center gap-2.5 bg-[#F7F8F5] rounded-xl px-3.5 py-[13px] mb-[18px]">
-                <Compass className="w-[15px] h-[15px] text-gray-500 flex-shrink-0" />
-                <span className="text-sm text-gray-500">{t('home.previewVibeValue')}</span>
-              </div>
-              <Link
-                to="/itinerary"
-                className="flex items-center justify-center gap-2 bg-[#12343B] text-white py-[13px] rounded-xl text-[14.5px] font-semibold mb-3 hover:opacity-90 transition"
-              >
-                {t('home.previewCta')}
-                <Sparkles className="w-3 h-3" />
-              </Link>
-              <p className="text-center text-xs text-gray-500">{t('home.previewFootnote')}</p>
+              <SpotFinder compact />
+              <p className="text-center text-xs text-gray-500 mt-3">{t('home.previewFootnote')}</p>
             </div>
           </div>
         </div>
@@ -500,30 +543,22 @@ export function HomeScreen() {
             className={`relative w-[260px] h-[520px] mx-auto bg-[#12343B] rounded-[40px] p-3.5 shadow-2xl shadow-[#12343B]/25 ${howVisualReveal.className}`}
           >
             <div className="relative w-full h-full rounded-[28px] overflow-hidden bg-[#ECEEE8]">
-              <svg viewBox="0 0 260 480" className="absolute inset-0 w-full h-full">
-                <rect width="260" height="480" fill="#ECEEE8" />
-                <path d="M-10 360C55 335 95 400 160 372C215 348 245 380 280 362" stroke="#DCE3D9" strokeWidth="32" fill="none" />
-                <path d="M-10 130C65 158 112 102 168 130C215 154 242 112 280 136" stroke="#DFEDEC" strokeWidth="40" fill="none" />
-              </svg>
+              <HowItWorksMap spots={phoneMapSpots} />
               <div className="absolute top-4 left-4 right-4 bg-white/95 rounded-xl px-3 py-2.5 flex items-center gap-2">
                 <Search className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
                 <span className="text-[11px] text-gray-500 truncate">{t('home.howSearchPlaceholder')}</span>
               </div>
-              {[{ top: '30%', left: '28%' }, { top: '47%', left: '60%' }, { top: '63%', left: '38%' }].map((p, i) => (
-                <div key={i} className="absolute -translate-x-1/2 -translate-y-full" style={{ top: p.top, left: p.left }}>
-                  <svg width="20" height="26" viewBox="0 0 30 38" fill="none">
-                    <path d="M15 0C6.7 0 0 6.7 0 15C0 26 15 38 15 38C15 38 30 26 30 15C30 6.7 23.3 0 15 0Z" fill={i === 1 ? '#33C0A3' : '#119FB3'} />
-                    <circle cx="15" cy="15" r="6" fill="#fff" />
-                  </svg>
-                </div>
-              ))}
               <div className="absolute left-3.5 right-3.5 bottom-4 bg-white rounded-xl shadow-lg px-3 py-2.5 flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-gray-200 flex-shrink-0 flex items-center justify-center">
-                  <MapPin className="w-4 h-4 text-gray-400" />
+                <div className="w-9 h-9 rounded-lg bg-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  {phoneMapSpots[0]?.image ? (
+                    <img src={phoneMapSpots[0].image} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold text-[#12343B] truncate">{t('home.howPopupTitle')}</p>
-                  <p className="text-[10px] text-gray-500">{t('home.howPopupSubtitle')}</p>
+                  <p className="text-[11px] font-semibold text-[#12343B] truncate">{phoneMapSpots[0]?.name ?? t('home.howPopupTitle')}</p>
+                  <p className="text-[10px] text-gray-500 truncate">{phoneMapSpots[0]?.neighbourhood ?? t('home.howPopupSubtitle')}</p>
                 </div>
                 <ArrowLeft className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 rotate-180" />
               </div>

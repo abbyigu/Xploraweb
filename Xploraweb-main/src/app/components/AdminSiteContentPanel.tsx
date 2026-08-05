@@ -30,8 +30,6 @@ CREATE POLICY "Admin all" ON site_content
   );`;
 
 const BLANK = {
-  banner_enabled: SITE_CONTENT_DEFAULTS.bannerEnabled,
-  banner_text: SITE_CONTENT_DEFAULTS.bannerText,
   hero_headline: SITE_CONTENT_DEFAULTS.heroHeadline,
   hero_subheadline: SITE_CONTENT_DEFAULTS.heroSubheadline,
   hero_cta_label: SITE_CONTENT_DEFAULTS.heroCtaLabel,
@@ -62,8 +60,6 @@ export function AdminSiteContentPanel() {
     setTableReady(true);
     if (data) {
       setForm({
-        banner_enabled: data.banner_enabled ?? BLANK.banner_enabled,
-        banner_text: data.banner_text || BLANK.banner_text,
         hero_headline: data.hero_headline || BLANK.hero_headline,
         hero_subheadline: data.hero_subheadline || BLANK.hero_subheadline,
         hero_cta_label: data.hero_cta_label || BLANK.hero_cta_label,
@@ -121,32 +117,7 @@ export function AdminSiteContentPanel() {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg">Site Content</h3>
-        <p className="text-xs text-muted-foreground mt-0.5">Edit the homepage hero and the top announcement banner without touching code.</p>
-      </div>
-
-      <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
-        <h4 className="text-sm font-semibold">Announcement banner</h4>
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm">Show banner</p>
-            <p className="text-[11px] text-muted-foreground">Displays a bar at the very top of every page.</p>
-          </div>
-          <button
-            onClick={() => setForm(f => ({ ...f, banner_enabled: !f.banner_enabled }))}
-            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${form.banner_enabled ? 'bg-secondary' : 'bg-muted'}`}
-          >
-            <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.banner_enabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
-          </button>
-        </div>
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Banner text</label>
-          <input
-            value={form.banner_text}
-            onChange={set('banner_text')}
-            placeholder={SITE_CONTENT_DEFAULTS.bannerText}
-            className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-          />
-        </div>
+        <p className="text-xs text-muted-foreground mt-0.5">Edit the homepage hero without touching code.</p>
       </div>
 
       <div className="bg-card border border-border rounded-2xl p-6 space-y-4">

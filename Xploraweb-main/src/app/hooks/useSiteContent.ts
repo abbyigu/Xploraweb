@@ -2,10 +2,8 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export interface SiteContent {
-  bannerEnabled: boolean;
   // null means "no admin override" — callers should fall back to the
   // translated copy for the current language instead of a hardcoded string.
-  bannerText: string | null;
   heroHeadline: string | null;
   heroSubheadline: string | null;
   heroCtaLabel: string | null;
@@ -15,18 +13,14 @@ export interface SiteContent {
 
 // English copy used only to prefill the admin "Site Content" form.
 export const SITE_CONTENT_DEFAULTS = {
-  bannerEnabled: true,
-  bannerText: 'Free self-guided walks in Québec City — no signup required.',
   heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Free self-guided walking routes through Québec City — no signup required.',
+  heroSubheadline: 'Curated by locals — self-guided walks, handpicked spots, and experiences that support the community.',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,
 };
 
 const SITE_CONTENT_INITIAL: SiteContent = {
-  bannerEnabled: SITE_CONTENT_DEFAULTS.bannerEnabled,
-  bannerText: null,
   heroHeadline: null,
   heroSubheadline: null,
   heroCtaLabel: null,
@@ -36,8 +30,6 @@ const SITE_CONTENT_INITIAL: SiteContent = {
 
 export function mapSiteContentRow(row: any): SiteContent {
   return {
-    bannerEnabled: row.banner_enabled ?? SITE_CONTENT_DEFAULTS.bannerEnabled,
-    bannerText: row.banner_text || null,
     heroHeadline: row.hero_headline || null,
     heroSubheadline: row.hero_subheadline || null,
     heroCtaLabel: row.hero_cta_label || null,
@@ -47,9 +39,9 @@ export function mapSiteContentRow(row: any): SiteContent {
 }
 
 /**
- * Loads the admin-managed homepage hero copy and announcement banner (edited
- * from the admin "Site Content" tab). Falls back to the hardcoded defaults
- * when the table is empty, missing, or hasn't been created yet.
+ * Loads the admin-managed homepage hero copy (edited from the admin "Site
+ * Content" tab). Falls back to the hardcoded defaults when the table is
+ * empty, missing, or hasn't been created yet.
  */
 export function useSiteContent() {
   const [content, setContent] = useState<SiteContent>(SITE_CONTENT_INITIAL);

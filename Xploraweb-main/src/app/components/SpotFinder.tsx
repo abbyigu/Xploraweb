@@ -31,7 +31,10 @@ function weightedPick(candidates: Spot[]): Spot {
 const selectClass =
   'w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#12343B]/30';
 
-export function SpotFinder() {
+const compactSelectClass =
+  'w-full px-3.5 py-[13px] rounded-xl bg-[#F7F8F5] text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#12343B]/30';
+
+export function SpotFinder({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
   const { spots } = useSpots();
   const { neighbourhoods } = useNeighbourhoods();
@@ -52,6 +55,100 @@ export function SpotFinder() {
     setResult(matches.length > 0 ? weightedPick(matches) : null);
   };
 
+  const handleReset = () => {
+    setSearched(false);
+    setResult(null);
+  };
+
+  const fields = (
+    <div className={compact ? 'flex flex-col gap-2.5 mb-2.5' : 'grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4'}>
+      <select
+        value={neighbourhood}
+        onChange={e => { setNeighbourhood(e.target.value); setSearched(false); }}
+        className={compact ? compactSelectClass : selectClass}
+        aria-label={t('spotFinder.where', 'Where')}
+      >
+        <option value="">{t('spotFinder.anywhere', 'Where — anywhere')}</option>
+        {neighbourhoods.map(n => <option key={n.id} value={n.name}>{n.name}</option>)}
+      </select>
+      <select
+        value={category}
+        onChange={e => { setCategory(e.target.value); setSearched(false); }}
+        className={compact ? compactSelectClass : selectClass}
+        aria-label={t('spotFinder.what', 'What')}
+      >
+        <option value="">{t('spotFinder.anything', 'What — anything')}</option>
+        {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</option>)}
+      </select>
+      <select
+        value={price}
+        onChange={e => { setPrice(e.target.value); setSearched(false); }}
+        className={compact ? compactSelectClass : selectClass}
+        aria-label={t('spotFinder.budget', 'Budget')}
+      >
+        <option value="">{t('spotFinder.anyBudget', '$ — any budget')}</option>
+        {PRICE_OPTIONS.map(p => <option key={p} value={p}>{p === 'Free' ? t('spotFinder.freeOption') : p}</option>)}
+      </select>
+    </div>
+  );
+
+  const cta = (
+    <button
+      onClick={handleFind}
+      className={
+        compact
+          ? 'flex items-center justify-center gap-2 w-full bg-[#12343B] text-white py-[13px] rounded-xl text-[14.5px] font-semibold hover:opacity-90 transition'
+          : 'inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition'
+      }
+    >
+      <Sparkles className="w-4 h-4" />
+      {t('spotFinder.cta', 'Find me something')}
+    </button>
+  );
+
+  const noMatch = searched && !result && (
+    <p className="text-sm text-muted-foreground text-center mt-6">
+      {t('spotFinder.noMatch', 'Nothing matches yet — try loosening a filter.')}
+    </p>
+  );
+
+  const resultCard = result && (
+    <div className={compact ? 'mt-4' : 'mt-6 max-w-sm mx-auto'}>
+      <SpotCard spot={result} />
+      <button
+        onClick={handleFind}
+        className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-[#12343B] hover:bg-[#12343B]/5 transition"
+      >
+        <RefreshCw className="w-3.5 h-3.5" />
+        {t('spotFinder.again', 'Try another')}
+      </button>
+    </div>
+  );
+
+  if (compact) {
+    return (
+      <div>
+        {!result && (
+          <p className="font-serif text-[21px] font-semibold text-[#12343B] mb-4">
+            {t('spotFinder.title', 'Not sure what to do?')}
+          </p>
+        )}
+        {!result && fields}
+        {cta}
+        {result && (
+          <button
+            onClick={handleReset}
+            className="mt-2 text-sm font-medium text-[#12343B] underline underline-offset-4 hover:opacity-80 transition"
+          >
+            {t('spotFinder.reset', 'Reset')}
+          </button>
+        )}
+        {noMatch}
+        {result && <div className="mt-4"><SpotCard spot={result} /></div>}
+      </div>
+    );
+  }
+
   return (
     <section className="py-10 px-6 bg-white">
       <div className="max-w-3xl mx-auto">
@@ -61,65 +158,10 @@ export function SpotFinder() {
         <p className="text-sm text-muted-foreground mb-5 text-center">
           {t('spotFinder.subtitle', "Tell us where, what, and your budget — we'll pick a spot for you.")}
         </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-          <select
-            value={neighbourhood}
-            onChange={e => { setNeighbourhood(e.target.value); setSearched(false); }}
-            className={selectClass}
-            aria-label={t('spotFinder.where', 'Where')}
-          >
-            <option value="">{t('spotFinder.anywhere', 'Where — anywhere')}</option>
-            {neighbourhoods.map(n => <option key={n.id} value={n.name}>{n.name}</option>)}
-          </select>
-          <select
-            value={category}
-            onChange={e => { setCategory(e.target.value); setSearched(false); }}
-            className={selectClass}
-            aria-label={t('spotFinder.what', 'What')}
-          >
-            <option value="">{t('spotFinder.anything', 'What — anything')}</option>
-            {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</option>)}
-          </select>
-          <select
-            value={price}
-            onChange={e => { setPrice(e.target.value); setSearched(false); }}
-            className={selectClass}
-            aria-label={t('spotFinder.budget', 'Budget')}
-          >
-            <option value="">{t('spotFinder.anyBudget', '$ — any budget')}</option>
-            {PRICE_OPTIONS.map(p => <option key={p} value={p}>{p === 'Free' ? t('spotFinder.freeOption') : p}</option>)}
-          </select>
-        </div>
-
-        <div className="flex justify-center">
-          <button
-            onClick={handleFind}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
-          >
-            <Sparkles className="w-4 h-4" />
-            {t('spotFinder.cta', 'Find me something')}
-          </button>
-        </div>
-
-        {searched && !result && (
-          <p className="text-sm text-muted-foreground text-center mt-6">
-            {t('spotFinder.noMatch', 'Nothing matches yet — try loosening a filter.')}
-          </p>
-        )}
-
-        {result && (
-          <div className="mt-6 max-w-sm mx-auto">
-            <SpotCard spot={result} />
-            <button
-              onClick={handleFind}
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-[#12343B] hover:bg-[#12343B]/5 transition"
-            >
-              <RefreshCw className="w-3.5 h-3.5" />
-              {t('spotFinder.again', 'Try another')}
-            </button>
-          </div>
-        )}
+        {fields}
+        <div className="flex justify-center">{cta}</div>
+        {noMatch}
+        {resultCard}
       </div>
     </section>
   );

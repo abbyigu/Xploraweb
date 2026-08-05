@@ -9,7 +9,6 @@ import { HomeScreen } from './components/HomeScreen';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 import { analytics, initGtag } from './lib/analytics';
-import { useSiteContent } from './hooks/useSiteContent';
 import './i18n';
 
 function SkipLink() {
@@ -107,8 +106,6 @@ function GtagLoader() {
 }
 
 export default function App() {
-  const { t } = useTranslation();
-  const { content } = useSiteContent();
   return (
     <HelmetProvider>
     <CartProvider>
@@ -119,11 +116,6 @@ export default function App() {
       <GtagLoader />
       <div className="min-h-screen bg-background">
         <SkipLink />
-        {content.bannerEnabled && (
-          <div className="bg-[#12343B] text-white text-center text-[11px] leading-snug py-1.5 px-4 font-medium tracking-wide">
-            {content.bannerText ?? t('home.bannerText')}
-          </div>
-        )}
         <Header />
         <main id="main-content" tabIndex={-1} className="outline-none">
         <div className="md:max-w-none max-w-md mx-auto relative">
