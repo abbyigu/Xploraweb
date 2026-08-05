@@ -1,4 +1,4 @@
-import { getServiceClient, getUsage, resolveIdentity } from './_lib/usage';
+import { getServiceClient, getUsage, resolveIdentity } from './_lib/usage.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
