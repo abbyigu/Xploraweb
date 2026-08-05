@@ -9,8 +9,9 @@ import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '..
 import { NeighbourhoodsOverviewMap } from './NeighbourhoodsOverviewMap';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
-// missing), so the page is never empty.
-const FALLBACK: Neighbourhood[] = [
+// missing), so the page is never empty. Also reused by HomeScreen's
+// "Discover by neighbourhood" grid for the same reason.
+export const NEIGHBOURHOODS_FALLBACK: Neighbourhood[] = [
   { id: 'old-port',        name: 'Old Port',        slug: 'old-port',        tagline: 'History & waterfront',  taglineFr: 'Histoire et bord de l\'eau',      description: '', descriptionFr: '', coverImage: '/nbhd/old-port.jpeg',  sortOrder: 0, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
   { id: 'saint-roch',      name: 'Saint-Roch',      slug: 'saint-roch',      tagline: 'Art, coffee & cool',    taglineFr: 'Art, café et branché',            description: '', descriptionFr: '', coverImage: '/nbhd/saint-roch.webp', sortOrder: 1, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
   { id: 'petit-champlain', name: 'Petit-Champlain', slug: 'petit-champlain', tagline: 'Cobblestones & charm',  taglineFr: 'Pavés et charme',                 description: '', descriptionFr: '', coverImage: '/nbhd/champlain.jpeg',  sortOrder: 2, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
@@ -26,7 +27,7 @@ export function NeighbourhoodsScreen() {
   const [searchParams] = useSearchParams();
   const sortNew = searchParams.get('sort') === 'new';
 
-  const base = neighbourhoods.length ? neighbourhoods : FALLBACK;
+  const base = neighbourhoods.length ? neighbourhoods : NEIGHBOURHOODS_FALLBACK;
   const list = sortNew
     ? [...base].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
     : base;
