@@ -1,13 +1,13 @@
 import { generateObject } from 'ai';
 import { createGroq } from '@ai-sdk/groq';
 import { z } from 'zod';
-import { getServiceClient, getUsage, incrementUsage, resolveIdentity } from './_lib/usage';
+import { getServiceClient, getUsage, incrementUsage, resolveIdentity } from './_lib/usage.js';
 import {
   resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
   selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, applyBarTimeOfDayRule,
   assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
-} from './_itineraryLogic';
-import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic';
+} from './_itineraryLogic.js';
+import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic.js';
 
 const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
 
@@ -233,10 +233,10 @@ export default async function handler(req: any, res: any) {
 
   // Pinned stops must survive regeneration regardless of the filters above
   // (the user already chose them) — pull them from the unfiltered pool.
-  const allById = new Map(allCandidates.map(c => [c.id, c]));
+  const allById = new Map<string, CandidateSpot>(allCandidates.map(c => [c.id, c]));
   const pinnedStops: StopCandidate[] = body.pinnedSpotIds
     .map(id => allById.get(id))
-    .filter((c): c is CandidateSpot => !!c && canBeGeneratedAsStop(c.role))
+    .filter((c): c is CandidateSpot => c !== undefined && canBeGeneratedAsStop(c.role))
     .map(spot => ({ spot, note: '' }));
   const pinnedIds = new Set(pinnedStops.map(p => p.spot.id));
 
