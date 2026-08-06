@@ -1,12 +1,13 @@
+import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
-import { useNeighbourhoods, localizedTagline, type Neighbourhood } from '../hooks/useNeighbourhoods';
+import { useNeighbourhoods, localizedTagline, localizedDescription, type Neighbourhood } from '../hooks/useNeighbourhoods';
 import { useSpots } from '../hooks/useSpots';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
-import { NeighbourhoodsOverviewMap } from './NeighbourhoodsOverviewMap';
+import { NeighbourhoodExplorer } from './NeighbourhoodExplorer';
 
 // Shown when the admin hasn't added any neighbourhoods yet (or the table is
 // missing), so the page is never empty. Also reused by HomeScreen's
@@ -19,6 +20,68 @@ export const NEIGHBOURHOODS_FALLBACK: Neighbourhood[] = [
   { id: 'limoilou',        name: 'Limoilou',        slug: 'limoilou',        tagline: 'Murals & local eats',   taglineFr: 'Murales et cuisine locale',       description: '', descriptionFr: '', coverImage: '/nbhd/limoilou.jpeg',  sortOrder: 4, lat: null, lng: null, boundary: null, route: null, famousStreets: [], createdAt: null },
 ];
 
+function NeighbourhoodTile({
+  n,
+  tagline,
+  description,
+  featured,
+  isNew,
+  onClick,
+}: {
+  n: Neighbourhood;
+  tagline: string;
+  description: string;
+  featured: boolean;
+  isNew: boolean;
+  onClick: () => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <button
+      onClick={onClick}
+      className={`group text-left rounded-2xl overflow-hidden border bg-white transition-all duration-300 ${
+        featured ? 'border-[#119FB3] shadow-lg ring-1 ring-[#119FB3]/25' : 'border-gray-200 hover:shadow-lg'
+      }`}
+    >
+      <div className={`relative overflow-hidden transition-all duration-300 ${featured ? 'aspect-[21/9]' : 'aspect-[3/2]'}`}>
+        <picture>
+          {neighbourhoodImageWebp(n.name, n.coverImage) && (
+            <source srcSet={neighbourhoodImageWebp(n.name, n.coverImage)!} type="image/webp" />
+          )}
+          <img
+            src={neighbourhoodImage(n.name, n.coverImage)}
+            alt={n.name}
+            loading="lazy"
+            onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
+            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        </picture>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
+        {isNew && (
+          <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-[#12343B] text-white">
+            {t('neighbourhoods.newBadge', 'New')}
+          </span>
+        )}
+        <div className="absolute bottom-0 left-0 right-0 p-4">
+          <p className={`text-white font-semibold leading-tight flex items-center gap-1.5 ${featured ? 'text-xl' : 'text-lg'}`}>
+            <MapPin className="w-4 h-4 flex-shrink-0" /> {n.name}
+          </p>
+          {tagline && <p className="text-white/80 text-sm mt-0.5">{tagline}</p>}
+        </div>
+      </div>
+      <div className="px-4 py-3">
+        {featured && description && (
+          <p className="text-sm text-gray-600 mb-2.5 leading-relaxed">{description}</p>
+        )}
+        <span className="text-sm text-[#12343B] font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+          {t('neighbourhoods.discover', 'Discover')}
+          <ArrowRight className="w-4 h-4" />
+        </span>
+      </div>
+    </button>
+  );
+}
+
 export function NeighbourhoodsScreen() {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
@@ -26,12 +89,17 @@ export function NeighbourhoodsScreen() {
   const { spots } = useSpots();
   const [searchParams] = useSearchParams();
   const sortNew = searchParams.get('sort') === 'new';
+  const [activeNbhd, setActiveNbhd] = useState<string | null>(null);
 
   const base = neighbourhoods.length ? neighbourhoods : NEIGHBOURHOODS_FALLBACK;
   const list = sortNew
     ? [...base].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
     : base;
   const hasMapData = list.some(n => (n.lat != null && n.lng != null) || (n.boundary && n.boundary.length >= 3));
+  const newIds = new Set(sortNew ? list.slice(0, 3).map(n => n.id) : []);
+
+  const featuredNbhd = activeNbhd ? list.find(n => n.name === activeNbhd) ?? null : null;
+  const otherNbhds = featuredNbhd ? list.filter(n => n.id !== featuredNbhd.id) : list;
 
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
@@ -62,7 +130,7 @@ export function NeighbourhoodsScreen() {
           <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">
             {t('neighbourhoods.mapTitle', 'Neighbourhoods on the map')}
           </h2>
-          <NeighbourhoodsOverviewMap neighbourhoods={list} lang={i18n.language} spots={spots} />
+          <NeighbourhoodExplorer neighbourhoods={list} spots={spots} activeNeighbourhood={activeNbhd} onSelectNeighbourhood={setActiveNbhd} />
         </section>
       )}
 
@@ -73,47 +141,39 @@ export function NeighbourhoodsScreen() {
             <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
-            {list.map((n, i) => (
-              <button
-                key={n.id}
-                onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(n.slug || n.id)}`)}
-                className="group text-left rounded-2xl overflow-hidden border border-gray-200 bg-white hover:shadow-lg transition-shadow"
-              >
-                <div className="relative aspect-[3/2] overflow-hidden">
-                  <picture>
-                    {neighbourhoodImageWebp(n.name, n.coverImage) && (
-                      <source srcSet={neighbourhoodImageWebp(n.name, n.coverImage)!} type="image/webp" />
-                    )}
-                    <img
-                      src={neighbourhoodImage(n.name, n.coverImage)}
-                      alt={n.name}
-                      loading="lazy"
-                      onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          <div className="flex flex-col gap-6">
+            {featuredNbhd && (
+              <NeighbourhoodTile
+                n={featuredNbhd}
+                tagline={localizedTagline(featuredNbhd, i18n.language)}
+                description={localizedDescription(featuredNbhd, i18n.language)}
+                featured
+                isNew={newIds.has(featuredNbhd.id)}
+                onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(featuredNbhd.slug || featuredNbhd.id)}`)}
+              />
+            )}
+            {otherNbhds.length > 0 && (
+              <div>
+                {featuredNbhd && (
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                    {t('neighbourhoods.otherNeighbourhoods', 'Other neighbourhoods')}
+                  </p>
+                )}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 items-start">
+                  {otherNbhds.map(n => (
+                    <NeighbourhoodTile
+                      key={n.id}
+                      n={n}
+                      tagline={localizedTagline(n, i18n.language)}
+                      description={localizedDescription(n, i18n.language)}
+                      featured={false}
+                      isNew={newIds.has(n.id)}
+                      onClick={() => navigate(`/neighbourhoods/${encodeURIComponent(n.slug || n.id)}`)}
                     />
-                  </picture>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-                  {sortNew && i < 3 && (
-                    <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-[#12343B] text-white">
-                      {t('neighbourhoods.newBadge', 'New')}
-                    </span>
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
-                    <p className="text-white font-semibold text-lg leading-tight flex items-center gap-1.5">
-                      <MapPin className="w-4 h-4 flex-shrink-0" /> {n.name}
-                    </p>
-                    {localizedTagline(n, i18n.language) && <p className="text-white/80 text-sm mt-0.5">{localizedTagline(n, i18n.language)}</p>}
-                  </div>
+                  ))}
                 </div>
-                <div className="px-4 py-3">
-                  <span className="text-sm text-[#12343B] font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
-                    {t('neighbourhoods.discover', 'Discover')}
-                    <ArrowRight className="w-4 h-4" />
-                  </span>
-                </div>
-              </button>
-            ))}
+              </div>
+            )}
           </div>
         )}
       </section>

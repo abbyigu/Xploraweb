@@ -308,7 +308,7 @@ export function HomeScreen() {
   // Top 5 neighbourhoods (real admin data, falling back to the same static
   // list NeighbourhoodsScreen uses when the table is empty), with a live
   // spot count matched by free-text neighbourhood name (same matching
-  // pattern as NeighbourhoodsOverviewMap's per-neighbourhood spot dots).
+  // pattern as NeighbourhoodExplorer's per-neighbourhood spot dots).
   const showcaseNeighbourhoods = useMemo(() => {
     const base = (neighbourhoods.length ? neighbourhoods : NEIGHBOURHOODS_FALLBACK).slice(0, 5);
     return base.map(n => ({
