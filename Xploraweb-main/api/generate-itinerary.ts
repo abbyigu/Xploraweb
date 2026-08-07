@@ -1,5 +1,5 @@
 import { generateObject } from 'ai';
-import { createGroq } from '@ai-sdk/groq';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import { getServiceClient, getUsage, incrementUsage, resolveIdentity } from './_lib/usage.js';
 import {
@@ -9,7 +9,7 @@ import {
 } from './_itineraryLogic.js';
 import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic.js';
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY });
+const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
@@ -250,26 +250,17 @@ export default async function handler(req: any, res: any) {
   let itineraries: ProcessedItinerary[] = [];
 
   if (stopsToGenerate > 0 && fillCandidates.length > 0) {
-    // Both models support structured output, each with its own separate
-    // Groq free-tier tokens-per-minute budget. If the primary model is
-    // rate-limited, fail fast (maxRetries: 0 — retrying the same exhausted
-    // budget just burns function time) and fall back to the other model's
-    // budget instead of retrying the same one repeatedly.
     const prompt = buildPrompt(fillCandidates, Math.max(stopsToGenerate, 2), body);
     let object: z.infer<typeof ItinerarySetSchema> | undefined;
-    for (const modelId of ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'] as const) {
-      try {
-        const result = await generateObject({
-          model: groq(modelId),
-          schema: ItinerarySetSchema,
-          prompt,
-          maxRetries: 0,
-        });
-        object = result.object;
-        break;
-      } catch (err: any) {
-        console.error(`generate-itinerary LLM call failed (${modelId}):`, err?.message || err, err?.cause || '');
-      }
+    try {
+      const result = await generateObject({
+        model: anthropic('claude-haiku-4-5-20251001'),
+        schema: ItinerarySetSchema,
+        prompt,
+      });
+      object = result.object;
+    } catch (err: any) {
+      console.error('generate-itinerary LLM call failed:', err?.message || err, err?.cause || '');
     }
     if (!object) {
       return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });

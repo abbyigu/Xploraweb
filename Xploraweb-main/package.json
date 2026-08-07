@@ -9,6 +9,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.34",
     "@ai-sdk/groq": "^4.0.13",
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
