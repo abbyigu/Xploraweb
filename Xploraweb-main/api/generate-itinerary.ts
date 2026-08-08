@@ -17,7 +17,7 @@ const PACES = ['relaxed', 'moderate', 'packed'] as const;
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 const CANDIDATE_CAP = 24;
-const ITINERARY_SET_SIZE = 3;
+const ITINERARY_SET_SIZE = 2;
 
 const RequestSchema = z.object({
   stopCount: z.number().int(),

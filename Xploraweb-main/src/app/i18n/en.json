@@ -332,7 +332,7 @@
     "restaurantHoppingExplainer": "A food hop is a self-guided crawl that strings together multiple restaurants, cafés, and bars in one walk — so you can grab a bite or a drink at each stop instead of committing to a single meal.",
     "michelinOnly": "Michelin Guide only",
     "michelinOnlyDescription": "Only include restaurants listed in the Michelin Guide.",
-    "generate": "Generate 3 itineraries",
+    "generate": "Generate 2 itineraries",
     "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
     "generating": "Creating 3 local adventures for you…",
     "regenerate": "Generate a different route",
