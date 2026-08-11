@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2 } from 'lucide-react';
+import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2, MapPin } from 'lucide-react';
 import { ItineraryFullView } from './ItineraryFullView';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
@@ -100,6 +100,8 @@ export function SharedItineraryScreen() {
     );
   }
 
+  const heroImage = itinerary.stops.find(s => s.spot.image)?.spot.image;
+
   const actions = (
     <>
       <button
@@ -136,7 +138,7 @@ export function SharedItineraryScreen() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <PageSEO title={itinerary.title} description={itinerary.summary} canonical={`/i/${slug}`} />
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
-        <div className="flex flex-wrap items-center gap-4 mb-2">
+        <div className="flex flex-wrap items-center gap-4 mb-4">
           <button
             onClick={() => navigate('/dashboard?tab=saved')}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
@@ -150,9 +152,28 @@ export function SharedItineraryScreen() {
             <Sparkles className="w-4 h-4" aria-hidden="true" /> {t('sharedItinerary.generateSimilar')}
           </button>
         </div>
+
+        <div className="relative h-56 md:h-72 rounded-3xl overflow-hidden bg-xplora-ink">
+          {heroImage ? (
+            <img src={heroImage} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-xplora-ink to-xplora-primary">
+              <MapPin className="w-10 h-10 text-white/40" aria-hidden="true" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-xplora-ink/85 via-xplora-ink/10 to-transparent" />
+          <div className="absolute bottom-5 left-6 right-6 md:bottom-7 md:left-8 md:right-8">
+            <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider mb-1.5">
+              {t('sharedItinerary.savedItineraryLabel')}
+            </p>
+            <h1 className="font-serif text-2xl md:text-[30px] font-semibold text-white leading-tight">
+              {itinerary.title}
+            </h1>
+          </div>
+        </div>
       </div>
       <div className="pt-4">
-        <ItineraryFullView itinerary={itinerary} actions={actions} />
+        <ItineraryFullView itinerary={itinerary} actions={actions} hideTitle />
       </div>
       <Footer />
     </div>

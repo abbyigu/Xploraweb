@@ -14,11 +14,14 @@ interface Props {
   /** Full-width block under the action row — e.g. a "Your itinerary is
    * saved!" success confirmation with its share link. */
   banner?: React.ReactNode;
+  /** Skip the itinerary.title heading — used on /i/:slug, which shows the
+   * title in its own hero band instead. */
+  hideTitle?: boolean;
 }
 
 /** The full stop-by-stop view of one itinerary — header/meta, stops + map,
  * shared by the pre-save preview dialog and the permanent /i/:slug page. */
-export function ItineraryFullView({ itinerary, actions, banner }: Props) {
+export function ItineraryFullView({ itinerary, actions, banner, hideTitle }: Props) {
   const { t } = useTranslation();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -34,7 +37,7 @@ export function ItineraryFullView({ itinerary, actions, banner }: Props) {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="px-6 md:px-8 mb-4">
-        <h2 className="text-xl md:text-2xl font-medium">{itinerary.title}</h2>
+        {!hideTitle && <h2 className="text-xl md:text-2xl font-medium">{itinerary.title}</h2>}
         <p className="text-sm text-muted-foreground mt-1">{itinerary.summary}</p>
         <p className="text-xs text-muted-foreground mt-2">
           {t('itineraryBuilder.resultMeta', { duration: itinerary.estimatedDurationMin, distance: itinerary.estimatedDistanceKm })}
@@ -61,6 +64,7 @@ export function ItineraryFullView({ itinerary, actions, banner }: Props) {
       <div className="md:flex md:items-start">
         <div className={`${mobileView === 'map' ? 'hidden' : 'block'} md:block w-full md:w-3/5 lg:w-[62%]`}>
           <div className="px-6 md:px-8 pb-8 space-y-4">
+            <p className="text-[13px] font-semibold text-xplora-ink uppercase tracking-wide">{t('sharedItinerary.yourItinerary')}</p>
             {itinerary.stops.map(stop => (
               <div key={stop.spot.id} className="space-y-2">
                 <SpotCard

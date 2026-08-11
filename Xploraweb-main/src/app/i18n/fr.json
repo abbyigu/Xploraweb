@@ -334,7 +334,7 @@
     "michelinOnlyDescription": "N'inclure que les restaurants figurant au Guide Michelin.",
     "generate": "Générer 2 itinéraires",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
-    "generating": "Création de 3 aventures locales pour vous…",
+    "generating": "Création de 2 aventures locales pour vous…",
     "regenerate": "Générer un autre parcours",
     "errorNotConfigured": "Cette fonctionnalité n'est pas encore disponible — revenez bientôt.",
     "errorNoCandidates": "Aucun lieu ne correspond à vos filtres — essayez moins de filtres.",
@@ -420,7 +420,9 @@
     "share": "Partager",
     "remove": "Retirer des favoris",
     "returnToSaved": "Retour aux itinéraires sauvegardés",
-    "generateSimilar": "Générer un itinéraire similaire"
+    "generateSimilar": "Générer un itinéraire similaire",
+    "savedItineraryLabel": "Itinéraire enregistré",
+    "yourItinerary": "Votre itinéraire"
   },
   "howItWorks": {
     "title": "Comment ça marche",
