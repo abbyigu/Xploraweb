@@ -19,6 +19,31 @@ const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 const CANDIDATE_CAP = 24;
 const ITINERARY_SET_SIZE = 2;
 
+// Columns mapSpotRow actually reads — narrower than `select('*')` so the
+// (infrequently-changing) spots table transfers and parses faster on every request.
+const SPOT_COLUMNS = [
+  'id', 'name', 'name_fr', 'description', 'description_fr', 'address', 'lat', 'lng',
+  'website', 'image_url', 'neighbourhood', 'vibes', 'category', 'role', 'visit_time',
+  'price_range', 'xplora_tips', 'xplora_tips_fr', 'michelin_url',
+].join(',');
+
+// Warm-lambda cache for the active spots list: this data changes rarely, so reusing
+// it across requests on the same warm instance avoids a full-table round trip.
+const SPOTS_CACHE_TTL_MS = 60_000;
+let spotsCache: { rows: any[]; expiresAt: number } | null = null;
+
+async function getActiveSpots(supabase: ReturnType<typeof getServiceClient>): Promise<any[]> {
+  const now = Date.now();
+  if (spotsCache && spotsCache.expiresAt > now) return spotsCache.rows;
+  const { data, error } = await supabase
+    .from('xplora_spots')
+    .select(SPOT_COLUMNS)
+    .eq('status', 'active');
+  if (error) throw error;
+  spotsCache = { rows: data || [], expiresAt: now + SPOTS_CACHE_TTL_MS };
+  return spotsCache.rows;
+}
+
 const RequestSchema = z.object({
   stopCount: z.number().int(),
   categories: z.array(z.enum(SPOT_CATEGORIES)),
@@ -191,17 +216,24 @@ export default async function handler(req: any, res: any) {
   const body = parsed.data;
 
   const supabase = getServiceClient();
-  const identity = await resolveIdentity(supabase, req);
+
+  // Identity resolution and the spots fetch don't depend on each other — run them
+  // together instead of paying two sequential round trips before generation starts.
+  let identity: Awaited<ReturnType<typeof resolveIdentity>>;
+  let rows: any[];
+  try {
+    [identity, rows] = await Promise.all([
+      resolveIdentity(supabase, req),
+      getActiveSpots(supabase),
+    ]);
+  } catch (dbError: any) {
+    return res.status(500).json({ error: dbError.message, code: 'LLM_ERROR' });
+  }
+
   const usage = await getUsage(supabase, identity);
   if (!usage.premium && usage.count >= usage.limit) {
     return res.status(403).json({ error: 'Free generation limit reached.', code: 'LIMIT_REACHED', usage });
   }
-
-  const { data: rows, error: dbError } = await supabase
-    .from('xplora_spots')
-    .select('*')
-    .eq('status', 'active');
-  if (dbError) return res.status(500).json({ error: dbError.message, code: 'LLM_ERROR' });
 
   // Closed/draft listings are already excluded by the status filter above;
   // isCompleteCandidate additionally drops rows missing a name or coordinates.
@@ -287,8 +319,11 @@ export default async function handler(req: any, res: any) {
     return res.status(502).json({ error: 'The AI returned an invalid itinerary. Please try again.', code: 'LLM_ERROR' });
   }
 
-  await incrementUsage(supabase, identity);
   const updatedUsage = { ...usage, count: usage.count + 1 };
 
-  return res.status(200).json({ itineraries, usage: updatedUsage });
+  // Respond first — the client doesn't need to wait on usage bookkeeping. The
+  // handler keeps running after res.json() (Vercel's Node runtime doesn't freeze
+  // the function until this promise settles), so the increment still lands reliably.
+  res.status(200).json({ itineraries, usage: updatedUsage });
+  await incrementUsage(supabase, identity);
 }

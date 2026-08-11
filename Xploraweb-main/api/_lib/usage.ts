@@ -66,19 +66,25 @@ async function countFor(supabase: SupabaseClient, match: Record<string, string>,
 }
 
 export async function getUsage(supabase: SupabaseClient, identity: Identity): Promise<UsageResult> {
-  const premium = await isPremium(supabase, identity.userId);
   if (!identity.userId && !identity.anonId) {
+    const premium = await isPremium(supabase, identity.userId);
     return { count: 0, limit: FREE_GENERATION_LIMIT, premium };
   }
   const period = currentPeriod();
   if (identity.userId) {
-    const count = await countFor(supabase, { user_id: identity.userId }, period);
+    const [premium, count] = await Promise.all([
+      isPremium(supabase, identity.userId),
+      countFor(supabase, { user_id: identity.userId }, period),
+    ]);
     return { count, limit: FREE_GENERATION_LIMIT, premium };
   }
   // Anonymous: take the higher of the device-local counter and the IP counter, so
   // clearing localStorage / an incognito window doesn't reset the free quota.
-  const anonCount = await countFor(supabase, { anon_id: identity.anonId as string }, period);
-  const ipCount = identity.ip ? await countFor(supabase, { ip_address: identity.ip }, period) : 0;
+  const [premium, anonCount, ipCount] = await Promise.all([
+    isPremium(supabase, identity.userId),
+    countFor(supabase, { anon_id: identity.anonId as string }, period),
+    identity.ip ? countFor(supabase, { ip_address: identity.ip }, period) : Promise.resolve(0),
+  ]);
   return { count: Math.max(anonCount, ipCount), limit: FREE_GENERATION_LIMIT, premium };
 }
 
@@ -106,6 +112,7 @@ export async function incrementUsage(supabase: SupabaseClient, identity: Identit
     await bumpRow(supabase, { user_id: identity.userId, period });
     return;
   }
-  await bumpRow(supabase, { anon_id: identity.anonId as string, period });
-  if (identity.ip) await bumpRow(supabase, { ip_address: identity.ip, period });
+  const bumps = [bumpRow(supabase, { anon_id: identity.anonId as string, period })];
+  if (identity.ip) bumps.push(bumpRow(supabase, { ip_address: identity.ip, period }));
+  await Promise.all(bumps);
 }
