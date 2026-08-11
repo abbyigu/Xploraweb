@@ -334,7 +334,7 @@
     "michelinOnlyDescription": "Only include restaurants listed in the Michelin Guide.",
     "generate": "Generate 2 itineraries",
     "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
-    "generating": "Creating 3 local adventures for you…",
+    "generating": "Creating 2 local adventures for you…",
     "regenerate": "Generate a different route",
     "errorNotConfigured": "This feature isn't available right now — please check back later.",
     "errorNoCandidates": "No spots match your filters yet — try fewer filters.",
@@ -420,7 +420,9 @@
     "share": "Share",
     "remove": "Remove from saved",
     "returnToSaved": "Return to saved itineraries",
-    "generateSimilar": "Generate something similar"
+    "generateSimilar": "Generate something similar",
+    "savedItineraryLabel": "Saved itinerary",
+    "yourItinerary": "Your itinerary"
   },
   "howItWorks": {
     "title": "How it works",
