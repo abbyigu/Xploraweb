@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router';
 import { LogOut, Shield, Building2, User } from 'lucide-react';
 import { supabase, getProfile } from '../lib/supabase';
 import { Footer } from './Footer';
@@ -39,7 +39,6 @@ export function DashboardScreen() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
-  const initialProfileTab = searchParams.get('tab') === 'saved' ? 'saved' : undefined;
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
   const [profile, setProfile] = useState<DashboardProfile>(EMPTY_PROFILE);
@@ -74,6 +73,12 @@ export function DashboardScreen() {
     await supabase.auth.signOut();
     navigate('/');
   };
+
+  // Saved itineraries now live on their own page — redirect any old
+  // /dashboard?tab=saved deep link there instead of a dashboard tab.
+  if (searchParams.get('tab') === 'saved') {
+    return <Navigate to="/saved" replace />;
+  }
 
   if (loading) {
     return (
@@ -178,7 +183,7 @@ export function DashboardScreen() {
           </div>
         )}
 
-        {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} initialTab={initialProfileTab} />}
+        {section === 'profile' && <DashboardProfilePanel profile={profile} setProfile={setProfile} />}
         {section === 'business' && showBusiness && <DashboardBusinessPanel profile={profile} />}
         {section === 'admin' && showAdmin && (
           <Suspense fallback={<div className="flex justify-center py-20"><div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" /></div>}>

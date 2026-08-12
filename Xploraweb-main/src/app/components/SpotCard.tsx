@@ -3,6 +3,7 @@ import { MapPin, Clock, ExternalLink, Star, Award, CalendarCheck } from 'lucide-
 import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
+import { SaveSpotButton } from './SaveSpotButton';
 
 export const SpotCard = memo(function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode }) {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge }: { spot: Spot; ba
             <MapPin className="w-7 h-7" />
           </div>
         )}
+        <SaveSpotButton spot={spot} />
         {badge}
         {spot.category && (
           <span className="absolute top-2 left-2 text-[11px] font-medium px-2 py-1 rounded-full bg-white/90 text-[#12343B]">

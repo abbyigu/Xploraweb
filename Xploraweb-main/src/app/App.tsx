@@ -37,6 +37,7 @@ const ForgotPasswordScreen   = lazy(() => import('./components/ForgotPasswordScr
 const ResetPasswordScreen    = lazy(() => import('./components/ResetPasswordScreen').then(m => ({ default: m.ResetPasswordScreen })));
 const AccountSetupScreen     = lazy(() => import('./components/AccountSetupScreen').then(m => ({ default: m.AccountSetupScreen })));
 const DashboardScreen        = lazy(() => import('./components/DashboardScreen').then(m => ({ default: m.DashboardScreen })));
+const SavedScreen            = lazy(() => import('./components/SavedScreen').then(m => ({ default: m.SavedScreen })));
 const NotificationsScreen    = lazy(() => import('./components/NotificationsScreen').then(m => ({ default: m.NotificationsScreen })));
 const AboutScreen            = lazy(() => import('./components/AboutScreen').then(m => ({ default: m.AboutScreen })));
 const CartScreen             = lazy(() => import('./components/CartScreen').then(m => ({ default: m.CartScreen })));
@@ -147,6 +148,7 @@ export default function App() {
               <Route path="/business/login" element={<BusinessLoginScreen />} />
               <Route path="/business/dashboard" element={<Navigate to="/dashboard" replace />} />
               <Route path="/dashboard" element={<DashboardScreen />} />
+              <Route path="/saved" element={<SavedScreen />} />
               <Route path="/privacy" element={<PrivacyScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
               <Route path="/how-it-works" element={<HowItWorksScreen />} />

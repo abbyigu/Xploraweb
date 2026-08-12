@@ -13,12 +13,27 @@ export default async function handler(req: any, res: any) {
   const supabase = getServiceClient();
   const { data, error } = await supabase
     .from('xplora_saved_itineraries')
-    .select('slug, title, summary, estimated_duration_min, estimated_distance_km, stops, created_at')
+    .select('slug, title, summary, estimated_duration_min, estimated_distance_km, stops, created_at, notes, photos, stop_ratings, review_status, admin_response')
     .eq('slug', slug)
     .maybeSingle();
 
   if (error) return res.status(500).json({ error: error.message });
   if (!data) return res.status(404).json({ error: 'Itinerary not found' });
+
+  // Privacy/moderation boundary: a review (rating, notes, photos) is only ever
+  // exposed to non-owner visitors once review_status is 'approved' — either the
+  // stop-rating average was >=4, or an admin has responded to a lower one. This
+  // is enforced here (server-side, service-role read), not left to the client.
+  const ratings: number[] = Object.values(data.stop_ratings || {});
+  const avgRating = ratings.length > 0 ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length : null;
+  const review = data.review_status === 'approved'
+    ? {
+        avgRating,
+        notes: data.notes || '',
+        photos: (data.photos || []).map((p: any) => p.url),
+        adminResponse: data.admin_response || null,
+      }
+    : null;
 
   return res.status(200).json({
     slug: data.slug,
@@ -28,5 +43,6 @@ export default async function handler(req: any, res: any) {
     estimatedDistanceKm: data.estimated_distance_km ?? 0,
     stops: data.stops || [],
     createdAt: data.created_at,
+    review,
   });
 }

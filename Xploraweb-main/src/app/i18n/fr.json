@@ -61,6 +61,7 @@
     "ratingTitle": "Évaluez ce quartier",
     "ratingSummary": "{{average}} · {{count}} évaluations",
     "noRatingsYet": "Aucune évaluation pour l'instant — soyez le premier",
+    "backToTop": "Retour en haut",
     "tapToRate": "Touchez une étoile pour évaluer",
     "thanksForRating": "Merci — vous avez donné {{value}} / 5",
     "ratingError": "Impossible d'enregistrer votre évaluation — veuillez réessayer.",
@@ -422,7 +423,15 @@
     "returnToSaved": "Retour aux itinéraires sauvegardés",
     "generateSimilar": "Générer un itinéraire similaire",
     "savedItineraryLabel": "Itinéraire enregistré",
-    "yourItinerary": "Votre itinéraire"
+    "yourItinerary": "Votre itinéraire",
+    "placesYouAlsoWent": "Autres endroits visités",
+    "scrapbookTitle": "Évaluez cette expérience",
+    "scrapbookSubtitle": "Comment s'est passé votre voyage ? Ajoutez des photos, des notes et évaluez chaque arrêt.",
+    "reviewButton": "Laisser un avis",
+    "saveReview": "Enregistrer l'avis",
+    "reviewPending": "Votre avis est sous 4★ — il attend une réponse de notre équipe avant d'être publié sur la page publique de cet itinéraire.",
+    "adminResponseLabel": "Réponse de Xplora",
+    "reviewTitle": "Avis d'un voyageur"
   },
   "howItWorks": {
     "title": "Comment ça marche",
@@ -590,7 +599,7 @@
     "createAccount": "Créer un compte",
     "profileTab": "Profil",
     "preferencesTab": "Préférences",
-    "savedTab": "Sauvegardé",
+    "viewSaved": "Voir vos itinéraires sauvegardés",
     "settingsTab": "Paramètres",
     "adminTab": "Admin",
     "noCommentLeft": "Aucun commentaire laissé.",
@@ -641,9 +650,6 @@
     "extraSpotsPlaceholder": "ex. Crêperie Le Petit Coin",
     "addSpot": "Ajouter",
     "rateStops": "Notez chaque arrêt",
-    "savedPerks": "Avantages sauvegardés",
-    "noPerks": "Aucun avantage sauvegardé pour l'instant.",
-    "validUntil": "Valide jusqu'au",
     "interests": "Vos intérêts",
     "exploreOptions": "Options d'exploration",
     "showHiddenGems": "Me montrer des trésors cachés",
@@ -664,6 +670,23 @@
     },
     "openItinerary": "Ouvrir l'itinéraire",
     "copyLink": "Copier le lien"
+  },
+  "saved": {
+    "eyebrow": "Votre collection",
+    "title": "Sauvegardé",
+    "countLabel": "{{count}} éléments sauvegardés",
+    "guestPrompt": "Connectez-vous pour voir vos itinéraires sauvegardés et vos endroits.",
+    "backToAccount": "Retour au compte",
+    "places": "Endroits",
+    "noPlaces": "Aucun endroit sauvegardé pour l'instant. Touchez le cœur sur un endroit pour le sauvegarder ici.",
+    "savePlace": "Sauvegarder cet endroit",
+    "removePlace": "Retirer des favoris",
+    "itineraryBadge": "Itinéraire",
+    "ratePlaceButton": "Évaluer cet endroit",
+    "placeNotesPlaceholder": "Qu'en avez-vous pensé ?",
+    "reviewPendingLong": "Sous 4★ — en attente d'une réponse de notre équipe avant d'être publié.",
+    "reviewed": "Évalué",
+    "reviewPending": "Réponse en attente"
   },
   "accountSetup": {
     "title": "Complétez votre profil",
@@ -1076,7 +1099,8 @@
     "validUntil": "Valide jusqu'au",
     "remove": "Retirer",
     "close": "Fermer",
-    "clear": "Effacer"
+    "clear": "Effacer",
+    "reviewBlockedLanguage": "Cet avis ne peut pas être publié en raison d'un langage inapproprié. Veuillez modifier votre avis et réessayer."
   },
   "faq": {
     "headline": "Questions et réponses",

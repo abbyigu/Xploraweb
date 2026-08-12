@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Star, Check, X, Mail, Send } from 'lucide-react';
+import { Star, Check, X, Mail, Send, AlertTriangle } from 'lucide-react';
 import {
   type PendingNeighbourhoodReview,
   type NeighbourhoodReviewMessage,
@@ -39,7 +39,7 @@ export function AdminNeighbourhoodReviewCard({ review, onApprove, onReject, onPo
     setSending(true);
     const subject = encodeURIComponent(`Re: your review of ${review.neighbourhood_name || 'your neighbourhood'}`);
     const body = encodeURIComponent(message);
-    window.location.href = `mailto:${review.reviewer_email}?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:${review.reviewer_email}?cc=hello@goxplora.ca&subject=${subject}&body=${body}`;
     await logNeighbourhoodReviewMessage(review.id, message);
     setMessages(prev => [...(prev || []), { id: crypto.randomUUID(), message, created_at: new Date().toISOString() }]);
     setMessageDraft('');
@@ -47,7 +47,12 @@ export function AdminNeighbourhoodReviewCard({ review, onApprove, onReject, onPo
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5">
+    <div className={`bg-card border rounded-2xl p-5 ${review.mismatch_flag ? 'border-amber-300' : 'border-border'}`}>
+      {review.mismatch_flag && (
+        <div className="flex items-center gap-1.5 text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2.5 py-1.5 mb-3 w-fit">
+          <AlertTriangle className="w-3.5 h-3.5" /> Rating and comment may not match — worth a second look
+        </div>
+      )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1 flex-wrap">

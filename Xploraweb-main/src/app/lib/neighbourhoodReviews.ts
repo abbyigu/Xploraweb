@@ -19,6 +19,9 @@ export interface PendingNeighbourhoodReview {
   admin_reply: string | null;
   created_at: string;
   neighbourhood_name?: string;
+  /** Server-computed (keyword heuristic) — rating and comment text seem to
+   * contradict each other. Forces 'pending' even for a >=4-star rating. */
+  mismatch_flag: boolean;
 }
 
 export interface NeighbourhoodReviewMessage {
@@ -27,8 +30,10 @@ export interface NeighbourhoodReviewMessage {
   created_at: string;
 }
 
-/** Reviews at this rating publish immediately; anything below goes to moderation (also enforced server-side by a DB trigger). */
-export const AUTO_APPROVE_RATING = 5;
+/** Reviews at or above this rating publish immediately; anything below goes to
+ * moderation (also enforced server-side by a DB trigger, which additionally
+ * holds back a >=4-star review whose comment text looks mismatched). */
+export const AUTO_APPROVE_RATING = 4;
 
 export async function getApprovedNeighbourhoodReviews(neighbourhoodId: string): Promise<NeighbourhoodReview[]> {
   const { data, error } = await supabase
@@ -62,7 +67,7 @@ export async function submitNeighbourhoodReview(
 export async function getPendingNeighbourhoodReviews(): Promise<PendingNeighbourhoodReview[]> {
   const { data: reviews } = await supabase
     .from('xplora_neighbourhood_reviews')
-    .select('id, neighbourhood_id, rating, comment, reviewer_name, reviewer_email, admin_reply, created_at')
+    .select('id, neighbourhood_id, rating, comment, reviewer_name, reviewer_email, admin_reply, created_at, mismatch_flag')
     .eq('status', 'pending')
     .order('created_at', { ascending: true });
 

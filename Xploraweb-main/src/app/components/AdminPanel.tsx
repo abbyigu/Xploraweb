@@ -6,6 +6,7 @@ import { AdminSpotsPanel } from './AdminSpotsPanel';
 import { AdminNeighbourhoodsPanel } from './AdminNeighbourhoodsPanel';
 import { AdminSiteContentPanel } from './AdminSiteContentPanel';
 import { AdminNeighbourhoodReviewCard } from './AdminNeighbourhoodReviewCard';
+import { AdminItineraryReviewCard } from './AdminItineraryReviewCard';
 import { experiences as staticExperiences } from '../data/products';
 import {
   type PendingNeighbourhoodReview,
@@ -14,6 +15,17 @@ import {
   rejectNeighbourhoodReview,
   postNeighbourhoodReviewPublicReply,
 } from '../lib/neighbourhoodReviews';
+import {
+  type PendingItineraryReview,
+  getPendingItineraryReviews,
+  respondToItineraryReview,
+} from '../lib/adminItineraryReviews';
+import { AdminSpotReviewCard } from './AdminSpotReviewCard';
+import {
+  type PendingSpotReview,
+  getPendingSpotReviews,
+  respondToSpotReview,
+} from '../lib/adminSpotReviews';
 
 interface Stats {
   total: number;
@@ -80,13 +92,15 @@ export function AdminPanel() {
   const [archived, setArchived] = useState<ArchivedExp[]>([]);
   const [pendingReviews, setPendingReviews] = useState<PendingReview[]>([]);
   const [pendingNeighbourhoodReviews, setPendingNeighbourhoodReviews] = useState<PendingNeighbourhoodReview[]>([]);
+  const [pendingItineraryReviews, setPendingItineraryReviews] = useState<PendingItineraryReview[]>([]);
+  const [pendingSpotReviews, setPendingSpotReviews] = useState<PendingSpotReview[]>([]);
   const [adminBusinesses, setAdminBusinesses] = useState<AdminBusiness[]>([]);
   const [adminPerks, setAdminPerks] = useState<AdminPerk[]>([]);
   const [adminXperiences, setAdminXperiences] = useState<AdminPerk[]>([]);
   const [adminExpanded, setAdminExpanded] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadPendingNeighbourhoodReviews(), loadBusinesses()]).finally(() => setLoading(false));
+    Promise.all([loadStats(), loadArchived(), loadPendingReviews(), loadPendingNeighbourhoodReviews(), loadPendingItineraryReviews(), loadPendingSpotReviews(), loadBusinesses()]).finally(() => setLoading(false));
   }, []);
 
   async function loadStats() {
@@ -141,6 +155,14 @@ export function AdminPanel() {
     setPendingNeighbourhoodReviews(await getPendingNeighbourhoodReviews());
   }
 
+  async function loadPendingItineraryReviews() {
+    setPendingItineraryReviews(await getPendingItineraryReviews());
+  }
+
+  async function loadPendingSpotReviews() {
+    setPendingSpotReviews(await getPendingSpotReviews());
+  }
+
   async function loadBusinesses() {
     const [bizRes, allPerksRes, xperiencesRes] = await Promise.all([
       supabase.from('profiles').select('id, business_name, name, email, stripe_connect_onboarded, created_at').eq('account_type', 'business').order('created_at', { ascending: false }),
@@ -175,6 +197,17 @@ export function AdminPanel() {
   async function handlePostNeighbourhoodReviewPublicReply(id: string, reply: string) {
     await postNeighbourhoodReviewPublicReply(id, reply);
     setPendingNeighbourhoodReviews(prev => prev.map(r => r.id === id ? { ...r, admin_reply: reply } : r));
+  }
+
+  async function handleRespondToItineraryReview(id: string, response: string) {
+    await respondToItineraryReview(id, response);
+    // The DB trigger flips review_status to 'approved' as soon as admin_response is set.
+    setPendingItineraryReviews(prev => prev.filter(r => r.id !== id));
+  }
+
+  async function handleRespondToSpotReview(id: string, response: string) {
+    await respondToSpotReview(id, response);
+    setPendingSpotReviews(prev => prev.filter(r => r.id !== id));
   }
 
   async function handleRestore(id: string) {
@@ -267,8 +300,8 @@ export function AdminPanel() {
           >
             <MessageSquare className="w-3.5 h-3.5" />
             Reviews
-            {(pendingReviews.length + pendingNeighbourhoodReviews.length) > 0 && (
-              <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length + pendingNeighbourhoodReviews.length}</span>
+            {(pendingReviews.length + pendingNeighbourhoodReviews.length + pendingItineraryReviews.length + pendingSpotReviews.length) > 0 && (
+              <span className="bg-red-100 text-red-600 text-xs px-1.5 py-0.5 rounded-full">{pendingReviews.length + pendingNeighbourhoodReviews.length + pendingItineraryReviews.length + pendingSpotReviews.length}</span>
             )}
           </button>
           <button
@@ -482,6 +515,50 @@ export function AdminPanel() {
                     onApprove={handleApproveNeighbourhoodReview}
                     onReject={handleRejectNeighbourhoodReview}
                     onPostPublicReply={handlePostNeighbourhoodReviewPublicReply}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="pt-4">
+              <h3 className="text-lg">Pending Itinerary Reviews</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Saved itineraries rated below 4★ on average wait here — post a response to publish the review on the itinerary's public page.</p>
+            </div>
+
+            {pendingItineraryReviews.length === 0 ? (
+              <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No itinerary reviews pending a response.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingItineraryReviews.map(review => (
+                  <AdminItineraryReviewCard
+                    key={review.id}
+                    review={review}
+                    onRespond={handleRespondToItineraryReview}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="pt-4">
+              <h3 className="text-lg">Pending Place Reviews</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">Place reviews rated below 4★ wait here — post a response to publish the review on the place's card.</p>
+            </div>
+
+            {pendingSpotReviews.length === 0 ? (
+              <div className="bg-card border border-dashed border-border rounded-2xl p-10 text-center">
+                <MessageSquare className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="text-sm text-muted-foreground">No place reviews pending a response.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {pendingSpotReviews.map(review => (
+                  <AdminSpotReviewCard
+                    key={review.id}
+                    review={review}
+                    onRespond={handleRespondToSpotReview}
                   />
                 ))}
               </div>
