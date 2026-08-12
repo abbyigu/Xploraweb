@@ -18,7 +18,7 @@ export function BottomNav() {
   const navItems = [
     { path: '/',                    icon: Home,    label: t('bottomNav.home'),    badge: 0 },
     { path: '/itinerary',           icon: Compass, label: t('bottomNav.walks'),   badge: 0 },
-    { path: '/dashboard?tab=saved', icon: Heart,   label: t('bottomNav.saved'),   badge: 0 },
+    { path: '/saved',               icon: Heart,   label: t('bottomNav.saved'),   badge: 0 },
     { path: '/neighbourhoods',      icon: MapPin,  label: t('bottomNav.hoods'),   badge: 0 },
     { path: '/dashboard',           icon: User,    label: t('bottomNav.account'), badge: 0 },
   ];

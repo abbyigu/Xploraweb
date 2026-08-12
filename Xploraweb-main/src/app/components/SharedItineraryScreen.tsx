@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2, MapPin } from 'lucide-react';
+import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2, MapPin, Star, MessageCircle } from 'lucide-react';
 import { ItineraryFullView } from './ItineraryFullView';
+import { ItineraryScrapbook } from './ItineraryScrapbook';
 import { Footer } from './Footer';
 import { PageSEO } from './PageSEO';
-import { deleteSavedItinerary } from '../lib/savedItineraries';
+import { deleteSavedItinerary, fetchSavedItineraryById } from '../lib/savedItineraries';
+import type { SavedItinerary } from '../lib/savedItineraries';
 import type { GeneratedItinerary } from '../data/itineraryFilters';
 
 interface LocationState {
@@ -24,16 +26,31 @@ export function SharedItineraryScreen() {
 
   const [status, setStatus] = useState<Status>('loading');
   const [itinerary, setItinerary] = useState<GeneratedItinerary | null>(null);
+  const [scrapbook, setScrapbook] = useState<SavedItinerary | null>(null);
   const [copied, setCopied] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
 
   useEffect(() => {
     if (!slug) {
       setStatus('notFound');
       return;
     }
-    fetch(`/api/get-shared-itinerary?slug=${encodeURIComponent(slug)}`)
-      .then(async (res) => {
+
+    async function load() {
+      // Owner viewing their own saved itinerary: fetch the full row (RLS-scoped)
+      // so photos/notes/extra spots/ratings are available for the scrapbook card.
+      if (state.owned && state.itineraryId) {
+        const own = await fetchSavedItineraryById(state.itineraryId);
+        if (own) {
+          setItinerary(own);
+          setScrapbook(own);
+          setStatus('ready');
+          return;
+        }
+      }
+      try {
+        const res = await fetch(`/api/get-shared-itinerary?slug=${encodeURIComponent(slug!)}`);
         if (res.status === 404) {
           setStatus('notFound');
           return;
@@ -44,8 +61,13 @@ export function SharedItineraryScreen() {
         }
         setItinerary(await res.json());
         setStatus('ready');
-      })
-      .catch(() => setStatus('error'));
+      } catch {
+        setStatus('error');
+      }
+    }
+
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [slug]);
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
@@ -74,7 +96,7 @@ export function SharedItineraryScreen() {
     if (!state.itineraryId) return;
     setRemoving(true);
     await deleteSavedItinerary(state.itineraryId);
-    navigate('/dashboard?tab=saved');
+    navigate('/saved');
   }
 
   if (status === 'loading') {
@@ -101,6 +123,17 @@ export function SharedItineraryScreen() {
   }
 
   const heroImage = itinerary.stops.find(s => s.spot.image)?.spot.image;
+
+  // Show the scrapbook form itself only once the visitor asks for it (the
+  // "Leave a review" button) — but once it has real content, keep showing it
+  // as-is on future visits instead of collapsing back behind the button.
+  const hasScrapbookContent = !!scrapbook && (
+    scrapbook.photos.length > 0 ||
+    scrapbook.notes.trim().length > 0 ||
+    scrapbook.extraSpots.length > 0 ||
+    Object.keys(scrapbook.stopRatings).length > 0
+  );
+  const showScrapbook = hasScrapbookContent || reviewOpen;
 
   const actions = (
     <>
@@ -140,7 +173,7 @@ export function SharedItineraryScreen() {
       <div className="max-w-7xl mx-auto px-6 md:px-8 pt-6">
         <div className="flex flex-wrap items-center gap-4 mb-4">
           <button
-            onClick={() => navigate('/dashboard?tab=saved')}
+            onClick={() => navigate('/saved')}
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
           >
             <ArrowLeft className="w-4 h-4" aria-hidden="true" /> {t('sharedItinerary.returnToSaved')}
@@ -175,6 +208,57 @@ export function SharedItineraryScreen() {
       <div className="pt-4">
         <ItineraryFullView itinerary={itinerary} actions={actions} hideTitle />
       </div>
+      {scrapbook ? (
+        <div className="max-w-3xl mx-auto px-6 md:px-8 pt-10 pb-4">
+          {showScrapbook ? (
+            <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm">
+              <ItineraryScrapbook itinerary={scrapbook} onChange={setScrapbook} standalone />
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setReviewOpen(true)}
+              className="w-full flex items-center justify-center gap-2 border border-border rounded-2xl py-4 text-sm font-medium text-xplora-ink hover:bg-muted/50 transition"
+            >
+              <Star className="w-4 h-4 text-secondary" aria-hidden="true" />
+              {t('sharedItinerary.reviewButton')}
+            </button>
+          )}
+        </div>
+      ) : itinerary.review && (
+        <div className="max-w-3xl mx-auto px-6 md:px-8 pt-10 pb-4">
+          <div className="bg-card border border-border rounded-2xl p-6 md:p-8 shadow-sm space-y-4">
+            <div>
+              <h4 className="text-lg font-medium text-xplora-ink">{t('sharedItinerary.reviewTitle')}</h4>
+              {itinerary.review.avgRating !== null && (
+                <div className="flex items-center gap-0.5 mt-1.5">
+                  {[1, 2, 3, 4, 5].map((n) => (
+                    <Star key={n} className={`w-4 h-4 ${n <= Math.round(itinerary.review!.avgRating!) ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground/30'}`} aria-hidden="true" />
+                  ))}
+                  <span className="text-sm text-muted-foreground ml-1">{itinerary.review.avgRating.toFixed(1)}</span>
+                </div>
+              )}
+            </div>
+            {itinerary.review.notes && <p className="text-sm text-foreground leading-relaxed">"{itinerary.review.notes}"</p>}
+            {itinerary.review.photos.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {itinerary.review.photos.map((url) => (
+                  <img key={url} src={url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                ))}
+              </div>
+            )}
+            {itinerary.review.adminResponse && (
+              <div className="flex items-start gap-2 bg-muted/40 border border-border rounded-xl p-3 text-sm">
+                <MessageCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-primary" aria-hidden="true" />
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">{t('sharedItinerary.adminResponseLabel')}</p>
+                  <p>{itinerary.review.adminResponse}</p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );

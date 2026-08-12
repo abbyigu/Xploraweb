@@ -61,6 +61,7 @@
     "ratingTitle": "Rate this neighbourhood",
     "ratingSummary": "{{average}} · {{count}} ratings",
     "noRatingsYet": "No ratings yet — be the first",
+    "backToTop": "Back to top",
     "tapToRate": "Tap a star to rate",
     "thanksForRating": "Thanks — you rated this {{value}} / 5",
     "ratingError": "Couldn't save your rating — please try again.",
@@ -422,7 +423,15 @@
     "returnToSaved": "Return to saved itineraries",
     "generateSimilar": "Generate something similar",
     "savedItineraryLabel": "Saved itinerary",
-    "yourItinerary": "Your itinerary"
+    "yourItinerary": "Your itinerary",
+    "placesYouAlsoWent": "Places you also went",
+    "scrapbookTitle": "Rate this experience",
+    "scrapbookSubtitle": "How was your trip? Add photos, notes, and rate each stop.",
+    "reviewButton": "Leave a review",
+    "saveReview": "Save review",
+    "reviewPending": "Your review is below 4★ — it's waiting on a response from our team before it's published on this itinerary's public page.",
+    "adminResponseLabel": "Response from Xplora",
+    "reviewTitle": "Traveler review"
   },
   "howItWorks": {
     "title": "How it works",
@@ -590,7 +599,7 @@
     "createAccount": "Create Account",
     "profileTab": "Profile",
     "preferencesTab": "Preferences",
-    "savedTab": "Saved",
+    "viewSaved": "View your saved itineraries",
     "settingsTab": "Settings",
     "adminTab": "Admin",
     "noCommentLeft": "No comment left.",
@@ -641,9 +650,6 @@
     "extraSpotsPlaceholder": "e.g. Le Petit Coin crêperie",
     "addSpot": "Add",
     "rateStops": "Rate each stop",
-    "savedPerks": "Saved Perks",
-    "noPerks": "No saved perks yet.",
-    "validUntil": "Valid until",
     "interests": "Your Interests",
     "exploreOptions": "Explore Options",
     "showHiddenGems": "Show me hidden gems",
@@ -664,6 +670,23 @@
     },
     "openItinerary": "Open itinerary",
     "copyLink": "Copy link"
+  },
+  "saved": {
+    "eyebrow": "Your collection",
+    "title": "Saved",
+    "countLabel": "{{count}} saved",
+    "guestPrompt": "Sign in to see your saved itineraries and places.",
+    "backToAccount": "Back to account",
+    "places": "Places",
+    "noPlaces": "No saved places yet. Tap the heart on any place to save it here.",
+    "savePlace": "Save this place",
+    "removePlace": "Remove from saved",
+    "itineraryBadge": "Itinerary",
+    "ratePlaceButton": "Rate this place",
+    "placeNotesPlaceholder": "What did you think?",
+    "reviewPendingLong": "Below 4★ — waiting on a response from our team before it's published.",
+    "reviewed": "Reviewed",
+    "reviewPending": "Pending response"
   },
   "accountSetup": {
     "title": "Complete Your Profile",
@@ -1076,7 +1099,8 @@
     "validUntil": "Valid until",
     "remove": "Remove",
     "close": "Close",
-    "clear": "Clear"
+    "clear": "Clear",
+    "reviewBlockedLanguage": "This review can't be published due to inappropriate language. Please edit your review and try again."
   },
   "testimonials": {
     "title": "What explorers are saying",

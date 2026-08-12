@@ -94,6 +94,15 @@ export function isJourneyStep(item: ItineraryItem): item is JourneyStep {
   return item.type === 'journeyStep';
 }
 
+// A saved itinerary's published review, as returned to non-owner visitors of
+// /i/:slug once an admin has approved it (see api/get-shared-itinerary.ts).
+export interface PublicItineraryReview {
+  avgRating: number | null;
+  notes: string;
+  photos: string[];
+  adminResponse: string | null;
+}
+
 export interface GeneratedItinerary {
   title: string;
   summary: string;
@@ -101,6 +110,8 @@ export interface GeneratedItinerary {
   estimatedDistanceKm: number;
   stops: ItineraryItem[];
   alternates?: Spot[];
+  /** Present only on the public /i/:slug fetch response — a published review, if any. */
+  review?: PublicItineraryReview | null;
 }
 
 export interface GenerationUsage {

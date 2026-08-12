@@ -3,8 +3,9 @@ import { Star, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNeighbourhoodRating } from '../hooks/useNeighbourhoodRating';
 import { useNeighbourhoodReviews } from '../hooks/useNeighbourhoodReviews';
+import { containsInappropriateLanguage } from '../lib/contentModeration';
 
-function StaticStars({ value, size = 20 }: { value: number; size?: number }) {
+export function StaticStars({ value, size = 20 }: { value: number; size?: number }) {
   return (
     <div className="flex items-center gap-0.5" aria-hidden="true">
       {[1, 2, 3, 4, 5].map((i) => (
@@ -50,10 +51,16 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
   const [comment, setComment] = useState('');
   const [reviewerName, setReviewerName] = useState('');
   const [reviewerEmail, setReviewerEmail] = useState('');
+  const [blockedError, setBlockedError] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (rating === 0 || submitting) return;
+    if (containsInappropriateLanguage(comment)) {
+      setBlockedError(true);
+      return;
+    }
+    setBlockedError(false);
     onSubmit(rating, comment, reviewerName, reviewerEmail);
   }
 
@@ -78,12 +85,15 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
       />
       <textarea
         value={comment}
-        onChange={e => setComment(e.target.value)}
+        onChange={e => { setComment(e.target.value); setBlockedError(false); }}
         placeholder={t('neighbourhoodDetail.reviewCommentPlaceholder', 'Share what you thought (optional)')}
         maxLength={1000}
         rows={3}
         className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
       />
+      {blockedError && (
+        <p className="text-xs text-red-600">{t('common.reviewBlockedLanguage')}</p>
+      )}
       <button
         type="submit"
         disabled={rating === 0 || submitting}

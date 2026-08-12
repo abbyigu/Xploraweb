@@ -1,9 +1,10 @@
 import { useRef, useState } from 'react';
-import { Camera, Loader2, Plus, Star, X } from 'lucide-react';
+import { Camera, Check, Clock, Loader2, MessageCircle, Plus, Star, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { uploadViaApi } from '../lib/uploadImage';
 import { updateItineraryScrapbook } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
+import { containsInappropriateLanguage } from '../lib/contentModeration';
 
 function StarRating({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
   return (
@@ -26,9 +27,13 @@ function StarRating({ value, onChange }: { value: number; onChange: (rating: num
 export function ItineraryScrapbook({
   itinerary,
   onChange,
+  standalone,
 }: {
   itinerary: SavedItinerary;
   onChange: (updated: SavedItinerary) => void;
+  /** Render as its own page section (heading + no inline top border) instead
+   * of nested inside another card, e.g. an expanded dashboard row. */
+  standalone?: boolean;
 }) {
   const { t } = useTranslation();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -36,11 +41,15 @@ export function ItineraryScrapbook({
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [notesDraft, setNotesDraft] = useState(itinerary.notes);
   const [notesSaved, setNotesSaved] = useState(false);
+  const [notesBlockedError, setNotesBlockedError] = useState(false);
   const [newSpot, setNewSpot] = useState('');
 
   const persist = async (patch: Parameters<typeof updateItineraryScrapbook>[1], updated: SavedItinerary) => {
-    onChange(updated);
-    await updateItineraryScrapbook(itinerary.id, patch);
+    onChange(updated); // optimistic
+    const result = await updateItineraryScrapbook(itinerary.id, patch);
+    // Reconcile with the server-computed review_status/admin_response (a DB
+    // trigger sets these — our optimistic `updated` above can't know them).
+    if (result.itinerary) onChange(result.itinerary);
   };
 
   const handleAddPhotos = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,9 +78,13 @@ export function ItineraryScrapbook({
   };
 
   const saveNotes = async () => {
+    if (containsInappropriateLanguage(notesDraft)) {
+      setNotesBlockedError(true);
+      return;
+    }
+    setNotesBlockedError(false);
     await persist({ notes: notesDraft }, { ...itinerary, notes: notesDraft });
     setNotesSaved(true);
-    setTimeout(() => setNotesSaved(false), 2000);
   };
 
   const addExtraSpot = async () => {
@@ -93,7 +106,17 @@ export function ItineraryScrapbook({
   };
 
   return (
-    <div className="mt-4 pt-4 border-t border-border space-y-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className={standalone ? 'space-y-6' : 'mt-4 pt-4 border-t border-border space-y-6'}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {standalone && (
+        <div>
+          <h4 className="text-lg font-medium text-xplora-ink">{t('sharedItinerary.scrapbookTitle')}</h4>
+          <p className="text-sm text-muted-foreground mt-0.5">{t('sharedItinerary.scrapbookSubtitle')}</p>
+        </div>
+      )}
+
       {/* Photos */}
       <div>
         <h5 className="text-sm font-medium mb-2">{t('account.scrapbookPhotos')}</h5>
@@ -136,22 +159,27 @@ export function ItineraryScrapbook({
         <textarea
           rows={3}
           value={notesDraft}
-          onChange={(e) => setNotesDraft(e.target.value)}
+          onChange={(e) => { setNotesDraft(e.target.value); setNotesSaved(false); setNotesBlockedError(false); }}
           placeholder={t('account.notesPlaceholder')}
           className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
-        <button
-          onClick={saveNotes}
-          disabled={notesDraft === itinerary.notes}
-          className="mt-2 text-sm px-3 py-1.5 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-40"
-        >
-          {notesSaved ? t('account.saved') : t('account.saveNotes')}
-        </button>
+        {notesBlockedError && (
+          <p className="text-xs text-red-600 mt-1">{t('common.reviewBlockedLanguage')}</p>
+        )}
+        {!standalone && (
+          <button
+            onClick={saveNotes}
+            disabled={notesDraft === itinerary.notes}
+            className="mt-2 text-sm px-3 py-1.5 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-40"
+          >
+            {notesSaved ? t('account.saved') : t('account.saveNotes')}
+          </button>
+        )}
       </div>
 
       {/* Extra spots */}
       <div>
-        <h5 className="text-sm font-medium mb-2">{t('account.extraSpotsLabel')}</h5>
+        <h5 className="text-sm font-medium mb-2">{standalone ? t('sharedItinerary.placesYouAlsoWent') : t('account.extraSpotsLabel')}</h5>
         {itinerary.extraSpots.length > 0 && (
           <ul className="space-y-1.5 mb-2">
             {itinerary.extraSpots.map((spot, i) => (
@@ -200,6 +228,32 @@ export function ItineraryScrapbook({
             ))}
           </ul>
         </div>
+      )}
+
+      {standalone && itinerary.reviewStatus === 'pending' && (
+        <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800">
+          <Clock className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
+          <span>{t('sharedItinerary.reviewPending')}</span>
+        </div>
+      )}
+
+      {standalone && itinerary.adminResponse && (
+        <div className="flex items-start gap-2 bg-muted/40 border border-border rounded-xl p-3 text-sm">
+          <MessageCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-primary" aria-hidden="true" />
+          <div>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">{t('sharedItinerary.adminResponseLabel')}</p>
+            <p>{itinerary.adminResponse}</p>
+          </div>
+        </div>
+      )}
+
+      {standalone && (
+        <button
+          onClick={saveNotes}
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-2"
+        >
+          {notesSaved ? <><Check className="w-4 h-4" aria-hidden="true" /> {t('account.saved')}</> : t('sharedItinerary.saveReview')}
+        </button>
       )}
     </div>
   );

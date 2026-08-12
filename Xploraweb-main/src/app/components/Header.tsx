@@ -1,10 +1,10 @@
 import { Link, useLocation } from 'react-router';
 import { XploraLogo } from './XploraLogo';
-import { useState, useEffect } from 'react';
+import { Fragment, useState, useEffect } from 'react';
 import { getProfile } from '../lib/supabase';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../hooks/useLanguage';
-import { User } from 'lucide-react';
+import { User, Heart } from 'lucide-react';
 import { SiteSearch } from './SiteSearch';
 
 function getInitials(name: string): string | null {
@@ -24,6 +24,7 @@ export function Header() {
   }, [location.pathname]);
 
   const isActive = (path: string) => location.pathname === path;
+  const isSavedActive = location.pathname === '/saved';
 
   const navItems = [
     { path: '/',               labelKey: 'header.home' },
@@ -44,18 +45,32 @@ export function Header() {
 
           <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-2 lg:gap-3">
             {navItems.map(({ path, labelKey }) => (
-              <Link
-                key={path}
-                to={path}
-                aria-current={isActive(path) ? 'page' : undefined}
-                className={`px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap ${
-                  isActive(path)
-                    ? 'bg-primary/15 border-primary text-foreground font-medium'
-                    : 'border-transparent text-foreground hover:bg-muted/40'
-                }`}
-              >
-                {t(labelKey)}
-              </Link>
+              <Fragment key={path}>
+                <Link
+                  to={path}
+                  aria-current={isActive(path) ? 'page' : undefined}
+                  className={`px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap ${
+                    isActive(path)
+                      ? 'bg-primary/15 border-primary text-foreground font-medium'
+                      : 'border-transparent text-foreground hover:bg-muted/40'
+                  }`}
+                >
+                  {t(labelKey)}
+                </Link>
+                {path === '/itinerary' && (
+                  <Link
+                    key="saved"
+                    to="/saved"
+                    aria-label={t('bottomNav.saved')}
+                    aria-current={isSavedActive ? 'page' : undefined}
+                    className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-opacity ${
+                      isSavedActive ? 'bg-primary' : 'bg-xplora-ink hover:opacity-90'
+                    }`}
+                  >
+                    <Heart className="w-4 h-4 text-white" fill="currentColor" aria-hidden="true" />
+                  </Link>
+                )}
+              </Fragment>
             ))}
           </nav>
 

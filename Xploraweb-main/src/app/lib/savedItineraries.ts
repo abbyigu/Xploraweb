@@ -19,6 +19,15 @@ export interface SavedItinerary {
   notes: string;
   extraSpots: string[];
   stopRatings: Record<string, number>;
+  /** Server-computed (DB trigger) from the average of stopRatings — null until
+   * a rating exists, 'approved' once >=4★ avg or an admin has responded,
+   * 'pending' otherwise. Never set directly by the client. */
+  reviewStatus: 'pending' | 'approved' | null;
+  adminResponse: string | null;
+  /** Server-computed heuristic flag — the notes text looks like it contradicts
+   * the star rating (e.g. glowing text with a low rating). Forces 'pending'
+   * even for an otherwise auto-approved >=4★ average. */
+  reviewMismatchFlag: boolean;
 }
 
 // Short, permanent, shareable id — e.g. "8F4K2" — used in the /i/:slug route.
@@ -53,6 +62,9 @@ function mapRow(row: any): SavedItinerary {
     notes: row.notes || '',
     extraSpots: row.extra_spots || [],
     stopRatings: row.stop_ratings || {},
+    reviewStatus: row.review_status ?? null,
+    adminResponse: row.admin_response ?? null,
+    reviewMismatchFlag: row.review_mismatch_flag ?? false,
   };
 }
 
@@ -91,6 +103,23 @@ export async function fetchSavedItineraries(): Promise<SavedItinerary[]> {
   return (data || []).map(mapRow);
 }
 
+// Authenticated lookup by id — used on /i/:slug when the viewer owns the itinerary,
+// since the public get-shared-itinerary API only returns share-safe fields (no
+// photos/notes/extraSpots/stopRatings). RLS scopes this to the caller's own rows.
+export async function fetchSavedItineraryById(id: string): Promise<SavedItinerary | null> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return null;
+
+  const { data } = await supabase
+    .from('xplora_saved_itineraries')
+    .select('*')
+    .eq('id', id)
+    .eq('user_id', session.user.id)
+    .maybeSingle();
+
+  return data ? mapRow(data) : null;
+}
+
 export async function deleteSavedItinerary(id: string): Promise<void> {
   await supabase.from('xplora_saved_itineraries').delete().eq('id', id);
 }
@@ -98,13 +127,15 @@ export async function deleteSavedItinerary(id: string): Promise<void> {
 export async function updateItineraryScrapbook(
   id: string,
   patch: SavedItineraryScrapbookPatch
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; itinerary?: SavedItinerary }> {
   const dbPatch: Record<string, unknown> = {};
   if (patch.photos !== undefined) dbPatch.photos = patch.photos;
   if (patch.notes !== undefined) dbPatch.notes = patch.notes;
   if (patch.extraSpots !== undefined) dbPatch.extra_spots = patch.extraSpots;
   if (patch.stopRatings !== undefined) dbPatch.stop_ratings = patch.stopRatings;
 
-  const { error } = await supabase.from('xplora_saved_itineraries').update(dbPatch).eq('id', id);
-  return error ? { ok: false, error: error.message } : { ok: true };
+  // select() back so the caller can reconcile with the server-computed
+  // review_status/admin_response (set by a DB trigger, not by this patch).
+  const { data, error } = await supabase.from('xplora_saved_itineraries').update(dbPatch).eq('id', id).select().maybeSingle();
+  return error ? { ok: false, error: error.message } : { ok: true, itinerary: data ? mapRow(data) : undefined };
 }
