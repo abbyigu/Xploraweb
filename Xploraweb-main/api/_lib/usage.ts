@@ -12,7 +12,7 @@ export interface UsageResult {
   premium: boolean;
 }
 
-export const FREE_GENERATION_LIMIT = 10;
+export const FREE_GENERATION_LIMIT = 5;
 
 function currentPeriod(): string {
   const now = new Date();

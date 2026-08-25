@@ -17,7 +17,7 @@ const PACES = ['relaxed', 'moderate', 'packed'] as const;
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 const CANDIDATE_CAP = 24;
-const ITINERARY_SET_SIZE = 2;
+const ITINERARY_SET_SIZE = 1;
 
 // Columns mapSpotRow actually reads — narrower than `select('*')` so the
 // (infrequently-changing) spots table transfers and parses faster on every request.
@@ -121,13 +121,14 @@ function buildPrompt(candidates: CandidateSpot[], stopsToGenerate: number, body:
     ...(c.vibes.length > 0 ? { tags: c.vibes } : {}),
   }));
   const restaurantHopping = isRestaurantHopping(body);
-  return `You are assembling ${ITINERARY_SET_SIZE} distinct self-guided walking itinerary OPTIONS in Québec City from a fixed list of real places, so a traveller can compare and pick one.
+  const multiple = ITINERARY_SET_SIZE > 1;
+  return `You are assembling ${multiple ? `${ITINERARY_SET_SIZE} distinct self-guided walking itinerary OPTIONS` : 'a self-guided walking itinerary'} in Québec City from a fixed list of real places${multiple ? ', so a traveller can compare and pick one.' : '.'}
 
 Candidate spots (JSON, only use these — never invent an id):
 ${JSON.stringify(candidateList)}
 
 Requirements:
-- Return exactly ${ITINERARY_SET_SIZE} itineraries in "itineraries". Each one must be a genuinely different route — vary the sub-area, focus, or mix of stops between them (don't just reorder the same stops). A spot may reappear across itineraries only if there isn't enough variety among the candidates to avoid it.
+- Return exactly ${ITINERARY_SET_SIZE} itinerar${multiple ? 'ies' : 'y'} in "itineraries".${multiple ? " Each one must be a genuinely different route — vary the sub-area, focus, or mix of stops between them (don't just reorder the same stops). A spot may reappear across itineraries only if there isn't enough variety among the candidates to avoid it." : ''}
 - Every candidate here is a genuine destination worth stopping at — none of them are transit, stairs, or walking connectors, so you never need to filter those out yourself.
 - Each itinerary must include exactly ${stopsToGenerate} stops.
 - Estimate a realistic total walking + visiting duration and distance for each route, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
@@ -140,7 +141,7 @@ ${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be 
 ${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
 - Avoid picking two near-identical spots (same name, or virtually the same place) within one itinerary.
 - Each candidate's "tags" (when present) describe what's actually notable there (e.g. specific dishes, drinks, or features) — use them to pick a varied, well-fitting set of stops and to ground each note in something concrete.
-- Write each title and summary in ${body.language === 'fr' ? 'French' : 'English'}. Give each of the ${ITINERARY_SET_SIZE} itineraries a distinct, descriptive title reflecting what makes it different from the others.
+- Write ${multiple ? 'each title and summary' : 'the title and summary'} in ${body.language === 'fr' ? 'French' : 'English'}.${multiple ? ` Give each of the ${ITINERARY_SET_SIZE} itineraries a distinct, descriptive title reflecting what makes it different from the others.` : ' Give it a distinct, descriptive title.'}
 - For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
 - Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
 }
