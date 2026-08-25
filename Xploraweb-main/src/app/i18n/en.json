@@ -321,7 +321,8 @@
     "seoTitle": "Self-Guided Walks in Québec City | Xplora",
     "seoDesc": "Build a custom self-guided walking route in Québec City. Filter by price, number of stops, and category — then explore at your own pace.",
     "resultsTitle": "Your Itinerary Suggestions",
-    "resultsSubtitle": "We've crafted {{count}} unique itineraries based on your preferences. Click on any itinerary to see all the details and choose your favourite!"
+    "resultsSubtitle_one": "We've crafted an itinerary based on your preferences. Click on it to see all the details!",
+    "resultsSubtitle_other": "We've crafted {{count}} unique itineraries based on your preferences. Click on any itinerary to see all the details and choose your favourite!"
   },
   "itineraryBuilder": {
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
@@ -333,9 +334,9 @@
     "restaurantHoppingExplainer": "A food hop is a self-guided crawl that strings together multiple restaurants, cafés, and bars in one walk — so you can grab a bite or a drink at each stop instead of committing to a single meal.",
     "michelinOnly": "Michelin Guide only",
     "michelinOnlyDescription": "Only include restaurants listed in the Michelin Guide.",
-    "generate": "Generate 2 itineraries",
+    "generate": "Generate itinerary",
     "generateDescription": "We'll pick the best-fitting spots from your filters and stitch them into one walkable route, in order.",
-    "generating": "Creating 2 local adventures for you…",
+    "generating": "Creating your local adventure for you…",
     "regenerate": "Generate a different route",
     "errorNotConfigured": "This feature isn't available right now — please check back later.",
     "errorNoCandidates": "No spots match your filters yet — try fewer filters.",
@@ -400,7 +401,7 @@
     "genericError": "Something went wrong. Please try again."
   },
   "premiumModal": {
-    "title": "You've used your 9 free generations",
+    "title": "You've used your 5 free generations",
     "body": "Upgrade to GoXplora Premium to keep creating personalized itineraries without a monthly limit.",
     "benefit": {
       "unlimitedGeneration": "Unlimited itinerary generation",

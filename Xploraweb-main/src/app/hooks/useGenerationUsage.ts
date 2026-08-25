@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { getItineraryIdentityHeaders } from '../lib/itineraryIdentityHeaders';
 import type { GenerationUsage } from '../data/itineraryFilters';
 
-const DEFAULT_USAGE: GenerationUsage = { count: 0, limit: 10, premium: false };
+const DEFAULT_USAGE: GenerationUsage = { count: 0, limit: 5, premium: false };
 
 export function useGenerationUsage() {
   const [usage, setUsage] = useState<GenerationUsage>(DEFAULT_USAGE);

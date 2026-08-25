@@ -321,7 +321,8 @@
     "seoTitle": "Balades autoguidées à Québec | Xplora",
     "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, nombre d'arrêts et catégorie — puis explorez à votre rythme.",
     "resultsTitle": "Vos suggestions d'itinéraires",
-    "resultsSubtitle": "Nous avons créé {{count}} itinéraires uniques selon vos préférences. Cliquez sur un itinéraire pour voir tous les détails et choisir votre favori!"
+    "resultsSubtitle_one": "Nous avons créé un itinéraire selon vos préférences. Cliquez dessus pour voir tous les détails!",
+    "resultsSubtitle_other": "Nous avons créé {{count}} itinéraires uniques selon vos préférences. Cliquez sur un itinéraire pour voir tous les détails et choisir votre favori!"
   },
   "itineraryBuilder": {
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
@@ -333,9 +334,9 @@
     "restaurantHoppingExplainer": "Une tournée de restaurants est un parcours autonome qui enchaîne plusieurs restaurants, cafés et bars en une seule promenade — pour grignoter ou prendre un verre à chaque arrêt plutôt que de vous limiter à un seul repas.",
     "michelinOnly": "Guide Michelin seulement",
     "michelinOnlyDescription": "N'inclure que les restaurants figurant au Guide Michelin.",
-    "generate": "Générer 2 itinéraires",
+    "generate": "Générer un itinéraire",
     "generateDescription": "On choisit les meilleurs lieux selon vos filtres et on les assemble en un seul parcours à pied, dans l'ordre.",
-    "generating": "Création de 2 aventures locales pour vous…",
+    "generating": "Création de votre aventure locale…",
     "regenerate": "Générer un autre parcours",
     "errorNotConfigured": "Cette fonctionnalité n'est pas encore disponible — revenez bientôt.",
     "errorNoCandidates": "Aucun lieu ne correspond à vos filtres — essayez moins de filtres.",
@@ -400,7 +401,7 @@
     "genericError": "Une erreur est survenue. Veuillez réessayer."
   },
   "premiumModal": {
-    "title": "Vous avez utilisé vos 9 générations gratuites",
+    "title": "Vous avez utilisé vos 5 générations gratuites",
     "body": "Passez à GoXplora Premium pour continuer à créer des itinéraires personnalisés sans limite mensuelle.",
     "benefit": {
       "unlimitedGeneration": "Génération d'itinéraires illimitée",
