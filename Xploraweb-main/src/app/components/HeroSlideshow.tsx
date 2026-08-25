@@ -2,13 +2,23 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
-const SLIDES = [
+type Slide = {
+  src: string;
+  webpSrc: string;
+  webpSrcSet?: string;
+  altKey: string;
+  desktopFocus?: string;
+  fit?: 'cover' | 'contain';
+};
+
+const SLIDES: Slide[] = [
   { src: '/hero/park-garden-walk.jpg', webpSrc: '/hero/park-garden-walk.webp', webpSrcSet: '/hero/park-garden-walk-900.webp 900w, /hero/park-garden-walk.webp 1440w', altKey: 'home.heroSlideAlt1', desktopFocus: 'md:object-[50%_60%]' },
-  { src: '/hero/jazz-band-night.jpg', webpSrc: '/hero/jazz-band-night.webp', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[50%_45%]' },
-  { src: '/hero/cafe-terrace-drinks.jpg', webpSrc: '/hero/cafe-terrace-drinks.webp', altKey: 'home.heroSlideAlt3', desktopFocus: 'md:object-[50%_65%]' },
+  { src: '/hero/fountain-night.jpg', webpSrc: '/hero/fountain-night.webp', altKey: 'home.heroSlideAlt2', desktopFocus: 'md:object-[50%_48%]' },
+  // Portrait source in a wide/short box — object-cover would crop most of it away, so this slide shows the full photo (contain) over a blurred fill instead.
+  { src: '/hero/cafe-terrace-drinks.jpg', webpSrc: '/hero/cafe-terrace-drinks.webp', altKey: 'home.heroSlideAlt3', fit: 'contain' },
   { src: '/hero/marina-sunset.jpg', webpSrc: '/hero/marina-sunset.webp', altKey: 'home.heroSlideAlt4', desktopFocus: 'md:object-[50%_55%]' },
   { src: '/hero/balloon-art-alley.jpg', webpSrc: '/hero/balloon-art-alley.webp', altKey: 'home.heroSlideAlt5', desktopFocus: 'md:object-[50%_40%]' },
-  { src: '/hero/winter-firepit-petit-champlain.jpg', webpSrc: '/hero/winter-firepit-petit-champlain.webp', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_75%]' },
+  { src: '/hero/marina-lounge-bean-bags.jpg', webpSrc: '/hero/marina-lounge-bean-bags.webp', altKey: 'home.heroSlideAlt6', desktopFocus: 'md:object-[50%_68%]' },
 ];
 
 const SLIDE_DURATION_MS = 6000;
@@ -42,23 +52,48 @@ export function HeroSlideshow() {
 
   return (
     <div className="absolute inset-0">
-      {SLIDES.map((slide, i) =>
-        loadedSlides.has(i) ? (
+      {SLIDES.map((slide, i) => {
+        if (!loadedSlides.has(i)) return null;
+        const fadeClass = `transition-opacity duration-1000 ease-in-out ${i === activeIndex ? 'opacity-100' : 'opacity-0'}`;
+        const imgProps = {
+          loading: (i === 0 ? 'eager' : 'lazy') as const,
+          fetchPriority: (i === 0 ? 'high' : 'low') as const,
+          decoding: (i === 0 ? 'sync' : 'async') as const,
+        };
+
+        if (slide.fit === 'contain') {
+          return (
+            <div key={slide.src} className={`absolute inset-0 ${fadeClass}`}>
+              <picture>
+                <source srcSet={slide.webpSrc} type="image/webp" />
+                <img
+                  src={slide.src}
+                  alt=""
+                  aria-hidden="true"
+                  {...imgProps}
+                  className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl brightness-75"
+                />
+              </picture>
+              <picture>
+                <source srcSet={slide.webpSrc} type="image/webp" />
+                <img src={slide.src} alt={t(slide.altKey)} {...imgProps} className="absolute inset-0 w-full h-full object-contain" />
+              </picture>
+            </div>
+          );
+        }
+
+        return (
           <picture key={slide.src}>
             <source srcSet={slide.webpSrcSet ?? slide.webpSrc} sizes={slide.webpSrcSet ? '100vw' : undefined} type="image/webp" />
             <img
               src={slide.src}
               alt={t(slide.altKey)}
-              loading={i === 0 ? 'eager' : 'lazy'}
-              fetchPriority={i === 0 ? 'high' : 'low'}
-              decoding={i === 0 ? 'sync' : 'async'}
-              className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} transition-opacity duration-1000 ease-in-out ${
-                i === activeIndex ? 'opacity-100' : 'opacity-0'
-              }`}
+              {...imgProps}
+              className={`absolute inset-0 w-full h-full object-cover ${slide.desktopFocus} ${fadeClass}`}
             />
           </picture>
-        ) : null
-      )}
+        );
+      })}
 
       <button
         type="button"
