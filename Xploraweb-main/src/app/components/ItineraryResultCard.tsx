@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints } from 'lucide-react';
+import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 import { ItineraryFullView } from './ItineraryFullView';
 import { AuthModal } from './AuthModal';
@@ -12,6 +12,8 @@ import type { GeneratedItinerary } from '../data/itineraryFilters';
 interface Props {
   itinerary: GeneratedItinerary;
   index?: number;
+  /** Re-run generation with the current filters, producing a fresh set of itineraries. */
+  onRegenerate?: () => void;
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -33,7 +35,7 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index }: Props) {
+export function ItineraryResultCard({ itinerary, index, onRegenerate }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -70,6 +72,20 @@ export function ItineraryResultCard({ itinerary, index }: Props) {
       {saveState === 'saved' ? t('itineraryBuilder.saved') : t('itineraryBuilder.saveThisItinerary')}
     </button>
   );
+
+  const regenerateButton = onRegenerate ? (
+    <button
+      type="button"
+      onClick={() => {
+        setViewOpen(false);
+        onRegenerate();
+      }}
+      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition"
+    >
+      <RefreshCw className="w-4 h-4" aria-hidden="true" />
+      {t('itineraryBuilder.regenerate')}
+    </button>
+  ) : null;
 
   const saveBanner = saveState === 'saved' ? (
     <div className="w-full mt-4 px-6 md:px-8">
@@ -166,9 +182,9 @@ export function ItineraryResultCard({ itinerary, index }: Props) {
       </div>
 
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
-        <DialogContent className="sm:max-w-5xl w-[calc(100%-1.5rem)] max-h-[90vh] overflow-y-auto p-0">
+        <DialogContent className="sm:max-w-6xl lg:max-w-[92vw] xl:max-w-[1600px] w-[calc(100%-1rem)] h-[95vh] max-h-[95vh] overflow-y-auto p-0">
           <div className="py-6">
-            <ItineraryFullView itinerary={itinerary} actions={saveButton} banner={saveBanner} />
+            <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} />
           </div>
         </DialogContent>
       </Dialog>
