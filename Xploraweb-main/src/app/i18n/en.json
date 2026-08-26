@@ -321,7 +321,7 @@
     "seoTitle": "Self-Guided Walks in Québec City | Xplora",
     "seoDesc": "Build a custom self-guided walking route in Québec City. Filter by price, number of stops, and category — then explore at your own pace.",
     "resultsTitle": "Your Itinerary Suggestions",
-    "resultsSubtitle_one": "We've crafted an itinerary based on your preferences. Click on it to see all the details!",
+    "resultsSubtitle_one": "We've crafted an itinerary based on your preferences.",
     "resultsSubtitle_other": "We've crafted {{count}} unique itineraries based on your preferences. Click on any itinerary to see all the details and choose your favourite!"
   },
   "itineraryBuilder": {

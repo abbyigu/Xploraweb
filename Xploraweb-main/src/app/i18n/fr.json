@@ -321,7 +321,7 @@
     "seoTitle": "Balades autoguidées à Québec | Xplora",
     "seoDesc": "Créez un parcours à pied personnalisé et autoguidé à Québec. Filtrez par prix, nombre d'arrêts et catégorie — puis explorez à votre rythme.",
     "resultsTitle": "Vos suggestions d'itinéraires",
-    "resultsSubtitle_one": "Nous avons créé un itinéraire selon vos préférences. Cliquez dessus pour voir tous les détails!",
+    "resultsSubtitle_one": "Nous avons créé un itinéraire selon vos préférences.",
     "resultsSubtitle_other": "Nous avons créé {{count}} itinéraires uniques selon vos préférences. Cliquez sur un itinéraire pour voir tous les détails et choisir votre favori!"
   },
   "itineraryBuilder": {
