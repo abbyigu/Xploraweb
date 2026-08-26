@@ -14,6 +14,9 @@ interface Props {
   index?: number;
   /** Re-run generation with the current filters, producing a fresh set of itineraries. */
   onRegenerate?: () => void;
+  /** 'full' renders the itinerary directly on the page instead of a small
+   * preview card behind a dialog — used when it's the only result. */
+  layout?: 'card' | 'full';
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -35,7 +38,7 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index, onRegenerate }: Props) {
+export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card' }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -117,6 +120,17 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate }: Props) {
   ) : saveState === 'error' ? (
     <p className="w-full mt-3 px-6 md:px-8 text-xs text-red-600">{t('itineraryBuilder.saveError')}</p>
   ) : null;
+
+  if (layout === 'full') {
+    return (
+      <div className="rounded-3xl border border-border bg-card overflow-hidden">
+        <div className="py-6">
+          <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} />
+        </div>
+        <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
+      </div>
+    );
+  }
 
   return (
     <>
