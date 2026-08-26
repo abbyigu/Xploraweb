@@ -469,7 +469,7 @@ export function ItineraryScreen() {
           </div>
 
           {genState === 'success' && results && (
-            <ItineraryResultsGrid key={genKey} itineraries={results} />
+            <ItineraryResultsGrid key={genKey} itineraries={results} onRegenerate={handleGenerate} />
           )}
 
           {showResults && !usage.premium && (
