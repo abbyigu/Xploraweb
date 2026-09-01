@@ -13,7 +13,7 @@ interface Props {
 }
 
 const BENEFIT_KEYS = [
-  'unlimitedGeneration',
+  'unlimitedSaves',
   'saveOrganize',
   'anyDevice',
   'moreCustomization',

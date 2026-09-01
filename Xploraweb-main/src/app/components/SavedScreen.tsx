@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Heart, ExternalLink, User, MapPin, Star } from 'lucide-react';
+import { Heart, ExternalLink, User, MapPin, Star, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
 import { buildGoogleMapsUrl } from '../lib/maps';
 import { getSavedSpots, removeSavedSpot, onSavedSpotsChange } from '../lib/savedSpots';
 import { SPOT_CATEGORY_KEY } from '../data/products';
+import { useSaveUsage } from '../hooks/useSaveUsage';
 import { Footer } from './Footer';
 import { XploraLogo } from './XploraLogo';
 import { SpotReviewForm } from './SpotReviewForm';
+import { PremiumLimitModal } from './PremiumLimitModal';
 
 /** Standalone "Saved" collection page — itineraries and places, reachable
  * from the header/bottom-nav heart icon. Split out of the account
@@ -25,6 +27,8 @@ export function SavedScreen() {
   const [savedItineraries, setSavedItineraries] = useState<SavedItinerary[]>([]);
   const [copiedItineraryId, setCopiedItineraryId] = useState<string | null>(null);
   const [savedSpots, setSavedSpots] = useState(() => getSavedSpots());
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const { usage: saveUsage, refresh: refreshSaveUsage } = useSaveUsage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -43,6 +47,7 @@ export function SavedScreen() {
   const removeItinerary = async (id: string) => {
     setSavedItineraries((prev) => prev.filter((i) => i.id !== id));
     await deleteSavedItinerary(id);
+    refreshSaveUsage();
   };
 
   const copyItineraryLink = (slug: string, id: string) => {
@@ -109,6 +114,31 @@ export function SavedScreen() {
       </div>
 
       <div className="max-w-5xl mx-auto px-6 py-6 space-y-8">
+
+        {!saveUsage.premium && (
+          <div className="bg-muted/40 border border-border rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-9 h-9 rounded-full bg-xplora-icon-bg flex items-center justify-center flex-shrink-0">
+              <Lock className="w-4 h-4 text-primary" aria-hidden="true" />
+            </div>
+            <div className="flex-1 w-full">
+              <p className="text-sm font-medium">{t('itineraryBuilder.freePlanTitle', { limit: saveUsage.limit })}</p>
+              <p className="text-xs text-muted-foreground mb-1.5">{t('itineraryBuilder.freePlanUsed', { count: saveUsage.count, limit: saveUsage.limit })}</p>
+              <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${Math.min(100, (saveUsage.count / saveUsage.limit) * 100)}%` }}
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPremiumModalOpen(true)}
+              className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0"
+            >
+              {t('itineraryBuilder.seePlans')}
+            </button>
+          </div>
+        )}
 
         {/* Saved Itineraries */}
         <div>
@@ -248,6 +278,8 @@ export function SavedScreen() {
           <User className="w-3.5 h-3.5" aria-hidden="true" /> {t('saved.backToAccount')}
         </button>
       </div>
+
+      <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
 
       <Footer />
     </div>
