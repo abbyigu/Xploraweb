@@ -1,6 +1,6 @@
 import { type ReactNode, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { ArrowRight, ArrowLeft, Flame, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GoogleMap, MarkerF } from '@react-google-maps/api';
 import { useSiteContent } from '../hooks/useSiteContent';
@@ -251,7 +251,6 @@ export function HomeScreen() {
   const howVisualReveal = useReveal<HTMLDivElement>({ delay: 150 });
 
   const FEATURE_TILES = [
-    { label: t('home.tileHotspotsLabel'), desc: t('home.tileHotspotsDesc'), icon: Flame,   to: '/hotspots', image: '/hero/jazz-band-night.jpg', webpImage: '/hero/jazz-band-night-tile.webp' },
     { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', webpImage: '/hero/balloon-art-alley-tile.webp', imagePosition: 'center 15%' },
     { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/michelin-plated-dish.jpg', webpImage: '/hero/michelin-plated-dish.webp' },
     { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg', webpImage: '/hero/park-garden-walk-tile.webp' },

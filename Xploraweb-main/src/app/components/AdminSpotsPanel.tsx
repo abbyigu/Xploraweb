@@ -480,22 +480,6 @@ export function AdminSpotsPanel() {
                 <button
                   type="button"
                   disabled={canAppearAsJourneyStep(displayedRole)}
-                  onClick={() => setForm(f => ({ ...f, is_hotspot: !f.is_hotspot }))}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
-                    form.is_hotspot
-                      ? 'bg-gradient-to-r from-red-500 to-orange-500 text-white'
-                      : 'bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary'
-                  }`}
-                >
-                  <Flame className={`w-4 h-4 ${form.is_hotspot ? 'fill-white' : ''}`} />
-                  Hotspot
-                </button>
-                <p className="text-[11px] text-muted-foreground mt-1">Featured on the home "Hotspots" tile.</p>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  disabled={canAppearAsJourneyStep(displayedRole)}
                   onClick={() => setForm(f => ({ ...f, is_loved: !f.is_loved }))}
                   className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed ${
                     form.is_loved
