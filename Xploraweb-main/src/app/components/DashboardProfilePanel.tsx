@@ -300,7 +300,7 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {interestOptions.map((interest) => (
                 <button key={interest} onClick={() => toggleInterest(interest)}
-                  className={`p-3 rounded-xl border-2 transition-all text-sm ${
+                  className={`p-3 rounded-xl border-2 transition-all text-sm text-center ${
                     profile.interests.includes(interest) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50'
                   }`}
                 >
