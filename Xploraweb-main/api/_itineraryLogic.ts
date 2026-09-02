@@ -283,6 +283,20 @@ export function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(stops:
 }
 
 /**
+ * The traveller can pick not just which categories to include but the order
+ * they want to visit them in (e.g. Food, then Culture, then Shopping).
+ * Re-groups an already geography-ordered route by that category rank —
+ * `Array#sort` is stable, so stops within the same rank (or a category the
+ * traveller didn't rank) keep the nearest-neighbour order they arrived in.
+ */
+export function orderByCategorySequence<T extends { spot: CandidateSpot }>(stops: T[], sequence: string[]): T[] {
+  if (sequence.length < 2) return stops;
+  const rank = new Map(sequence.map((c, i) => [c, i]));
+  const rankOf = (s: T) => rank.get(s.spot.category || '') ?? sequence.length;
+  return [...stops].sort((a, b) => rankOf(a) - rankOf(b));
+}
+
+/**
  * Restaurants/cafés/bars should suit the time of day they land at in the
  * route. There's no explicit time-of-day filter in this builder yet, so the
  * one concrete, testable rule we can apply from stop order alone: a bar

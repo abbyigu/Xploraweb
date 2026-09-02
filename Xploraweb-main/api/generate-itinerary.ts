@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { getServiceClient } from './_lib/usage.js';
 import {
   resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
-  selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, applyBarTimeOfDayRule,
+  selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule,
   assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
 } from './_itineraryLogic.js';
 import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic.js';
@@ -104,6 +104,16 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
 }
 
+// Orders a route geographically (no backtracking), then — if the traveller
+// picked an activity order (2+ categories, in the order they chose them) —
+// re-groups it by that category sequence while keeping the geographic order
+// within each group.
+function orderRoute<T extends { spot: CandidateSpot }>(stops: T[], body: z.infer<typeof RequestSchema>): T[] {
+  const byDistance = orderByNearestNeighbor(stops);
+  if (isRestaurantHopping(body) || body.categories.length < 2) return byDistance;
+  return orderByCategorySequence(byDistance, body.categories);
+}
+
 function isMichelinOnly(body: z.infer<typeof RequestSchema>): boolean {
   return isRestaurantHopping(body) && body.michelinOnly === true;
 }
@@ -136,6 +146,7 @@ Requirements:
 - ${PACE_INSTRUCTION[body.pace]}
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
+${!restaurantHopping && body.categories.length >= 2 ? `- The traveller wants to move through these categories roughly in this order: ${body.categories.join(' → ')}. Order each itinerary's stops to follow that sequence as closely as the geography allows (e.g. a ${body.categories[0]} stop earlier in the route, a ${body.categories[body.categories.length - 1]} stop later).` : ''}
 ${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
 ${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total per itinerary; prioritize variety across other categories.'}
 ${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
@@ -185,7 +196,7 @@ function processItinerary(
   const merged = mergePinnedAndFilled(pinnedStops, balanced);
   if (merged.length < 2) return null;
 
-  const ordered = applyBarTimeOfDayRule(orderByNearestNeighbor(merged));
+  const ordered = applyBarTimeOfDayRule(orderRoute(merged, body));
   const items = assembleItineraryItems(ordered, connectorPool, body.language);
 
   const chosenIds = new Set(ordered.map(s => s.spot.id));
@@ -293,7 +304,7 @@ export default async function handler(req: any, res: any) {
       .filter((it): it is ProcessedItinerary => it !== null);
   } else if (pinnedStops.length >= 2) {
     // Nothing left to fill (or none requested) — the pinned stops alone still make a valid route.
-    const ordered = applyBarTimeOfDayRule(orderByNearestNeighbor(pinnedStops));
+    const ordered = applyBarTimeOfDayRule(orderRoute(pinnedStops, body));
     itineraries = [{
       title: body.language === 'fr' ? 'Votre itinéraire' : 'Your itinerary',
       summary: '',

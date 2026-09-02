@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2, Award, ChevronDown, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -68,6 +68,74 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
+// Like Chip, but a selected category also carries a number badge marking its
+// position in the visit-order sequence — the category grid stays in a fixed
+// layout, so reordering happens in the separate OrderPill list below it
+// (a chip's own position here never moves, so it can't carry move controls).
+function SequenceChip({ children, active, order, onClick }: { children: React.ReactNode; active: boolean; order: number | null; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`inline-flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 rounded-full text-sm transition-colors ${
+        active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary hover:bg-primary/20'
+      }`}
+    >
+      {order != null && (
+        <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
+          {order}
+        </span>
+      )}
+      {children}
+    </button>
+  );
+}
+
+// The ordered "visit order" list — each pill's position on screen IS its
+// order, so the up/down arrows here visibly move it, unlike a fixed-position
+// grid chip. Shown once 2+ categories are selected, when order is meaningful.
+function OrderPill({
+  children, order, onMoveEarlier, onMoveLater, canMoveEarlier, canMoveLater, moveEarlierLabel, moveLaterLabel,
+}: {
+  children: React.ReactNode;
+  order: number;
+  onMoveEarlier: () => void;
+  onMoveLater: () => void;
+  canMoveEarlier: boolean;
+  canMoveLater: boolean;
+  moveEarlierLabel: string;
+  moveLaterLabel: string;
+}) {
+  return (
+    <div className="inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground">
+      <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
+        {order}
+      </span>
+      <span className="px-0.5">{children}</span>
+      <span className="flex flex-col -my-0.5">
+        <button
+          type="button"
+          onClick={onMoveEarlier}
+          disabled={!canMoveEarlier}
+          aria-label={moveEarlierLabel}
+          className="disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-75"
+        >
+          <ChevronUp className="w-3 h-3" aria-hidden="true" />
+        </button>
+        <button
+          type="button"
+          onClick={onMoveLater}
+          disabled={!canMoveLater}
+          aria-label={moveLaterLabel}
+          className="disabled:opacity-30 disabled:cursor-not-allowed hover:opacity-75"
+        >
+          <ChevronDown className="w-3 h-3" aria-hidden="true" />
+        </button>
+      </span>
+    </div>
+  );
+}
+
 export function ItineraryScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -122,6 +190,17 @@ export function ItineraryScreen() {
   }
   function toggleCategory(c: SpotCategory) {
     setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+  }
+  // Reorders the visit-order sequence in place — categories is already the
+  // source of truth for both "which" and "in what order" (see toggleCategory).
+  function moveCategory(index: number, direction: -1 | 1) {
+    setCategories(prev => {
+      const target = index + direction;
+      if (index < 0 || target < 0 || target >= prev.length) return prev;
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
   }
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
@@ -226,7 +305,9 @@ export function ItineraryScreen() {
   const interestsLabel = restaurantHopping
     ? t('itineraryBuilder.restaurantHopping')
     : categories.length > 0
-      ? categories.map(c => t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)).join(', ')
+      ? categories
+          .map((c, i) => `${categories.length > 1 ? `${i + 1}. ` : ''}${t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}`)
+          .join(', ')
       : t('itineraryBuilder.interestsAny');
   const locationLabel = neighbourhoods.length > 0 ? neighbourhoods.join(', ') : t('itineraryBuilder.locationFixed');
 
@@ -327,15 +408,49 @@ export function ItineraryScreen() {
                 </div>
               )}
 
-              {/* Interests */}
+              {/* Interests — also doubles as an activity-order picker: once
+                  2+ are selected, a "visit order" list appears below with
+                  arrows to arrange them into the sequence the traveller
+                  wants (e.g. Food, then Culture, then Shopping). */}
               {!restaurantHopping && (
                 <div>
                   <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itineraryBuilder.interests')}</p>
                   <div className="flex flex-wrap gap-2">
-                    {ITINERARY_CATEGORIES.map(c => (
-                      <Chip key={c} active={categories.includes(c)} onClick={() => toggleCategory(c)}>{t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}</Chip>
-                    ))}
+                    {ITINERARY_CATEGORIES.map(c => {
+                      const order = categories.indexOf(c);
+                      return (
+                        <SequenceChip
+                          key={c}
+                          active={order >= 0}
+                          order={order >= 0 ? order + 1 : null}
+                          onClick={() => toggleCategory(c)}
+                        >
+                          {t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}
+                        </SequenceChip>
+                      );
+                    })}
                   </div>
+                  {categories.length > 1 && (
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground mb-2">{t('itineraryBuilder.interestsSequenceHint')}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {categories.map((c, i) => (
+                          <OrderPill
+                            key={c}
+                            order={i + 1}
+                            onMoveEarlier={() => moveCategory(i, -1)}
+                            onMoveLater={() => moveCategory(i, 1)}
+                            canMoveEarlier={i > 0}
+                            canMoveLater={i < categories.length - 1}
+                            moveEarlierLabel={t('itineraryBuilder.moveEarlier')}
+                            moveLaterLabel={t('itineraryBuilder.moveLater')}
+                          >
+                            {t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}
+                          </OrderPill>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
