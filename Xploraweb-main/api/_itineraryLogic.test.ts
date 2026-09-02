@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   canBeGeneratedAsStop, canAppearAsJourneyStep, inferDefaultRole, resolveRole,
   isCompleteCandidate, dedupeStops, selectBalancedStops, mergePinnedAndFilled,
-  orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule, assembleItineraryItems,
+  orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule, preservePinnedOrder, assembleItineraryItems,
   findConnectorForGap, hasStrongCulturalPreference, isCafeFocused,
 } from './_itineraryLogic';
 import type { CandidateSpot, StopCandidate } from './_itineraryLogic';
@@ -213,6 +213,31 @@ describe('orderByNearestNeighbor + applyBarTimeOfDayRule', () => {
     ];
     const result = applyBarTimeOfDayRule(stops);
     expect(result.map(s => s.spot.id)).toEqual(['bar1', 'bar2']);
+  });
+});
+
+describe('preservePinnedOrder (pinned stops keep their relative order across regeneration)', () => {
+  it('swaps two pinned stops back into the order they were pinned in, leaving unpinned stops untouched', () => {
+    // Geography ordering put v2 before v1 this time around, but the traveller
+    // pinned them in the order v1, v2 on the previous generation.
+    const ordered = [
+      stopOf(spot({ id: 'v2' })),
+      stopOf(spot({ id: 'shop1', category: 'Shopping' })),
+      stopOf(spot({ id: 'v1' })),
+    ];
+    const result = preservePinnedOrder(ordered, ['v1', 'v2']);
+    expect(result.map(s => s.spot.id)).toEqual(['v1', 'shop1', 'v2']);
+  });
+
+  it('leaves the order alone with fewer than 2 pinned stops', () => {
+    const ordered = [stopOf(spot({ id: 'a' })), stopOf(spot({ id: 'b' }))];
+    expect(preservePinnedOrder(ordered, [])).toEqual(ordered);
+    expect(preservePinnedOrder(ordered, ['a'])).toEqual(ordered);
+  });
+
+  it('ignores pinned ids that are no longer in the route', () => {
+    const ordered = [stopOf(spot({ id: 'a' })), stopOf(spot({ id: 'b' }))];
+    expect(preservePinnedOrder(ordered, ['a', 'gone'])).toEqual(ordered);
   });
 });
 

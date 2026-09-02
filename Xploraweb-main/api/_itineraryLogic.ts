@@ -311,6 +311,35 @@ export function applyBarTimeOfDayRule<T extends { spot: CandidateSpot }>(ordered
   return [...rest, first];
 }
 
+/**
+ * Pinned stops are meant to "stay put" across a regeneration, but the
+ * geography/category ordering above re-sequences the whole route (pinned and
+ * filled together) from scratch, so two pinned stops could still swap places
+ * relative to each other if the fill around them changed. `pinnedOrder` is
+ * the order the traveller last saw them in (see mergePinnedAndFilled callers) —
+ * re-sort just the pinned stops, in their existing slots, to match it; every
+ * unpinned stop keeps exactly the slot the ordering above gave it.
+ */
+export function preservePinnedOrder<T extends { spot: CandidateSpot }>(
+  ordered: T[], pinnedOrder: string[],
+): T[] {
+  if (pinnedOrder.length < 2) return ordered;
+  const rank = new Map(pinnedOrder.map((id, i) => [id, i]));
+  const slots: number[] = [];
+  const pinnedItems: T[] = [];
+  ordered.forEach((item, i) => {
+    if (rank.has(item.spot.id)) {
+      slots.push(i);
+      pinnedItems.push(item);
+    }
+  });
+  if (pinnedItems.length < 2) return ordered;
+  const sortedPinned = [...pinnedItems].sort((a, b) => rank.get(a.spot.id)! - rank.get(b.spot.id)!);
+  const result = [...ordered];
+  slots.forEach((slot, i) => { result[slot] = sortedPinned[i]; });
+  return result;
+}
+
 function toXY(p: { lat: number; lng: number }, originLat: number) {
   const R = 6371000;
   return {
