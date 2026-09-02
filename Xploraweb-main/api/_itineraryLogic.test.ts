@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   canBeGeneratedAsStop, canAppearAsJourneyStep, inferDefaultRole, resolveRole,
   isCompleteCandidate, dedupeStops, selectBalancedStops, mergePinnedAndFilled,
-  orderByNearestNeighbor, applyBarTimeOfDayRule, assembleItineraryItems,
+  orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule, assembleItineraryItems,
   findConnectorForGap, hasStrongCulturalPreference, isCafeFocused,
 } from './_itineraryLogic';
 import type { CandidateSpot, StopCandidate } from './_itineraryLogic';
@@ -213,6 +213,48 @@ describe('orderByNearestNeighbor + applyBarTimeOfDayRule', () => {
     ];
     const result = applyBarTimeOfDayRule(stops);
     expect(result.map(s => s.spot.id)).toEqual(['bar1', 'bar2']);
+  });
+});
+
+describe('orderByCategorySequence', () => {
+  it('leaves the order alone with fewer than 2 chosen categories', () => {
+    const stops = [
+      stopOf(spot({ id: 'a', category: 'Shopping' })),
+      stopOf(spot({ id: 'b', category: 'Food' })),
+    ];
+    expect(orderByCategorySequence(stops, [])).toEqual(stops);
+    expect(orderByCategorySequence(stops, ['Food'])).toEqual(stops);
+  });
+
+  it('re-groups stops to follow the chosen category order (Food, then Culture, then Shopping)', () => {
+    const stops = [
+      stopOf(spot({ id: 'shop1', category: 'Shopping' })),
+      stopOf(spot({ id: 'culture1', category: 'Culture' })),
+      stopOf(spot({ id: 'food1', category: 'Food' })),
+      stopOf(spot({ id: 'shop2', category: 'Shopping' })),
+    ];
+    const result = orderByCategorySequence(stops, ['Food', 'Culture', 'Shopping']);
+    expect(result.map(s => s.spot.id)).toEqual(['food1', 'culture1', 'shop1', 'shop2']);
+  });
+
+  it('keeps relative order within the same category (stable sort)', () => {
+    const stops = [
+      stopOf(spot({ id: 'shopA', category: 'Shopping' })),
+      stopOf(spot({ id: 'shopB', category: 'Shopping' })),
+      stopOf(spot({ id: 'foodA', category: 'Food' })),
+    ];
+    const result = orderByCategorySequence(stops, ['Food', 'Shopping']);
+    expect(result.map(s => s.spot.id)).toEqual(['foodA', 'shopA', 'shopB']);
+  });
+
+  it('pushes unranked categories to the end, after everything the traveller ordered', () => {
+    const stops = [
+      stopOf(spot({ id: 'nature1', category: 'Nature' })),
+      stopOf(spot({ id: 'food1', category: 'Food' })),
+      stopOf(spot({ id: 'shop1', category: 'Shopping' })),
+    ];
+    const result = orderByCategorySequence(stops, ['Shopping', 'Food']);
+    expect(result.map(s => s.spot.id)).toEqual(['shop1', 'food1', 'nature1']);
   });
 });
 
