@@ -97,7 +97,7 @@ function SequenceChip({ children, active, order, onClick }: { children: React.Re
 // categories are selected, when order is meaningful.
 function OrderPill({
   children, order, index, onMoveEarlier, onMoveLater, canMoveEarlier, canMoveLater, moveEarlierLabel, moveLaterLabel,
-  onPillPointerDown, isDragging, isDropTarget, dragHandleLabel,
+  onPillPointerDown, isDragging, dragOffset, isDropTarget, dragHandleLabel,
 }: {
   children: React.ReactNode;
   order: number;
@@ -110,6 +110,7 @@ function OrderPill({
   moveLaterLabel: string;
   onPillPointerDown: (e: React.PointerEvent, index: number) => void;
   isDragging: boolean;
+  dragOffset: { x: number; y: number };
   isDropTarget: boolean;
   dragHandleLabel: string;
 }) {
@@ -127,8 +128,9 @@ function OrderPill({
       role="button"
       tabIndex={-1}
       aria-label={dragHandleLabel}
-      className={`inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground transition-[opacity,box-shadow] cursor-grab active:cursor-grabbing touch-none ${
-        isDragging ? 'opacity-50' : ''
+      style={isDragging ? { transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)` } : undefined}
+      className={`relative inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground select-none [-webkit-touch-callout:none] cursor-grab active:cursor-grabbing touch-none ${
+        isDragging ? 'z-10 shadow-lg' : 'transition-[opacity,box-shadow]'
       } ${isDropTarget && !isDragging ? 'ring-2 ring-primary-foreground/70' : ''}`}
     >
       <GripVertical className="w-3 h-3 flex-shrink-0 opacity-60" aria-hidden="true" />
@@ -261,23 +263,35 @@ export function ItineraryScreen() {
   // Drag-to-reorder for the visit-order pills, driven by pointer events so it
   // works with both mouse and touch. dragFromIndex tracks the pill being
   // dragged (id ref, since the array can reorder mid-drag); dragOverIndex is
-  // the current drop slot, used only for the hover highlight.
+  // the current drop slot, used for the hover highlight; dragTranslate moves
+  // the dragged pill with the pointer so the drag is visible, not just a
+  // silent reorder on drop.
   const dragFromIndexRef = useRef<number | null>(null);
+  const dragStartPointRef = useRef<{ x: number; y: number } | null>(null);
   const [dragFromIndex, setDragFromIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [dragTranslate, setDragTranslate] = useState({ x: 0, y: 0 });
 
   function startCategoryDrag(e: React.PointerEvent, index: number) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    e.preventDefault(); // stop the browser from starting a text selection instead of a drag
     dragFromIndexRef.current = index;
+    dragStartPointRef.current = { x: e.clientX, y: e.clientY };
     setDragFromIndex(index);
     setDragOverIndex(index);
+    setDragTranslate({ x: 0, y: 0 });
   }
 
   useEffect(() => {
     if (dragFromIndex == null) return;
 
     function handlePointerMove(e: PointerEvent) {
-      const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest<HTMLElement>('[data-order-index]');
+      const start = dragStartPointRef.current;
+      if (start) setDragTranslate({ x: e.clientX - start.x, y: e.clientY - start.y });
+      // Look past the dragged pill itself (it now sits under the pointer, translated) to find what's underneath.
+      const el = document
+        .elementsFromPoint(e.clientX, e.clientY)
+        .find((node): node is HTMLElement => node instanceof HTMLElement && node.hasAttribute('data-order-index') && Number(node.dataset.orderIndex) !== dragFromIndexRef.current);
       if (!el) return;
       const idx = Number(el.dataset.orderIndex);
       if (!Number.isNaN(idx)) setDragOverIndex(idx);
@@ -296,7 +310,9 @@ export function ItineraryScreen() {
         return null;
       });
       dragFromIndexRef.current = null;
+      dragStartPointRef.current = null;
       setDragFromIndex(null);
+      setDragTranslate({ x: 0, y: 0 });
     }
 
     window.addEventListener('pointermove', handlePointerMove);
@@ -565,6 +581,7 @@ export function ItineraryScreen() {
                             moveLaterLabel={t('itineraryBuilder.moveLater')}
                             onPillPointerDown={startCategoryDrag}
                             isDragging={dragFromIndex === i}
+                            dragOffset={dragTranslate}
                             isDropTarget={dragOverIndex === i}
                             dragHandleLabel={t('itineraryBuilder.dragToReorder')}
                           >
