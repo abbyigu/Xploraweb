@@ -13,7 +13,9 @@ export function useSaveUsage() {
   const refresh = useCallback(async () => {
     try {
       const headers = await getItineraryIdentityHeaders();
-      const res = await fetch('/api/itinerary-usage', { headers });
+      // GET is served by save-itinerary.ts too (folded in to stay under
+      // Vercel's serverless function cap — see that file's handler).
+      const res = await fetch('/api/save-itinerary', { headers });
       if (res.ok) setUsage(await res.json());
     } catch {
       // Keep the last known usage on a transient network error.

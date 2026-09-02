@@ -30,11 +30,22 @@ const SaveRequestSchema = z.object({
   stops: z.array(StopSchema).min(1),
 });
 
+// Also serves GET (the free-save usage check) — folded in here rather than
+// its own file to stay under Vercel's per-deployment serverless function cap;
+// the two share every dependency (identity + usage lookup) anyway.
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  if (req.method === 'GET') {
+    const supabase = getServiceClient();
+    const identity = await resolveIdentity(supabase, req);
+    const usage = await getUsage(supabase, identity);
+    return res.status(200).json(usage);
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
 
   const parsed = SaveRequestSchema.safeParse(req.body);
