@@ -72,7 +72,7 @@ export function AccountSetupScreen() {
                   key={interest}
                   type="button"
                   onClick={() => toggleInterest(interest)}
-                  className={`p-3 rounded-xl border-2 transition-all text-sm ${
+                  className={`p-3 rounded-xl border-2 transition-all text-sm text-center ${
                     interests.includes(interest)
                       ? 'border-primary bg-primary/10 text-primary'
                       : 'border-border hover:border-primary/50'
