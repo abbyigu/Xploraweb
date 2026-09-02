@@ -1,7 +1,7 @@
 import { generateObject } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
-import { getServiceClient, getUsage, incrementUsage, resolveIdentity } from './_lib/usage.js';
+import { getServiceClient } from './_lib/usage.js';
 import {
   resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
   selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, applyBarTimeOfDayRule,
@@ -206,7 +206,7 @@ function processItinerary(
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-anon-id');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
 
@@ -218,22 +218,11 @@ export default async function handler(req: any, res: any) {
 
   const supabase = getServiceClient();
 
-  // Identity resolution and the spots fetch don't depend on each other — run them
-  // together instead of paying two sequential round trips before generation starts.
-  let identity: Awaited<ReturnType<typeof resolveIdentity>>;
   let rows: any[];
   try {
-    [identity, rows] = await Promise.all([
-      resolveIdentity(supabase, req),
-      getActiveSpots(supabase),
-    ]);
+    rows = await getActiveSpots(supabase);
   } catch (dbError: any) {
     return res.status(500).json({ error: dbError.message, code: 'LLM_ERROR' });
-  }
-
-  const usage = await getUsage(supabase, identity);
-  if (!usage.premium && usage.count >= usage.limit) {
-    return res.status(403).json({ error: 'Free generation limit reached.', code: 'LIMIT_REACHED', usage });
   }
 
   // Closed/draft listings are already excluded by the status filter above;
@@ -320,11 +309,5 @@ export default async function handler(req: any, res: any) {
     return res.status(502).json({ error: 'The AI returned an invalid itinerary. Please try again.', code: 'LLM_ERROR' });
   }
 
-  const updatedUsage = { ...usage, count: usage.count + 1 };
-
-  // Respond first — the client doesn't need to wait on usage bookkeeping. The
-  // handler keeps running after res.json() (Vercel's Node runtime doesn't freeze
-  // the function until this promise settles), so the increment still lands reliably.
-  res.status(200).json({ itineraries, usage: updatedUsage });
-  await incrementUsage(supabase, identity);
+  res.status(200).json({ itineraries });
 }

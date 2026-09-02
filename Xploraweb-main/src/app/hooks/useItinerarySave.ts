@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { saveItinerary } from '../lib/savedItineraries';
 import type { GeneratedItinerary } from '../data/itineraryFilters';
 
-export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
+export type SaveState = 'idle' | 'saving' | 'saved' | 'error' | 'limitReached';
 
 /** Guest-save-behind-signup flow, shared by every place a "Save this
  * itinerary" action can be triggered from (result card heart icon, full-view
@@ -26,6 +26,8 @@ export function useItinerarySave(itinerary: GeneratedItinerary) {
     if (result.ok) {
       setSaveState('saved');
       setSavedSlug(result.slug || null);
+    } else if (result.error === 'LIMIT_REACHED') {
+      setSaveState('limitReached');
     } else {
       setSaveState('error');
     }

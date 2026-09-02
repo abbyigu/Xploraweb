@@ -10,8 +10,7 @@ import { PremiumLimitModal } from './PremiumLimitModal';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
-import { useGenerationUsage } from '../hooks/useGenerationUsage';
-import { getItineraryIdentityHeaders } from '../lib/itineraryIdentityHeaders';
+import { useSaveUsage } from '../hooks/useSaveUsage';
 import {
   PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket,
 } from '../data/itineraryFilters';
@@ -32,7 +31,6 @@ const ERROR_KEY: Record<ItineraryErrorCode, string> = {
   NO_CANDIDATES: 'itineraryBuilder.errorNoCandidates',
   LLM_ERROR: 'itineraryBuilder.errorLlm',
   METHOD_NOT_ALLOWED: 'itineraryBuilder.errorLlm',
-  LIMIT_REACHED: 'itineraryBuilder.errorLlm',
 };
 
 function getEventTimeBucket(dateStr?: string): EventTimeBucket | 'future' | null {
@@ -96,7 +94,7 @@ export function ItineraryScreen() {
   const [results, setResults] = useState<GeneratedItinerary[] | null>(null);
   const [genKey, setGenKey] = useState(0);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
-  const { usage, setUsage, refresh: refreshUsage } = useGenerationUsage();
+  const { usage, refresh: refreshUsage } = useSaveUsage();
 
   // "Generate something similar" from the /i/:slug page — prefill neighbourhood(s)
   // and duration from the shared itinerary's stops, but don't auto-submit.
@@ -135,10 +133,6 @@ export function ItineraryScreen() {
   }
 
   async function handleGenerate() {
-    if (!usage.premium && usage.count >= usage.limit) {
-      setPremiumModalOpen(true);
-      return;
-    }
     setGenState('loading');
     setErrorCode(null);
     const bucket = DURATION_BUCKETS.find(b => b.key === durationKey) || DURATION_BUCKETS[1];
@@ -154,27 +148,19 @@ export function ItineraryScreen() {
       pace,
     };
     try {
-      const identityHeaders = await getItineraryIdentityHeaders();
       const res = await fetch('/api/generate-itinerary', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...identityHeaders },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data?.code === 'LIMIT_REACHED') {
-          if (data.usage) setUsage(data.usage);
-          setGenState('idle');
-          setPremiumModalOpen(true);
-          return;
-        }
         setErrorCode((data?.code as ItineraryErrorCode) || 'LLM_ERROR');
         setGenState('error');
         return;
       }
       const set = data as GeneratedItinerarySet;
       setResults(set.itineraries);
-      setUsage(set.usage);
       setGenKey(k => k + 1);
       setGenState('success');
       setFiltersOpen(false);
@@ -449,18 +435,6 @@ export function ItineraryScreen() {
               )}
             </button>
 
-            <div className="flex items-center justify-center gap-2 -mt-3 text-xs text-muted-foreground">
-              <span>{t('itineraryBuilder.usageCount', { count: usage.count, limit: usage.limit })}</span>
-              {!usage.premium && (
-                <>
-                  <span aria-hidden="true">·</span>
-                  <button type="button" onClick={() => setPremiumModalOpen(true)} className="text-primary hover:underline">
-                    {t('itineraryBuilder.viewPremiumOptions')}
-                  </button>
-                </>
-              )}
-            </div>
-
             {genState === 'error' && errorCode && (
               <p className="text-sm text-red-600 text-center">{t(ERROR_KEY[errorCode])}</p>
             )}
@@ -469,7 +443,7 @@ export function ItineraryScreen() {
           </div>
 
           {genState === 'success' && results && (
-            <ItineraryResultsGrid key={genKey} itineraries={results} onRegenerate={handleGenerate} />
+            <ItineraryResultsGrid key={genKey} itineraries={results} onRegenerate={handleGenerate} onSaved={refreshUsage} />
           )}
 
           {showResults && !usage.premium && (

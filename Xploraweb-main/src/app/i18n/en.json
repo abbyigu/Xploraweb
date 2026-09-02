@@ -367,8 +367,6 @@
       "packed": "Packed"
     },
     "moreFilters": "More filters",
-    "usageCount": "{{count}} of {{limit}} free generations used this month",
-    "viewPremiumOptions": "View Premium options",
     "saveThisItinerary": "Save this itinerary",
     "savedTitle": "Your itinerary is saved!",
     "savedBody": "You can now access it from your profile or share the link with friends.",
@@ -381,10 +379,10 @@
     "interestsAny": "Anything goes",
     "resultDurationLabel": "~{{duration}} min",
     "resultDistanceLabel": "{{distance}} km",
-    "freePlanTitle": "{{limit}} free itineraries per month",
-    "freePlanUsed": "You've used {{count}} of {{limit}} free itineraries.",
-    "unlockUnlimitedTitle": "Unlock unlimited itineraries!",
-    "unlockUnlimitedBody": "Create as many personalized itineraries as you want with GoXplora Premium.",
+    "freePlanTitle": "{{limit}} free saved itineraries",
+    "freePlanUsed": "You've saved {{count}} of {{limit}} free itineraries.",
+    "unlockUnlimitedTitle": "Unlock unlimited saves!",
+    "unlockUnlimitedBody": "Save as many personalized itineraries as you want with GoXplora Premium.",
     "seePlans": "See Plans"
   },
   "authModal": {
@@ -401,10 +399,10 @@
     "genericError": "Something went wrong. Please try again."
   },
   "premiumModal": {
-    "title": "You've used your 5 free generations",
-    "body": "Upgrade to GoXplora Premium to keep creating personalized itineraries without a monthly limit.",
+    "title": "You've saved your 5 free itineraries",
+    "body": "Upgrade to GoXplora Premium to save unlimited personalized itineraries.",
     "benefit": {
-      "unlimitedGeneration": "Unlimited itinerary generation",
+      "unlimitedSaves": "Unlimited saved itineraries",
       "saveOrganize": "Save and organize favourites",
       "anyDevice": "Access itineraries on any device",
       "moreCustomization": "More customization options",

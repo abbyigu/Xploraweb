@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints, RefreshCw } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 import { ItineraryFullView } from './ItineraryFullView';
 import { AuthModal } from './AuthModal';
+import { PremiumLimitModal } from './PremiumLimitModal';
 import { useItinerarySave } from '../hooks/useItinerarySave';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 import type { GeneratedItinerary } from '../data/itineraryFilters';
@@ -17,6 +18,8 @@ interface Props {
   /** 'full' renders the itinerary directly on the page instead of a small
    * preview card behind a dialog — used when it's the only result. */
   layout?: 'card' | 'full';
+  /** Called after a successful save, so a parent tracking free-save usage can refresh it. */
+  onSaved?: () => void;
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -38,14 +41,21 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card' }: Props) {
+export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const {
     saveState, savedSlug, authModalOpen, setAuthModalOpen, handleSaveClick, handleAuthenticated,
   } = useItinerarySave(itinerary);
+
+  useEffect(() => {
+    if (saveState === 'limitReached') setPremiumModalOpen(true);
+    if (saveState === 'saved') onSaved?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [saveState]);
 
   const coverImage = itinerary.stops[0]?.spot.image || null;
   const categories = topCategories(itinerary);
@@ -128,6 +138,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
           <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} />
         </div>
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
+        <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
       </div>
     );
   }
@@ -204,6 +215,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
       </Dialog>
 
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
+      <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
     </>
   );
 }

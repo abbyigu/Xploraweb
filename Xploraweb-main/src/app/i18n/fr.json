@@ -367,8 +367,6 @@
       "packed": "Intensif"
     },
     "moreFilters": "Plus de filtres",
-    "usageCount": "{{count}} générations gratuites sur {{limit}} utilisées ce mois-ci",
-    "viewPremiumOptions": "Voir les options Premium",
     "saveThisItinerary": "Sauvegarder cet itinéraire",
     "savedTitle": "Votre itinéraire est sauvegardé!",
     "savedBody": "Vous pouvez maintenant y accéder depuis votre profil ou partager le lien avec vos amis.",
@@ -381,10 +379,10 @@
     "interestsAny": "Tout m'intéresse",
     "resultDurationLabel": "~{{duration}} min",
     "resultDistanceLabel": "{{distance}} km",
-    "freePlanTitle": "{{limit}} itinéraires gratuits par mois",
-    "freePlanUsed": "Vous avez utilisé {{count}} de {{limit}} itinéraires gratuits.",
-    "unlockUnlimitedTitle": "Débloquez les itinéraires illimités!",
-    "unlockUnlimitedBody": "Créez autant d'itinéraires personnalisés que vous voulez avec GoXplora Premium.",
+    "freePlanTitle": "{{limit}} itinéraires gratuits sauvegardés",
+    "freePlanUsed": "Vous avez sauvegardé {{count}} de {{limit}} itinéraires gratuits.",
+    "unlockUnlimitedTitle": "Débloquez les sauvegardes illimitées!",
+    "unlockUnlimitedBody": "Sauvegardez autant d'itinéraires personnalisés que vous voulez avec GoXplora Premium.",
     "seePlans": "Voir les forfaits"
   },
   "authModal": {
@@ -401,10 +399,10 @@
     "genericError": "Une erreur est survenue. Veuillez réessayer."
   },
   "premiumModal": {
-    "title": "Vous avez utilisé vos 5 générations gratuites",
-    "body": "Passez à GoXplora Premium pour continuer à créer des itinéraires personnalisés sans limite mensuelle.",
+    "title": "Vous avez sauvegardé vos 5 itinéraires gratuits",
+    "body": "Passez à GoXplora Premium pour sauvegarder un nombre illimité d'itinéraires personnalisés.",
     "benefit": {
-      "unlimitedGeneration": "Génération d'itinéraires illimitée",
+      "unlimitedSaves": "Itinéraires sauvegardés illimités",
       "saveOrganize": "Sauvegardez et organisez vos favoris",
       "anyDevice": "Accès aux itinéraires sur tous vos appareils",
       "moreCustomization": "Plus d'options de personnalisation",

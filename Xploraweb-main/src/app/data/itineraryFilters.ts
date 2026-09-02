@@ -114,7 +114,9 @@ export interface GeneratedItinerary {
   review?: PublicItineraryReview | null;
 }
 
-export interface GenerationUsage {
+// Free-save usage: itineraries saved vs. the free-plan limit — saving (not
+// generating) is the metered action.
+export interface SaveUsage {
   count: number;
   limit: number;
   premium: boolean;
@@ -122,7 +124,6 @@ export interface GenerationUsage {
 
 export interface GeneratedItinerarySet {
   itineraries: GeneratedItinerary[];
-  usage: GenerationUsage;
 }
 
-export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED' | 'LIMIT_REACHED';
+export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED';

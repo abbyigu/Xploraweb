@@ -30,17 +30,6 @@ export interface SavedItinerary {
   reviewMismatchFlag: boolean;
 }
 
-// Short, permanent, shareable id — e.g. "8F4K2" — used in the /i/:slug route.
-// Uppercase alphanumeric only (no lookalike-prone punctuation), 5 characters.
-const SLUG_ALPHABET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-function generateSlug(length = 5): string {
-  let out = '';
-  for (let i = 0; i < length; i++) {
-    out += SLUG_ALPHABET[Math.floor(Math.random() * SLUG_ALPHABET.length)];
-  }
-  return out;
-}
-
 export interface SavedItineraryScrapbookPatch {
   photos?: ScrapbookPhoto[];
   notes?: string;
@@ -68,26 +57,28 @@ function mapRow(row: any): SavedItinerary {
   };
 }
 
+// Saving (not generating) an itinerary is the metered free action, so this
+// goes through the API — the free-save-limit check needs the service role to
+// read the caller's subscription status and their current saved count.
 export async function saveItinerary(result: GeneratedItinerary): Promise<{ ok: boolean; error?: string; slug?: string }> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.user) return { ok: false, error: 'NOT_SIGNED_IN' };
 
-  for (let attempt = 0; attempt < 5; attempt++) {
-    const slug = generateSlug();
-    const { error } = await supabase.from('xplora_saved_itineraries').insert({
-      user_id: session.user.id,
+  const res = await fetch('/api/save-itinerary', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+    body: JSON.stringify({
       title: result.title,
       summary: result.summary,
-      estimated_duration_min: result.estimatedDurationMin,
-      estimated_distance_km: result.estimatedDistanceKm,
+      estimatedDurationMin: result.estimatedDurationMin,
+      estimatedDistanceKm: result.estimatedDistanceKm,
       stops: result.stops,
-      slug,
-    });
-    if (!error) return { ok: true, slug };
-    if (error.code !== '23505') return { ok: false, error: error.message };
-    // Unique violation on slug — extremely unlikely at 36^5 combinations, retry with a fresh one.
-  }
-  return { ok: false, error: 'Could not generate a unique link, please try again.' };
+    }),
+  });
+  const data = await res.json().catch(() => null);
+  if (res.ok && data?.ok) return { ok: true, slug: data.slug };
+  if (data?.code === 'LIMIT_REACHED') return { ok: false, error: 'LIMIT_REACHED' };
+  return { ok: false, error: data?.error || 'Could not save your itinerary, please try again.' };
 }
 
 export async function fetchSavedItineraries(): Promise<SavedItinerary[]> {
