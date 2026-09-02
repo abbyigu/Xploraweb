@@ -92,12 +92,12 @@ function SequenceChip({ children, active, order, onClick }: { children: React.Re
 }
 
 // The ordered "visit order" list — each pill's position on screen IS its
-// order, so dragging a pill (by its grip handle) or the up/down arrows both
+// order, so dragging a pill (from anywhere on it) or the up/down arrows both
 // visibly move it, unlike a fixed-position grid chip. Shown once 2+
 // categories are selected, when order is meaningful.
 function OrderPill({
   children, order, index, onMoveEarlier, onMoveLater, canMoveEarlier, canMoveLater, moveEarlierLabel, moveLaterLabel,
-  onDragHandlePointerDown, isDragging, isDropTarget, dragHandleLabel,
+  onPillPointerDown, isDragging, isDropTarget, dragHandleLabel,
 }: {
   children: React.ReactNode;
   order: number;
@@ -108,29 +108,32 @@ function OrderPill({
   canMoveLater: boolean;
   moveEarlierLabel: string;
   moveLaterLabel: string;
-  onDragHandlePointerDown: (e: React.PointerEvent, index: number) => void;
+  onPillPointerDown: (e: React.PointerEvent, index: number) => void;
   isDragging: boolean;
   isDropTarget: boolean;
   dragHandleLabel: string;
 }) {
+  // The pill itself is the drag surface — grabbing anywhere on it (except the
+  // arrow buttons, which need their own clicks) starts the drag.
+  function handlePointerDown(e: React.PointerEvent) {
+    if ((e.target as HTMLElement).closest('button')) return;
+    onPillPointerDown(e, index);
+  }
+
   return (
     <div
       data-order-index={index}
-      className={`inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground transition-[opacity,box-shadow] ${
+      onPointerDown={handlePointerDown}
+      role="button"
+      tabIndex={-1}
+      aria-label={dragHandleLabel}
+      className={`inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground transition-[opacity,box-shadow] cursor-grab active:cursor-grabbing touch-none ${
         isDragging ? 'opacity-50' : ''
       } ${isDropTarget && !isDragging ? 'ring-2 ring-primary-foreground/70' : ''}`}
     >
-      <span
-        role="button"
-        tabIndex={-1}
-        aria-label={dragHandleLabel}
-        onPointerDown={e => onDragHandlePointerDown(e, index)}
-        className="flex items-center gap-0.5 cursor-grab active:cursor-grabbing touch-none"
-      >
-        <GripVertical className="w-3 h-3 opacity-60" aria-hidden="true" />
-        <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
-          {order}
-        </span>
+      <GripVertical className="w-3 h-3 flex-shrink-0 opacity-60" aria-hidden="true" />
+      <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
+        {order}
       </span>
       <span className="px-0.5">{children}</span>
       <span className="flex flex-col -my-0.5">
@@ -544,7 +547,7 @@ export function ItineraryScreen() {
                             canMoveLater={i < categories.length - 1}
                             moveEarlierLabel={t('itineraryBuilder.moveEarlier')}
                             moveLaterLabel={t('itineraryBuilder.moveLater')}
-                            onDragHandlePointerDown={startCategoryDrag}
+                            onPillPointerDown={startCategoryDrag}
                             isDragging={dragFromIndex === i}
                             isDropTarget={dragOverIndex === i}
                             dragHandleLabel={t('itineraryBuilder.dragToReorder')}
