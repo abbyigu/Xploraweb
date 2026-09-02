@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Map as MapIcon, List as ListIcon, ExternalLink } from 'lucide-react';
+import { Map as MapIcon, List as ListIcon, ExternalLink, Pin } from 'lucide-react';
 import { SpotCard } from './SpotCard';
 import { NeighbourhoodSpotsMap } from './NeighbourhoodSpotsMap';
 import { buildGoogleMapsUrl } from '../lib/maps';
+import { isJourneyStep } from '../data/itineraryFilters';
 import type { GeneratedItinerary } from '../data/itineraryFilters';
 
 interface Props {
@@ -17,11 +18,16 @@ interface Props {
   /** Skip the itinerary.title heading — used on /i/:slug, which shows the
    * title in its own hero band instead. */
   hideTitle?: boolean;
+  /** Ids of stops the traveller has pinned — kept in place across a
+   * regeneration. Omitted (with onTogglePin) where pinning doesn't apply,
+   * e.g. the saved/public /i/:slug view. */
+  pinnedSpotIds?: Set<string>;
+  onTogglePin?: (spotId: string) => void;
 }
 
 /** The full stop-by-stop view of one itinerary — header/meta, stops + map,
  * shared by the pre-save preview dialog and the permanent /i/:slug page. */
-export function ItineraryFullView({ itinerary, actions, banner, hideTitle }: Props) {
+export function ItineraryFullView({ itinerary, actions, banner, hideTitle, pinnedSpotIds, onTogglePin }: Props) {
   const { t } = useTranslation();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -65,19 +71,36 @@ export function ItineraryFullView({ itinerary, actions, banner, hideTitle }: Pro
         <div className={`${mobileView === 'map' ? 'hidden' : 'block'} md:block w-full md:w-3/5 lg:w-[62%]`}>
           <div className="px-6 md:px-8 pb-8 space-y-4">
             <p className="text-[13px] font-semibold text-xplora-ink uppercase tracking-wide">{t('sharedItinerary.yourItinerary')}</p>
-            {itinerary.stops.map(stop => (
-              <div key={stop.spot.id} className="space-y-2">
-                <SpotCard
-                  spot={stop.spot}
-                  badge={
-                    <span className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-[#12343B] text-white text-xs font-semibold flex items-center justify-center">
-                      {stop.order}
-                    </span>
-                  }
-                />
-                {stop.note && <p className="text-sm text-muted-foreground italic px-1">{stop.note}</p>}
-              </div>
-            ))}
+            {itinerary.stops.map(item => {
+              const pinned = !isJourneyStep(item) && (pinnedSpotIds?.has(item.spot.id) ?? false);
+              return (
+                <div key={item.spot.id} className="space-y-2">
+                  <SpotCard
+                    spot={item.spot}
+                    badge={!isJourneyStep(item) && (
+                      <span className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-[#12343B] text-white text-xs font-semibold flex items-center justify-center">
+                        {item.order}
+                      </span>
+                    )}
+                    pinAction={!isJourneyStep(item) && onTogglePin && (
+                      <button
+                        type="button"
+                        onClick={() => onTogglePin(item.spot.id)}
+                        aria-pressed={pinned}
+                        aria-label={t(pinned ? 'itineraryBuilder.unpinSpot' : 'itineraryBuilder.pinSpot')}
+                        title={t(pinned ? 'itineraryBuilder.unpinSpot' : 'itineraryBuilder.pinSpot')}
+                        className={`absolute top-2 right-11 w-8 h-8 rounded-full flex items-center justify-center transition-colors z-10 ${
+                          pinned ? 'bg-[#12343B] text-white' : 'bg-black/40 hover:bg-black/55 text-white'
+                        }`}
+                      >
+                        <Pin className="w-4 h-4" fill={pinned ? 'currentColor' : 'none'} aria-hidden="true" />
+                      </button>
+                    )}
+                  />
+                  {!isJourneyStep(item) && item.note && <p className="text-sm text-muted-foreground italic px-1">{item.note}</p>}
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -56,6 +56,10 @@ const RequestSchema = z.object({
   // Stops the user pinned on a previous generation — kept in every regenerated
   // option (not subject to the balanced-mix caps below) while the rest varies.
   pinnedSpotIds: z.array(z.string()).optional().default([]),
+  // Non-pinned spots already suggested in an earlier generation this session —
+  // left out of the fill pool where possible so a regeneration surfaces fresh
+  // picks instead of repeating what the traveller already saw.
+  excludeSpotIds: z.array(z.string()).optional().default([]),
 }).refine(
   body => (body.restaurantHopping ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS).includes(body.stopCount),
   { message: 'Invalid stop count for the selected mode.', path: ['stopCount'] },
@@ -273,8 +277,15 @@ export default async function handler(req: any, res: any) {
     .map(spot => ({ spot, note: '' }));
   const pinnedIds = new Set(pinnedStops.map(p => p.spot.id));
 
-  const fillCandidates = destinationPool.filter(c => !pinnedIds.has(c.id)).slice(0, CANDIDATE_CAP);
   const stopsToGenerate = Math.max(0, body.stopCount - pinnedStops.length);
+  const unpinnedDestinations = destinationPool.filter(c => !pinnedIds.has(c.id));
+  const excludeIds = new Set(body.excludeSpotIds.filter(id => !pinnedIds.has(id)));
+  const freshDestinations = unpinnedDestinations.filter(c => !excludeIds.has(c.id));
+  // Prefer spots the traveller hasn't already seen, but fall back to the
+  // full (unexcluded) pool rather than fail to fill the route when the
+  // filters don't leave enough fresh candidates.
+  const fillCandidates = (freshDestinations.length >= Math.max(stopsToGenerate, 2) ? freshDestinations : unpinnedDestinations)
+    .slice(0, CANDIDATE_CAP);
 
   if (fillCandidates.length < 2 && pinnedStops.length < 2) {
     return res.status(422).json({ error: 'No spots match your filters yet — try fewer filters.', code: 'NO_CANDIDATES' });

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift, Pin } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -12,7 +12,7 @@ import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { useSaveUsage } from '../hooks/useSaveUsage';
 import {
-  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket,
+  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket, isJourneyStep,
 } from '../data/itineraryFilters';
 import type {
   PriceRange, ItineraryGenerateRequest, GeneratedItinerary, GeneratedItinerarySet, ItineraryErrorCode, Pace, DurationBucket,
@@ -185,6 +185,21 @@ export function ItineraryScreen() {
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const { usage, refresh: refreshUsage } = useSaveUsage();
 
+  // Spots the traveller has pinned — survive every regeneration. shownSpotIds
+  // tracks every non-pinned spot already suggested this session, so the next
+  // regeneration surfaces fresh picks instead of repeating them.
+  const [pinnedSpotIds, setPinnedSpotIds] = useState<Set<string>>(new Set());
+  const [shownSpotIds, setShownSpotIds] = useState<Set<string>>(new Set());
+
+  function toggleSpotPin(spotId: string) {
+    setPinnedSpotIds(prev => {
+      const next = new Set(prev);
+      if (next.has(spotId)) next.delete(spotId);
+      else next.add(spotId);
+      return next;
+    });
+  }
+
   // "Generate something similar" from the /i/:slug page — prefill neighbourhood(s)
   // and duration from the shared itinerary's stops, but don't auto-submit.
   useEffect(() => {
@@ -298,6 +313,8 @@ export function ItineraryScreen() {
       restaurantHopping,
       michelinOnly: restaurantHopping && michelinOnly,
       pace,
+      pinnedSpotIds: Array.from(pinnedSpotIds),
+      excludeSpotIds: Array.from(shownSpotIds).filter(id => !pinnedSpotIds.has(id)),
     };
     try {
       const res = await fetch('/api/generate-itinerary', {
@@ -313,6 +330,15 @@ export function ItineraryScreen() {
       }
       const set = data as GeneratedItinerarySet;
       setResults(set.itineraries);
+      setShownSpotIds(prev => {
+        const next = new Set(prev);
+        for (const it of set.itineraries) {
+          for (const item of it.stops) {
+            if (!isJourneyStep(item)) next.add(item.spot.id);
+          }
+        }
+        return next;
+      });
       setGenKey(k => k + 1);
       setGenState('success');
       setFiltersOpen(false);
@@ -636,7 +662,22 @@ export function ItineraryScreen() {
           </div>
 
           {genState === 'success' && results && (
-            <ItineraryResultsGrid key={genKey} itineraries={results} onRegenerate={handleGenerate} onSaved={refreshUsage} />
+            <>
+              {pinnedSpotIds.size > 0 && (
+                <p className="max-w-7xl mx-auto px-6 md:px-8 mt-8 text-xs text-muted-foreground flex items-center gap-1.5">
+                  <Pin className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true" />
+                  {t('itineraryBuilder.pinnedHint', { count: pinnedSpotIds.size })}
+                </p>
+              )}
+              <ItineraryResultsGrid
+                key={genKey}
+                itineraries={results}
+                onRegenerate={handleGenerate}
+                onSaved={refreshUsage}
+                pinnedSpotIds={pinnedSpotIds}
+                onTogglePin={toggleSpotPin}
+              />
+            </>
           )}
 
           {showResults && !usage.premium && (

@@ -5,7 +5,7 @@ import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 import { SaveSpotButton } from './SaveSpotButton';
 
-export const SpotCard = memo(function SpotCard({ spot, badge }: { spot: Spot; badge?: React.ReactNode }) {
+export const SpotCard = memo(function SpotCard({ spot, badge, pinAction }: { spot: Spot; badge?: React.ReactNode; pinAction?: React.ReactNode }) {
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col">
@@ -18,6 +18,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge }: { spot: Spot; ba
           </div>
         )}
         <SaveSpotButton spot={spot} />
+        {pinAction}
         {badge}
         {spot.category && (
           <span className="absolute top-2 left-2 text-[11px] font-medium px-2 py-1 rounded-full bg-white/90 text-[#12343B]">
