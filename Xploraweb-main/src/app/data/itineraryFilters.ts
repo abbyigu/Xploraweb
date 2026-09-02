@@ -71,6 +71,10 @@ export interface ItineraryGenerateRequest {
   // Stops the user pinned on a previous generation — carried into the next
   // regeneration so they survive it instead of being reshuffled away.
   pinnedSpotIds?: string[];
+  // Non-pinned spots already shown in an earlier generation this session —
+  // carried into the next regeneration so it surfaces fresh suggestions
+  // instead of repeating them.
+  excludeSpotIds?: string[];
 }
 
 export interface GeneratedItineraryStop {

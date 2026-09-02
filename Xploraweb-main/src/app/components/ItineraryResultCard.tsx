@@ -20,6 +20,9 @@ interface Props {
   layout?: 'card' | 'full';
   /** Called after a successful save, so a parent tracking free-save usage can refresh it. */
   onSaved?: () => void;
+  /** Ids of stops the traveller has pinned — kept in place across a regeneration. */
+  pinnedSpotIds?: Set<string>;
+  onTogglePin?: (spotId: string) => void;
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -41,7 +44,7 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved }: Props) {
+export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -135,7 +138,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
     return (
       <div className="rounded-3xl border border-border bg-card overflow-hidden">
         <div className="py-6">
-          <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} />
+          <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} pinnedSpotIds={pinnedSpotIds} onTogglePin={onTogglePin} />
         </div>
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
         <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
@@ -209,7 +212,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="sm:max-w-6xl lg:max-w-[92vw] xl:max-w-[1600px] w-[calc(100%-1rem)] h-[95vh] max-h-[95vh] overflow-y-auto p-0">
           <div className="py-6">
-            <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} />
+            <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} pinnedSpotIds={pinnedSpotIds} onTogglePin={onTogglePin} />
           </div>
         </DialogContent>
       </Dialog>
