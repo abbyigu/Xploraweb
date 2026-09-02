@@ -354,9 +354,10 @@
     "signupNudgeDismiss": "Plus tard",
     "location": "Emplacement",
     "interests": "Intérêts",
-    "interestsSequenceHint": "Choisissez vos arrêts dans l'ordre souhaité — utilisez les flèches pour les réorganiser.",
+    "interestsSequenceHint": "Choisissez vos arrêts dans l'ordre souhaité — faites glisser une bulle ou utilisez les flèches pour les réorganiser.",
     "moveEarlier": "Déplacer plus tôt dans le parcours",
     "moveLater": "Déplacer plus tard dans le parcours",
+    "dragToReorder": "Glisser pour réorganiser",
     "timeAvailable": "Temps disponible",
     "pace": "Rythme",
     "duration": {

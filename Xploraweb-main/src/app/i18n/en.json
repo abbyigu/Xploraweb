@@ -354,9 +354,10 @@
     "signupNudgeDismiss": "Maybe later",
     "location": "Location",
     "interests": "Interests",
-    "interestsSequenceHint": "Tap to pick your stops in order — use the arrows to rearrange them.",
+    "interestsSequenceHint": "Tap to pick your stops in order — drag a bubble or use the arrows to rearrange them.",
     "moveEarlier": "Move earlier in the route",
     "moveLater": "Move later in the route",
+    "dragToReorder": "Drag to reorder",
     "timeAvailable": "Time available",
     "pace": "Pace",
     "duration": {

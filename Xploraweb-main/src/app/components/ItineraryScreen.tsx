@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router';
-import { Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
+import { Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints, Pencil, Gift } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
@@ -92,24 +92,45 @@ function SequenceChip({ children, active, order, onClick }: { children: React.Re
 }
 
 // The ordered "visit order" list — each pill's position on screen IS its
-// order, so the up/down arrows here visibly move it, unlike a fixed-position
-// grid chip. Shown once 2+ categories are selected, when order is meaningful.
+// order, so dragging a pill (by its grip handle) or the up/down arrows both
+// visibly move it, unlike a fixed-position grid chip. Shown once 2+
+// categories are selected, when order is meaningful.
 function OrderPill({
-  children, order, onMoveEarlier, onMoveLater, canMoveEarlier, canMoveLater, moveEarlierLabel, moveLaterLabel,
+  children, order, index, onMoveEarlier, onMoveLater, canMoveEarlier, canMoveLater, moveEarlierLabel, moveLaterLabel,
+  onDragHandlePointerDown, isDragging, isDropTarget, dragHandleLabel,
 }: {
   children: React.ReactNode;
   order: number;
+  index: number;
   onMoveEarlier: () => void;
   onMoveLater: () => void;
   canMoveEarlier: boolean;
   canMoveLater: boolean;
   moveEarlierLabel: string;
   moveLaterLabel: string;
+  onDragHandlePointerDown: (e: React.PointerEvent, index: number) => void;
+  isDragging: boolean;
+  isDropTarget: boolean;
+  dragHandleLabel: string;
 }) {
   return (
-    <div className="inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground">
-      <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
-        {order}
+    <div
+      data-order-index={index}
+      className={`inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground transition-[opacity,box-shadow] ${
+        isDragging ? 'opacity-50' : ''
+      } ${isDropTarget && !isDragging ? 'ring-2 ring-primary-foreground/70' : ''}`}
+    >
+      <span
+        role="button"
+        tabIndex={-1}
+        aria-label={dragHandleLabel}
+        onPointerDown={e => onDragHandlePointerDown(e, index)}
+        className="flex items-center gap-0.5 cursor-grab active:cursor-grabbing touch-none"
+      >
+        <GripVertical className="w-3 h-3 opacity-60" aria-hidden="true" />
+        <span className="w-5 h-5 flex-shrink-0 rounded-full bg-primary-foreground/25 flex items-center justify-center text-[11px] font-semibold">
+          {order}
+        </span>
       </span>
       <span className="px-0.5">{children}</span>
       <span className="flex flex-col -my-0.5">
@@ -202,6 +223,58 @@ export function ItineraryScreen() {
       return next;
     });
   }
+
+  // Drag-to-reorder for the visit-order pills, driven by pointer events so it
+  // works with both mouse and touch. dragFromIndex tracks the pill being
+  // dragged (id ref, since the array can reorder mid-drag); dragOverIndex is
+  // the current drop slot, used only for the hover highlight.
+  const dragFromIndexRef = useRef<number | null>(null);
+  const [dragFromIndex, setDragFromIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  function startCategoryDrag(e: React.PointerEvent, index: number) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    dragFromIndexRef.current = index;
+    setDragFromIndex(index);
+    setDragOverIndex(index);
+  }
+
+  useEffect(() => {
+    if (dragFromIndex == null) return;
+
+    function handlePointerMove(e: PointerEvent) {
+      const el = (document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null)?.closest<HTMLElement>('[data-order-index]');
+      if (!el) return;
+      const idx = Number(el.dataset.orderIndex);
+      if (!Number.isNaN(idx)) setDragOverIndex(idx);
+    }
+    function finishDrag() {
+      const from = dragFromIndexRef.current;
+      setDragOverIndex(over => {
+        if (from != null && over != null && over !== from) {
+          setCategories(prev => {
+            const next = [...prev];
+            const [moved] = next.splice(from, 1);
+            next.splice(over, 0, moved);
+            return next;
+          });
+        }
+        return null;
+      });
+      dragFromIndexRef.current = null;
+      setDragFromIndex(null);
+    }
+
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerup', finishDrag);
+    window.addEventListener('pointercancel', finishDrag);
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerup', finishDrag);
+      window.removeEventListener('pointercancel', finishDrag);
+    };
+  }, [dragFromIndex]);
+
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
     if (next) setCategories([]);
@@ -438,12 +511,17 @@ export function ItineraryScreen() {
                           <OrderPill
                             key={c}
                             order={i + 1}
+                            index={i}
                             onMoveEarlier={() => moveCategory(i, -1)}
                             onMoveLater={() => moveCategory(i, 1)}
                             canMoveEarlier={i > 0}
                             canMoveLater={i < categories.length - 1}
                             moveEarlierLabel={t('itineraryBuilder.moveEarlier')}
                             moveLaterLabel={t('itineraryBuilder.moveLater')}
+                            onDragHandlePointerDown={startCategoryDrag}
+                            isDragging={dragFromIndex === i}
+                            isDropTarget={dragOverIndex === i}
+                            dragHandleLabel={t('itineraryBuilder.dragToReorder')}
                           >
                             {t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}
                           </OrderPill>
