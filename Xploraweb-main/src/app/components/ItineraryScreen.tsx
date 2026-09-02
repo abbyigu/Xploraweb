@@ -556,6 +556,18 @@ export function ItineraryScreen() {
                 </div>
               </div>
 
+              {/* Price */}
+              <div>
+                <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
+                <div className="flex flex-wrap gap-2">
+                  {PRICE_RANGES.map(p => (
+                    <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
+                      {p}
+                    </Chip>
+                  ))}
+                </div>
+              </div>
+
               {/* More filters */}
               <div className="border-t border-border pt-4">
                 <button
@@ -572,18 +584,6 @@ export function ItineraryScreen() {
 
                 {moreFiltersOpen && (
                   <div className="mt-4 space-y-5">
-                    {/* Price */}
-                    <div>
-                      <p className="text-xs uppercase tracking-widest text-muted-foreground mb-2">{t('itinerary.price')}</p>
-                      <div className="flex flex-wrap gap-2">
-                        {PRICE_RANGES.map(p => (
-                          <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
-                            {p}
-                          </Chip>
-                        ))}
-                      </div>
-                    </div>
-
                     {/* Restaurant hopping */}
                     <div>
                       <div className="flex items-center justify-between gap-3">
