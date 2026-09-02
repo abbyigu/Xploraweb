@@ -5,7 +5,7 @@ import { getServiceClient } from './_lib/usage.js';
 import {
   resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
   selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule,
-  assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
+  preservePinnedOrder, assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
 } from './_itineraryLogic.js';
 import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic.js';
 
@@ -55,6 +55,8 @@ const RequestSchema = z.object({
   pace: z.enum(PACES).optional().default('moderate'),
   // Stops the user pinned on a previous generation — kept in every regenerated
   // option (not subject to the balanced-mix caps below) while the rest varies.
+  // Order matters: it's the sequence the traveller last saw them in, and
+  // preservePinnedOrder keeps them in that relative order across the regeneration.
   pinnedSpotIds: z.array(z.string()).optional().default([]),
   // Non-pinned spots already suggested in an earlier generation this session —
   // left out of the fill pool where possible so a regeneration surfaces fresh
@@ -200,7 +202,7 @@ function processItinerary(
   const merged = mergePinnedAndFilled(pinnedStops, balanced);
   if (merged.length < 2) return null;
 
-  const ordered = applyBarTimeOfDayRule(orderRoute(merged, body));
+  const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(merged, body), body.pinnedSpotIds));
   const items = assembleItineraryItems(ordered, connectorPool, body.language);
 
   const chosenIds = new Set(ordered.map(s => s.spot.id));
@@ -315,7 +317,7 @@ export default async function handler(req: any, res: any) {
       .filter((it): it is ProcessedItinerary => it !== null);
   } else if (pinnedStops.length >= 2) {
     // Nothing left to fill (or none requested) — the pinned stops alone still make a valid route.
-    const ordered = applyBarTimeOfDayRule(orderRoute(pinnedStops, body));
+    const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(pinnedStops, body), body.pinnedSpotIds));
     itineraries = [{
       title: body.language === 'fr' ? 'Votre itinéraire' : 'Your itinerary',
       summary: '',

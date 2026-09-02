@@ -69,7 +69,9 @@ export interface ItineraryGenerateRequest {
   michelinOnly: boolean;
   pace: Pace;
   // Stops the user pinned on a previous generation — carried into the next
-  // regeneration so they survive it instead of being reshuffled away.
+  // regeneration so they survive it instead of being reshuffled away. Order
+  // matters: pass them in the sequence they were last shown in so the API
+  // keeps that relative order instead of just keeping the same spots.
   pinnedSpotIds?: string[];
   // Non-pinned spots already shown in an earlier generation this session —
   // carried into the next regeneration so it surfaces fresh suggestions

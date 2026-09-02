@@ -200,6 +200,22 @@ export function ItineraryScreen() {
     });
   }
 
+  // Pinned spot ids in the order the traveller last saw them in `results`,
+  // not pin-click order — the API keeps pinned stops in this relative order
+  // across a regeneration instead of letting the new fill reshuffle them.
+  function orderedPinnedSpotIds(): string[] {
+    if (!results) return Array.from(pinnedSpotIds);
+    const ordered: string[] = [];
+    for (const itinerary of results) {
+      for (const item of itinerary.stops) {
+        if (!isJourneyStep(item) && pinnedSpotIds.has(item.spot.id) && !ordered.includes(item.spot.id)) {
+          ordered.push(item.spot.id);
+        }
+      }
+    }
+    return ordered;
+  }
+
   // "Generate something similar" from the /i/:slug page — prefill neighbourhood(s)
   // and duration from the shared itinerary's stops, but don't auto-submit.
   useEffect(() => {
@@ -313,7 +329,7 @@ export function ItineraryScreen() {
       restaurantHopping,
       michelinOnly: restaurantHopping && michelinOnly,
       pace,
-      pinnedSpotIds: Array.from(pinnedSpotIds),
+      pinnedSpotIds: orderedPinnedSpotIds(),
       excludeSpotIds: Array.from(shownSpotIds).filter(id => !pinnedSpotIds.has(id)),
     };
     try {
