@@ -5,11 +5,11 @@ import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 import { SaveSpotButton } from './SaveSpotButton';
 
-export const SpotCard = memo(function SpotCard({ spot, badge, pinAction }: { spot: Spot; badge?: React.ReactNode; pinAction?: React.ReactNode }) {
+export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact }: { spot: Spot; badge?: React.ReactNode; pinAction?: React.ReactNode; compact?: boolean }) {
   const { t } = useTranslation();
   return (
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col">
-      <div className="relative aspect-[3/2] overflow-hidden bg-muted">
+      <div className={`relative overflow-hidden bg-muted ${compact ? 'aspect-[16/9]' : 'aspect-[3/2]'}`}>
         {spot.image ? (
           <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
         ) : (
@@ -42,9 +42,9 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction }: { spo
           </a>
         )}
       </div>
-      <div className="p-4 flex flex-col gap-1.5 flex-1">
+      <div className={`flex flex-col flex-1 ${compact ? 'p-3 gap-1' : 'p-4 gap-1.5'}`}>
         <div className="flex items-start justify-between gap-2">
-          <p className="font-medium text-gray-900 leading-tight">{spot.name}</p>
+          <p className={`font-medium text-gray-900 leading-tight ${compact ? 'text-sm' : ''}`}>{spot.name}</p>
           <span className="flex-shrink-0 inline-flex items-center gap-2 text-xs text-muted-foreground">
             {spot.priceRange && (
               <span className="font-mono font-semibold text-[#12343B]">
@@ -68,7 +68,9 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction }: { spo
             <span className="text-muted-foreground">· Google</span>
           </span>
         )}
-        {spot.description && <p className="text-sm text-gray-600 line-clamp-3">{spot.description}</p>}
+        {spot.description && (
+          <p className={`text-gray-600 ${compact ? 'text-xs line-clamp-2' : 'text-sm line-clamp-3'}`}>{spot.description}</p>
+        )}
         {spot.address && <p className="text-xs text-muted-foreground mt-0.5">{spot.address}</p>}
         <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
           {spot.website && (
