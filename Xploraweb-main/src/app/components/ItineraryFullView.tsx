@@ -77,6 +77,7 @@ export function ItineraryFullView({ itinerary, actions, banner, hideTitle, pinne
                 <div key={item.spot.id} className="space-y-2">
                   <SpotCard
                     spot={item.spot}
+                    compact
                     badge={!isJourneyStep(item) && (
                       <span className="absolute bottom-2 left-2 w-6 h-6 rounded-full bg-[#12343B] text-white text-xs font-semibold flex items-center justify-center">
                         {item.order}
