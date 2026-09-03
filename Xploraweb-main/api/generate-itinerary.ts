@@ -6,8 +6,10 @@ import {
   resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
   selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule,
   preservePinnedOrder, assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
+  distanceFnFromMatrix, sumWalkingMetrics,
 } from './_itineraryLogic.js';
-import type { CandidateSpot, StopCandidate, ItineraryItem } from './_itineraryLogic.js';
+import type { CandidateSpot, StopCandidate, ItineraryItem, WalkingMatrix } from './_itineraryLogic.js';
+import { fetchWalkingMatrix } from './_lib/googleRoutes.js';
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -110,12 +112,29 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
 }
 
-// Orders a route geographically (no backtracking), then — if the traveller
-// picked an activity order (2+ categories, in the order they chose them) —
-// re-groups it by that category sequence while keeping the geographic order
-// within each group.
-function orderRoute<T extends { spot: CandidateSpot }>(stops: T[], body: z.infer<typeof RequestSchema>): T[] {
-  const byDistance = orderByNearestNeighbor(stops);
+// Confirms real walking distances with Google (see api/_lib/googleRoutes.ts)
+// for the given stops so ordering reflects an actual walkable path rather
+// than a straight line that might cut through a cliff, the river, or a
+// building. Returns null (never throws) if Google is unreachable or
+// unconfigured — callers fall back to straight-line distance.
+async function getWalkingMatrix(stops: { spot: CandidateSpot }[]): Promise<WalkingMatrix | null> {
+  try {
+    return await fetchWalkingMatrix(stops.map(s => ({ id: s.spot.id, lat: s.spot.lat!, lng: s.spot.lng! })));
+  } catch (err: any) {
+    console.error('getWalkingMatrix failed:', err?.message || err);
+    return null;
+  }
+}
+
+// Orders a route geographically (no backtracking) — using real Google
+// walking distance when available, straight-line distance otherwise — then,
+// if the traveller picked an activity order (2+ categories, in the order
+// they chose them), re-groups it by that category sequence while keeping the
+// geographic order within each group.
+function orderRoute<T extends { spot: CandidateSpot }>(
+  stops: T[], body: z.infer<typeof RequestSchema>, matrix: WalkingMatrix | null,
+): T[] {
+  const byDistance = orderByNearestNeighbor(stops, matrix ? distanceFnFromMatrix(matrix) : undefined);
   if (isRestaurantHopping(body) || body.categories.length < 2) return byDistance;
   return orderByCategorySequence(byDistance, body.categories);
 }
@@ -172,7 +191,7 @@ interface ProcessedItinerary {
   alternates: CandidateSpot[];
 }
 
-function processItinerary(
+async function processItinerary(
   raw: z.infer<typeof ItinerarySchema>,
   fillCandidates: CandidateSpot[],
   pinnedStops: StopCandidate[],
@@ -180,7 +199,7 @@ function processItinerary(
   destinationPool: CandidateSpot[],
   body: z.infer<typeof RequestSchema>,
   stopsToGenerate: number,
-): ProcessedItinerary | null {
+): Promise<ProcessedItinerary | null> {
   const fillById = new Map(fillCandidates.map(c => [c.id, c]));
   const picked: StopCandidate[] = raw.stops
     .filter(s => fillById.has(s.spotId))
@@ -202,7 +221,8 @@ function processItinerary(
   const merged = mergePinnedAndFilled(pinnedStops, balanced);
   if (merged.length < 2) return null;
 
-  const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(merged, body), body.pinnedSpotIds));
+  const matrix = await getWalkingMatrix(merged);
+  const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(merged, body, matrix), body.pinnedSpotIds));
   const items = assembleItineraryItems(ordered, connectorPool, body.language);
 
   const chosenIds = new Set(ordered.map(s => s.spot.id));
@@ -210,11 +230,18 @@ function processItinerary(
     .map(s => s.spot)
     .slice(0, CANDIDATE_CAP);
 
+  // Prefer Google's real walking distance between the final stops over the
+  // LLM's guess — falls back to the LLM's estimate if Google's route matrix
+  // wasn't available or didn't cover every consecutive pair. Duration is left
+  // to the LLM: it's meant to include time spent *at* each stop (a museum
+  // visit, a meal), which Google's walking-only matrix has no way to know.
+  const walkingMetrics = matrix ? sumWalkingMetrics(ordered.map(s => s.spot.id), matrix) : null;
+
   return {
     title: raw.title,
     summary: raw.summary,
     estimatedDurationMin: raw.estimatedDurationMin,
-    estimatedDistanceKm: raw.estimatedDistanceKm,
+    estimatedDistanceKm: walkingMetrics ? Math.round((walkingMetrics.distanceMeters / 1000) * 10) / 10 : raw.estimatedDistanceKm,
     stops: items,
     alternates,
   };
@@ -312,17 +339,20 @@ export default async function handler(req: any, res: any) {
       return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });
     }
 
-    itineraries = object.itineraries
-      .map(raw => processItinerary(raw, fillCandidates, pinnedStops, connectorPool, destinationPool, body, stopsToGenerate))
-      .filter((it): it is ProcessedItinerary => it !== null);
+    const processed = await Promise.all(
+      object.itineraries.map(raw => processItinerary(raw, fillCandidates, pinnedStops, connectorPool, destinationPool, body, stopsToGenerate)),
+    );
+    itineraries = processed.filter((it): it is ProcessedItinerary => it !== null);
   } else if (pinnedStops.length >= 2) {
     // Nothing left to fill (or none requested) — the pinned stops alone still make a valid route.
-    const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(pinnedStops, body), body.pinnedSpotIds));
+    const matrix = await getWalkingMatrix(pinnedStops);
+    const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(pinnedStops, body, matrix), body.pinnedSpotIds));
+    const walkingMetrics = matrix ? sumWalkingMetrics(ordered.map(s => s.spot.id), matrix) : null;
     itineraries = [{
       title: body.language === 'fr' ? 'Votre itinéraire' : 'Your itinerary',
       summary: '',
       estimatedDurationMin: 0,
-      estimatedDistanceKm: 0,
+      estimatedDistanceKm: walkingMetrics ? Math.round((walkingMetrics.distanceMeters / 1000) * 10) / 10 : 0,
       stops: assembleItineraryItems(ordered, connectorPool, body.language),
       alternates: dedupeStops(destinationPool.filter(c => !pinnedIds.has(c.id)).map(spot => ({ spot, note: '' })))
         .map(s => s.spot).slice(0, CANDIDATE_CAP),

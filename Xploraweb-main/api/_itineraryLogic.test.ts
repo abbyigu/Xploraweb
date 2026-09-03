@@ -3,9 +3,9 @@ import {
   canBeGeneratedAsStop, canAppearAsJourneyStep, inferDefaultRole, resolveRole,
   isCompleteCandidate, dedupeStops, selectBalancedStops, mergePinnedAndFilled,
   orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule, preservePinnedOrder, assembleItineraryItems,
-  findConnectorForGap, hasStrongCulturalPreference, isCafeFocused,
+  findConnectorForGap, hasStrongCulturalPreference, isCafeFocused, distanceFnFromMatrix, sumWalkingMetrics,
 } from './_itineraryLogic';
-import type { CandidateSpot, StopCandidate } from './_itineraryLogic';
+import type { CandidateSpot, StopCandidate, WalkingMatrix } from './_itineraryLogic';
 
 // Roughly Old Québec / Petit-Champlain coordinates, close enough together
 // that a straight-line "gap" between two stops is realistic.
@@ -213,6 +213,50 @@ describe('orderByNearestNeighbor + applyBarTimeOfDayRule', () => {
     ];
     const result = applyBarTimeOfDayRule(stops);
     expect(result.map(s => s.spot.id)).toEqual(['bar1', 'bar2']);
+  });
+});
+
+describe('distanceFnFromMatrix + sumWalkingMetrics (Google walking-route confirmation)', () => {
+  // a -> b straight-line looks shortest, but a real walking route (e.g. around
+  // a cliff/river with no direct path) makes c the actual nearest stop from a.
+  const a = spot({ id: 'a', lat: 46.812, lng: -71.204 });
+  const b = spot({ id: 'b', lat: 46.8121, lng: -71.2041 });
+  const c = spot({ id: 'c', lat: 46.82, lng: -71.21 });
+
+  const matrix: WalkingMatrix = {
+    ids: ['a', 'b', 'c'],
+    distanceMeters: [
+      [0, 900, 120],
+      [900, 0, 500],
+      [120, 500, 0],
+    ],
+    durationSeconds: [
+      [0, 700, 100],
+      [700, 0, 400],
+      [100, 400, 0],
+    ],
+  };
+
+  it('orders by real walking distance instead of straight-line distance when a matrix is supplied', () => {
+    const stops = [stopOf(a), stopOf(b), stopOf(c)];
+    const result = orderByNearestNeighbor(stops, distanceFnFromMatrix(matrix));
+    expect(result.map(s => s.spot.id)).toEqual(['a', 'c', 'b']);
+  });
+
+  it('falls back to straight-line distance for a pair missing from the matrix', () => {
+    const d = spot({ id: 'd', lat: 46.9, lng: -71.3 }); // not in the matrix
+    const fn = distanceFnFromMatrix(matrix);
+    expect(fn(a, d)).toBeGreaterThan(0);
+    expect(Number.isFinite(fn(a, d))).toBe(true);
+  });
+
+  it('sums real walking distance/duration along a given stop order', () => {
+    const result = sumWalkingMetrics(['a', 'c', 'b'], matrix);
+    expect(result).toEqual({ distanceMeters: 120 + 500, durationSeconds: 100 + 400 });
+  });
+
+  it('returns null if the order includes a stop the matrix does not cover', () => {
+    expect(sumWalkingMetrics(['a', 'z'], matrix)).toBeNull();
   });
 });
 

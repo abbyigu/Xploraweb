@@ -259,13 +259,28 @@ export function mergePinnedAndFilled(pinned: StopCandidate[], filled: StopCandid
   return merged;
 }
 
+type SpotDistanceFn = (a: CandidateSpot, b: CandidateSpot) => number;
+
+const defaultDistance: SpotDistanceFn = (a, b) =>
+  haversineMeters({ lat: a.lat!, lng: a.lng! }, { lat: b.lat!, lng: b.lng! });
+
 // The LLM is asked to avoid backtracking, but its spatial reasoning over raw
 // lat/lng isn't reliable — it can pick a sensible spot selection while still
 // ordering them in a way that zigzags across the map. Keep its chosen
 // starting stop (reflects the intended narrative opener) but re-sequence
-// everything after it by nearest-neighbour distance, computed from the
-// spots' real coordinates, so the route on the map never backtracks.
-export function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(stops: T[]): T[] {
+// everything after it by nearest-neighbour distance, so the route on the map
+// never backtracks.
+//
+// `distance` defaults to straight-line (haversine) distance between
+// coordinates. Callers that have a real Google walking-route matrix (see
+// distanceFnFromMatrix below) should pass that instead — a straight line can
+// cut through a cliff, river, or building that has no actual footpath
+// (very real in Québec City), so real walking distance orders stops more
+// sensibly than crow-flies distance alone.
+export function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(
+  stops: T[],
+  distance: SpotDistanceFn = defaultDistance,
+): T[] {
   if (stops.length <= 2) return stops;
   const remaining = [...stops];
   const ordered: T[] = [remaining.shift()!];
@@ -274,12 +289,56 @@ export function orderByNearestNeighbor<T extends { spot: CandidateSpot }>(stops:
     let nearestIndex = 0;
     let nearestDist = Infinity;
     remaining.forEach((s, i) => {
-      const d = haversineMeters({ lat: last.lat!, lng: last.lng! }, { lat: s.spot.lat!, lng: s.spot.lng! });
+      const d = distance(last, s.spot);
       if (d < nearestDist) { nearestDist = d; nearestIndex = i; }
     });
     ordered.push(remaining.splice(nearestIndex, 1)[0]);
   }
   return ordered;
+}
+
+/** Real walking distances/durations between every pair of a fixed set of spot ids (see api/_lib/googleRoutes.ts). */
+export interface WalkingMatrix {
+  ids: string[];
+  distanceMeters: number[][];
+  durationSeconds: number[][];
+}
+
+/**
+ * Builds a distance function backed by a Google walking-route matrix, for use
+ * with orderByNearestNeighbor. Falls back to straight-line distance for any
+ * pair Google couldn't find a walking route for (e.g. across water with no
+ * bridge/ferry) rather than treating it as unreachable.
+ */
+export function distanceFnFromMatrix(matrix: WalkingMatrix): SpotDistanceFn {
+  const indexById = new Map(matrix.ids.map((id, i) => [id, i]));
+  return (a, b) => {
+    const i = indexById.get(a.id);
+    const j = indexById.get(b.id);
+    if (i == null || j == null) return defaultDistance(a, b);
+    const d = matrix.distanceMeters[i]?.[j];
+    return Number.isFinite(d) ? d : defaultDistance(a, b);
+  };
+}
+
+/** Sums real walking distance/duration along an already-ordered route of spot ids. Null if the matrix can't cover every consecutive pair. */
+export function sumWalkingMetrics(
+  orderedIds: string[], matrix: WalkingMatrix,
+): { distanceMeters: number; durationSeconds: number } | null {
+  const indexById = new Map(matrix.ids.map((id, i) => [id, i]));
+  let distanceMeters = 0;
+  let durationSeconds = 0;
+  for (let k = 0; k < orderedIds.length - 1; k++) {
+    const i = indexById.get(orderedIds[k]);
+    const j = indexById.get(orderedIds[k + 1]);
+    if (i == null || j == null) return null;
+    const d = matrix.distanceMeters[i]?.[j];
+    const t = matrix.durationSeconds[i]?.[j];
+    if (!Number.isFinite(d) || !Number.isFinite(t)) return null;
+    distanceMeters += d;
+    durationSeconds += t;
+  }
+  return { distanceMeters, durationSeconds };
 }
 
 /**
