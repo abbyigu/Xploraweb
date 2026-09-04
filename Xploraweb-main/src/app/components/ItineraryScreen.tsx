@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router';
 import {
   Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints,
-  Pencil, Gift, Pin, Utensils, Coffee, Wine, Landmark, Leaf, ShoppingBag, Baby, BookOpen, IceCream2, Wallet, Users, ShieldCheck,
+  Pencil, Gift, Pin, Utensils, Coffee, Wine, Landmark, Leaf, ShoppingBag, Baby, BookOpen, IceCream2, Wallet, Users, ShieldCheck, LocateFixed,
 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
@@ -53,6 +53,18 @@ type Who = (typeof WHO_OPTIONS)[number];
 
 function scrollToStep(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Great-circle distance in km — used to pick the neighbourhood closest to
+// the traveller's browser-reported position after "Locate me".
+function distanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLng = (lng2 - lng1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 function getEventTimeBucket(dateStr?: string): EventTimeBucket | 'future' | null {
@@ -261,6 +273,7 @@ export function ItineraryScreen() {
   const [michelinOnly, setMichelinOnly] = useState(false);
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
+  const [locateStatus, setLocateStatus] = useState<'idle' | 'locating' | 'error'>('idle');
   const [selectedVibe, setSelectedVibe] = useState<VibeMood | null>(null);
   const [selectedWho, setSelectedWho] = useState<Who | null>(null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
@@ -415,6 +428,33 @@ export function ItineraryScreen() {
   }
   function toggleNeighbourhood(n: string) {
     setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
+  }
+
+  // Finds the neighbourhood closest to the traveller's browser-reported
+  // position and selects it — the geolocation coordinate itself isn't
+  // precise enough to be useful to the AI generator, which filters by
+  // named neighbourhood, not lat/lng.
+  function handleLocateMe() {
+    const located = neighbourhoodOptions.filter(
+      (n): n is typeof n & { lat: number; lng: number } => n.lat != null && n.lng != null,
+    );
+    if (!navigator.geolocation || located.length === 0) {
+      setLocateStatus('error');
+      return;
+    }
+    setLocateStatus('locating');
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        const nearest = located.reduce((best, n) =>
+          distanceKm(coords.latitude, coords.longitude, n.lat, n.lng) <
+          distanceKm(coords.latitude, coords.longitude, best.lat, best.lng) ? n : best
+        );
+        setNeighbourhoods([nearest.name]);
+        setLocateStatus('idle');
+      },
+      () => setLocateStatus('error'),
+      { timeout: 8000 },
+    );
   }
 
   async function handleGenerate() {
@@ -664,14 +704,20 @@ export function ItineraryScreen() {
                       </div>
                       <button
                         type="button"
-                        onClick={() => setNeighbourhoods([])}
-                        className={`w-full flex items-center gap-2 px-4 py-3 rounded-xl border text-sm font-medium transition-colors ${
-                          neighbourhoods.length === 0 ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted/40'
-                        }`}
+                        onClick={handleLocateMe}
+                        disabled={locateStatus === 'locating'}
+                        className="w-full flex items-center gap-2 px-4 py-3 rounded-xl border border-border text-sm font-medium hover:bg-muted/40 transition-colors disabled:opacity-60"
                       >
-                        <MapPin className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
-                        {t('itineraryBuilder.anywhereInQuebec')}
+                        {locateStatus === 'locating' ? (
+                          <Loader2 className="w-4 h-4 flex-shrink-0 animate-spin" aria-hidden="true" />
+                        ) : (
+                          <LocateFixed className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+                        )}
+                        {locateStatus === 'locating' ? t('itineraryBuilder.locating') : t('itineraryBuilder.locateMe')}
                       </button>
+                      {locateStatus === 'error' && (
+                        <p className="text-xs text-red-600 mt-2">{t('itineraryBuilder.locateMeError')}</p>
+                      )}
                     </>
                   )}
                 </StepCard>
