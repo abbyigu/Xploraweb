@@ -552,7 +552,7 @@ export function ItineraryScreen() {
                 {t('itineraryBuilder.heroBadge')}
               </span>
             </div>
-            <QuebecWalkIllustration className="w-56 md:w-72 flex-shrink-0" />
+            <QuebecWalkIllustration className="w-64 md:w-[26rem] flex-shrink-0" />
           </div>
         </div>
       ) : (
