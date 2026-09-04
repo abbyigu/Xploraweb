@@ -53,6 +53,10 @@ interface Props {
   numbered?: boolean;
   /** Whether this map's container is currently visible (e.g. behind a mobile list/map toggle). Triggers a resize instead of a costly full remount. */
   visible?: boolean;
+  /** Show the category/Michelin filter chip row above the map. Off for compact previews (e.g. an itinerary's sidebar map card). */
+  showFilters?: boolean;
+  /** Map container height in px. */
+  height?: number;
 }
 
 const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false };
@@ -70,6 +74,8 @@ export function NeighbourhoodSpotsMap({
   onMichelinChange,
   numbered = false,
   visible = true,
+  showFilters = true,
+  height = 360,
 }: Props) {
   const { t } = useTranslation();
   const { isLoaded } = useGoogleMaps();
@@ -141,7 +147,7 @@ export function NeighbourhoodSpotsMap({
 
   return (
     <div className="w-full space-y-2">
-      {(categories.length > 1 || hasMichelinSpots) && (
+      {showFilters && (categories.length > 1 || hasMichelinSpots) && (
         <div className="flex flex-wrap gap-2">
           {categories.map(cat => (
             <button
@@ -172,7 +178,7 @@ export function NeighbourhoodSpotsMap({
       )}
       <div
         className="w-full rounded-2xl overflow-hidden border border-gray-200"
-        style={{ height: 360, background: '#e8eef0' }}
+        style={{ height, background: '#e8eef0' }}
       >
         {isLoaded && (
           <GoogleMap

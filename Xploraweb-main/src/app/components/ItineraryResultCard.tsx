@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints, RefreshCw } from 'lucide-react';
+import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints } from 'lucide-react';
 import { Dialog, DialogContent } from './ui/dialog';
 import { ItineraryFullView } from './ItineraryFullView';
 import { AuthModal } from './AuthModal';
 import { PremiumLimitModal } from './PremiumLimitModal';
 import { useItinerarySave } from '../hooks/useItinerarySave';
 import { SPOT_CATEGORY_KEY } from '../data/products';
-import type { GeneratedItinerary } from '../data/itineraryFilters';
+import type { GeneratedItinerary, Pace } from '../data/itineraryFilters';
 
 interface Props {
   itinerary: GeneratedItinerary;
@@ -23,6 +23,10 @@ interface Props {
   /** Ids of stops the traveller has pinned — kept in place across a regeneration. */
   pinnedSpotIds?: Set<string>;
   onTogglePin?: (spotId: string) => void;
+  /** Reopens the filter panel — surfaced as the hero "Modify" button. */
+  onModify?: () => void;
+  /** The pace this itinerary was generated with, shown on the full view. */
+  pace?: Pace;
 }
 
 function topCategories(itinerary: GeneratedItinerary, max = 3): string[] {
@@ -44,7 +48,7 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin }: Props) {
+export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin, onModify, pace }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -89,19 +93,9 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
     </button>
   );
 
-  const regenerateButton = onRegenerate ? (
-    <button
-      type="button"
-      onClick={() => {
-        setViewOpen(false);
-        onRegenerate();
-      }}
-      className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition"
-    >
-      <RefreshCw className="w-4 h-4" aria-hidden="true" />
-      {t('itineraryBuilder.regenerate')}
-    </button>
-  ) : null;
+  // Closes the "view details" dialog before handing off to the parent's
+  // regenerate flow, so the dialog doesn't linger open over stale results.
+  const handleRegenerate = onRegenerate ? () => { setViewOpen(false); onRegenerate(); } : undefined;
 
   const saveBanner = saveState === 'saved' ? (
     <div className="w-full mt-4 px-6 md:px-8">
@@ -136,13 +130,20 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
 
   if (layout === 'full') {
     return (
-      <div className="rounded-3xl border border-border bg-card overflow-hidden">
-        <div className="py-6">
-          <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} pinnedSpotIds={pinnedSpotIds} onTogglePin={onTogglePin} />
-        </div>
+      <>
+        <ItineraryFullView
+          itinerary={itinerary}
+          actions={saveButton}
+          banner={saveBanner}
+          pinnedSpotIds={pinnedSpotIds}
+          onTogglePin={onTogglePin}
+          onRegenerate={handleRegenerate}
+          onModify={onModify}
+          pace={pace}
+        />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
         <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
-      </div>
+      </>
     );
   }
 
@@ -212,7 +213,16 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
       <Dialog open={viewOpen} onOpenChange={setViewOpen}>
         <DialogContent className="sm:max-w-6xl lg:max-w-[92vw] xl:max-w-[1600px] w-[calc(100%-1rem)] h-[95vh] max-h-[95vh] overflow-y-auto p-0">
           <div className="py-6">
-            <ItineraryFullView itinerary={itinerary} actions={<>{saveButton}{regenerateButton}</>} banner={saveBanner} pinnedSpotIds={pinnedSpotIds} onTogglePin={onTogglePin} />
+            <ItineraryFullView
+              itinerary={itinerary}
+              actions={saveButton}
+              banner={saveBanner}
+              pinnedSpotIds={pinnedSpotIds}
+              onTogglePin={onTogglePin}
+              onRegenerate={handleRegenerate}
+              onModify={onModify}
+              pace={pace}
+            />
           </div>
         </DialogContent>
       </Dialog>

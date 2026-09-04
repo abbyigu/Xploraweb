@@ -125,6 +125,7 @@ export interface Spot {
   visitTime?: string;   // suggested time to spend, e.g. "20 min"
   priceRange?: string;  // relative cost, e.g. "$", "$$", "$$$"
   xploraTips?: string[]; // insider tips shown to explorers
+  perk?: string;        // GoXplora Perk shown on itinerary stop cards, e.g. "10% off any artwork or print."
   status?: string;
   placeId?: string;            // Google Places id, resolved offline (see scripts/fetch-google-place-ids.mjs)
   googleRating?: number;       // cached Google rating (e.g. 4.6), refreshed weekly server-side
