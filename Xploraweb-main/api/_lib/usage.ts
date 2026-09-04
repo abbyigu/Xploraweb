@@ -29,8 +29,20 @@ export async function resolveIdentity(supabase: SupabaseClient, req: any): Promi
   return { userId: null };
 }
 
+async function isAdmin(supabase: SupabaseClient, userId: string): Promise<boolean> {
+  const { data } = await supabase
+    .from('profiles')
+    .select('is_admin')
+    .eq('id', userId)
+    .maybeSingle();
+  return !!data?.is_admin;
+}
+
+// Admins get full access without needing an active subscription — the
+// is_admin check short-circuits before touching the subscriptions table.
 async function isPremium(supabase: SupabaseClient, userId: string | null): Promise<boolean> {
   if (!userId) return false;
+  if (await isAdmin(supabase, userId)) return true;
   const { data } = await supabase
     .from('subscriptions')
     .select('status')
