@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import { Clock, Heart, Loader2, MapPin, Copy, Check, Footprints } from 'lucide-react';
-import { Dialog, DialogContent } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from './ui/dialog';
 import { ItineraryFullView } from './ItineraryFullView';
 import { AuthModal } from './AuthModal';
 import { PremiumLimitModal } from './PremiumLimitModal';
@@ -54,9 +54,24 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
   const [viewOpen, setViewOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
+  const [pinSaveConfirmOpen, setPinSaveConfirmOpen] = useState(false);
   const {
     saveState, savedSlug, authModalOpen, setAuthModalOpen, handleSaveClick, handleAuthenticated,
   } = useItinerarySave(itinerary);
+
+  // Prompts to save the itinerary right after a spot gets pinned (not on
+  // unpin), so the traveller doesn't lose the route they just locked in.
+  // Skipped once it's already saved — there's nothing left to confirm.
+  function handleTogglePin(spotId: string) {
+    const wasPinned = pinnedSpotIds?.has(spotId) ?? false;
+    onTogglePin?.(spotId);
+    if (!wasPinned && saveState !== 'saved') setPinSaveConfirmOpen(true);
+  }
+
+  function confirmPinSave() {
+    setPinSaveConfirmOpen(false);
+    handleSaveClick();
+  }
 
   useEffect(() => {
     if (saveState === 'limitReached') setPremiumModalOpen(true);
@@ -128,6 +143,33 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
     <p className="w-full mt-3 px-6 md:px-8 text-xs text-red-600">{t('itineraryBuilder.saveError')}</p>
   ) : null;
 
+  const pinSaveConfirmModal = (
+    <Dialog open={pinSaveConfirmOpen} onOpenChange={setPinSaveConfirmOpen}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{t('itineraryBuilder.pinSaveConfirmTitle')}</DialogTitle>
+          <DialogDescription>{t('itineraryBuilder.pinSaveConfirmBody')}</DialogDescription>
+        </DialogHeader>
+        <DialogFooter className="sm:flex-col sm:items-stretch gap-2">
+          <button
+            type="button"
+            onClick={confirmPinSave}
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+          >
+            {t('itineraryBuilder.pinSaveConfirmConfirm')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setPinSaveConfirmOpen(false)}
+            className="w-full px-5 py-3 rounded-xl border border-border text-sm font-medium hover:bg-muted/50 transition"
+          >
+            {t('itineraryBuilder.pinSaveConfirmDismiss')}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+
   if (layout === 'full') {
     return (
       <>
@@ -136,13 +178,14 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
           actions={saveButton}
           banner={saveBanner}
           pinnedSpotIds={pinnedSpotIds}
-          onTogglePin={onTogglePin}
+          onTogglePin={onTogglePin ? handleTogglePin : undefined}
           onRegenerate={handleRegenerate}
           onModify={onModify}
           pace={pace}
         />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
         <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
+        {pinSaveConfirmModal}
       </>
     );
   }
@@ -218,7 +261,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
               actions={saveButton}
               banner={saveBanner}
               pinnedSpotIds={pinnedSpotIds}
-              onTogglePin={onTogglePin}
+              onTogglePin={onTogglePin ? handleTogglePin : undefined}
               onRegenerate={handleRegenerate}
               onModify={onModify}
               pace={pace}
@@ -229,6 +272,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
 
       <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
       <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />
+      {pinSaveConfirmModal}
     </>
   );
 }
