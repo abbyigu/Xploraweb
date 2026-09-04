@@ -5,7 +5,6 @@ import {
   Pencil, Gift, Pin, Utensils, Coffee, Wine, Landmark, Leaf, ShoppingBag, Baby, BookOpen, IceCream2, Wallet, Users, ShieldCheck,
 } from 'lucide-react';
 import { Footer } from './Footer';
-import { QuebecWalkIllustration } from './QuebecWalkIllustration';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
 import { Switch } from './ui/switch';
@@ -552,7 +551,12 @@ export function ItineraryScreen() {
                 {t('itineraryBuilder.heroBadge')}
               </span>
             </div>
-            <QuebecWalkIllustration className="w-64 md:w-[26rem] flex-shrink-0" />
+            <img
+              src="/hero/quebec-city-line-art.svg"
+              alt="Line illustration of Château Frontenac's skyline and a couple walking along the terrace boardwalk in Old Québec"
+              className="w-64 md:w-[26rem] flex-shrink-0"
+              loading="eager"
+            />
           </div>
         </div>
       ) : (
