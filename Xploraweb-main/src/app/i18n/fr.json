@@ -444,7 +444,10 @@
     "featureRealLifeTitle": "Pensé pour la vraie vie",
     "featureRealLifeBody": "Parcours flexibles. Temps de marche réels. Conseils utiles.",
     "featureTweakTitle": "Adoptez-le ou ajustez-le",
-    "featureTweakBody": "Changez les arrêts, raccourcissez le parcours ou régénérez en quelques secondes."
+    "featureTweakBody": "Changez les arrêts, raccourcissez le parcours ou régénérez en quelques secondes.",
+    "locateMe": "Me localiser",
+    "locating": "Localisation…",
+    "locateMeError": "Impossible d'obtenir votre position. Réessayez ou choisissez un quartier ci-dessus."
   },
   "authModal": {
     "title": "Sauvegardez votre itinéraire pour plus tard",

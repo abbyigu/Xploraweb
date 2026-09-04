@@ -444,7 +444,10 @@
     "featureRealLifeTitle": "Made for real life",
     "featureRealLifeBody": "Flexible routes. Real walking times. Helpful tips.",
     "featureTweakTitle": "Love it or tweak it",
-    "featureTweakBody": "Swap stops, shorten the route, or regenerate in seconds."
+    "featureTweakBody": "Swap stops, shorten the route, or regenerate in seconds.",
+    "locateMe": "Locate me",
+    "locating": "Locating…",
+    "locateMeError": "Couldn't get your location. Try again, or pick a neighbourhood above."
   },
   "authModal": {
     "title": "Save your itinerary for later",
