@@ -420,6 +420,24 @@
     "viewSavedButton": "Voir mes itinéraires sauvegardés",
     "checkoutError": "Impossible de démarrer le paiement. Veuillez réessayer."
   },
+  "itineraryFullView": {
+    "startItinerary": "Commencer l'itinéraire",
+    "durationLabel": "Durée",
+    "makeItYours": "Personnalisez-le",
+    "makeItYoursBody": "Échangez des arrêts, raccourcissez le parcours ou régénérez quelque chose selon votre humeur.",
+    "perkLabel": "Avantage GoXplora",
+    "yourRoute": "Votre parcours",
+    "total": "Total",
+    "walking": "Marche",
+    "stops": "Arrêts",
+    "walkMinutes": "{{count}} min de marche",
+    "perksCardTitle": "Avantages GoXplora",
+    "perksCardBody": "Profitez d'offres exclusives de nos partenaires locaux le long du parcours.",
+    "perksCardCta": "Voir tous les avantages de ce parcours",
+    "tipsCardTitle": "Besoin de conseils avant de partir?",
+    "tipsCardBody": "Découvrez nos coups de cœur locaux, nos suggestions pour faire vos bagages et le meilleur moment pour y aller.",
+    "tipsCardCta": "Voir les infos pratiques"
+  },
   "sharedItinerary": {
     "notFoundTitle": "Itinéraire introuvable",
     "notFoundBody": "Ce lien est peut-être brisé ou l'itinéraire a été supprimé.",

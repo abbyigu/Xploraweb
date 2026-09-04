@@ -712,6 +712,8 @@ export function ItineraryScreen() {
                 onSaved={refreshUsage}
                 pinnedSpotIds={pinnedSpotIds}
                 onTogglePin={toggleSpotPin}
+                onModify={() => setFiltersOpen(true)}
+                pace={pace}
               />
             </>
           )}

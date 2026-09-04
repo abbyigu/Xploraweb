@@ -420,6 +420,24 @@
     "viewSavedButton": "View my saved itineraries",
     "checkoutError": "Couldn't start checkout. Please try again."
   },
+  "itineraryFullView": {
+    "startItinerary": "Start itinerary",
+    "durationLabel": "Duration",
+    "makeItYours": "Make it yours",
+    "makeItYoursBody": "Swap stops, shorten the route, or regenerate something that fits your vibe.",
+    "perkLabel": "GoXplora Perk",
+    "yourRoute": "Your route",
+    "total": "Total",
+    "walking": "Walking",
+    "stops": "Stops",
+    "walkMinutes": "{{count}} min walk",
+    "perksCardTitle": "GoXplora Perks",
+    "perksCardBody": "Enjoy exclusive offers from our local partners along the route.",
+    "perksCardCta": "See all perks on this route",
+    "tipsCardTitle": "Need tips before you go?",
+    "tipsCardBody": "Check out our local favorites, packing suggestions and best time to go.",
+    "tipsCardCta": "View practical info"
+  },
   "sharedItinerary": {
     "notFoundTitle": "Itinerary not found",
     "notFoundBody": "This link may be broken or the itinerary may have been removed.",

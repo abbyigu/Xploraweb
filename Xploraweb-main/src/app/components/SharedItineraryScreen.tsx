@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
-import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2, MapPin, Star, MessageCircle } from 'lucide-react';
+import { Copy, Check, Share2, Trash2, ArrowLeft, Sparkles, Loader2, Star, MessageCircle } from 'lucide-react';
 import { ItineraryFullView } from './ItineraryFullView';
 import { ItineraryScrapbook } from './ItineraryScrapbook';
 import { Footer } from './Footer';
@@ -122,8 +122,6 @@ export function SharedItineraryScreen() {
     );
   }
 
-  const heroImage = itinerary.stops.find(s => s.spot.image)?.spot.image;
-
   // Show the scrapbook form itself only once the visitor asks for it (the
   // "Leave a review" button) — but once it has real content, keep showing it
   // as-is on future visits instead of collapsing back behind the button.
@@ -186,27 +184,12 @@ export function SharedItineraryScreen() {
           </button>
         </div>
 
-        <div className="relative h-56 md:h-72 rounded-3xl overflow-hidden bg-xplora-ink">
-          {heroImage ? (
-            <img src={heroImage} alt="" className="w-full h-full object-cover" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-xplora-ink to-xplora-primary">
-              <MapPin className="w-10 h-10 text-white/40" aria-hidden="true" />
-            </div>
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-xplora-ink/85 via-xplora-ink/10 to-transparent" />
-          <div className="absolute bottom-5 left-6 right-6 md:bottom-7 md:left-8 md:right-8">
-            <p className="text-[11px] font-semibold text-white/80 uppercase tracking-wider mb-1.5">
-              {t('sharedItinerary.savedItineraryLabel')}
-            </p>
-            <h1 className="font-serif text-2xl md:text-[30px] font-semibold text-white leading-tight">
-              {itinerary.title}
-            </h1>
-          </div>
-        </div>
+        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+          {t('sharedItinerary.savedItineraryLabel')}
+        </p>
       </div>
-      <div className="pt-4">
-        <ItineraryFullView itinerary={itinerary} actions={actions} hideTitle />
+      <div className="pt-2">
+        <ItineraryFullView itinerary={itinerary} actions={actions} />
       </div>
       {scrapbook ? (
         <div className="max-w-3xl mx-auto px-6 md:px-8 pt-10 pb-4">
