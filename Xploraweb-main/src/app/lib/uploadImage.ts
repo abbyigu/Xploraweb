@@ -3,15 +3,17 @@ import { supabase } from './supabase';
 /**
  * Downscale + re-encode an image in the browser so it fits under the serverless
  * function's ~4.5 MB request-body limit (the image is sent base64-encoded, which
- * inflates it ~33%). Photos are capped at maxDim on the long edge and re-encoded
- * as JPEG. Returns the original file unchanged if it's already small, not an
- * image, or if anything goes wrong.
+ * inflates it ~33%), and so photos uploaded as uncompressed PNG (e.g. straight off
+ * a phone screenshot) don't ship to visitors at multiple hundred KB each. Photos
+ * are capped at maxDim on the long edge and re-encoded as JPEG. Returns the
+ * original file unchanged if it's not an image, already smaller than the
+ * re-encoded result, or if anything goes wrong.
  */
 async function compressImage(file: File, maxDim = 1600, quality = 0.82): Promise<File> {
   try {
     if (!file.type.startsWith('image/')) return file;
-    // Small files don't need it; GIFs would lose animation if re-encoded.
-    if (file.size <= 1_200_000 || file.type === 'image/gif') return file;
+    // GIFs would lose animation if re-encoded; tiny files aren't worth the round-trip.
+    if (file.size <= 80_000 || file.type === 'image/gif') return file;
 
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
