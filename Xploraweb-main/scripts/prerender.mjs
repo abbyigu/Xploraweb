@@ -206,10 +206,10 @@ const { data: siteContentRow } = await supabase
   const organizationSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'Xplora',
+    name: 'GoXplora',
     url: `${BASE_URL}/`,
     logo: `${BASE_URL}/goxplora-logo.png`,
-    description: 'Xplora is an insider guide to Québec City: guided tours, self-guided neighbourhood walks, local perks, and events.',
+    description: 'GoXplora is an insider guide to Québec City: guided tours, self-guided neighbourhood walks, local perks, and events.',
     areaServed: {
       '@type': 'City',
       name: 'Québec City',
@@ -219,8 +219,8 @@ const { data: siteContentRow } = await supabase
   // template) since injectHead()/escapeHtml() will escape them itself.
   const html = injectBody(
     injectHead(template, {
-      title: 'Québec City Tours & Experiences — Xplora',
-      description: 'Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. Xplora is your insider guide to the city.',
+      title: 'GoXplora — Local Discovery & Experiences',
+      description: 'Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. GoXplora is your insider guide to the city.',
       canonical: '/',
       schemas: [organizationSchema],
     }),
