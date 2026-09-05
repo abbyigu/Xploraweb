@@ -30,9 +30,20 @@
       <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" />
       <link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" />
       <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600&display=swap" /></noscript>
-      <!-- Preload LCP hero image (must match HeroSlideshow.tsx SLIDES[0]) -->
-      <link rel="preload" as="image" href="/hero/park-garden-walk.webp" type="image/webp" fetchpriority="high" />
-      <link rel="preload" as="image" href="/hero/park-garden-walk.jpg" type="image/jpeg" fetchpriority="high" />
+      <!-- Preload LCP hero image (must match HeroSlideshow.tsx SLIDES[0]'s webp source/srcset).
+           Only the webp is preloaded: virtually every browser that can render this page also
+           supports webp, and preload's `type` filters by decode support, not by which <picture>
+           source will actually be used — a same-priority jpg preload here downloaded twice as
+           much data for a copy of the image that's never displayed. -->
+      <link
+        rel="preload"
+        as="image"
+        href="/hero/park-garden-walk.webp"
+        imagesrcset="/hero/park-garden-walk-900.webp 900w, /hero/park-garden-walk.webp 1440w"
+        imagesizes="100vw"
+        type="image/webp"
+        fetchpriority="high"
+      />
       <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
     </head>
 
