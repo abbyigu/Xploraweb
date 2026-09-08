@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState, Component } from 'react';
 import type { ReactNode } from 'react';
 import { SpeedInsights } from '@vercel/speed-insights/react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { Breadcrumbs } from './components/Breadcrumbs';
@@ -53,6 +53,14 @@ class RouteErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
   }
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function AuthHandler() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -92,6 +100,7 @@ export default function App() {
   return (
     <CartProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthHandler />
       <RouteErrorBoundary>
       <div className="min-h-screen bg-background">
