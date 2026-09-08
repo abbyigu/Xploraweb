@@ -9,6 +9,9 @@
     "explorerFinding": "Recherche de pépites cachées…",
     "explorerFound": "{{count}} pépites cachées trouvées",
     "explorerPanelTitle": "Quartiers",
+    "explorerPanelInfoLabel": "Comment ça marche",
+    "explorerPanelHint": "Ceci est votre propre bilan d'exploration — il se remplit au fil de vos visites. Touchez le ✓ sur une fiche de lieu pour indiquer « j'y suis allé(e) », et la part de ce quartier augmente.",
+    "explorerPanelEmpty": "Marquez un lieu comme visité pour commencer à remplir ce bilan.",
     "viewExperiences": "Voir les expériences",
     "discover": "Découvrir",
     "otherNeighbourhoods": "Autres quartiers",
@@ -751,6 +754,10 @@
     },
     "openItinerary": "Ouvrir l'itinéraire",
     "copyLink": "Copier le lien"
+  },
+  "visited": {
+    "markVisited": "J'y suis allé(e)",
+    "unmarkVisited": "Retirer « j'y suis allé(e) »"
   },
   "saved": {
     "eyebrow": "Votre collection",
