@@ -45,7 +45,7 @@ function singleLine(str) {
 
 const DEFAULT_IMAGE = `${BASE_URL}/hero/petit-champlain.jpg`;
 
-function injectHead(html, { title, description, canonical, schemas = [], image = DEFAULT_IMAGE }) {
+function injectHead(html, { title, description, canonical, schemas = [], image = DEFAULT_IMAGE, preloadLinks = [] }) {
   const url = `${BASE_URL}${canonical}`;
   const oneLineDescription = singleLine(description);
   let out = html;
@@ -65,8 +65,16 @@ function injectHead(html, { title, description, canonical, schemas = [], image =
     // literal string "</script>") can't break out of the JSON-LD block.
     .map(s => `<script type="application/ld+json">${JSON.stringify(s).replace(/<\//g, '<\\/')}</script>`)
     .join('\n      ');
-  out = out.replace('</head>', `      ${ldJson}\n    </head>`);
+  out = out.replace('</head>', `      ${preloadLinks.join('\n      ')}\n      ${ldJson}\n    </head>`);
   return out;
+}
+
+// Drops a <link rel="preload" ...> pointing at a given href from the shared
+// template's <head> — used when a route's own LCP resource differs from the
+// homepage hero image the template preloads by default, so the two don't
+// compete for the browser's single fetchpriority=high slot.
+function stripPreload(html, href) {
+  return html.replace(new RegExp(`\\s*<link[^>]*href="${href.replace(/\./g, '\\.')}"[^>]*/?>`), '');
 }
 
 function injectBody(html, bodyHtml) {
@@ -227,6 +235,112 @@ const { data: siteContentRow } = await supabase
     bodyHtml,
   );
   writeSnapshot('/', html);
+}
+
+// ---- /itinerary (itinerary builder: above-the-fold static shell) ----
+//
+// Same rationale as the homepage snapshot above: this route is loaded via
+// React.lazy() (see App.tsx), so real visitors previously waited on the
+// main bundle *and* a separate chunk download + execute before the hero
+// (and its LCP image) ever appeared in the DOM — the image request wasn't
+// discoverable until then. Baking the hero markup in here, plus a
+// route-specific high-priority preload for its image, makes the LCP
+// resource visible in the initial HTML response instead.
+//
+// Mirrors ItineraryScreen.tsx's hero block (lines ~567-597) 1:1. Only
+// rendered when the builder form — not the paywall or results view — is
+// what a fresh visit actually shows, matching the component's own default
+// state (no ?category=xploranights, no results yet).
+{
+  const itineraryPaywalled = siteContentRow?.itinerary_paywalled ?? false;
+  const bannerEnabled = siteContentRow?.banner_enabled ?? true;
+  const bannerText = siteContentRow?.banner_text || fr.home.bannerText;
+
+  const heroImage = `
+            <img
+              src="/hero/quebec-city-line-art.svg"
+              alt="Illustration au trait du Château Frontenac et d'un couple se promenant sur la terrasse du Vieux-Québec"
+              class="w-64 md:w-[26rem] flex-shrink-0"
+              width="1717"
+              height="916"
+              fetchpriority="high"
+              decoding="async"
+            >`;
+
+  const bodyHtml = `
+    ${bannerEnabled ? `<div class="bg-[#12343B] text-white text-center text-[11px] leading-snug py-1.5 px-4 font-medium tracking-wide">${escapeHtml(bannerText)}</div>` : ''}
+    <header class="hidden md:block bg-white border-b sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center -ml-4">
+            <a href="/" aria-label="${escapeHtml(fr.header.home)}" class="block">
+              <img src="/goxplora-logo.png" alt="GoXplora" width="336" height="223" style="width:auto" class="h-28 block">
+            </a>
+          </div>
+          <nav aria-label="Main navigation" class="flex items-center gap-2 lg:gap-3">
+            <a href="/" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.home)}</a>
+            <a href="/itinerary" aria-current="page" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap bg-primary/15 border-primary text-foreground font-medium">${escapeHtml(fr.header.experiences)}</a>
+            <a href="/neighbourhoods" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.neighbourhoods)}</a>
+            <a href="/about" class="px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap border-transparent text-foreground hover:bg-muted/40">${escapeHtml(fr.header.about)}</a>
+          </nav>
+          <div class="flex items-center gap-2 lg:gap-4">
+            <a href="/business" class="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">${escapeHtml(fr.header.forBusinesses)}</a>
+            <button aria-label="${escapeHtml(fr.a11y.switchToEn)}" class="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"><span aria-hidden="true">EN</span></button>
+            <a href="/dashboard" aria-label="${escapeHtml(fr.a11y.account)}">
+              <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
+                <span aria-hidden="true" class="text-sm">?</span>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </header>
+    <main id="main-content">
+    <div class="md:max-w-none max-w-md mx-auto relative">
+    <div class="min-h-screen pb-24 md:pb-8 bg-background">
+      ${!itineraryPaywalled ? `
+      <div class="max-w-6xl mx-auto px-6 md:px-8 pt-6 md:pt-8">
+        <div class="relative overflow-hidden rounded-[2rem] bg-xplora-icon-bg px-6 py-8 md:px-10 md:py-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
+          <div class="flex-1 min-w-0 text-center md:text-left">
+            <h1 class="text-2xl md:text-3xl mb-2">${escapeHtml(fr.itineraryBuilder.heroTitle)}</h1>
+            <p class="text-sm md:text-base text-muted-foreground max-w-md mx-auto md:mx-0 mb-4">${escapeHtml(fr.itineraryBuilder.heroSubtitle)}</p>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card text-xs md:text-sm font-medium">${escapeHtml(fr.itineraryBuilder.heroBadge)}</span>
+          </div>
+          ${heroImage}
+        </div>
+      </div>` : `
+      <div class="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-6 rounded-b-[3rem] md:rounded-none">
+        <div class="max-w-3xl mx-auto">
+          <h1 class="text-2xl md:text-3xl mb-1">${escapeHtml(fr.itinerary.title)}</h1>
+          <p class="text-sm md:text-base opacity-90">${escapeHtml(fr.itinerary.subtitle)}</p>
+        </div>
+      </div>`}
+    </div>
+    </div>
+    </main>`;
+
+  const preloadLinks = itineraryPaywalled ? [] : [
+    '<link rel="preload" as="image" href="/hero/quebec-city-line-art.svg" fetchpriority="high" />',
+  ];
+
+  let headTemplate = template;
+  if (!itineraryPaywalled) {
+    // Only the itinerary hero image is this route's LCP element — drop the
+    // homepage's own preload so it doesn't fight the itinerary image for
+    // the browser's fetchpriority=high slot.
+    headTemplate = stripPreload(headTemplate, '/hero/park-garden-walk.webp');
+  }
+
+  const html = injectBody(
+    injectHead(headTemplate, {
+      title: en.itinerary.seoTitle,
+      description: en.itinerary.seoDesc,
+      canonical: '/itinerary',
+      preloadLinks,
+    }),
+    bodyHtml,
+  );
+  writeSnapshot('/itinerary', html);
 }
 
 // ---- /neighbourhoods (list) ----
