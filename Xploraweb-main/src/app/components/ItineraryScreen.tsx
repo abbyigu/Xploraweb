@@ -591,7 +591,11 @@ export function ItineraryScreen() {
               src="/hero/quebec-city-line-art.svg"
               alt="Line illustration of Château Frontenac's skyline and a couple walking along the terrace boardwalk in Old Québec"
               className="w-64 md:w-[26rem] flex-shrink-0"
+              width={1717}
+              height={916}
               loading="eager"
+              fetchPriority="high"
+              decoding="async"
             />
           </div>
         </div>
