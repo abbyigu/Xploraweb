@@ -52,6 +52,14 @@ const ContactScreen          = lazy(() => import('./components/ContactScreen').t
 const FeedbackScreen         = lazy(() => import('./components/FeedbackScreen').then(m => ({ default: m.FeedbackScreen })));
 const FaqScreen              = lazy(() => import('./components/FaqScreen').then(m => ({ default: m.FaqScreen })));
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function AuthHandler() {
   const navigate = useNavigate();
   useEffect(() => {
@@ -111,6 +119,7 @@ export default function App() {
     <HelmetProvider>
     <CartProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthHandler />
       <LanguageSync />
       <AnalyticsHandler />
