@@ -22,6 +22,16 @@ export const VIBE_KEY: Record<string, string> = {
 export const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 export type PriceRange = (typeof PRICE_RANGES)[number];
 
+// Per-person dollar range shown to travellers in the itinerary generator's
+// budget step — friendlier than the raw $ tiers, which still get sent to
+// the API and matched against Spot.priceRange unchanged.
+export const PRICE_RANGE_LABELS: Record<PriceRange, string> = {
+  '$': '$0–25',
+  '$$': '$25–50',
+  '$$$': '$50–100',
+  '$$$$': '$100+',
+};
+
 // Regular routes offer a wider spread of stop counts; restaurant-hopping
 // routes cap lower since eating at 6+ places back-to-back is already a lot.
 export const REGULAR_STOP_COUNTS = [3, 5, 7, 9] as const;

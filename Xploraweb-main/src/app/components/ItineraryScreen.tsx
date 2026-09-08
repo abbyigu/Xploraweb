@@ -15,7 +15,7 @@ import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { useSaveUsage } from '../hooks/useSaveUsage';
 import {
-  PRICE_RANGES, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket, isJourneyStep,
+  PRICE_RANGES, PRICE_RANGE_LABELS, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket, isJourneyStep,
 } from '../data/itineraryFilters';
 import type {
   PriceRange, ItineraryGenerateRequest, GeneratedItinerary, GeneratedItinerarySet, ItineraryErrorCode, Pace, DurationBucket,
@@ -41,13 +41,10 @@ const CATEGORY_ICON: Record<SpotCategory, React.ElementType> = {
   Shopping: ShoppingBag, Family: Baby, History: BookOpen, Stays: MapPin, Sweets: IceCream2,
 };
 
-// Decorative-only preferences shown in the "Your preferences" summary — they
-// help travellers picture the route they're about to get, but (unlike
-// categories/duration/pace/price/neighbourhoods) aren't sent to the AI
-// generator, which has no matching input for mood or travel party yet.
-const VIBE_MOOD_OPTIONS = ['relaxed', 'romantic', 'curious', 'social', 'adventurous', 'local', 'treatYourself'] as const;
-type VibeMood = (typeof VIBE_MOOD_OPTIONS)[number];
-
+// Decorative-only preference shown in the "Your preferences" summary — it
+// helps travellers picture the route they're about to get, but (unlike
+// categories/duration/pace/price/neighbourhoods) isn't sent to the AI
+// generator, which has no matching input for travel party yet.
 const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
 type Who = (typeof WHO_OPTIONS)[number];
 
@@ -274,7 +271,6 @@ export function ItineraryScreen() {
   const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
   const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
   const [locateStatus, setLocateStatus] = useState<'idle' | 'locating' | 'error'>('idle');
-  const [selectedVibe, setSelectedVibe] = useState<VibeMood | null>(null);
   const [selectedWho, setSelectedWho] = useState<Who | null>(null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
@@ -648,12 +644,6 @@ export function ItineraryScreen() {
                   <Heart className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
                   {interestsLabel}
                 </span>
-                {selectedVibe && (
-                  <span className="inline-flex items-center gap-2 text-sm">
-                    <Sparkles className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
-                    {t(`itineraryBuilder.vibeOption.${selectedVibe}`)}
-                  </span>
-                )}
                 <span className="inline-flex items-center gap-2 text-sm">
                   <Clock className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
                   {t(`itineraryBuilder.duration.${durationKey}`)}
@@ -780,17 +770,6 @@ export function ItineraryScreen() {
                     </div>
                   )}
 
-                  <div className={restaurantHopping ? '' : 'mt-4 pt-4 border-t border-border'}>
-                    <p className="text-sm font-medium mb-2">{t('itineraryBuilder.vibeQuestion')}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {VIBE_MOOD_OPTIONS.map(v => (
-                        <Chip key={v} active={selectedVibe === v} onClick={() => setSelectedVibe(prev => (prev === v ? null : v))}>
-                          {t(`itineraryBuilder.vibeOption.${v}`)}
-                        </Chip>
-                      ))}
-                    </div>
-                  </div>
-
                   {/* More filters */}
                   <div className="mt-4 pt-4 border-t border-border">
                     <button
@@ -872,7 +851,7 @@ export function ItineraryScreen() {
                   <div className="flex flex-wrap gap-2">
                     {PRICE_RANGES.map(p => (
                       <Chip key={p} active={priceRanges.includes(p)} onClick={() => togglePriceRange(p)}>
-                        {p}
+                        {PRICE_RANGE_LABELS[p]}
                       </Chip>
                     ))}
                   </div>
@@ -919,13 +898,6 @@ export function ItineraryScreen() {
                       onChange={() => scrollToStep('step-mood')}
                     />
                     <PreferenceRow
-                      icon={Sparkles}
-                      label={t('itineraryBuilder.vibeLabel')}
-                      value={selectedVibe ? t(`itineraryBuilder.vibeOption.${selectedVibe}`) : t('itineraryBuilder.interestsAny')}
-                      changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-mood')}
-                    />
-                    <PreferenceRow
                       icon={Clock}
                       label={t('itineraryBuilder.timeAvailable')}
                       value={`${t(`itineraryBuilder.duration.${durationKey}`)} · ${t(`itineraryBuilder.paceOption.${pace}`)}`}
@@ -935,7 +907,7 @@ export function ItineraryScreen() {
                     <PreferenceRow
                       icon={Wallet}
                       label={t('itinerary.price')}
-                      value={priceRanges.length > 0 ? priceRanges.join(' ') : t('itineraryBuilder.interestsAny')}
+                      value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.interestsAny')}
                       changeLabel={t('itineraryBuilder.change')}
                       onChange={() => scrollToStep('step-budget')}
                     />
