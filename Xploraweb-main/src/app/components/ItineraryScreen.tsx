@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router';
 import {
   Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints,
-  Pencil, Gift, Pin, Utensils, Coffee, Wine, Landmark, Leaf, ShoppingBag, Baby, BookOpen, IceCream2, Wallet, Users, ShieldCheck, LocateFixed,
+  Pencil, Gift, Pin, Utensils, Coffee, Wine, Landmark, Leaf, ShoppingBag, Baby, BookOpen, IceCream2, Wallet, Users, ShieldCheck, LocateFixed, Umbrella,
 } from 'lucide-react';
 import { Footer } from './Footer';
 import { EventCard } from './EventCard';
@@ -38,7 +38,7 @@ const ERROR_KEY: Record<ItineraryErrorCode, string> = {
 
 const CATEGORY_ICON: Record<SpotCategory, React.ElementType> = {
   Food: Utensils, Cafe: Coffee, Bar: Wine, Culture: Landmark, Nature: Leaf,
-  Shopping: ShoppingBag, Family: Baby, History: BookOpen, Stays: MapPin, Sweets: IceCream2,
+  Shopping: ShoppingBag, Family: Baby, History: BookOpen, Stays: MapPin, Sweets: IceCream2, Terraces: Umbrella,
 };
 
 // Decorative-only preference shown in the "Your preferences" summary — it
