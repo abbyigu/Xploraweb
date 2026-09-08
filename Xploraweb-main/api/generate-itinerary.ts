@@ -13,7 +13,7 @@ import { fetchWalkingMatrix } from './_lib/googleRoutes.js';
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
+const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets', 'Terraces'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const PACES = ['relaxed', 'moderate', 'packed'] as const;
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];

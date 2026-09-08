@@ -4,13 +4,14 @@ export type ExperienceCategory = 'xplorators' | 'xploratours' | 'xploranights' |
 export type TrailMode = 'walking' | 'driving';
 
 /** Spot categories — used by the AI trek builder to assemble routes by interest. */
-export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets'] as const;
+export const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets', 'Terraces'] as const;
 export type SpotCategory = (typeof SPOT_CATEGORIES)[number];
 
 /** Maps a canonical (English, DB-stored) spot category to its i18n key under `categories.*`. */
 export const SPOT_CATEGORY_KEY: Record<string, string> = {
   Food: 'food', Cafe: 'cafe', Bar: 'bar', Culture: 'culture', Nature: 'nature',
   Shopping: 'shopping', Family: 'family', History: 'history', Stays: 'stays', Sweets: 'sweets',
+  Terraces: 'terraces',
 };
 
 /**
