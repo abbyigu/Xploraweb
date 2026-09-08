@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 import { SaveSpotButton } from './SaveSpotButton';
+import { VisitSpotButton } from './VisitSpotButton';
 
 export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact }: { spot: Spot; badge?: React.ReactNode; pinAction?: React.ReactNode; compact?: boolean }) {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
           </div>
         )}
         <SaveSpotButton spot={spot} />
+        <VisitSpotButton spot={spot} />
         {pinAction}
         {badge}
         {spot.category && (

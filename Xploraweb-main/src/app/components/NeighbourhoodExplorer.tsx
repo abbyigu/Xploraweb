@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Heart, MapPin, Sparkles, Star } from 'lucide-react';
+import { Heart, Info, MapPin, Sparkles, Star, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GoogleMap, OverlayViewF, OVERLAY_MOUSE_TARGET, PolygonF } from '@react-google-maps/api';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { type Neighbourhood } from '../hooks/useNeighbourhoods';
 import type { Spot } from '../data/products';
 import { neighbourhoodColor } from '../lib/neighbourhoodColors';
+import { getVisitedSpots, onVisitedSpotsChange } from '../lib/visitedSpots';
 
 // The /neighbourhoods page's interactive map: replaces the old plain
 // NeighbourhoodsOverviewMap with a live explorer — coloured polygons/labels
@@ -50,6 +51,10 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
 
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{ visible: boolean; label: string }>({ visible: false, label: '' });
+  const [visitedIds, setVisitedIds] = useState<Set<string>>(() => new Set(getVisitedSpots().map(s => s.id)));
+  const [showPanelHint, setShowPanelHint] = useState(false);
+
+  useEffect(() => onVisitedSpotsChange(() => setVisitedIds(new Set(getVisitedSpots().map(s => s.id)))), []);
 
   const hasMapData = useMemo(
     () => neighbourhoods.some(n => (n.boundary && n.boundary.length >= 3) || (n.lat != null && n.lng != null)),
@@ -58,10 +63,18 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
 
   const slugByName = useMemo(() => new Map(neighbourhoods.map(n => [n.name.trim().toLowerCase(), n.slug])), [neighbourhoods]);
 
-  // Live spot-count share per neighbourhood — real data, no fabricated metric.
-  const categorizedSpotCount = useMemo(() => spots.filter(s => (s.neighbourhood || '').trim()).length, [spots]);
+  // Live spot count per neighbourhood — real data, no fabricated metric.
   const spotCountFor = (name: string) =>
     spots.filter(s => (s.neighbourhood || '').trim().toLowerCase() === name.trim().toLowerCase()).length;
+
+  // Personal exploration breakdown: of the places this visitor has marked
+  // "I've been here", what share sits in each neighbourhood.
+  const categorizedVisitedCount = useMemo(
+    () => spots.filter(s => visitedIds.has(s.id) && (s.neighbourhood || '').trim()).length,
+    [spots, visitedIds]
+  );
+  const visitedCountFor = (name: string) =>
+    spots.filter(s => visitedIds.has(s.id) && (s.neighbourhood || '').trim().toLowerCase() === name.trim().toLowerCase()).length;
 
   const centroids = useMemo(() => {
     if (!isLoaded) return {} as Record<string, { lat: number; lng: number }>;
@@ -233,30 +246,57 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
         </div>
       </div>
 
-      {/* Neighbourhood side panel — desktop only */}
+      {/* Neighbourhood side panel — desktop only. Shows this visitor's own
+          exploration breakdown: of the places marked "I've been here", what
+          share falls in each neighbourhood. */}
       {neighbourhoods.length > 0 && (
         <div className="hidden lg:block absolute top-[220px] left-6 z-[15] w-[190px] max-h-[calc(100%-236px)] overflow-y-auto bg-white rounded-2xl p-3.5 shadow-lg shadow-[#12343B]/10">
-          <h3 className="text-[11px] font-bold uppercase tracking-wide text-[#12343B]/55 mb-2.5">{t('neighbourhoods.explorerPanelTitle')}</h3>
-          {neighbourhoods.map((n, i) => {
-            const count = spotCountFor(n.name);
-            const pct = categorizedSpotCount > 0 ? Math.round((count / categorizedSpotCount) * 100) : 0;
-            const isActive = activeNbhd === n.name;
-            return (
-              <button
-                key={n.id}
-                onClick={() => selectNeighbourhood(n.name)}
-                className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-[#119FB3]/10' : 'hover:bg-[#12343B]/5'}`}
-              >
-                <div className="flex items-center justify-between text-xs font-semibold text-[#12343B] mb-1">
-                  <span className="truncate">{n.name}</span>
-                  <span className="text-[#119FB3] font-bold flex-none ml-1.5">{pct}%</span>
-                </div>
-                <div className="w-16 h-[5px] rounded-full bg-[#12343B]/8 overflow-hidden">
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 3)}%`, background: neighbourhoodColor(i) }} />
-                </div>
-              </button>
-            );
-          })}
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-[11px] font-bold uppercase tracking-wide text-[#12343B]/55">{t('neighbourhoods.explorerPanelTitle')}</h3>
+            <button
+              type="button"
+              onClick={() => setShowPanelHint(v => !v)}
+              aria-label={t('neighbourhoods.explorerPanelInfoLabel', 'How this works')}
+              aria-pressed={showPanelHint}
+              className="w-5 h-5 rounded-full flex items-center justify-center text-[#12343B]/40 hover:text-[#119FB3] hover:bg-[#119FB3]/10 transition-colors flex-none"
+            >
+              {showPanelHint ? <X className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
+          {showPanelHint ? (
+            <p className="text-[12px] leading-relaxed text-[#12343B]/70">
+              {t(
+                'neighbourhoods.explorerPanelHint',
+                "This is your own exploration breakdown — it fills in as you go. Tap the ✓ on any place card to mark \"I've been here\", and that neighbourhood's share grows."
+              )}
+            </p>
+          ) : categorizedVisitedCount === 0 ? (
+            <p className="text-[12px] leading-relaxed text-[#12343B]/50">
+              {t('neighbourhoods.explorerPanelEmpty', "Mark a place as visited to start filling this in.")}
+            </p>
+          ) : (
+            neighbourhoods.map((n, i) => {
+              const count = visitedCountFor(n.name);
+              const pct = categorizedVisitedCount > 0 ? Math.round((count / categorizedVisitedCount) * 100) : 0;
+              const isActive = activeNbhd === n.name;
+              return (
+                <button
+                  key={n.id}
+                  onClick={() => selectNeighbourhood(n.name)}
+                  className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-[#119FB3]/10' : 'hover:bg-[#12343B]/5'}`}
+                >
+                  <div className="flex items-center justify-between text-xs font-semibold text-[#12343B] mb-1">
+                    <span className="truncate">{n.name}</span>
+                    <span className="text-[#119FB3] font-bold flex-none ml-1.5">{pct}%</span>
+                  </div>
+                  <div className="w-16 h-[5px] rounded-full bg-[#12343B]/8 overflow-hidden">
+                    <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 3)}%`, background: neighbourhoodColor(i) }} />
+                  </div>
+                </button>
+              );
+            })
+          )}
         </div>
       )}
 

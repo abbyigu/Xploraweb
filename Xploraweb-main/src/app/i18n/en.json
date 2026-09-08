@@ -9,6 +9,9 @@
     "explorerFinding": "Finding hidden gems…",
     "explorerFound": "{{count}} hidden gems found",
     "explorerPanelTitle": "Neighbourhoods",
+    "explorerPanelInfoLabel": "How this works",
+    "explorerPanelHint": "This is your own exploration breakdown — it fills in as you go. Tap the ✓ on any place card to mark \"I've been here\", and that neighbourhood's share grows.",
+    "explorerPanelEmpty": "Mark a place as visited to start filling this in.",
     "viewExperiences": "View experiences",
     "discover": "Discover",
     "otherNeighbourhoods": "Other neighbourhoods",
@@ -751,6 +754,10 @@
     },
     "openItinerary": "Open itinerary",
     "copyLink": "Copy link"
+  },
+  "visited": {
+    "markVisited": "I've been here",
+    "unmarkVisited": "Remove \"I've been here\""
   },
   "saved": {
     "eyebrow": "Your collection",
