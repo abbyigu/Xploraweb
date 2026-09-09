@@ -1,7 +1,13 @@
 import { Heart, Compass, Sparkles, MapPin, Phone, Mail, Shield, Star, Users, Ticket } from 'lucide-react';
 import { SimpleFooter } from './SimpleFooter';
+import { useSeo } from '../hooks/useSeo';
 
 export function AboutScreen() {
+  useSeo({
+    title: 'About Xplora | Québec City, Curated by Insiders',
+    description: 'Learn why Xplora exists: to connect people with the spots, events, and experiences in Québec City that don\'t make it onto generic travel lists.',
+    path: '/about',
+  });
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
 
