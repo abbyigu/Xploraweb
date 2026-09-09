@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { Clock, Users, MapPin, ChevronLeft, Globe, Check, ShoppingCart, ChevronLeft as Prev, ChevronRight as Next, Star, Calendar, Flame, ChevronDown, Bookmark } from 'lucide-react';
 import { useExperiences } from '../hooks/useExperiences';
+import { useSeo } from '../hooks/useSeo';
 import { useCart } from '../context/CartContext';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
@@ -35,6 +36,17 @@ export function ExperienceDetailScreen() {
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const exp = experiences.find(e => e.id === id);
+  useSeo(
+    exp
+      ? {
+          title: `${exp.name} | Xplora Québec City`,
+          description: exp.description
+            ? exp.description.slice(0, 155)
+            : `Discover ${exp.name}, a Québec City experience curated by Xplora.`,
+          path: `/experience/${exp.id}`,
+        }
+      : { title: 'Experience | Xplora' },
+  );
   const { addItem, items } = useCart();
   const [photoIndex, setPhotoIndex] = useState(0);
   const [selectedDate, setSelectedDate] = useState('');

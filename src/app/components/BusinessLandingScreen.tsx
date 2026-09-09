@@ -2,8 +2,14 @@ import { Link } from 'react-router';
 import { ArrowRight, CheckCircle, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
 import { SimpleFooter } from './SimpleFooter';
+import { useSeo } from '../hooks/useSeo';
 
 export function BusinessLandingScreen() {
+  useSeo({
+    title: 'Partner With Xplora | List Your Québec City Business',
+    description: 'Reach travelers and locals exploring Québec City. Partner with Xplora to list your experience, tour, or venue.',
+    path: '/business',
+  });
   const steps = [
     {
       step: '1',

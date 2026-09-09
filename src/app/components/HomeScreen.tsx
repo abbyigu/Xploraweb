@@ -7,6 +7,7 @@ import { ExperienceCard } from './ExperienceCard';
 import { EXPERIENCE_CATEGORIES } from '../data/products';
 import { useExperiences } from '../hooks/useExperiences';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
+import { useSeo } from '../hooks/useSeo';
 import { Footer } from './Footer';
 import { supabase, getProfile } from '../lib/supabase';
 
@@ -136,6 +137,11 @@ function CardCarousel({ children }: { children: React.ReactNode }) {
 }
 
 export function HomeScreen() {
+  useSeo({
+    title: 'Xplora — Discover Québec City Like an Insider',
+    description: 'Xplora helps you explore Québec City beyond the tourist lists — self-guided routes, local experiences, and neighbourhood picks curated by insiders.',
+    path: '/',
+  });
   const navigate = useNavigate();
   const { experiences } = useExperiences();
   const { neighbourhoods } = useNeighbourhoods();

@@ -8,6 +8,7 @@ import { ExperienceMap } from './ExperienceMap';
 import { QuickViewModal } from './QuickViewModal';
 import { CompareBar, ComparePanel } from './ComparePanel';
 import { useExperiences } from '../hooks/useExperiences';
+import { useSeo } from '../hooks/useSeo';
 import type { ExperienceCategory } from '../data/products';
 import type { Product } from '../data/products';
 
@@ -242,6 +243,11 @@ function FilterDrawer({
 }
 
 export function ItineraryScreen() {
+  useSeo({
+    title: 'Experiences & Itineraries in Québec City | Xplora',
+    description: 'Browse self-guided routes, local tours, and neighbourhood experiences in Québec City. Filter by price, duration, and difficulty to plan your next adventure.',
+    path: '/itinerary',
+  });
   const { experiences } = useExperiences();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();

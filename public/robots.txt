@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /account-setup
+Disallow: /cart
+Disallow: /notifications
+Disallow: /dashboard
+Disallow: /business/dashboard
+
+Sitemap: https://www.goxplora.ca/sitemap.xml

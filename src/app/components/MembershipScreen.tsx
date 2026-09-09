@@ -3,6 +3,7 @@ import { Star, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import { SimpleFooter } from './SimpleFooter';
 import { supabase } from '../lib/supabase';
+import { useSeo } from '../hooks/useSeo';
 
 const PRICE_IDS = {
   monthly: 'price_1TTkN9LXjgh0xxirh9mU8BT7',
@@ -94,6 +95,11 @@ const perks = [
 ];
 
 export function MembershipScreen() {
+  useSeo({
+    title: 'Xplora Membership | Unlock Québec City Experiences',
+    description: 'Join Xplora membership for exclusive access, discounts, and perks on self-guided routes and local experiences in Québec City.',
+    path: '/membership',
+  });
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

@@ -1,6 +1,12 @@
 import { SimpleFooter } from './SimpleFooter';
+import { useSeo } from '../hooks/useSeo';
 
 export function TermsScreen() {
+  useSeo({
+    title: 'Terms of Service | Xplora',
+    description: 'Read the terms of service for using Xplora to discover and book experiences in Québec City.',
+    path: '/terms',
+  });
   return (
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-6 md:px-8 pt-12 pb-10">
