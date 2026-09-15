@@ -63,6 +63,14 @@ function AuthHandler() {
   return null;
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function AnalyticsHandler() {
   const location = useLocation();
 
@@ -111,6 +119,7 @@ export default function App() {
     <HelmetProvider>
     <CartProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <AuthHandler />
       <LanguageSync />
       <AnalyticsHandler />
