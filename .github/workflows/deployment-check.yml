@@ -1,0 +1,69 @@
+name: Deployment check
+
+# Confirms the live Vercel production deployment is actually built from the
+# latest commit on `main`, so a stuck/failed/rolled-back deploy doesn't go
+# unnoticed. Requires repo secrets VERCEL_TOKEN and VERCEL_PROJECT_ID (and
+# VERCEL_TEAM_ID if the project lives under a Vercel team). Without those
+# secrets configured, this job fails loudly rather than silently passing.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  compare-production-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check production deployment matches main
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${VERCEL_TOKEN:-}" ] || [ -z "${VERCEL_PROJECT_ID:-}" ]; then
+            echo "::error::VERCEL_TOKEN and/or VERCEL_PROJECT_ID repo secrets are not set. Add them so this check can compare the live deployment against main." >&2
+            exit 1
+          fi
+
+          MAIN_SHA="${GITHUB_SHA}"
+          echo "main HEAD: ${MAIN_SHA}"
+
+          TEAM_QUERY=""
+          if [ -n "${VERCEL_TEAM_ID:-}" ]; then
+            TEAM_QUERY="&teamId=${VERCEL_TEAM_ID}"
+          fi
+
+          RESPONSE="$(curl -sS -f \
+            -H "Authorization: Bearer ${VERCEL_TOKEN}" \
+            "https://api.vercel.com/v6/deployments?projectId=${VERCEL_PROJECT_ID}&target=production&state=READY&limit=1${TEAM_QUERY}")"
+
+          PROD_SHA="$(echo "${RESPONSE}" | node -e '
+            let data = "";
+            process.stdin.on("data", d => data += d);
+            process.stdin.on("end", () => {
+              const json = JSON.parse(data);
+              const deployment = json.deployments && json.deployments[0];
+              const sha = deployment && deployment.meta && (deployment.meta.githubCommitSha || deployment.meta.gitCommitSha);
+              process.stdout.write(sha || "");
+            });
+          ')"
+
+          if [ -z "${PROD_SHA}" ]; then
+            echo "::error::Could not determine the current production deployment commit from the Vercel API response." >&2
+            echo "${RESPONSE}"
+            exit 1
+          fi
+
+          echo "production deployment: ${PROD_SHA}"
+
+          if [ "${PROD_SHA}" != "${MAIN_SHA}" ]; then
+            echo "::error::Production is serving ${PROD_SHA} but main is at ${MAIN_SHA}. The live site is out of date with GitHub." >&2
+            exit 1
+          fi
+
+          echo "Production matches main."
