@@ -48,7 +48,7 @@ export function Footer() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer.companyHeading')}</p>
             <ul className="space-y-3 text-sm text-white/70">
-              <li><a href="#about" className="hover:text-white transition">{t('footer.linkAboutUs')}</a></li>
+              <li><Link to="/about" className="hover:text-white transition">{t('footer.linkAboutUs')}</Link></li>
               <li><Link to="/business" className="hover:text-white transition">{t('footer.linkForBusinesses')}</Link></li>
               <li><a href="mailto:hello@goxplora.ca" className="hover:text-white transition">{t('footer.linkContactUs')}</a></li>
               <li><Link to="/feedback" className="hover:text-white transition">{t('footer.linkFeedback')}</Link></li>
