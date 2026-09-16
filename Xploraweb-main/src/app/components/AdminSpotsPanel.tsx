@@ -47,6 +47,7 @@ export function AdminSpotsPanel() {
   const [query, setQuery] = useState('');
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
   const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
@@ -274,6 +275,7 @@ export function AdminSpotsPanel() {
 
   const filtered = spots.filter(s => {
     if (selectedCategory && (s.category || 'Uncategorized') !== selectedCategory) return false;
+    if (selectedPrice && (s.price_range || 'No price') !== selectedPrice) return false;
     if (!query.trim()) return true;
     const q = query.toLowerCase();
     return (s.name || '').toLowerCase().includes(q)
@@ -323,6 +325,17 @@ export function AdminSpotsPanel() {
       counts.set(cat, (counts.get(cat) || 0) + 1);
     }
     return [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  };
+
+  // Same breakdown as categoryCounts, but ordered along the $ scale rather than by count.
+  const priceCounts = (list: any[]): [string, number][] => {
+    const counts = new Map<string, number>();
+    for (const spot of list) {
+      const price = spot.price_range || 'No price';
+      counts.set(price, (counts.get(price) || 0) + 1);
+    }
+    const order = [...PRICE_OPTIONS.map(p => p.value), 'No price'];
+    return order.filter(p => counts.has(p)).map(p => [p, counts.get(p)!]);
   };
 
   const activeNeighbourhoodSpots = selectedNeighbourhood
@@ -662,36 +675,64 @@ export function AdminSpotsPanel() {
         </div>
       )}
 
-      {/* Counters: category breakdown for the active view + grand total */}
+      {/* Counters: category + price breakdown for the active view + grand total */}
       {spots.length > 0 && (
-        <div className="bg-muted/50 border border-border rounded-xl p-3 flex flex-wrap items-center gap-2 text-xs">
-          <span className="font-semibold text-foreground whitespace-nowrap">
-            {selectedNeighbourhood || 'All neighbourhoods'} · {activeNeighbourhoodSpots.length} stop{activeNeighbourhoodSpots.length === 1 ? '' : 's'}
-          </span>
-          {categoryCounts(activeNeighbourhoodSpots).map(([cat, count]) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-              className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
-                selectedCategory === cat
-                  ? 'bg-primary text-primary-foreground border-primary'
-                  : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
-              }`}
-            >
-              {cat} <span className={selectedCategory === cat ? 'font-medium' : 'text-foreground font-medium'}>{count}</span>
-            </button>
-          ))}
-          {selectedCategory && (
-            <button
-              type="button"
-              onClick={() => setSelectedCategory(null)}
-              className="px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground whitespace-nowrap text-xs"
-            >
-              Clear category ✕
-            </button>
-          )}
-          <span className="ml-auto text-muted-foreground whitespace-nowrap">{spots.length} stop{spots.length === 1 ? '' : 's'} across all neighbourhoods</span>
+        <div className="bg-muted/50 border border-border rounded-xl p-3 space-y-2 text-xs">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="font-semibold text-foreground whitespace-nowrap">
+              {selectedNeighbourhood || 'All neighbourhoods'} · {activeNeighbourhoodSpots.length} stop{activeNeighbourhoodSpots.length === 1 ? '' : 's'}
+            </span>
+            {categoryCounts(activeNeighbourhoodSpots).map(([cat, count]) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
+                className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                  selectedCategory === cat
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                }`}
+              >
+                {cat} <span className={selectedCategory === cat ? 'font-medium' : 'text-foreground font-medium'}>{count}</span>
+              </button>
+            ))}
+            {selectedCategory && (
+              <button
+                type="button"
+                onClick={() => setSelectedCategory(null)}
+                className="px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground whitespace-nowrap text-xs"
+              >
+                Clear category ✕
+              </button>
+            )}
+            <span className="ml-auto text-muted-foreground whitespace-nowrap">{spots.length} stop{spots.length === 1 ? '' : 's'} across all neighbourhoods</span>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-muted-foreground whitespace-nowrap">Price</span>
+            {priceCounts(activeNeighbourhoodSpots).map(([price, count]) => (
+              <button
+                key={price}
+                type="button"
+                onClick={() => setSelectedPrice(price === selectedPrice ? null : price)}
+                className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                  selectedPrice === price
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
+                }`}
+              >
+                {price} <span className={selectedPrice === price ? 'font-medium' : 'text-foreground font-medium'}>{count}</span>
+              </button>
+            ))}
+            {selectedPrice && (
+              <button
+                type="button"
+                onClick={() => setSelectedPrice(null)}
+                className="px-2 py-0.5 rounded-full border border-border text-muted-foreground hover:text-foreground whitespace-nowrap text-xs"
+              >
+                Clear price ✕
+              </button>
+            )}
+          </div>
         </div>
       )}
 
