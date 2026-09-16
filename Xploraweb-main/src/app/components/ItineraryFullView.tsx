@@ -263,8 +263,8 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                 </div>
 
                 <div className="flex-1 min-w-0 pb-6">
-                  <div className="rounded-2xl border border-border bg-card overflow-hidden flex">
-                    <div className="w-28 sm:w-36 flex-shrink-0 bg-muted">
+                  <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col sm:flex-row">
+                    <div className="w-full h-40 sm:h-auto sm:w-36 flex-shrink-0 bg-muted">
                       {item.spot.image ? (
                         <img src={item.spot.image} alt="" className="w-full h-full object-cover" />
                       ) : (
