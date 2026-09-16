@@ -1,5 +1,4 @@
 {
-  "cleanUrls": true,
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
   "redirects": [
     { "source": "/members", "destination": "/membership", "permanent": true }
