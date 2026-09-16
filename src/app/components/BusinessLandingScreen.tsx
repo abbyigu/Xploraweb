@@ -196,7 +196,7 @@ export function BusinessLandingScreen() {
             <p className="text-sm text-muted-foreground max-w-lg">Members discover venues and experiences by vibe. Tag your perk so the right people find it.</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'terrasse'].map(v => (
+            {['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'].map(v => (
               <span key={v} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm capitalize">{v}</span>
             ))}
           </div>

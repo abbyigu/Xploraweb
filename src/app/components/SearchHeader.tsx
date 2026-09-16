@@ -6,7 +6,7 @@ function getLang(): 'en' | 'fr' {
   return (localStorage.getItem('xplora-lang') as 'en' | 'fr') || 'en';
 }
 
-const VIBES = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly', 'terrasse'];
+const VIBES = ['cozy', 'adventurous', 'foodie', 'romantic', 'hidden gem', 'lively', 'artsy', 'outdoorsy', 'late night', 'family-friendly'];
 const NEIGHBOURHOODS = ['Vieux-Québec', 'Saint-Roch', 'Maguire', 'Saint-Jean-Baptiste', 'Montcalm', 'Limoilou'];
 
 export function SearchHeader({ greeting }: { greeting?: string } = {}) {
