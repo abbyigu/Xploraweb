@@ -1179,6 +1179,13 @@
     "clear": "Clear",
     "reviewBlockedLanguage": "This review can't be published due to inappropriate language. Please edit your review and try again."
   },
+  "notFound": {
+    "seoTitle": "Page not found — GoXplora",
+    "seoDesc": "This page doesn't exist or may have moved. Head back to GoXplora to keep exploring Québec City.",
+    "title": "Page not found",
+    "body": "This page doesn't exist or may have moved. Let's get you back on track.",
+    "homeLink": "Back to home"
+  },
   "testimonials": {
     "title": "What explorers are saying",
     "1quote": "I discovered a hidden spot I didn't know about after 10 years here. Xplora really knows Québec.",

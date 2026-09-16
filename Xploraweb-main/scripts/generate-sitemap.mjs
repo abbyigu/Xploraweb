@@ -12,7 +12,7 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
   process.exit(1);
 }
-const BASE_URL = 'https://goxplora.ca';
+const BASE_URL = 'https://www.goxplora.ca';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 

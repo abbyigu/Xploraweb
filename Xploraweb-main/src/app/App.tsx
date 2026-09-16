@@ -51,6 +51,7 @@ const HowItWorksScreen       = lazy(() => import('./components/HowItWorksScreen'
 const ContactScreen          = lazy(() => import('./components/ContactScreen').then(m => ({ default: m.ContactScreen })));
 const FeedbackScreen         = lazy(() => import('./components/FeedbackScreen').then(m => ({ default: m.FeedbackScreen })));
 const FaqScreen              = lazy(() => import('./components/FaqScreen').then(m => ({ default: m.FaqScreen })));
+const NotFoundScreen         = lazy(() => import('./components/NotFoundScreen').then(m => ({ default: m.NotFoundScreen })));
 
 function AuthHandler() {
   const navigate = useNavigate();
@@ -164,6 +165,7 @@ export default function App() {
               <Route path="/contact" element={<ContactScreen />} />
               <Route path="/feedback" element={<FeedbackScreen />} />
               <Route path="/faq" element={<FaqScreen />} />
+              <Route path="*" element={<NotFoundScreen />} />
             </Routes>
           </Suspense>
         </div>
