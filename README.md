@@ -1,17 +1,19 @@
+# GoXplora (Xplora web)
 
-  # Xplora web
+The production application lives in [`Xploraweb-main/`](./Xploraweb-main). That
+is the only app in this repository — Vercel builds and deploys goxplora.ca
+from that directory, and it's where all application changes should be made.
 
-  > ⚠️ **This top-level tree is NOT the deployed app.** Production (goxplora.ca)
-  > builds from [`Xploraweb-main/`](./Xploraweb-main). This directory is a legacy
-  > Figma Make export left over from an earlier export step — changes made here
-  > will not affect the live site. Make all application changes inside
-  > `Xploraweb-main/` instead.
+The legacy top-level Figma Make export that used to live at the repository
+root has been removed; it was an unused duplicate of `Xploraweb-main/` left
+over from an earlier export step.
 
-  This is a code bundle for Xplora web. The original project is available at https://www.figma.com/design/4I43kvPt98TlOvkt3E67y8/Xplora-web.
+## Running the code
 
-  ## Running the code
+```sh
+cd Xploraweb-main
+npm i
+npm run dev
+```
 
-  Run `npm i` to install the dependencies.
-
-  Run `npm run dev` to start the development server.
-  
+See [`Xploraweb-main/README.md`](./Xploraweb-main/README.md) for more details.
