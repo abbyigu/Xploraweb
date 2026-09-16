@@ -1,15 +1,16 @@
 import { Helmet } from 'react-helmet-async';
 
-const BASE_URL = 'https://goxplora.ca';
+const BASE_URL = 'https://www.goxplora.ca';
 
 interface PageSEOProps {
   title: string;
   description: string;
   canonical?: string;
   schema?: object | object[];
+  noIndex?: boolean;
 }
 
-export function PageSEO({ title, description, canonical = '/', schema }: PageSEOProps) {
+export function PageSEO({ title, description, canonical = '/', schema, noIndex = false }: PageSEOProps) {
   const url = `${BASE_URL}${canonical}`;
   const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
 
@@ -17,6 +18,7 @@ export function PageSEO({ title, description, canonical = '/', schema }: PageSEO
     <Helmet>
       <title>{title}</title>
       <meta name="description" content={description} />
+      {noIndex && <meta name="robots" content="noindex, follow" />}
       <link rel="canonical" href={url} />
       {/* hreflang: same URL serves both EN and FR via client-side i18n */}
       <link rel="alternate" hreflang="en" href={url} />

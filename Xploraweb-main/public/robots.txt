@@ -11,4 +11,4 @@ Disallow: /notifications
 Disallow: /reset-password
 Disallow: /forgot-password
 
-Sitemap: https://goxplora.ca/sitemap.xml
+Sitemap: https://www.goxplora.ca/sitemap.xml

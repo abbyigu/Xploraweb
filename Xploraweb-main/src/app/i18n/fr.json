@@ -1179,6 +1179,13 @@
     "clear": "Effacer",
     "reviewBlockedLanguage": "Cet avis ne peut pas être publié en raison d'un langage inapproprié. Veuillez modifier votre avis et réessayer."
   },
+  "notFound": {
+    "seoTitle": "Page introuvable — GoXplora",
+    "seoDesc": "Cette page n'existe pas ou a peut-être été déplacée. Retournez sur GoXplora pour continuer à explorer Québec.",
+    "title": "Page introuvable",
+    "body": "Cette page n'existe pas ou a peut-être été déplacée. Revenons sur la bonne voie.",
+    "homeLink": "Retour à l'accueil"
+  },
   "faq": {
     "headline": "Questions et réponses",
     "subheadline": "Tout ce que vous devez savoir avant de réserver",

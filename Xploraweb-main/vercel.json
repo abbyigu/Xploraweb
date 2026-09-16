@@ -1,5 +1,9 @@
 {
+  "cleanUrls": true,
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }],
+  "redirects": [
+    { "source": "/members", "destination": "/membership", "permanent": true }
+  ],
   "crons": [{ "path": "/api/refresh-google-ratings", "schedule": "0 6 * * 1" }],
   "headers": [
     {

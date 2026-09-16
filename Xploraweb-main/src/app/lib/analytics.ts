@@ -44,7 +44,7 @@ function toGAItem(item: CartItem | Experience, quantity = 1) {
 
 export const analytics = {
   pageView(path: string) {
-    push('page_view', { page_location: `https://goxplora.ca${path}` });
+    push('page_view', { page_location: `https://www.goxplora.ca${path}` });
   },
 
   signUp(method: string) {

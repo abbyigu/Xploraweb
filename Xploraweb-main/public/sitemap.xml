@@ -2,106 +2,121 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
   <url>
-    <loc>https://goxplora.ca/</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/itinerary</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/itinerary</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/members</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/membership</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/membership</loc>
-    <lastmod>2026-05-13</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://goxplora.ca/about</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/business</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/neighbourhoods</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://www.goxplora.ca/faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/privacy</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/hotspots</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.goxplora.ca/loved</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.goxplora.ca/michelin</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.goxplora.ca/business</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://www.goxplora.ca/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
-    <loc>https://goxplora.ca/terms</loc>
-    <lastmod>2026-05-13</lastmod>
+    <loc>https://www.goxplora.ca/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
 
-
   <url>
-    <loc>https://goxplora.ca/experience/5cd7aac9-7c6a-455c-83d6-44de460dc368</loc>
+    <loc>https://www.goxplora.ca/experience/5cd7aac9-7c6a-455c-83d6-44de460dc368</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/f77b610b-d34c-4610-ae5e-53babadeaeef</loc>
+    <loc>https://www.goxplora.ca/experience/f77b610b-d34c-4610-ae5e-53babadeaeef</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/f6b3f10f-211c-4294-b79b-5f4aa66ea225</loc>
+    <loc>https://www.goxplora.ca/experience/f6b3f10f-211c-4294-b79b-5f4aa66ea225</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/704e6dcf-b283-42e3-9eae-e52d595b7857</loc>
+    <loc>https://www.goxplora.ca/experience/704e6dcf-b283-42e3-9eae-e52d595b7857</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/4af873c9-de21-40a8-ae01-75b81b0fcd18</loc>
+    <loc>https://www.goxplora.ca/experience/4af873c9-de21-40a8-ae01-75b81b0fcd18</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/76f52712-8745-4091-badf-aab3abb57282</loc>
+    <loc>https://www.goxplora.ca/experience/76f52712-8745-4091-badf-aab3abb57282</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/7b7099a0-7a5f-427a-b356-4feb0f488049</loc>
+    <loc>https://www.goxplora.ca/experience/7b7099a0-7a5f-427a-b356-4feb0f488049</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://goxplora.ca/experience/fdd3a48a-04fe-4224-bd6c-022f96fa2770</loc>
+    <loc>https://www.goxplora.ca/experience/fdd3a48a-04fe-4224-bd6c-022f96fa2770</loc>
     <lastmod>2026-05-09</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

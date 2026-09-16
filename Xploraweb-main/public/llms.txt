@@ -6,12 +6,12 @@ Xplora organizes the city by neighbourhood (Vieux-Québec, Montcalm, Saint-Roch,
 
 ## Key pages
 
-- [Home](https://goxplora.ca/): overview and neighbourhood entry points
-- [Neighbourhoods](https://goxplora.ca/neighbourhoods): browse Québec City by neighbourhood
-- [Itinerary / AI trip builder](https://goxplora.ca/itinerary): generates a custom walking route from local spots by vibe, walk length, and radius
-- [FAQ](https://goxplora.ca/faq): booking, cancellations, language, meeting points, weather, accessibility
-- [About](https://goxplora.ca/about): who Xplora is
-- [For businesses](https://goxplora.ca/business): local business partnership program
+- [Home](https://www.goxplora.ca/): overview and neighbourhood entry points
+- [Neighbourhoods](https://www.goxplora.ca/neighbourhoods): browse Québec City by neighbourhood
+- [Itinerary / AI trip builder](https://www.goxplora.ca/itinerary): generates a custom walking route from local spots by vibe, walk length, and radius
+- [FAQ](https://www.goxplora.ca/faq): booking, cancellations, language, meeting points, weather, accessibility
+- [About](https://www.goxplora.ca/about): who Xplora is
+- [For businesses](https://www.goxplora.ca/business): local business partnership program
 
 ## Notes for AI agents
 

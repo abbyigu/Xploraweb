@@ -100,7 +100,7 @@ export function ExperienceDetailScreen() {
     name: exp.name,
     description: exp.description,
     image: exp.image,
-    url: `https://goxplora.ca/experience/${exp.id}`,
+    url: `https://www.goxplora.ca/experience/${exp.id}`,
     touristType: 'Tourists, Locals',
     address: {
       '@type': 'PostalAddress',
