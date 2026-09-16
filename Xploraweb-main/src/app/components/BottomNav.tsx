@@ -24,7 +24,7 @@ export function BottomNav() {
   ];
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-border shadow-lg">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border shadow-lg">
       <div className="max-w-md mx-auto flex justify-around items-center py-2 px-1">
         {navItems.map(({ path, icon: Icon, label, badge }) => (
           <Link
