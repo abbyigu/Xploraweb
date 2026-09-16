@@ -21,6 +21,8 @@ const PRICE_OPTIONS = [
   { value: '$$$$', label: '$$$$', hint: 'Splurge' },
 ];
 
+const PRICE_RANK: Record<string, number> = Object.fromEntries(PRICE_OPTIONS.map((p, i) => [p.value, i]));
+
 const BLANK = {
   name: '', address: '', lat: '', lng: '',
   website: '', michelin_url: '', reservation_url: '', neighbourhood: '', category: '', role: '', visit_time: '', price_range: '',
@@ -45,6 +47,7 @@ export function AdminSpotsPanel() {
   const [query, setQuery] = useState('');
   const [selectedNeighbourhood, setSelectedNeighbourhood] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [priceSort, setPriceSort] = useState<'none' | 'asc' | 'desc'>('none');
   const [geocoding, setGeocoding] = useState(false);
   const [geocodeMsg, setGeocodeMsg] = useState('');
   const [translating, setTranslating] = useState(false);
@@ -278,6 +281,17 @@ export function AdminSpotsPanel() {
       || (s.category || '').toLowerCase().includes(q);
   });
 
+  // Orders one neighbourhood's spots by price when a price sort is active; spots
+  // without a price always sink to the end, whichever direction is chosen.
+  const sortByPrice = (list: any[]): any[] => {
+    if (priceSort === 'none') return list;
+    const priced = list.filter(s => s.price_range in PRICE_RANK);
+    const unpriced = list.filter(s => !(s.price_range in PRICE_RANK));
+    priced.sort((a, b) => PRICE_RANK[a.price_range] - PRICE_RANK[b.price_range]);
+    if (priceSort === 'desc') priced.reverse();
+    return [...priced, ...unpriced];
+  };
+
   // Group spots by neighbourhood, ordered to match the neighbourhoods list (sort_order),
   // with unrecognized names after and unassigned spots last.
   const groupByNeighbourhood = (list: any[]): [string, any[]][] => {
@@ -288,10 +302,10 @@ export function AdminSpotsPanel() {
       groups.get(key)!.push(spot);
     }
     const knownNames = neighbourhoods.map(n => n.name);
-    const known = knownNames.filter(name => groups.has(name)).map(name => [name, groups.get(name)!] as [string, any[]]);
+    const known = knownNames.filter(name => groups.has(name)).map(name => [name, sortByPrice(groups.get(name)!)] as [string, any[]]);
     const extraNames = [...groups.keys()].filter(k => k && !knownNames.includes(k)).sort();
-    const extra = extraNames.map(name => [name, groups.get(name)!] as [string, any[]]);
-    const unassigned = groups.has('') ? [['', groups.get('')!] as [string, any[]]] : [];
+    const extra = extraNames.map(name => [name, sortByPrice(groups.get(name)!)] as [string, any[]]);
+    const unassigned = groups.has('') ? [['', sortByPrice(groups.get('')!)] as [string, any[]]] : [];
     return [...known, ...extra, ...unassigned];
   };
 
@@ -681,14 +695,26 @@ export function AdminSpotsPanel() {
         </div>
       )}
 
-      {/* Search */}
+      {/* Search + price sort */}
       {spots.length > 0 && (
-        <input
-          value={query}
-          onChange={e => setQuery(e.target.value)}
-          placeholder="Search spots by name, neighbourhood, or category…"
-          className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-        />
+        <div className="flex gap-2">
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="Search spots by name, neighbourhood, or category…"
+            className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+          />
+          <button
+            type="button"
+            onClick={() => setPriceSort(priceSort === 'none' ? 'asc' : priceSort === 'asc' ? 'desc' : 'none')}
+            title="Sort each neighbourhood's spots by price"
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm whitespace-nowrap transition-colors ${
+              priceSort !== 'none' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            Price {priceSort === 'asc' ? '↑' : priceSort === 'desc' ? '↓' : ''}
+          </button>
+        </div>
       )}
 
       {/* List */}
