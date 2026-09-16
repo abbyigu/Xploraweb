@@ -21,6 +21,12 @@ const MAP_OPTIONS: google.maps.MapOptions = {
   scrollwheel: false,
   streetViewControl: false,
   mapTypeControl: false,
+  // Without this, tapping a labelled business/landmark baked into Google's
+  // base map tiles opens Google's own default info card — on mobile it
+  // auto-pans and can render low enough to sit over the app's fixed bottom
+  // nav. We show our own spot cards, so the base map's icons don't need to
+  // be clickable at all.
+  clickableIcons: false,
   // 'greedy' so a single-finger touch drag pans the map directly on mobile —
   // 'cooperative' requires a two-finger gesture to pan, which just eats a
   // normal one-finger swipe (feels broken/unresponsive on phones).
@@ -169,7 +175,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
   };
 
   return (
-    <div className="relative flex flex-col h-[600px] sm:h-[660px] md:h-[700px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg shadow-[#12343B]/10 bg-[#ECEEE8]">
+    <div className="relative isolate flex flex-col h-[600px] sm:h-[660px] md:h-[700px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg shadow-[#12343B]/10 bg-[#ECEEE8]">
       {isLoaded && hasMapData ? (
         <GoogleMap
           mapContainerStyle={{ width: '100%', height: '100%' }}

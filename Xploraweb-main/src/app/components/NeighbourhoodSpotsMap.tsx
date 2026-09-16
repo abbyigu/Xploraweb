@@ -59,7 +59,12 @@ interface Props {
   height?: number;
 }
 
-const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false };
+// clickableIcons: false stops taps on Google's own base-map business/landmark
+// icons from popping its default info card — on mobile that card auto-pans
+// and can render low enough to sit over the app's fixed bottom nav. This map
+// already shows the neighbourhood's own spots as markers, so the base map's
+// icons don't need to be clickable too.
+const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false, clickableIcons: false };
 
 export function NeighbourhoodSpotsMap({
   spots,
@@ -177,7 +182,7 @@ export function NeighbourhoodSpotsMap({
         </div>
       )}
       <div
-        className="w-full rounded-2xl overflow-hidden border border-gray-200"
+        className="w-full isolate rounded-2xl overflow-hidden border border-gray-200"
         style={{ height, background: '#e8eef0' }}
       >
         {isLoaded && (
