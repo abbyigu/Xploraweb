@@ -554,7 +554,14 @@ export function AdminSpotsPanel() {
               </div>
               <TagInput
                 value={form.tags}
-                onChange={next => setForm(f => ({ ...f, tags: next }))}
+                onChange={next => setForm(f => ({
+                  ...f,
+                  tags: next,
+                  // Tagging a spot "terrasse" is a strong enough signal on its own —
+                  // auto-slot it into the Terraces category instead of making the
+                  // admin set both.
+                  category: next.some(t => t.toLowerCase().startsWith('terrasse')) ? 'Terraces' : f.category,
+                }))}
                 suggestions={tagSuggestions}
                 placeholder="e.g. pizza, drinks, dessert — type and press comma"
               />
