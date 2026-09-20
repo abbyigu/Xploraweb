@@ -209,15 +209,15 @@ export function AdminNeighbourhoodsPanel() {
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between mb-1">
             <h4 className="text-sm font-semibold">{editing ? 'Edit neighbourhood' : 'New neighbourhood'}</h4>
-            <button onClick={() => { setShowForm(false); setEditing(null); }} className="text-muted-foreground hover:text-foreground">
+            <button onClick={() => { setShowForm(false); setEditing(null); }} aria-label="Close form" className="text-muted-foreground hover:text-foreground relative before:absolute before:-inset-2 before:content-['']">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Name *</label>
-              <input
+              <label htmlFor="nbhd-name" className="text-xs font-medium text-muted-foreground">Name *</label>
+              <input id="nbhd-name"
                 value={form.name}
                 onChange={handleNameChange}
                 placeholder="Old Port"
@@ -225,8 +225,8 @@ export function AdminNeighbourhoodsPanel() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Slug</label>
-              <input
+              <label htmlFor="nbhd-slug" className="text-xs font-medium text-muted-foreground">Slug</label>
+              <input id="nbhd-slug"
                 value={form.slug}
                 onChange={set('slug')}
                 placeholder="old-port"
@@ -237,8 +237,8 @@ export function AdminNeighbourhoodsPanel() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Tagline (English)</label>
-              <input
+              <label htmlFor="nbhd-tagline" className="text-xs font-medium text-muted-foreground">Tagline (English)</label>
+              <input id="nbhd-tagline"
                 value={form.tagline}
                 onChange={set('tagline')}
                 placeholder="History & waterfront"
@@ -246,8 +246,8 @@ export function AdminNeighbourhoodsPanel() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Tagline (French)</label>
-              <input
+              <label htmlFor="nbhd-tagline-fr" className="text-xs font-medium text-muted-foreground">Tagline (French)</label>
+              <input id="nbhd-tagline-fr"
                 value={form.tagline_fr}
                 onChange={set('tagline_fr')}
                 placeholder="Histoire et bord de l'eau"
@@ -259,8 +259,8 @@ export function AdminNeighbourhoodsPanel() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Description (English)</label>
-              <textarea
+              <label htmlFor="nbhd-description" className="text-xs font-medium text-muted-foreground">Description (English)</label>
+              <textarea id="nbhd-description"
                 value={form.description}
                 onChange={set('description')}
                 rows={3}
@@ -269,8 +269,8 @@ export function AdminNeighbourhoodsPanel() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Description (French)</label>
-              <textarea
+              <label htmlFor="nbhd-description-fr" className="text-xs font-medium text-muted-foreground">Description (French)</label>
+              <textarea id="nbhd-description-fr"
                 value={form.description_fr}
                 onChange={set('description_fr')}
                 rows={3}
@@ -281,8 +281,8 @@ export function AdminNeighbourhoodsPanel() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Famous streets</label>
-            <textarea
+            <label htmlFor="nbhd-famous-streets" className="text-xs font-medium text-muted-foreground">Famous streets</label>
+            <textarea id="nbhd-famous-streets"
               value={form.famous_streets}
               onChange={set('famous_streets')}
               rows={3}
@@ -293,9 +293,9 @@ export function AdminNeighbourhoodsPanel() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">Cover image</label>
+            <label htmlFor="nbhd-cover-image-url" className="text-xs font-medium text-muted-foreground">Cover image</label>
             <div className="flex gap-2">
-              <input
+              <input id="nbhd-cover-image-url"
                 value={form.cover_image_url}
                 onChange={set('cover_image_url')}
                 placeholder="https://… or upload a file"
@@ -320,8 +320,8 @@ export function AdminNeighbourhoodsPanel() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Sort order</label>
-              <input
+              <label htmlFor="nbhd-sort-order" className="text-xs font-medium text-muted-foreground">Sort order</label>
+              <input id="nbhd-sort-order"
                 type="number"
                 value={form.sort_order}
                 onChange={set('sort_order')}
@@ -329,8 +329,8 @@ export function AdminNeighbourhoodsPanel() {
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">Status</label>
-              <select
+              <label htmlFor="nbhd-status" className="text-xs font-medium text-muted-foreground">Status</label>
+              <select id="nbhd-status"
                 value={form.status}
                 onChange={set('status')}
                 className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
@@ -342,7 +342,7 @@ export function AdminNeighbourhoodsPanel() {
           </div>
 
           {error && (
-            <div className="text-xs text-red-500 space-y-1">
+            <div role="alert" className="text-xs text-red-500 space-y-1">
               <p>{error}</p>
               {(error.includes('tagline_fr') || error.includes('description_fr')) && (
                 <p className="text-muted-foreground">Run this in Supabase SQL Editor: <code className="bg-muted px-1 rounded">ALTER TABLE neighbourhoods ADD COLUMN IF NOT EXISTS tagline_fr text DEFAULT ''; ALTER TABLE neighbourhoods ADD COLUMN IF NOT EXISTS description_fr text DEFAULT '';</code></p>
@@ -404,10 +404,10 @@ export function AdminNeighbourhoodsPanel() {
                 <p className="text-xs text-muted-foreground/60 font-mono mt-0.5">/{row.slug}</p>
               </div>
               <div className="flex gap-1 flex-shrink-0">
-                <button onClick={() => openEdit(row)} className="p-2 rounded-lg hover:bg-muted transition text-muted-foreground hover:text-foreground" title="Edit">
+                <button onClick={() => openEdit(row)} aria-label={`Edit ${row.name}`} className="p-2 rounded-lg hover:bg-muted transition text-muted-foreground hover:text-foreground" title="Edit">
                   <Edit2 className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(row.id, row.name)} className="p-2 rounded-lg hover:bg-red-50 transition text-muted-foreground hover:text-red-500" title="Delete">
+                <button onClick={() => handleDelete(row.id, row.name)} aria-label={`Delete ${row.name}`} className="p-2 rounded-lg hover:bg-red-50 transition text-muted-foreground hover:text-red-500" title="Delete">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

@@ -29,10 +29,10 @@ function weightedPick(candidates: Spot[]): Spot {
 }
 
 const selectClass =
-  'w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
+  'w-full px-3 py-2.5 min-h-11 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
 
 const compactSelectClass =
-  'w-full px-3.5 py-[13px] rounded-xl bg-[#F7F8F5] text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
+  'w-full px-3.5 py-[13px] min-h-11 rounded-xl bg-[#F7F8F5] text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
 
 export function SpotFinder({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();

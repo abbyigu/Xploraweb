@@ -123,8 +123,8 @@ export function AdminSiteContentPanel() {
       <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
         <h4 className="text-sm font-semibold">Homepage hero</h4>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Headline</label>
-          <textarea
+          <label htmlFor="site-hero-headline" className="text-xs font-medium text-muted-foreground">Headline</label>
+          <textarea id="site-hero-headline"
             value={form.hero_headline}
             onChange={set('hero_headline')}
             rows={2}
@@ -133,8 +133,8 @@ export function AdminSiteContentPanel() {
           <p className="text-[11px] text-muted-foreground">A line break here starts a new line on the page.</p>
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Subheadline</label>
-          <textarea
+          <label htmlFor="site-hero-subheadline" className="text-xs font-medium text-muted-foreground">Subheadline</label>
+          <textarea id="site-hero-subheadline"
             value={form.hero_subheadline}
             onChange={set('hero_subheadline')}
             rows={2}
@@ -142,17 +142,17 @@ export function AdminSiteContentPanel() {
           />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Button label</label>
-          <input
+          <label htmlFor="site-hero-cta-label" className="text-xs font-medium text-muted-foreground">Button label</label>
+          <input id="site-hero-cta-label"
             value={form.hero_cta_label}
             onChange={set('hero_cta_label')}
             className="w-full border border-border rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
           />
         </div>
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Background image</label>
+          <label htmlFor="site-hero-image-url" className="text-xs font-medium text-muted-foreground">Background image</label>
           <div className="flex gap-2">
-            <input
+            <input id="site-hero-image-url"
               value={form.hero_image_url}
               onChange={set('hero_image_url')}
               placeholder="https:// or upload a file"
@@ -181,7 +181,10 @@ export function AdminSiteContentPanel() {
           </div>
           <button
             onClick={() => setForm(f => ({ ...f, itinerary_paywalled: !f.itinerary_paywalled }))}
-            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 ${form.itinerary_paywalled ? 'bg-secondary' : 'bg-muted'}`}
+            role="switch"
+            aria-checked={!!form.itinerary_paywalled}
+            aria-label="Paywall this page"
+            className={`relative w-11 h-6 rounded-full transition-colors flex-shrink-0 before:absolute before:-inset-y-1 before:inset-x-0 before:content-[''] ${form.itinerary_paywalled ? 'bg-secondary' : 'bg-muted'}`}
           >
             <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${form.itinerary_paywalled ? 'translate-x-5' : 'translate-x-0.5'}`} />
           </button>
@@ -189,7 +192,7 @@ export function AdminSiteContentPanel() {
       </div>
 
       {error && (
-        <div className="text-xs text-red-500 space-y-1">
+        <div role="alert" className="text-xs text-red-500 space-y-1">
           <p>{error}</p>
           {error.includes('itinerary_paywalled') && (
             <p className="text-muted-foreground">Run this in Supabase SQL Editor: <code className="bg-muted px-1 rounded">ALTER TABLE site_content ADD COLUMN IF NOT EXISTS itinerary_paywalled boolean DEFAULT false;</code></p>

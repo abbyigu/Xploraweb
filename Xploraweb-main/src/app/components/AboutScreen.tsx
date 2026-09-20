@@ -24,6 +24,10 @@ function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
           <img
             src={member.photo}
             alt={member.name}
+            loading="lazy"
+            decoding="async"
+            width={64}
+            height={64}
             onError={() => setImgFailed(true)}
             className="w-16 h-16 rounded-2xl object-cover bg-xplora-icon-bg"
           />

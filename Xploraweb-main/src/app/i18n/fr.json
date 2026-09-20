@@ -81,7 +81,11 @@
     "reviewThanksPending": "Merci! Votre avis apparaîtra une fois approuvé.",
     "reviewError": "Impossible d'enregistrer votre avis — veuillez réessayer.",
     "reviewsTitle": "Ce que disent les explorateurs",
-    "adminReplyLabel": "Réponse de Xplora"
+    "adminReplyLabel": "Réponse de Xplora",
+    "filteringByStreet": "Lieux affichés sur",
+    "clearFilter": "Effacer",
+    "noSpotsOnStreet": "Aucun lieu trouvé ici pour le moment.",
+    "showAllSpots": "Voir tous les lieux"
   },
   "spotFinder": {
     "title": "Pas sûr de quoi faire?",
@@ -119,7 +123,8 @@
     "contact": "Contact",
     "forBusinesses": "Partenaires",
     "exploring": "Explorer",
-    "city": "Québec, QC"
+    "city": "Québec, QC",
+    "mainNav": "Navigation principale"
   },
   "footer": {
     "tagline": "Soyez dans les premiers",
@@ -149,7 +154,8 @@
     "linkTermsOfService": "Conditions d'utilisation",
     "linkCookiePolicy": "Politique de cookies",
     "linkAccessibility": "Accessibilité",
-    "copyrightLine": "© 2026 GoXplora · Québec, QC"
+    "copyrightLine": "© 2026 GoXplora · Québec, QC",
+    "linksLabel": "Liens du pied de page"
   },
   "landing": {
     "headline": "Réservez les meilleures visites et expériences locales à Québec.",

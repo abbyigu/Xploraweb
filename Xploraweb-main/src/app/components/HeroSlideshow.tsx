@@ -104,7 +104,7 @@ export function HeroSlideshow() {
         type="button"
         onClick={() => goTo(activeIndex - 1)}
         aria-label={t('a11y.prevPhoto')}
-        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition"
+        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition"
       >
         <ChevronLeft className="w-5 h-5" />
       </button>
@@ -112,7 +112,7 @@ export function HeroSlideshow() {
         type="button"
         onClick={() => goTo(activeIndex + 1)}
         aria-label={t('a11y.nextPhoto')}
-        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition"
+        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/30 hover:bg-black/50 text-white flex items-center justify-center transition"
       >
         <ChevronRight className="w-5 h-5" />
       </button>

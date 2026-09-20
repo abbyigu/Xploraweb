@@ -321,9 +321,9 @@ export function AdminExperiencePanel() {
               <h4 className="font-medium">{editing ? 'Edit Experience' : isStaticEdit ? 'Import & Edit Static Experience' : 'New Experience'}</h4>
               {isStaticEdit && <p className="text-xs text-muted-foreground mt-0.5">Saving will add this to the database so you can manage it here.</p>}
             </div>
-            <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+            <button onClick={() => setShowForm(false)} aria-label="Close form" className="relative before:absolute before:-inset-2 before:content-['']"><X className="w-4 h-4 text-muted-foreground" /></button>
           </div>
-          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
           {/* EN / FR tab switcher */}
           <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
@@ -334,79 +334,79 @@ export function AdminExperiencePanel() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {langTab === 'en' ? (<>
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Name *</label>
-              <input value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Experience name" />
+              <label htmlFor="exp-name" className="text-xs text-muted-foreground">Name *</label>
+              <input id="exp-name" value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Experience name" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Short description <span className="text-primary">— shown on home page cards</span></label>
-              <input value={form.description} onChange={set('description')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="One-liner shown on card" />
+              <label htmlFor="exp-description" className="text-xs text-muted-foreground">Short description <span className="text-primary">— shown on home page cards</span></label>
+              <input id="exp-description" value={form.description} onChange={set('description')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="One-liner shown on card" />
             </div>
             </>) : (<>
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Nom (FR)</label>
-              <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom de l'expérience" />
+              <label htmlFor="exp-name-fr" className="text-xs text-muted-foreground">Nom (FR)</label>
+              <input id="exp-name-fr" value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom de l'expérience" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Description courte (FR) <span className="text-primary">— affichée sur les cartes</span></label>
-              <input value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Une ligne affichée sur la carte" />
+              <label htmlFor="exp-description-fr" className="text-xs text-muted-foreground">Description courte (FR) <span className="text-primary">— affichée sur les cartes</span></label>
+              <input id="exp-description-fr" value={form.description_fr} onChange={set('description_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Une ligne affichée sur la carte" />
             </div>
             </>)}
 
             <div>
-              <label className="text-xs text-muted-foreground">Category</label>
-              <select value={form.category} onChange={set('category')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+              <label htmlFor="exp-category" className="text-xs text-muted-foreground">Category</label>
+              <select id="exp-category" value={form.category} onChange={set('category')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
                 {EXPERIENCE_CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
               </select>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Price (CAD) — 0 = Free</label>
+              <label htmlFor="exp-price-cents" className="text-xs text-muted-foreground">Price (CAD) — 0 = Free</label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                <input type="number" min="0" value={form.price_cents / 100} onChange={e => setForm(f => ({ ...f, price_cents: Math.round(parseFloat(e.target.value || '0') * 100) }))}
+                <input id="exp-price-cents" type="number" min="0" value={form.price_cents / 100} onChange={e => setForm(f => ({ ...f, price_cents: Math.round(parseFloat(e.target.value || '0') * 100) }))}
                   className="w-full pl-6 pr-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="0" />
               </div>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Duration</label>
-              <input value={form.duration} onChange={set('duration')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Full Day, 2 hours" />
+              <label htmlFor="exp-duration" className="text-xs text-muted-foreground">Duration</label>
+              <input id="exp-duration" value={form.duration} onChange={set('duration')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Full Day, 2 hours" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Spots available</label>
-              <input type="number" min="0" value={form.spots} onChange={set('spots')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Leave blank for unlimited" />
+              <label htmlFor="exp-spots" className="text-xs text-muted-foreground">Spots available</label>
+              <input id="exp-spots" type="number" min="0" value={form.spots} onChange={set('spots')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Leave blank for unlimited" />
             </div>
 
             {langTab === 'en' ? (<>
             <div>
-              <label className="text-xs text-muted-foreground">Difficulty</label>
-              <select value={form.difficulty} onChange={set('difficulty')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+              <label htmlFor="exp-difficulty" className="text-xs text-muted-foreground">Difficulty</label>
+              <select id="exp-difficulty" value={form.difficulty} onChange={set('difficulty')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
                 <option>Easy</option><option>Moderate</option><option>Challenging</option>
               </select>
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Badge (optional)</label>
-              <input value={form.badge} onChange={set('badge')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Popular, New, Free" />
+              <label htmlFor="exp-badge" className="text-xs text-muted-foreground">Badge (optional)</label>
+              <input id="exp-badge" value={form.badge} onChange={set('badge')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Popular, New, Free" />
             </div>
             </>) : (<>
             <div>
-              <label className="text-xs text-muted-foreground">Difficulté (FR)</label>
-              <input value={form.difficulty_fr} onChange={set('difficulty_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Facile, Modéré, Difficile" />
+              <label htmlFor="exp-difficulty-fr" className="text-xs text-muted-foreground">Difficulté (FR)</label>
+              <input id="exp-difficulty-fr" value={form.difficulty_fr} onChange={set('difficulty_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Facile, Modéré, Difficile" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Badge (FR, optionnel)</label>
-              <input value={form.badge_fr} onChange={set('badge_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Populaire, Nouveau, Gratuit" />
+              <label htmlFor="exp-badge-fr" className="text-xs text-muted-foreground">Badge (FR, optionnel)</label>
+              <input id="exp-badge-fr" value={form.badge_fr} onChange={set('badge_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="ex. Populaire, Nouveau, Gratuit" />
             </div>
             </>)}
 
             <div>
-              <label className="text-xs text-muted-foreground">Neighbourhood</label>
-              <input value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Saint-Roch, Limoilou" />
+              <label htmlFor="exp-neighbourhood" className="text-xs text-muted-foreground">Neighbourhood</label>
+              <input id="exp-neighbourhood" value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Saint-Roch, Limoilou" />
             </div>
 
             <div className="md:col-span-2">
@@ -444,6 +444,7 @@ export function AdminExperiencePanel() {
                 ))}
                 <input
                   type="text"
+                  aria-label="Add vibe"
                   placeholder="+ add vibe"
                   className="px-3 py-1.5 rounded-full text-sm border border-dashed border-border bg-transparent text-muted-foreground focus:outline-none focus:border-primary focus:text-foreground w-28"
                   onKeyDown={e => {
@@ -474,6 +475,7 @@ export function AdminExperiencePanel() {
                 </div>
                 <input
                   type="url"
+                  aria-label="Image URL"
                   placeholder="https://images.unsplash.com/..."
                   value={!imageFile ? imagePreview : ''}
                   onChange={e => { setImageFile(null); setImagePreview(e.target.value); }}
@@ -483,20 +485,20 @@ export function AdminExperiencePanel() {
               {imagePreview && (
                 <div className="mt-2 relative">
                   <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
-                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg before:absolute before:-inset-1 before:content-['']">Remove</button>
                 </div>
               )}
             </div>
 
             {langTab === 'en' ? (<>
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Full description <span className="text-muted-foreground/60">— shown on detail page only, not on cards</span></label>
-              <textarea value={form.long_description} onChange={set('long_description')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Full experience description (separate paragraphs with a blank line)" />
+              <label htmlFor="exp-long-description" className="text-xs text-muted-foreground">Full description <span className="text-muted-foreground/60">— shown on detail page only, not on cards</span></label>
+              <textarea id="exp-long-description" value={form.long_description} onChange={set('long_description')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Full experience description (separate paragraphs with a blank line)" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Highlights — one per line</label>
-              <textarea value={form.highlights} onChange={set('highlights')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Free & self-guided&#10;Curated stop list&#10;Go at your own pace" />
+              <label htmlFor="exp-highlights" className="text-xs text-muted-foreground">Highlights — one per line</label>
+              <textarea id="exp-highlights" value={form.highlights} onChange={set('highlights')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Free & self-guided&#10;Curated stop list&#10;Go at your own pace" />
             </div>
 
             <div className="md:col-span-2">
@@ -505,65 +507,65 @@ export function AdminExperiencePanel() {
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">What's included — one per line</label>
-              <textarea value={form.includes} onChange={set('includes')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Digital map&#10;Guide PDF" />
+              <label htmlFor="exp-includes" className="text-xs text-muted-foreground">What's included — one per line</label>
+              <textarea id="exp-includes" value={form.includes} onChange={set('includes')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Digital map&#10;Guide PDF" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">What to bring — one per line</label>
-              <textarea value={form.to_bring} onChange={set('to_bring')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Comfortable shoes&#10;Camera" />
+              <label htmlFor="exp-to-bring" className="text-xs text-muted-foreground">What to bring — one per line</label>
+              <textarea id="exp-to-bring" value={form.to_bring} onChange={set('to_bring')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Comfortable shoes&#10;Camera" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Host bio</label>
-              <input value={form.host_bio} onChange={set('host_bio')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Short bio" />
+              <label htmlFor="exp-host-bio" className="text-xs text-muted-foreground">Host bio</label>
+              <input id="exp-host-bio" value={form.host_bio} onChange={set('host_bio')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Short bio" />
             </div>
             </>) : (<>
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Description complète (FR) <span className="text-muted-foreground/60">— page de détail seulement</span></label>
-              <textarea value={form.long_description_fr} onChange={set('long_description_fr')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Description complète (séparez les paragraphes par une ligne vide)" />
+              <label htmlFor="exp-long-description-fr" className="text-xs text-muted-foreground">Description complète (FR) <span className="text-muted-foreground/60">— page de détail seulement</span></label>
+              <textarea id="exp-long-description-fr" value={form.long_description_fr} onChange={set('long_description_fr')} rows={4} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Description complète (séparez les paragraphes par une ligne vide)" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Points forts (FR) — un par ligne</label>
-              <textarea value={form.highlights_fr} onChange={set('highlights_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Gratuit et autoguidé&#10;Parcours curatif&#10;À votre rythme" />
+              <label htmlFor="exp-highlights-fr" className="text-xs text-muted-foreground">Points forts (FR) — un par ligne</label>
+              <textarea id="exp-highlights-fr" value={form.highlights_fr} onChange={set('highlights_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Gratuit et autoguidé&#10;Parcours curatif&#10;À votre rythme" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Arrêts de l'itinéraire (FR) — un par ligne</label>
-              <textarea value={form.itinerary_fr} onChange={set('itinerary_fr')} rows={5} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Place des Arts — Commencez à la galerie à ciel ouvert&#10;Rue Saint-Joseph — Parcourez l'artère créative" />
+              <label htmlFor="exp-itinerary-fr" className="text-xs text-muted-foreground">Arrêts de l'itinéraire (FR) — un par ligne</label>
+              <textarea id="exp-itinerary-fr" value={form.itinerary_fr} onChange={set('itinerary_fr')} rows={5} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Place des Arts — Commencez à la galerie à ciel ouvert&#10;Rue Saint-Joseph — Parcourez l'artère créative" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Ce qui est inclus (FR) — un par ligne</label>
-              <textarea value={form.includes_fr} onChange={set('includes_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Carte numérique&#10;Guide PDF" />
+              <label htmlFor="exp-includes-fr" className="text-xs text-muted-foreground">Ce qui est inclus (FR) — un par ligne</label>
+              <textarea id="exp-includes-fr" value={form.includes_fr} onChange={set('includes_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Carte numérique&#10;Guide PDF" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Quoi apporter (FR) — un par ligne</label>
-              <textarea value={form.to_bring_fr} onChange={set('to_bring_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Souliers confortables&#10;Appareil photo" />
+              <label htmlFor="exp-to-bring-fr" className="text-xs text-muted-foreground">Quoi apporter (FR) — un par ligne</label>
+              <textarea id="exp-to-bring-fr" value={form.to_bring_fr} onChange={set('to_bring_fr')} rows={3} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none" placeholder="Souliers confortables&#10;Appareil photo" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Bio de l'hôte (FR)</label>
-              <input value={form.host_bio_fr} onChange={set('host_bio_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Courte biographie" />
+              <label htmlFor="exp-host-bio-fr" className="text-xs text-muted-foreground">Bio de l'hôte (FR)</label>
+              <input id="exp-host-bio-fr" value={form.host_bio_fr} onChange={set('host_bio_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Courte biographie" />
             </div>
             </>)}
 
             {/* Language-neutral fields — always visible */}
             <div>
-              <label className="text-xs text-muted-foreground">Meeting point</label>
-              <input value={form.meeting_point} onChange={set('meeting_point')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Address or description" />
+              <label htmlFor="exp-meeting-point" className="text-xs text-muted-foreground">Meeting point</label>
+              <input id="exp-meeting-point" value={form.meeting_point} onChange={set('meeting_point')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Address or description" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Languages (comma-separated)</label>
-              <input value={form.languages} onChange={set('languages')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="English, Français" />
+              <label htmlFor="exp-languages" className="text-xs text-muted-foreground">Languages (comma-separated)</label>
+              <input id="exp-languages" value={form.languages} onChange={set('languages')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="English, Français" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Host name</label>
-              <input value={form.host_name} onChange={set('host_name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
+              <label htmlFor="exp-host-name" className="text-xs text-muted-foreground">Host name</label>
+              <input id="exp-host-name" value={form.host_name} onChange={set('host_name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Your name" />
             </div>
 
             {/* Trail route — ordered selection of spots from the library */}
@@ -575,19 +577,19 @@ export function AdminExperiencePanel() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground">Mode</label>
-                  <select value={form.distance_mode} onChange={set('distance_mode')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+                  <label htmlFor="exp-distance-mode" className="text-xs text-muted-foreground">Mode</label>
+                  <select id="exp-distance-mode" value={form.distance_mode} onChange={set('distance_mode')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
                     <option value="walking">🚶 Walking</option>
                     <option value="driving">🚗 Driving</option>
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">{form.distance_mode === 'driving' ? 'Driving distance' : 'Walking distance'}</label>
-                  <input value={form.distance} onChange={set('distance')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 2.4 km" />
+                  <label htmlFor="exp-distance" className="text-xs text-muted-foreground">{form.distance_mode === 'driving' ? 'Driving distance' : 'Walking distance'}</label>
+                  <input id="exp-distance" value={form.distance} onChange={set('distance')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 2.4 km" />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground">Total stops</label>
-                  <input value={form.spot_ids.length} readOnly tabIndex={-1} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-muted/40 text-muted-foreground" />
+                  <label htmlFor="exp-spot-ids" className="text-xs text-muted-foreground">Total stops</label>
+                  <input id="exp-spot-ids" value={form.spot_ids.length} readOnly tabIndex={-1} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-muted/40 text-muted-foreground" />
                 </div>
               </div>
 
@@ -610,13 +612,13 @@ export function AdminExperiencePanel() {
                           </p>
                         </div>
                         <div className="flex items-center gap-1 flex-shrink-0">
-                          <button type="button" onClick={() => moveSpot(i, -1)} disabled={i === 0} className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move up">
+                          <button type="button" onClick={() => moveSpot(i, -1)} disabled={i === 0} aria-label="Move up" className="relative before:absolute before:-inset-1 before:content-[''] p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move up">
                             <ChevronUp className="w-4 h-4" />
                           </button>
-                          <button type="button" onClick={() => moveSpot(i, 1)} disabled={i === form.spot_ids.length - 1} className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move down">
+                          <button type="button" onClick={() => moveSpot(i, 1)} disabled={i === form.spot_ids.length - 1} aria-label="Move down" className="relative before:absolute before:-inset-1 before:content-[''] p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 disabled:hover:bg-transparent text-muted-foreground" title="Move down">
                             <ChevronDown className="w-4 h-4" />
                           </button>
-                          <button type="button" onClick={() => removeSpot(i)} className="p-1.5 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500" title="Remove from trail">
+                          <button type="button" onClick={() => removeSpot(i)} aria-label="Remove from trail" className="relative before:absolute before:-inset-1 before:content-[''] p-1.5 rounded-lg hover:bg-red-50 text-muted-foreground hover:text-red-500" title="Remove from trail">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -629,6 +631,7 @@ export function AdminExperiencePanel() {
               {/* Library picker */}
               <div className="rounded-xl border border-dashed border-border p-3 space-y-2">
                 <input
+                  aria-label="Search the spots library"
                   value={spotQuery}
                   onChange={e => setSpotQuery(e.target.value)}
                   placeholder="Search the spots library to add…"
@@ -676,8 +679,8 @@ export function AdminExperiencePanel() {
                 </p>
 
                 <div>
-                  <label className="text-xs text-muted-foreground">Available dates — one per line (YYYY-MM-DD)</label>
-                  <textarea
+                  <label htmlFor="exp-available-dates" className="text-xs text-muted-foreground">Available dates — one per line (YYYY-MM-DD)</label>
+                  <textarea id="exp-available-dates"
                     value={form.available_dates}
                     onChange={set('available_dates')}
                     rows={4}
@@ -687,8 +690,8 @@ export function AdminExperiencePanel() {
                 </div>
 
                 <div>
-                  <label className="text-xs text-muted-foreground">Available time slots — comma-separated (24h format)</label>
-                  <input
+                  <label htmlFor="exp-available-times" className="text-xs text-muted-foreground">Available time slots — comma-separated (24h format)</label>
+                  <input id="exp-available-times"
                     value={form.available_times}
                     onChange={set('available_times')}
                     className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary font-mono"
@@ -700,7 +703,7 @@ export function AdminExperiencePanel() {
             )}
           </div>
 
-          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
             disabled={saving || !form.name}
@@ -738,7 +741,7 @@ export function AdminExperiencePanel() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     onClick={() => toggleStatus(exp)}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors relative before:absolute before:-inset-y-1 before:content-[''] ${
                       exp.status === 'active'
                         ? 'bg-green-100 text-green-700 hover:bg-green-200'
                         : 'bg-muted text-muted-foreground hover:bg-muted/80'
@@ -747,10 +750,10 @@ export function AdminExperiencePanel() {
                     <span className={`w-1.5 h-1.5 rounded-full ${exp.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
                     {exp.status === 'active' ? 'Live' : 'Draft'}
                   </button>
-                  <button onClick={() => openEdit(exp)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                  <button onClick={() => openEdit(exp)} aria-label={`Edit ${exp.name}`} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
+                  <button onClick={() => handleDelete(exp.id)} aria-label={`Delete ${exp.name}`} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -778,10 +781,10 @@ export function AdminExperiencePanel() {
                 </p>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <button onClick={() => openEditStatic(exp)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs hover:bg-primary/20 transition-colors">
+                <button onClick={() => openEditStatic(exp)} className="relative before:absolute before:-inset-y-1 before:content-[''] flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs hover:bg-primary/20 transition-colors">
                   <Edit2 className="w-3.5 h-3.5" /> Edit
                 </button>
-                <button onClick={() => archiveStatic(exp)} className="p-2 rounded-lg hover:bg-amber-50 transition-colors text-muted-foreground hover:text-amber-600" title="Archive (auto-deletes in 30 days)">
+                <button onClick={() => archiveStatic(exp)} aria-label="Archive" className="p-2 rounded-lg hover:bg-amber-50 transition-colors text-muted-foreground hover:text-amber-600" title="Archive (auto-deletes in 30 days)">
                   <Archive className="w-4 h-4" />
                 </button>
               </div>
@@ -817,6 +820,7 @@ export function AdminExperiencePanel() {
                   </div>
                   <button
                     onClick={() => handleDelete(exp.id)}
+                    aria-label="Delete now"
                     className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500 flex-shrink-0"
                     title="Delete now"
                   >

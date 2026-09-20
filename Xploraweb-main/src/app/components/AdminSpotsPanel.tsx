@@ -364,20 +364,20 @@ export function AdminSpotsPanel() {
         <div ref={formRef} className="bg-card border border-border rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between mb-1">
             <h4 className="font-medium">{editing ? 'Edit Spot' : 'New Spot'}</h4>
-            <button onClick={() => setShowForm(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
+            <button onClick={() => setShowForm(false)} aria-label="Close form" className="relative before:absolute before:-inset-2 before:content-['']"><X className="w-4 h-4 text-muted-foreground" /></button>
           </div>
-          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Name *</label>
-              <input value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Café Largo" />
+              <label htmlFor="spot-name" className="text-xs text-muted-foreground">Name *</label>
+              <input id="spot-name" value={form.name} onChange={set('name')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. Café Largo" />
             </div>
 
             <div className="md:col-span-2">
-              <label className="text-xs text-muted-foreground">Address</label>
+              <label htmlFor="spot-address" className="text-xs text-muted-foreground">Address</label>
               <div className="flex gap-2 mt-1">
-                <input
+                <input id="spot-address"
                   value={form.address}
                   onChange={e => { set('address')(e); setGeocodeMsg(''); }}
                   className="flex-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -395,24 +395,24 @@ export function AdminSpotsPanel() {
                 </button>
               </div>
               {geocodeMsg && (
-                <p className={`text-[11px] mt-1 ${geocodeMsg.startsWith('No') || geocodeMsg.startsWith('Geocoding') ? 'text-red-500' : 'text-green-700'}`}>
+                <p role="status" className={`text-[11px] mt-1 ${geocodeMsg.startsWith('No') || geocodeMsg.startsWith('Geocoding') ? 'text-red-500' : 'text-green-700'}`}>
                   {geocodeMsg}
                 </p>
               )}
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Latitude</label>
-              <input value={form.lat} onChange={set('lat')} inputMode="decimal" className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" placeholder="46.8125" />
+              <label htmlFor="spot-lat" className="text-xs text-muted-foreground">Latitude</label>
+              <input id="spot-lat" value={form.lat} onChange={set('lat')} inputMode="decimal" className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" placeholder="46.8125" />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Longitude</label>
-              <input value={form.lng} onChange={set('lng')} inputMode="decimal" className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" placeholder="-71.2210" />
+              <label htmlFor="spot-lng" className="text-xs text-muted-foreground">Longitude</label>
+              <input id="spot-lng" value={form.lng} onChange={set('lng')} inputMode="decimal" className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary" placeholder="-71.2210" />
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Neighbourhood</label>
-              <select value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+              <label htmlFor="spot-neighbourhood" className="text-xs text-muted-foreground">Neighbourhood</label>
+              <select id="spot-neighbourhood" value={form.neighbourhood} onChange={set('neighbourhood')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
                 <option value="">—</option>
                 {form.neighbourhood && !neighbourhoods.some(n => n.name === form.neighbourhood) && (
                   <option value={form.neighbourhood}>{form.neighbourhood}</option>
@@ -421,15 +421,15 @@ export function AdminSpotsPanel() {
               </select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Category</label>
-              <select value={form.category} onChange={set('category')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
+              <label htmlFor="spot-category" className="text-xs text-muted-foreground">Category</label>
+              <select id="spot-category" value={form.category} onChange={set('category')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary">
                 <option value="">—</option>
                 {SPOT_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Role</label>
-              <select
+              <label htmlFor="spot-displayedRole" className="text-xs text-muted-foreground">Role</label>
+              <select id="spot-displayedRole"
                 value={displayedRole}
                 onChange={e => {
                   const role = e.target.value as SpotRole;
@@ -452,17 +452,17 @@ export function AdminSpotsPanel() {
             </div>
 
             <div>
-              <label className="text-xs text-muted-foreground">Website</label>
-              <input value={form.website} onChange={set('website')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://…" />
+              <label htmlFor="spot-website" className="text-xs text-muted-foreground">Website</label>
+              <input id="spot-website" value={form.website} onChange={set('website')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://…" />
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Reservation link</label>
-              <input value={form.reservation_url} onChange={set('reservation_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://opentable.com/…" />
+              <label htmlFor="spot-reservation-url" className="text-xs text-muted-foreground">Reservation link</label>
+              <input id="spot-reservation-url" value={form.reservation_url} onChange={set('reservation_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://opentable.com/…" />
               <p className="text-[11px] text-muted-foreground mt-1">Shows a "Reserve a table" button on this spot. Leave blank if not applicable.</p>
             </div>
             <div>
-              <label className="text-xs text-muted-foreground">Suggested visit time</label>
-              <input value={form.visit_time} onChange={set('visit_time')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 20 min" />
+              <label htmlFor="spot-visit-time" className="text-xs text-muted-foreground">Suggested visit time</label>
+              <input id="spot-visit-time" value={form.visit_time} onChange={set('visit_time')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="e.g. 20 min" />
             </div>
 
             <div className="md:col-span-2">
@@ -542,8 +542,8 @@ export function AdminSpotsPanel() {
 
             {michelinEnabled && (
               <div className="md:col-span-2">
-                <label className="text-xs text-muted-foreground">Michelin Guide URL *</label>
-                <input value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
+                <label htmlFor="spot-michelin-url" className="text-xs text-muted-foreground">Michelin Guide URL *</label>
+                <input id="spot-michelin-url" value={form.michelin_url} onChange={set('michelin_url')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="https://guide.michelin.com/…" />
               </div>
             )}
 
@@ -574,6 +574,7 @@ export function AdminSpotsPanel() {
                 <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Description</p>
               </div>
               <textarea
+                aria-label="Description (one tip per line)"
                 value={form.xplora_tips}
                 onChange={set('xplora_tips')}
                 rows={3}
@@ -597,6 +598,7 @@ export function AdminSpotsPanel() {
                 </div>
                 <input
                   type="url"
+                  aria-label="Image URL"
                   placeholder="https://images.unsplash.com/..."
                   value={!imageFile ? imagePreview : ''}
                   onChange={e => { setImageFile(null); setImagePreview(e.target.value); }}
@@ -606,7 +608,7 @@ export function AdminSpotsPanel() {
               {imagePreview && (
                 <div className="mt-2 relative">
                   <img loading="lazy" decoding="async" src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
-                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg before:absolute before:-inset-1 before:content-['']">Remove</button>
                 </div>
               )}
             </div>
@@ -619,21 +621,21 @@ export function AdminSpotsPanel() {
                   type="button"
                   onClick={autoTranslate}
                   disabled={translating || (!form.name.trim() && !form.xplora_tips.trim())}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-xplora-ink hover:bg-xplora-ink/5 disabled:opacity-40 transition-colors whitespace-nowrap"
+                  className="relative before:absolute before:-inset-y-1 before:content-[''] flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-xplora-ink hover:bg-xplora-ink/5 disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   {translating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Languages className="w-3.5 h-3.5" />}
                   {translating ? 'Translating…' : 'Auto-translate'}
                 </button>
               </div>
-              {translateError && <p className="text-[11px] text-red-500 mb-2">{translateError}</p>}
+              {translateError && <p role="alert" className="text-[11px] text-red-500 mb-2">{translateError}</p>}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-muted-foreground">Nom (FR)</label>
-                  <input value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom du lieu" />
+                  <label htmlFor="spot-name-fr" className="text-xs text-muted-foreground">Nom (FR)</label>
+                  <input id="spot-name-fr" value={form.name_fr} onChange={set('name_fr')} className="w-full mt-1 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Nom du lieu" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="text-xs text-muted-foreground">Description (FR) *</label>
-                  <textarea
+                  <label htmlFor="spot-xplora-tips-fr" className="text-xs text-muted-foreground">Description (FR) *</label>
+                  <textarea id="spot-xplora-tips-fr"
                     value={form.xplora_tips_fr}
                     onChange={set('xplora_tips_fr')}
                     rows={3}
@@ -646,7 +648,7 @@ export function AdminSpotsPanel() {
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
+          {error && <p role="alert" className="text-sm text-red-500 bg-red-50 px-3 py-2 rounded-lg">{error}</p>}
           <button
             onClick={handleSave}
             disabled={saving || !form.name.trim() || !form.xplora_tips_fr.trim() || (michelinEnabled && !form.michelin_url.trim())}
@@ -694,7 +696,7 @@ export function AdminSpotsPanel() {
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat === selectedCategory ? null : cat)}
-                className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                className={`relative before:absolute before:-inset-y-2 before:content-[''] px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
                   selectedCategory === cat
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
@@ -721,7 +723,7 @@ export function AdminSpotsPanel() {
                 key={price}
                 type="button"
                 onClick={() => setSelectedPrice(price === selectedPrice ? null : price)}
-                className={`px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
+                className={`relative before:absolute before:-inset-y-2 before:content-[''] px-2 py-0.5 rounded-full border whitespace-nowrap transition-colors text-xs ${
                   selectedPrice === price
                     ? 'bg-primary text-primary-foreground border-primary'
                     : 'bg-background border-border text-muted-foreground hover:bg-primary/10 hover:text-primary'
@@ -747,6 +749,7 @@ export function AdminSpotsPanel() {
       {spots.length > 0 && (
         <div className="flex gap-2">
           <input
+            aria-label="Search spots"
             value={query}
             onChange={e => setQuery(e.target.value)}
             placeholder="Search spots by name, neighbourhood, or category…"
@@ -806,17 +809,17 @@ export function AdminSpotsPanel() {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={() => toggleStatus(spot)}
-                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                      className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors relative before:absolute before:-inset-y-1 before:content-[''] ${
                         spot.status === 'active' ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-muted text-muted-foreground hover:bg-muted/80'
                       }`}
                     >
                       <span className={`w-1.5 h-1.5 rounded-full ${spot.status === 'active' ? 'bg-green-500' : 'bg-muted-foreground'}`} />
                       {spot.status === 'active' ? 'Live' : 'Draft'}
                     </button>
-                    <button onClick={() => openEdit(spot)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
+                    <button onClick={() => openEdit(spot)} aria-label={`Edit ${spot.name}`} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                       <Edit2 className="w-4 h-4" />
                     </button>
-                    <button onClick={() => handleDelete(spot.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
+                    <button onClick={() => handleDelete(spot.id)} aria-label={`Delete ${spot.name}`} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

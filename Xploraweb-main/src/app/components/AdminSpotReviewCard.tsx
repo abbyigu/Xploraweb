@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Star, Send, AlertTriangle, Mail } from 'lucide-react';
 import type { PendingSpotReview } from '../lib/adminSpotReviews';
 
@@ -8,6 +8,7 @@ interface Props {
 }
 
 export function AdminSpotReviewCard({ review, onRespond }: Props) {
+  const responseId = useId();
   const [responseDraft, setResponseDraft] = useState('');
   const [posting, setPosting] = useState(false);
 
@@ -46,7 +47,7 @@ export function AdminSpotReviewCard({ review, onRespond }: Props) {
         {review.mismatchFlag && review.reviewerEmail && (
           <button
             onClick={handleEmailReviewer}
-            className="flex items-center gap-1 text-xs text-primary hover:underline ml-auto"
+            className="relative before:absolute before:-inset-y-2 before:inset-x-0 before:content-[''] flex items-center gap-1 text-xs text-primary hover:underline ml-auto"
           >
             <Mail className="w-3.5 h-3.5" /> Email reviewer
           </button>
@@ -64,11 +65,12 @@ export function AdminSpotReviewCard({ review, onRespond }: Props) {
       )}
 
       <div className="pt-3 border-t border-border">
-        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+        <label htmlFor={responseId} className="block text-xs font-medium text-muted-foreground mb-1.5">
           Public response — posting this publishes the review on the place's card
         </label>
         <div className="flex gap-2">
           <input
+            id={responseId}
             type="text"
             value={responseDraft}
             onChange={(e) => setResponseDraft(e.target.value)}

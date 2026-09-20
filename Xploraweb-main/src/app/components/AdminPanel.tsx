@@ -361,10 +361,10 @@ export function AdminPanel() {
                         <span className={`text-xs px-2 py-0.5 rounded-full ${xp.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                           {xp.status === 'active' ? 'Live' : 'Paused'}
                         </span>
-                        <button onClick={() => adminTogglePerk(xp)} className="p-1.5 rounded-lg hover:bg-muted transition-colors">
+                        <button onClick={() => adminTogglePerk(xp)} aria-label={xp.status === 'active' ? 'Pause perk' : 'Activate perk'} className="p-1.5 rounded-lg hover:bg-muted transition-colors relative before:absolute before:-inset-1 before:content-['']">
                           {xp.status === 'active' ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Eye className="w-3.5 h-3.5 text-primary" />}
                         </button>
-                        <button onClick={() => adminDeletePerk(xp.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                        <button onClick={() => adminDeletePerk(xp.id)} aria-label="Delete perk" className="p-1.5 rounded-lg hover:bg-red-50 transition-colors relative before:absolute before:-inset-1 before:content-['']">
                           <Trash2 className="w-3.5 h-3.5 text-red-400" />
                         </button>
                       </div>
@@ -420,10 +420,10 @@ export function AdminPanel() {
                                     <span className={`text-xs px-2 py-0.5 rounded-full ${perk.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                                       {perk.status === 'active' ? 'Live' : 'Paused'}
                                     </span>
-                                    <button onClick={() => adminTogglePerk(perk)} className="p-1.5 rounded-lg hover:bg-muted transition-colors" title={perk.status === 'active' ? 'Pause' : 'Activate'}>
+                                    <button onClick={() => adminTogglePerk(perk)} aria-label={perk.status === 'active' ? 'Pause perk' : 'Activate perk'} className="p-1.5 rounded-lg hover:bg-muted transition-colors relative before:absolute before:-inset-1 before:content-['']" title={perk.status === 'active' ? 'Pause' : 'Activate'}>
                                       {perk.status === 'active' ? <EyeOff className="w-3.5 h-3.5 text-muted-foreground" /> : <Eye className="w-3.5 h-3.5 text-primary" />}
                                     </button>
-                                    <button onClick={() => adminDeletePerk(perk.id)} className="p-1.5 rounded-lg hover:bg-red-50 transition-colors">
+                                    <button onClick={() => adminDeletePerk(perk.id)} aria-label="Delete perk" className="p-1.5 rounded-lg hover:bg-red-50 transition-colors relative before:absolute before:-inset-1 before:content-['']">
                                       <Trash2 className="w-3.5 h-3.5 text-red-400" />
                                     </button>
                                   </div>
@@ -597,10 +597,10 @@ export function AdminPanel() {
                           <Clock className="w-3 h-3" />
                           {days <= 0 ? 'Deletes tonight' : `${days}d left`}
                         </div>
-                        <button onClick={() => handleRestore(exp.id)} className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary" title="Restore to draft">
+                        <button onClick={() => handleRestore(exp.id)} aria-label="Restore to draft" className="p-2 rounded-lg hover:bg-muted transition-colors text-muted-foreground hover:text-primary" title="Restore to draft">
                           <RotateCcw className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDeleteNow(exp.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500" title="Delete now">
+                        <button onClick={() => handleDeleteNow(exp.id)} aria-label="Delete now" className="p-2 rounded-lg hover:bg-red-50 transition-colors text-muted-foreground hover:text-red-500" title="Delete now">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
@@ -725,7 +725,10 @@ function PricingPanel() {
                   )}
                   <button
                     onClick={() => toggleDeal(exp.id)}
-                    className={`relative w-11 h-6 rounded-full transition-colors ${isDeal ? 'bg-secondary' : 'bg-muted'}`}
+                    role="switch"
+                    aria-checked={isDeal}
+                    aria-label={`Deal for ${exp.name}`}
+                    className={`relative w-11 h-6 rounded-full transition-colors before:absolute before:-inset-y-1 before:inset-x-0 before:content-[''] ${isDeal ? 'bg-secondary' : 'bg-muted'}`}
                   >
                     <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${isDeal ? 'translate-x-5' : 'translate-x-0.5'}`} />
                   </button>
