@@ -71,6 +71,7 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
         type="text"
         value={reviewerName}
         onChange={e => setReviewerName(e.target.value)}
+        aria-label={t('neighbourhoodDetail.reviewNamePlaceholder', 'Your name (optional)')}
         placeholder={t('neighbourhoodDetail.reviewNamePlaceholder', 'Your name (optional)')}
         maxLength={60}
         className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -79,6 +80,7 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
         type="email"
         value={reviewerEmail}
         onChange={e => setReviewerEmail(e.target.value)}
+        aria-label={t('neighbourhoodDetail.reviewEmailPlaceholder', 'Your email (optional, in case we follow up)')}
         placeholder={t('neighbourhoodDetail.reviewEmailPlaceholder', 'Your email (optional, in case we follow up)')}
         maxLength={200}
         className="w-full border border-border rounded-xl px-3 py-2 text-sm bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -86,6 +88,7 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
       <textarea
         value={comment}
         onChange={e => { setComment(e.target.value); setBlockedError(false); }}
+        aria-label={t('neighbourhoodDetail.reviewCommentPlaceholder', 'Share what you thought (optional)')}
         placeholder={t('neighbourhoodDetail.reviewCommentPlaceholder', 'Share what you thought (optional)')}
         maxLength={1000}
         rows={3}

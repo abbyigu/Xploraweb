@@ -160,6 +160,7 @@ export function ItineraryScrapbook({
           rows={3}
           value={notesDraft}
           onChange={(e) => { setNotesDraft(e.target.value); setNotesSaved(false); setNotesBlockedError(false); }}
+          aria-label={t('account.scrapbookNotes')}
           placeholder={t('account.notesPlaceholder')}
           className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
         />
@@ -198,6 +199,7 @@ export function ItineraryScrapbook({
             value={newSpot}
             onChange={(e) => setNewSpot(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addExtraSpot(); } }}
+            aria-label={t('account.extraSpotsPlaceholder')}
             placeholder={t('account.extraSpotsPlaceholder')}
             className="flex-1 min-w-0 px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary"
           />

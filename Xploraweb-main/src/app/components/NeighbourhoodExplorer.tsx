@@ -218,7 +218,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                       onClick={() => selectNeighbourhood(n.name)}
                       aria-pressed={activeNbhd === n.name}
                       style={{ borderColor: color, color, opacity: dim ? 0.4 : 1 }}
-                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[10px] font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
+                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[11px] font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
                     >
                       {n.name}
                       {count > 0 && <span className="opacity-70">· {count}</span>}
