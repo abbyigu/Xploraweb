@@ -180,7 +180,7 @@ export function SavedScreen() {
                           <MapPin className="w-8 h-8 text-muted-foreground" aria-hidden="true" />
                         </div>
                       )}
-                      <span className="absolute top-2 left-2 text-[10px] font-semibold px-2 py-1 rounded-full bg-black/70 text-white uppercase tracking-wide pointer-events-none">
+                      <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-black/70 text-white uppercase tracking-wide pointer-events-none">
                         {t('saved.itineraryBadge')}
                       </span>
                       <button
@@ -260,7 +260,7 @@ export function SavedScreen() {
                       </div>
                     )}
                     {spot.category && (
-                      <span className="absolute top-2 left-2 text-[10px] font-semibold px-2 py-1 rounded-full bg-black/70 text-white uppercase tracking-wide pointer-events-none">
+                      <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-black/70 text-white uppercase tracking-wide pointer-events-none">
                         {t(`categories.${SPOT_CATEGORY_KEY[spot.category]}`, spot.category)}
                       </span>
                     )}

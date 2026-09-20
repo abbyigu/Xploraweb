@@ -22,7 +22,7 @@
   --primary: #0B7383; /* AA on white (5.5:1); brand fill teal stays --xplora-primary */
   --primary-foreground: #ffffff;
   --secondary: #33C0A3;
-  --secondary-foreground: #ffffff;
+  --secondary-foreground: #12343B;
   --muted: #ECEEE8;
   --muted-foreground: #5E7278;
   --accent: #33C0A3;
@@ -203,5 +203,17 @@
     font-size: var(--text-base);
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
+  }
+}
+
+/* Reduced motion: stop decorative loops and smooth-scroll, keep the spinner (it is progress feedback) and instant state changes. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-pulse,
+  .animate-ping {
+    animation: none;
+  }
+  * {
+    transition-duration: 1ms !important;
   }
 }

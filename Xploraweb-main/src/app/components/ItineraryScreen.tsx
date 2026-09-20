@@ -239,7 +239,7 @@ function InterestTile({
       }`}
     >
       {order != null && (
-        <span className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold flex items-center justify-center">
+        <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary text-primary-foreground text-[11px] font-semibold flex items-center justify-center">
           {order}
         </span>
       )}
