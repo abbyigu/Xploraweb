@@ -67,7 +67,7 @@ export function AuthModal({ open, onOpenChange, onAuthenticated }: Props) {
         </DialogHeader>
 
         {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>
+          <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -80,6 +80,8 @@ export function AuthModal({ open, onOpenChange, onAuthenticated }: Props) {
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
                 placeholder={t('signup.fullNamePlaceholder')}
+                aria-label={t('signup.fullNamePlaceholder')}
+                autoComplete="name"
                 required
               />
             </div>
@@ -92,6 +94,8 @@ export function AuthModal({ open, onOpenChange, onAuthenticated }: Props) {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder={t('signup.emailPlaceholder')}
+              aria-label={t('signup.emailPlaceholder')}
+              autoComplete="email"
               required
             />
           </div>
@@ -103,6 +107,8 @@ export function AuthModal({ open, onOpenChange, onAuthenticated }: Props) {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="••••••••"
+              aria-label={t('signup.password')}
+              autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
               required
             />
           </div>
@@ -110,7 +116,7 @@ export function AuthModal({ open, onOpenChange, onAuthenticated }: Props) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
           >
             {loading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
             {mode === 'signup' ? t('authModal.createButton') : t('authModal.signinButton')}

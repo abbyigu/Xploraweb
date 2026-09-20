@@ -8,6 +8,7 @@ import { Footer } from './Footer';
 import { EventCard } from './EventCard';
 import { NotifyMeForm } from './NotifyMeForm';
 import { Switch } from './ui/switch';
+import { Skeleton } from './ui/skeleton';
 import { ItineraryResultsGrid } from './ItineraryResultsGrid';
 import { PremiumLimitModal } from './PremiumLimitModal';
 import { useExperiences } from '../hooks/useExperiences';
@@ -15,10 +16,10 @@ import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
 import { useSaveUsage } from '../hooks/useSaveUsage';
 import {
-  PRICE_RANGES, PRICE_RANGE_LABELS, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, stopCountForBucket, isJourneyStep,
+  PRICE_RANGES, PRICE_RANGE_LABELS, ITINERARY_CATEGORIES, SPOT_CATEGORY_KEY, DURATION_BUCKETS, PACE_OPTIONS, WHO_OPTIONS, stopCountForBucket, isJourneyStep,
 } from '../data/itineraryFilters';
 import type {
-  PriceRange, ItineraryGenerateRequest, GeneratedItinerary, GeneratedItinerarySet, ItineraryErrorCode, Pace, DurationBucket,
+  PriceRange, ItineraryGenerateRequest, GeneratedItinerary, GeneratedItinerarySet, ItineraryErrorCode, Pace, DurationBucket, Who,
 } from '../data/itineraryFilters';
 import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
@@ -32,8 +33,8 @@ const ERROR_KEY: Record<ItineraryErrorCode, string> = {
   INVALID_INPUT: 'itineraryBuilder.errorLlm',
   NOT_CONFIGURED: 'itineraryBuilder.errorNotConfigured',
   NO_CANDIDATES: 'itineraryBuilder.errorNoCandidates',
-  LLM_ERROR: 'itineraryBuilder.errorLlm',
-  METHOD_NOT_ALLOWED: 'itineraryBuilder.errorLlm',
+  LLM_ERROR: 'itineraryBuilder.errorTransient',
+  METHOD_NOT_ALLOWED: 'itineraryBuilder.errorTransient',
 };
 
 const CATEGORY_ICON: Record<SpotCategory, React.ElementType> = {
@@ -41,12 +42,31 @@ const CATEGORY_ICON: Record<SpotCategory, React.ElementType> = {
   Shopping: ShoppingBag, Family: Baby, History: BookOpen, Stays: MapPin, Sweets: IceCream2, Terraces: Umbrella,
 };
 
-// Decorative-only preference shown in the "Your preferences" summary — it
-// helps travellers picture the route they're about to get, but (unlike
-// categories/duration/pace/price/neighbourhoods) isn't sent to the AI
-// generator, which has no matching input for travel party yet.
-const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
-type Who = (typeof WHO_OPTIONS)[number];
+// Filter selection survives a refresh / app-switch within the tab; cleared once a generation succeeds.
+const FILTERS_KEY = 'xplora.itinerary.filters.v1';
+type SavedFilters = Partial<{
+  neighbourhoods: string[]; categories: SpotCategory[]; priceRanges: PriceRange[]; durationKey: DurationBucket['key'];
+  pace: Pace; who: Who | null; restaurantHopping: boolean; michelinOnly: boolean;
+}>;
+
+function loadSavedFilters(): SavedFilters {
+  try {
+    const r = JSON.parse(sessionStorage.getItem(FILTERS_KEY) || '{}');
+    const pick = <T,>(v: unknown, allowed: readonly T[]) => (Array.isArray(v) ? v.filter((x): x is T => allowed.includes(x as T)) : []);
+    return {
+      neighbourhoods: Array.isArray(r.neighbourhoods) ? r.neighbourhoods.filter((x: unknown) => typeof x === 'string') : [],
+      categories: pick(r.categories, ITINERARY_CATEGORIES),
+      priceRanges: pick(r.priceRanges, PRICE_RANGES),
+      durationKey: DURATION_BUCKETS.find(b => b.key === r.durationKey)?.key,
+      pace: PACE_OPTIONS.find(p => p === r.pace),
+      who: WHO_OPTIONS.find(w => w === r.who) ?? null,
+      restaurantHopping: r.restaurantHopping === true,
+      michelinOnly: r.restaurantHopping === true && r.michelinOnly === true,
+    };
+  } catch {
+    return {};
+  }
+}
 
 function scrollToStep(id: string) {
   document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -90,6 +110,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`px-3 py-1.5 rounded-full text-sm transition-colors ${
         active ? 'bg-primary text-primary-foreground' : 'bg-primary/10 text-primary hover:bg-primary/20'
       }`}
@@ -133,9 +154,7 @@ function OrderPill({
     <div
       data-order-index={index}
       onPointerDown={handlePointerDown}
-      role="button"
-      tabIndex={-1}
-      aria-label={dragHandleLabel}
+      title={dragHandleLabel}
       style={isDragging ? { transform: `translate(${dragOffset.x}px, ${dragOffset.y}px)` } : undefined}
       className={`relative inline-flex items-center gap-1 pl-1 pr-1.5 py-1 rounded-full text-sm bg-primary text-primary-foreground select-none [-webkit-touch-callout:none] cursor-grab active:cursor-grabbing touch-none ${
         isDragging ? 'z-10 shadow-lg' : 'transition-[opacity,box-shadow]'
@@ -174,7 +193,7 @@ function StepCard({
   id, index, icon: Icon, title, subtitle, children,
 }: {
   id: string;
-  index: number;
+  index?: number;
   icon: React.ElementType;
   title: string;
   subtitle?: string;
@@ -183,14 +202,16 @@ function StepCard({
   return (
     <div id={id} className="bg-card border border-border rounded-3xl p-5 md:p-6 scroll-mt-24">
       <div className="flex items-start gap-3 mb-4">
-        <span className="w-8 h-8 flex-shrink-0 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
-          {index}
-        </span>
+        {index != null && (
+          <span className="w-8 h-8 flex-shrink-0 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center justify-center">
+            {index}
+          </span>
+        )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-base font-medium flex items-center gap-2">
+          <h2 className="text-base font-medium flex items-center gap-2">
             <Icon className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
             {title}
-          </h3>
+          </h2>
           {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
         </div>
       </div>
@@ -212,6 +233,7 @@ function InterestTile({
     <button
       type="button"
       onClick={onClick}
+      aria-pressed={active}
       className={`relative flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-2xl border text-xs font-medium text-center transition-colors ${
         active ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-muted/40 text-foreground'
       }`}
@@ -252,6 +274,55 @@ function PreferenceRow({
   );
 }
 
+function GeneratingPanel({ place }: { place: string }) {
+  const { t } = useTranslation();
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setI(n => n + 1), 2500);
+    return () => clearInterval(id);
+  }, []);
+  const messages = [
+    t('itineraryBuilder.generatingPicking', { place }),
+    t('itineraryBuilder.generatingRouting'),
+    t('itineraryBuilder.generatingTips'),
+  ];
+  const pulse = 'motion-reduce:animate-none';
+  return (
+    <div className="max-w-7xl mx-auto px-6 md:px-8 mt-2 pb-8">
+      {/* Screen readers get one static announcement; the rotating copy is visual only. */}
+      <p className="flex items-center gap-2 text-sm font-medium mb-4">
+        <Loader2 className="w-4 h-4 text-primary motion-safe:animate-spin" aria-hidden="true" />
+        <span className="sr-only">{t('itineraryBuilder.generating')}</span>
+        <span aria-hidden="true">{messages[i % messages.length]}</span>
+      </p>
+      {/* Same footprint as ItineraryFullView: hero, stat chips, numbered stop rows (the generator returns one itinerary). */}
+      <div aria-hidden="true">
+        <Skeleton className={`h-[420px] md:h-[460px] rounded-3xl ${pulse}`} />
+        <div className="mt-6 space-y-3">
+          <Skeleton className={`h-7 w-2/3 max-w-md ${pulse}`} />
+          <div className="flex gap-2">
+            {[0, 1, 2].map(n => <Skeleton key={n} className={`h-7 w-24 rounded-full ${pulse}`} />)}
+          </div>
+        </div>
+        <div className="mt-8 space-y-6">
+          {[0, 1, 2, 3].map(n => (
+            <div key={n} className="flex gap-4">
+              <Skeleton className={`w-9 h-9 rounded-full flex-shrink-0 ${pulse}`} />
+              <div className="flex-1 min-w-0 rounded-2xl border border-border bg-card overflow-hidden flex flex-col sm:flex-row">
+                <Skeleton className={`w-full h-40 sm:h-auto sm:w-36 flex-shrink-0 rounded-none ${pulse}`} />
+                <div className="flex-1 p-4 space-y-2.5">
+                  <Skeleton className={`h-5 w-1/2 ${pulse}`} />
+                  <Skeleton className={`h-4 w-full ${pulse}`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ItineraryScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -263,17 +334,21 @@ export function ItineraryScreen() {
   const similarTo = searchParams.get('similarTo');
   const [eventTimeFilter, setEventTimeFilter] = useState<EventTimeBucket | null>(null);
 
-  const [durationKey, setDurationKey] = useState<DurationBucket['key']>('half');
-  const [pace, setPace] = useState<Pace>('moderate');
-  const [categories, setCategories] = useState<SpotCategory[]>([]);
-  const [restaurantHopping, setRestaurantHopping] = useState(false);
-  const [michelinOnly, setMichelinOnly] = useState(false);
-  const [priceRanges, setPriceRanges] = useState<PriceRange[]>([]);
-  const [neighbourhoods, setNeighbourhoods] = useState<string[]>([]);
+  const [saved] = useState(loadSavedFilters);
+  const [durationKey, setDurationKey] = useState<DurationBucket['key']>(saved.durationKey ?? 'half');
+  const [pace, setPace] = useState<Pace>(saved.pace ?? 'moderate');
+  const [categories, setCategories] = useState<SpotCategory[]>(saved.restaurantHopping ? [] : saved.categories ?? []);
+  const [restaurantHopping, setRestaurantHopping] = useState(saved.restaurantHopping ?? false);
+  const [michelinOnly, setMichelinOnly] = useState(saved.michelinOnly ?? false);
+  const [priceRanges, setPriceRanges] = useState<PriceRange[]>(saved.priceRanges ?? []);
+  const [neighbourhoods, setNeighbourhoods] = useState<string[]>(saved.neighbourhoods ?? []);
+  // Interests parked while Restaurant hopping is on, so turning it off restores them.
+  const prevCategoriesRef = useRef<SpotCategory[]>(saved.restaurantHopping ? saved.categories ?? [] : []);
   const [locateStatus, setLocateStatus] = useState<'idle' | 'locating' | 'error'>('idle');
-  const [selectedWho, setSelectedWho] = useState<Who | null>(null);
+  const [selectedWho, setSelectedWho] = useState<Who | null>(saved.who ?? null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
+  const [fineTuneOpen, setFineTuneOpen] = useState(false);
 
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
@@ -281,6 +356,27 @@ export function ItineraryScreen() {
   const [genKey, setGenKey] = useState(0);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const { usage, refresh: refreshUsage } = useSaveUsage();
+
+  useEffect(() => {
+    try {
+      if (genState === 'success') sessionStorage.removeItem(FILTERS_KEY);
+      else {
+        sessionStorage.setItem(FILTERS_KEY, JSON.stringify({
+          neighbourhoods, categories: restaurantHopping ? prevCategoriesRef.current : categories, priceRanges, durationKey, pace,
+          who: selectedWho, restaurantHopping, michelinOnly,
+        }));
+      }
+    } catch { /* storage unavailable (private mode etc.) — form just won't persist */ }
+  }, [genState, neighbourhoods, categories, priceRanges, durationKey, pace, selectedWho, restaurantHopping, michelinOnly]);
+
+  // Bring the progress / error region into view — on mobile the form (and the
+  // Build button) sits far above it.
+  const statusRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (genState !== 'loading' && genState !== 'error') return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    statusRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'nearest' });
+  }, [genState]);
 
   // Spots the traveller has pinned — survive every regeneration. shownSpotIds
   // tracks every non-pinned spot already suggested this session, so the next
@@ -419,8 +515,14 @@ export function ItineraryScreen() {
 
   function handleRestaurantHoppingChange(next: boolean) {
     setRestaurantHopping(next);
-    if (next) setCategories([]);
-    else setMichelinOnly(false);
+    if (next) {
+      prevCategoriesRef.current = categories;
+      setCategories([]);
+    } else {
+      setMichelinOnly(false);
+      setCategories(prevCategoriesRef.current);
+      prevCategoriesRef.current = [];
+    }
   }
   function toggleNeighbourhood(n: string) {
     setNeighbourhoods(prev => prev.includes(n) ? prev.filter(x => x !== n) : [...prev, n]);
@@ -467,6 +569,7 @@ export function ItineraryScreen() {
       restaurantHopping,
       michelinOnly: restaurantHopping && michelinOnly,
       pace,
+      who: selectedWho ?? undefined,
       pinnedSpotIds: orderedPinnedSpotIds(),
       excludeSpotIds: Array.from(shownSpotIds).filter(id => !pinnedSpotIds.has(id)),
     };
@@ -531,7 +634,7 @@ export function ItineraryScreen() {
               onClick={() => setEventTimeFilter(prev => prev === key ? null : key)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                 eventTimeFilter === key
-                  ? 'bg-[#12343B] text-white border-[#12343B]'
+                  ? 'bg-xplora-ink text-white border-xplora-ink'
                   : 'bg-card border-border text-foreground hover:bg-muted/50'
               }`}
             >
@@ -562,6 +665,17 @@ export function ItineraryScreen() {
           .map((c, i) => `${categories.length > 1 ? `${i + 1}. ` : ''}${t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}`)
           .join(', ')
       : t('itineraryBuilder.interestsAny');
+  const fineTuneSummary = [
+    t(`itineraryBuilder.duration.${durationKey}`),
+    t(`itineraryBuilder.paceOption.${pace}`),
+    ...(priceRanges.length ? [priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(' ')] : []),
+    ...(selectedWho ? [t(`itineraryBuilder.whoOption.${selectedWho}`)] : []),
+  ].join(' · ');
+  // Time/budget/who live inside the collapsed Fine-tune disclosure — open it before scrolling there.
+  function goToStep(id: string) {
+    if (id !== 'step-location' && id !== 'step-mood') setFineTuneOpen(true);
+    setTimeout(() => scrollToStep(id), 0);
+  }
   const locationLabel = neighbourhoods.length > 0 ? neighbourhoods.join(', ') : t('itineraryBuilder.locationFixed');
 
   return (
@@ -594,7 +708,7 @@ export function ItineraryScreen() {
               width={1717}
               height={916}
               loading="eager"
-              fetchPriority="high"
+              {...({ fetchpriority: 'high' } as Record<string, string>)}
               decoding="async"
             />
           </div>
@@ -629,7 +743,7 @@ export function ItineraryScreen() {
             <p className="text-sm text-muted-foreground max-w-sm">{t('itinerary.paywallSubtitle')}</p>
             <button
               onClick={() => navigate('/signup')}
-              className="mt-1 px-5 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+              className="mt-1 px-5 py-2.5 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition"
             >
               {t('itinerary.paywallCta')}
             </button>
@@ -637,7 +751,7 @@ export function ItineraryScreen() {
         </div>
       ) : (
         <>
-          <div className="max-w-6xl mx-auto px-6 md:px-8 pt-6 pb-10">
+          <div className={`max-w-6xl mx-auto px-6 md:px-8 pt-6 ${filtersOpen ? 'pb-32 md:pb-10' : 'pb-10'}`}>
             {!filtersOpen ? (
               <div className="bg-muted/40 border border-border rounded-3xl p-4 md:p-5 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <span className="inline-flex items-center gap-2 text-sm">
@@ -727,6 +841,13 @@ export function ItineraryScreen() {
                       2+ are selected, a "visit order" list appears below with
                       arrows to arrange them into the sequence the traveller
                       wants (e.g. Food, then Culture, then Shopping). */}
+                  <div role="status">
+                    {restaurantHopping && (
+                      <p className="text-sm text-muted-foreground bg-primary/5 rounded-xl px-3 py-2">
+                        {t('itineraryBuilder.restaurantHoppingReplaces')}
+                      </p>
+                    )}
+                  </div>
                   {!restaurantHopping && (
                     <div>
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
@@ -757,8 +878,8 @@ export function ItineraryScreen() {
                                 onMoveLater={() => moveCategory(i, 1)}
                                 canMoveEarlier={i > 0}
                                 canMoveLater={i < categories.length - 1}
-                                moveEarlierLabel={t('itineraryBuilder.moveEarlier')}
-                                moveLaterLabel={t('itineraryBuilder.moveLater')}
+                                moveEarlierLabel={t('itineraryBuilder.moveEarlier', { name: t(`categories.${SPOT_CATEGORY_KEY[c]}`, c) })}
+                                moveLaterLabel={t('itineraryBuilder.moveLater', { name: t(`categories.${SPOT_CATEGORY_KEY[c]}`, c) })}
                                 onPillPointerDown={startCategoryDrag}
                                 isDragging={dragFromIndex === i}
                                 dragOffset={dragTranslate}
@@ -822,7 +943,19 @@ export function ItineraryScreen() {
                   </div>
                 </StepCard>
 
-                <StepCard id="step-time" index={3} icon={Clock} title={t('itineraryBuilder.stepTimeTitle')}>
+                <details open={fineTuneOpen} onToggle={e => setFineTuneOpen(e.currentTarget.open)} className="group">
+                  <summary className="flex items-center justify-between gap-3 bg-card border border-border rounded-3xl p-5 md:p-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                    <span className="min-w-0">
+                      <span className="flex items-center gap-2 text-base font-medium">
+                        <SlidersHorizontal className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
+                        {t('itineraryBuilder.fineTuneTitle')}
+                      </span>
+                      <span className="block text-sm text-muted-foreground mt-0.5 truncate">{fineTuneSummary}</span>
+                    </span>
+                    <ChevronDown className="w-4 h-4 flex-shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                  </summary>
+                  <div className="space-y-5 mt-5">
+                <StepCard id="step-time" icon={Clock} title={t('itineraryBuilder.stepTimeTitle')}>
                   <div className="flex flex-wrap gap-2">
                     {DURATION_BUCKETS.map(b => (
                       <Chip key={b.key} active={durationKey === b.key} onClick={() => setDurationKey(b.key)}>
@@ -847,7 +980,6 @@ export function ItineraryScreen() {
 
                 <StepCard
                   id="step-budget"
-                  index={4}
                   icon={Wallet}
                   title={t('itineraryBuilder.stepBudgetTitle')}
                   subtitle={t('itineraryBuilder.stepBudgetSubtitle')}
@@ -863,7 +995,6 @@ export function ItineraryScreen() {
 
                 <StepCard
                   id="step-who"
-                  index={5}
                   icon={Users}
                   title={t('itineraryBuilder.stepWhoTitle')}
                   subtitle={t('itineraryBuilder.stepWhoSubtitle')}
@@ -876,6 +1007,26 @@ export function ItineraryScreen() {
                     ))}
                   </div>
                 </StepCard>
+                  </div>
+                </details>
+
+                {/* Fixed above the mobile BottomNav (z-40, ~70px tall); in normal flow from md up. */}
+                <div className="fixed bottom-[4.5rem] inset-x-0 z-30 px-4 py-3 bg-background/95 backdrop-blur border-t border-border space-y-2 md:static md:z-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-0">
+                  <button
+                    onClick={handleGenerate}
+                    disabled={genState === 'loading'}
+                    className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+                  >
+                    {genState === 'loading' ? (
+                      <><Loader2 className="w-4 h-4 motion-safe:animate-spin" aria-hidden="true" /> {t('itineraryBuilder.generating')}</>
+                    ) : (
+                      <><Wand2 className="w-4 h-4" aria-hidden="true" /> {genState === 'success' ? t('itineraryBuilder.regenerate') : t('itineraryBuilder.buildCta')}</>
+                    )}
+                  </button>
+                  {genState !== 'loading' && (
+                    <p className="hidden md:block text-xs text-center text-muted-foreground">{t('itineraryBuilder.buildHint')}</p>
+                  )}
+                </div>
               </div>
 
               {/* Preferences summary + perks */}
@@ -892,37 +1043,49 @@ export function ItineraryScreen() {
                       label={t('itineraryBuilder.location')}
                       value={locationLabel}
                       changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-location')}
+                      onChange={() => goToStep('step-location')}
                     />
                     <PreferenceRow
                       icon={Heart}
                       label={t('itineraryBuilder.interests')}
                       value={interestsLabel}
                       changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-mood')}
+                      onChange={() => goToStep('step-mood')}
                     />
                     <PreferenceRow
                       icon={Clock}
                       label={t('itineraryBuilder.timeAvailable')}
                       value={`${t(`itineraryBuilder.duration.${durationKey}`)} · ${t(`itineraryBuilder.paceOption.${pace}`)}`}
                       changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-time')}
+                      onChange={() => goToStep('step-time')}
                     />
                     <PreferenceRow
                       icon={Wallet}
                       label={t('itinerary.price')}
                       value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.interestsAny')}
                       changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-budget')}
+                      onChange={() => goToStep('step-budget')}
                     />
                     <PreferenceRow
                       icon={Users}
                       label={t('itineraryBuilder.withWhoLabel')}
                       value={selectedWho ? t(`itineraryBuilder.whoOption.${selectedWho}`) : t('itineraryBuilder.interestsAny')}
                       changeLabel={t('itineraryBuilder.change')}
-                      onChange={() => scrollToStep('step-who')}
+                      onChange={() => goToStep('step-who')}
                     />
                   </div>
+                  {/* The aside is sticky from lg up, so the primary action stays visible next to the form. */}
+                  <button
+                    onClick={handleGenerate}
+                    disabled={genState === 'loading'}
+                    className="hidden lg:flex mt-4 w-full items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+                  >
+                    {genState === 'loading' ? (
+                      <><Loader2 className="w-4 h-4 motion-safe:animate-spin" aria-hidden="true" /> {t('itineraryBuilder.generating')}</>
+                    ) : (
+                      <><Wand2 className="w-4 h-4" aria-hidden="true" /> {genState === 'success' ? t('itineraryBuilder.regenerate') : t('itineraryBuilder.buildCta')}</>
+                    )}
+                  </button>
                 </div>
 
                 <div className="bg-xplora-icon-bg rounded-3xl p-5 flex items-start gap-4">
@@ -948,26 +1111,6 @@ export function ItineraryScreen() {
                   </div>
                 </div>
               </aside>
-            </div>
-
-            <div className="mt-6 space-y-2">
-              <button
-                onClick={handleGenerate}
-                disabled={genState === 'loading'}
-                className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
-              >
-                {genState === 'loading' ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> {t('itineraryBuilder.generating')}</>
-                ) : (
-                  <><Wand2 className="w-4 h-4" aria-hidden="true" /> {genState === 'success' ? t('itineraryBuilder.regenerate') : t('itineraryBuilder.buildCta')}</>
-                )}
-              </button>
-              {genState !== 'loading' && (
-                <p className="text-xs text-center text-muted-foreground">{t('itineraryBuilder.buildHint')}</p>
-              )}
-              {genState === 'error' && errorCode && (
-                <p className="text-sm text-red-600 text-center">{t(ERROR_KEY[errorCode])}</p>
-              )}
             </div>
 
             <div className="mt-10 pt-8 border-t border-border grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -1002,6 +1145,34 @@ export function ItineraryScreen() {
             </>
             )}
           </div>
+
+          <div ref={statusRef} role="status" aria-live="polite">
+            {genState === 'loading' && <GeneratingPanel place={locationLabel} />}
+          </div>
+          {genState === 'error' && errorCode && (
+            <div role="alert" className="max-w-3xl mx-auto px-6 md:px-8 mb-6">
+              <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <p className="text-sm text-red-700 flex-1">{t(ERROR_KEY[errorCode])}</p>
+                {errorCode !== 'NO_CANDIDATES' && errorCode !== 'NOT_CONFIGURED' ? (
+                  <button
+                    type="button"
+                    onClick={handleGenerate}
+                    className="px-4 py-2 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition flex-shrink-0"
+                  >
+                    {t('itineraryBuilder.tryAgain')}
+                  </button>
+                ) : !filtersOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(true)}
+                    className="px-4 py-2 rounded-xl border border-red-200 bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0"
+                  >
+                    {t('itineraryBuilder.modify')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {genState === 'success' && results && (
             <>

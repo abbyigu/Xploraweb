@@ -79,7 +79,7 @@ export function AdminSpotReviewCard({ review, onRespond }: Props) {
           <button
             onClick={handlePostResponse}
             disabled={!responseDraft.trim() || posting}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#12343B] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-2 bg-xplora-ink text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
           >
             <Send className="w-3.5 h-3.5" /> Publish
           </button>

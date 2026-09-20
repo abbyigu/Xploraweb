@@ -51,13 +51,13 @@ export function FooterBottom() {
 
           <div className="flex items-center gap-3 self-start sm:self-auto">
             {/* Social links */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center">
               <a
                 href="https://www.instagram.com/goxplora.qc"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followInstagram')}
-                className="text-muted-foreground hover:text-foreground transition-colors min-h-[32px] inline-flex items-center"
+                className="text-muted-foreground hover:text-foreground transition-colors min-h-11 min-w-11 inline-flex items-center justify-center"
               >
                 <Instagram className="w-4 h-4" />
               </a>
@@ -66,7 +66,7 @@ export function FooterBottom() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followTikTok')}
-                className="text-muted-foreground hover:text-foreground transition-colors min-h-[32px] inline-flex items-center"
+                className="text-muted-foreground hover:text-foreground transition-colors min-h-11 min-w-11 inline-flex items-center justify-center"
               >
                 <TikTokIcon className="w-4 h-4" />
               </a>
@@ -75,7 +75,7 @@ export function FooterBottom() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followFacebook')}
-                className="text-muted-foreground hover:text-foreground transition-colors min-h-[32px] inline-flex items-center"
+                className="text-muted-foreground hover:text-foreground transition-colors min-h-11 min-w-11 inline-flex items-center justify-center"
               >
                 <Facebook className="w-4 h-4" />
               </a>
@@ -85,7 +85,7 @@ export function FooterBottom() {
             <button
               onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
               aria-label={language === 'fr' ? t('a11y.switchToEn') : t('a11y.switchToFr')}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[32px] px-2 rounded-md hover:bg-muted/40"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors min-h-11 px-2 rounded-md hover:bg-muted/40"
             >
               <Languages className="w-3.5 h-3.5" aria-hidden="true" />
               {language === 'fr' ? 'English' : 'Français'}
@@ -95,20 +95,20 @@ export function FooterBottom() {
 
         {/* Policy links — wrap on mobile */}
         <nav aria-label={t('footer.linksLabel', 'Footer links')}>
-          <ul className="flex flex-wrap gap-x-5 gap-y-2.5 list-none p-0 m-0">
+          <ul className="flex flex-wrap gap-x-5 gap-y-0 list-none p-0 m-0">
             {links.map((link) => (
               <li key={link.label}>
                 {link.to ? (
                   <Link
                     to={link.to}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[32px] inline-flex items-center"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-11 inline-flex items-center"
                   >
                     {link.label}
                   </Link>
                 ) : (
                   <a
                     href={link.href}
-                    className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-[32px] inline-flex items-center"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors min-h-11 inline-flex items-center"
                   >
                     {link.label}
                   </a>

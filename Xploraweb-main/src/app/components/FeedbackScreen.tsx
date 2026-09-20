@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { Check, MessageSquare } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Footer } from './Footer';
@@ -10,6 +10,7 @@ export function FeedbackScreen() {
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
+  const uid = useId();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -33,7 +34,7 @@ export function FeedbackScreen() {
 
       <div className="max-w-2xl mx-auto px-6 md:px-8 py-14">
         {status === 'done' ? (
-          <div className="bg-card border border-border rounded-2xl p-8 text-center space-y-3">
+          <div role="status" className="bg-card border border-border rounded-2xl p-8 text-center space-y-3">
             <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto">
               <Check className="w-6 h-6 text-primary" />
             </div>
@@ -50,8 +51,9 @@ export function FeedbackScreen() {
             </div>
 
             <div>
-              <label className="block text-sm text-muted-foreground mb-1">{t('feedback.messageLabel')}</label>
+              <label htmlFor={`${uid}-message`} className="block text-sm text-muted-foreground mb-1">{t('feedback.messageLabel')}</label>
               <textarea
+                id={`${uid}-message`}
                 required
                 rows={5}
                 value={message}
@@ -62,8 +64,10 @@ export function FeedbackScreen() {
             </div>
 
             <div>
-              <label className="block text-sm text-muted-foreground mb-1">{t('feedback.emailLabel')}</label>
+              <label htmlFor={`${uid}-email`} className="block text-sm text-muted-foreground mb-1">{t('feedback.emailLabel')}</label>
               <input
+                id={`${uid}-email`}
+                autoComplete="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -73,13 +77,13 @@ export function FeedbackScreen() {
             </div>
 
             {status === 'error' && (
-              <p className="text-sm text-red-600">{t('feedback.errorDesc')}</p>
+              <p role="alert" className="text-sm text-red-600">{t('feedback.errorDesc')}</p>
             )}
 
             <button
               type="submit"
               disabled={status === 'loading'}
-              className="w-full bg-[#12343B] text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-60"
+              className="w-full bg-xplora-ink text-white px-6 py-3 rounded-lg font-medium hover:opacity-90 transition disabled:opacity-60"
             >
               {status === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
             </button>

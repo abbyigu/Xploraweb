@@ -33,7 +33,7 @@ export function BusinessLandingScreen() {
 
           <a
             href={`mailto:${CONTACT_EMAIL}`}
-            className="inline-flex items-center gap-2 px-8 py-4 bg-[#12343B] text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
+            className="inline-flex items-center gap-2 px-8 py-4 bg-xplora-ink text-white rounded-2xl text-base font-medium hover:opacity-90 transition w-full sm:w-auto justify-center"
           >
             <Mail className="w-5 h-5" />
             {t('business.contactCta', { email: CONTACT_EMAIL })}

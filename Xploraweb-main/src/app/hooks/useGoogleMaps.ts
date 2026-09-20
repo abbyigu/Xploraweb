@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useJsApiLoader, type Libraries } from '@react-google-maps/api';
-import { initGoogleMapsAppCheck } from '../lib/googleMapsAppCheck';
 
 // Module-level constant so the `libraries` array reference is stable across
 // renders — useJsApiLoader reloads the script (and warns) if it changes.
@@ -22,7 +21,8 @@ export function useGoogleMaps() {
   useEffect(() => {
     if (!jsApi.isLoaded) return;
     let cancelled = false;
-    initGoogleMapsAppCheck().finally(() => {
+    // Dynamic import keeps firebase out of the entry chunk; still awaited below.
+    import('../lib/googleMapsAppCheck').then((m) => m.initGoogleMapsAppCheck()).finally(() => {
       if (!cancelled) setAppCheckReady(true);
     });
     return () => {

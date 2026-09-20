@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useId } from 'react';
 import { Bell, Lock, Camera, ChevronDown, ChevronUp, Building2, ExternalLink, Heart, MapPin, MessageSquare, Check, SlidersHorizontal, Info } from 'lucide-react';
 import { supabase, upsertProfile } from '../lib/supabase';
 import { submitFeedback } from '../lib/feedback';
@@ -17,6 +17,7 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
   const [activeTab, setActiveTab] = useState<'profile' | 'preferences' | 'settings'>(initialTab || 'profile');
   const [saved, setSaved] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uid = useId();
   const [openSection, setOpenSection] = useState<'notifications' | 'privacy' | 'feedback' | null>(null);
   const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
   const [passwordEmailSent, setPasswordEmailSent] = useState(false);
@@ -88,8 +89,10 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
     <div className="space-y-6">
       <div className="flex items-center gap-6">
         <div className="relative">
-          <div
-            className="w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl overflow-hidden cursor-pointer"
+          <button
+            type="button"
+            aria-label={t('accountSetup.uploadPhoto')}
+            className="w-20 h-20 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
             onClick={() => fileInputRef.current?.click()}
           >
             {profile.avatar_url ? (
@@ -97,8 +100,11 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
             ) : (
               <span>{getInitials(profile.name)}</span>
             )}
-          </div>
+          </button>
           <button
+            type="button"
+            aria-hidden="true"
+            tabIndex={-1}
             className="absolute bottom-0 right-0 bg-secondary text-secondary-foreground p-1.5 rounded-full"
             onClick={() => fileInputRef.current?.click()}
           >
@@ -139,18 +145,18 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
             <h3 className="text-lg mb-4">{t('account.personalInfo')}</h3>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm text-muted-foreground mb-1">{t('account.fullName')}</label>
-                <input type="text" value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
+                <label htmlFor={`${uid}-name`} className="block text-sm text-muted-foreground mb-1">{t('account.fullName')}</label>
+                <input id={`${uid}-name`} autoComplete="name" type="text" value={profile.name} onChange={(e) => setProfile((p) => ({ ...p, name: e.target.value }))}
                   className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder={t('account.fullNamePlaceholder')} />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1">{t('account.email')}</label>
-                <input type="email" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
+                <label htmlFor={`${uid}-email`} className="block text-sm text-muted-foreground mb-1">{t('account.email')}</label>
+                <input id={`${uid}-email`} autoComplete="email" type="email" value={profile.email} onChange={(e) => setProfile((p) => ({ ...p, email: e.target.value }))}
                   className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder="your@email.com" />
               </div>
               <div>
-                <label className="block text-sm text-muted-foreground mb-1">{t('account.location')}</label>
-                <input type="text" value={profile.location} onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
+                <label htmlFor={`${uid}-loc`} className="block text-sm text-muted-foreground mb-1">{t('account.location')}</label>
+                <input id={`${uid}-loc`} autoComplete="address-level2" type="text" value={profile.location} onChange={(e) => setProfile((p) => ({ ...p, location: e.target.value }))}
                   className="w-full px-4 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-primary" placeholder={t('account.locationPlaceholder')} />
               </div>
             </div>
@@ -267,12 +273,13 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
                       value={feedbackMessage}
                       onChange={(e) => setFeedbackMessage(e.target.value)}
                       placeholder={t('feedback.messagePlaceholder')}
+                      aria-label={t('feedback.messagePlaceholder')}
                       className="w-full px-3 py-2 rounded-lg border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
                     />
                     <button
                       onClick={handleSubmitFeedback}
                       disabled={!feedbackMessage.trim() || feedbackStatus === 'loading'}
-                      className="w-full text-center text-sm px-3 py-2 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-60"
+                      className="w-full text-center text-sm px-3 py-2 rounded-lg bg-xplora-ink text-white hover:opacity-90 transition disabled:opacity-60"
                     >
                       {feedbackStatus === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
                     </button>
@@ -299,7 +306,7 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
             <h3 className="text-lg mb-4">{t('account.interests')}</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {interestOptions.map((interest) => (
-                <button key={interest} onClick={() => toggleInterest(interest)}
+                <button key={interest} type="button" aria-pressed={profile.interests.includes(interest)} onClick={() => toggleInterest(interest)}
                   className={`p-3 rounded-xl border-2 transition-all text-sm text-center ${
                     profile.interests.includes(interest) ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:border-primary/50'
                   }`}

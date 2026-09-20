@@ -104,13 +104,13 @@ export function SiteSearch({ variant = 'header', className }: { variant?: 'heade
             requestAnimationFrame(() => inputRef.current?.focus());
           }}
           aria-label={t('a11y.siteSearch', 'Search spots and neighbourhoods')}
-          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
+          className="min-h-11 min-w-11 inline-flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors"
         >
           <Search className="w-5 h-5" />
         </button>
       ) : (
         <div
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-full border transition-all ${
+          className={`flex items-center gap-2 px-3.5 min-h-11 rounded-full border transition-all focus-within:ring-2 focus-within:ring-primary/40 ${
             variant === 'hero'
               ? 'w-full bg-white border-transparent shadow-sm'
               : 'w-56 lg:w-64 bg-white border-gray-200'
@@ -140,7 +140,7 @@ export function SiteSearch({ variant = 'header', className }: { variant?: 'heade
                 }
               }}
               aria-label={t('common.clear', 'Clear')}
-              className="text-gray-400 hover:text-gray-600 flex-shrink-0"
+              className="text-gray-400 hover:text-gray-600 flex-shrink-0 p-2 -m-2"
             >
               <X className="w-4 h-4" />
             </button>
@@ -161,7 +161,7 @@ export function SiteSearch({ variant = 'header', className }: { variant?: 'heade
                     onClick={() => handleSelect(r)}
                     className="w-full flex items-center gap-3 px-4 py-2.5 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <MapPin className="w-4 h-4 text-[#12343B] flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-xplora-ink flex-shrink-0" />
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-gray-900 truncate">{r.label}</span>
                       {r.sublabel && <span className="block text-xs text-gray-400 truncate">{r.sublabel}</span>}

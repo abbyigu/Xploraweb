@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Flame, Heart, Award } from 'lucide-react';
 import { Footer } from './Footer';
@@ -24,7 +24,6 @@ interface Props {
 // just a filtered slice of the same spots library, admin-curated via a
 // boolean flag (isHotspot / isLoved), same pattern as isBrunch.
 export function SpotCollectionScreen({ title, subtitle, emptyMessage, icon, filter, seoTitle, seoDesc, canonical }: Props) {
-  const navigate = useNavigate();
   const { spots, loading } = useSpots();
   const { neighbourhoods } = useNeighbourhoods();
   const slugByName = new Map(neighbourhoods.map(n => [n.name, n.slug]));
@@ -57,12 +56,15 @@ export function SpotCollectionScreen({ title, subtitle, emptyMessage, icon, filt
             {matches.map(spot => {
               const slug = spot.neighbourhood ? slugByName.get(spot.neighbourhood) : undefined;
               return (
-                <div
-                  key={spot.id}
-                  onClick={slug ? () => navigate(`/neighbourhoods/${encodeURIComponent(slug)}`) : undefined}
-                  className={slug ? 'cursor-pointer' : undefined}
-                >
+                <div key={spot.id} className="relative">
                   <SpotCard spot={spot} />
+                  {slug && (
+                    <Link
+                      to={`/neighbourhoods/${encodeURIComponent(slug)}`}
+                      aria-label={spot.name}
+                      className="absolute inset-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-xplora-ink/40"
+                    />
+                  )}
                 </div>
               );
             })}

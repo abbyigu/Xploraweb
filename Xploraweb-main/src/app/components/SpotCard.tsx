@@ -12,7 +12,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
     <div className="rounded-2xl overflow-hidden border border-gray-200 bg-white flex flex-col">
       <div className={`relative overflow-hidden bg-muted ${compact ? 'h-20' : 'aspect-[3/2]'}`}>
         {spot.image ? (
-          <img src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
+          <img loading="lazy" decoding="async" src={spot.image} alt={spot.name} className="w-full h-full object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
             <MapPin className="w-7 h-7" />
@@ -23,12 +23,12 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
         {pinAction}
         {badge}
         {spot.category && (
-          <span className="absolute top-2 left-2 text-[11px] font-medium px-2 py-1 rounded-full bg-white/90 text-[#12343B]">
+          <span className="absolute top-2 left-2 text-xs font-medium px-2 py-1 rounded-full bg-white/90 text-xplora-ink">
             {t(`categories.${SPOT_CATEGORY_KEY[spot.category]}`, spot.category)}
           </span>
         )}
         {spot.isBrunch && (
-          <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm">
+          <span className="absolute bottom-2 right-2 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 text-white shadow-sm">
             <Star className="w-3 h-3 fill-white" /> {t('neighbourhoodDetail.brunch', 'Brunch')}
           </span>
         )}
@@ -38,7 +38,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
             target="_blank"
             rel="noopener noreferrer"
             onClick={e => e.stopPropagation()}
-            className="absolute bottom-2 left-2 inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full bg-red-600 text-white shadow-sm hover:bg-red-700 transition-colors"
+            className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full bg-red-600 text-white shadow-sm hover:bg-red-700 transition-colors"
           >
             <Award className="w-3 h-3 fill-white" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
           </a>
@@ -49,7 +49,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
           <p className={`font-medium text-gray-900 leading-tight truncate ${compact ? 'text-xs' : ''}`}>{spot.name}</p>
           <span className={`flex-shrink-0 inline-flex items-center gap-2 text-muted-foreground ${compact ? 'text-[11px]' : 'text-xs'}`}>
             {spot.priceRange && (
-              <span className="font-mono font-semibold text-[#12343B]">
+              <span className="font-mono font-semibold text-xplora-ink">
                 {spot.priceRange === 'Free' ? t('neighbourhoodDetail.free', 'Free') : spot.priceRange}
               </span>
             )}
@@ -82,7 +82,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
+                className="relative z-10 mt-1 inline-flex items-center gap-1 text-sm text-xplora-ink font-medium hover:underline before:absolute before:-inset-y-3 before:inset-x-0 before:content-['']"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.website', 'Website')}
               </a>
@@ -93,7 +93,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="mt-1 inline-flex items-center gap-1 text-sm text-[#12343B] font-medium hover:underline"
+                className="relative z-10 mt-1 inline-flex items-center gap-1 text-sm text-xplora-ink font-medium hover:underline before:absolute before:-inset-y-3 before:inset-x-0 before:content-['']"
               >
                 <ExternalLink className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.michelinGuide', 'Michelin Guide')}
               </a>
@@ -104,7 +104,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={e => e.stopPropagation()}
-                className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-white bg-[#12343B] px-3 py-1.5 rounded-full hover:bg-[#12343B]/90 transition-colors"
+                className="relative z-10 mt-1 inline-flex items-center gap-1 text-sm font-medium text-white bg-xplora-ink px-3 py-1.5 rounded-full hover:bg-xplora-ink/90 transition-colors before:absolute before:-inset-y-1.5 before:inset-x-0 before:content-['']"
               >
                 <CalendarCheck className="w-3.5 h-3.5" /> {t('neighbourhoodDetail.reservation', 'Reserve a table')}
               </a>

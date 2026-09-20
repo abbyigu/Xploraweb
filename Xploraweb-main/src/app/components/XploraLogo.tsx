@@ -16,7 +16,7 @@ export function XploraLogo({
         height={256}
         className={className}
         style={{ width: 'auto' }}
-        fetchPriority="high"
+        {...({ fetchpriority: 'high' } as Record<string, string>)}
       />
     );
   }
@@ -31,7 +31,7 @@ export function XploraLogo({
         height={223}
         className={className}
         style={{ mixBlendMode: 'multiply', width: 'auto' }}
-        fetchPriority="high"
+        {...({ fetchpriority: 'high' } as Record<string, string>)}
       />
     </picture>
   );

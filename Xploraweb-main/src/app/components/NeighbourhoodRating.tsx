@@ -23,7 +23,7 @@ export function StaticStars({ value, size = 20 }: { value: number; size?: number
 function InteractiveStars({ disabled, onRate }: { disabled?: boolean; onRate: (value: number) => void }) {
   const [hover, setHover] = useState<number | null>(null);
   return (
-    <div className="flex items-center gap-1" onMouseLeave={() => setHover(null)}>
+    <div className="flex items-center" onMouseLeave={() => setHover(null)}>
       {[1, 2, 3, 4, 5].map((i) => (
         <button
           key={i}
@@ -32,7 +32,7 @@ function InteractiveStars({ disabled, onRate }: { disabled?: boolean; onRate: (v
           onMouseEnter={() => setHover(i)}
           onClick={() => onRate(i)}
           aria-label={`${i} / 5`}
-          className="p-0.5 disabled:cursor-default"
+          className="p-2 disabled:cursor-default"
         >
           <Star
             width={24}
@@ -97,7 +97,7 @@ function ReviewForm({ submitting, onSubmit }: { submitting: boolean; onSubmit: (
       <button
         type="submit"
         disabled={rating === 0 || submitting}
-        className="w-full px-4 py-2 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+        className="w-full px-4 py-2 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
       >
         {submitting ? t('neighbourhoodDetail.reviewSubmitting', 'Submitting…') : t('neighbourhoodDetail.reviewSubmit', 'Submit review')}
       </button>
@@ -131,7 +131,7 @@ export function NeighbourhoodRating({ neighbourhoodId }: { neighbourhoodId: stri
           </p>
 
           {myRating != null ? (
-            <p className="text-sm text-[#12343B] font-medium mt-1">
+            <p className="text-sm text-xplora-ink font-medium mt-1">
               {t('neighbourhoodDetail.thanksForRating', 'Thanks — you rated this {{value}} / 5', { value: myRating })}
             </p>
           ) : (
@@ -148,7 +148,7 @@ export function NeighbourhoodRating({ neighbourhoodId }: { neighbourhoodId: stri
         <div className="bg-card border border-border rounded-2xl p-6 text-center flex flex-col items-center gap-2">
           <h2 className="font-serif text-lg text-gray-900">{t('neighbourhoodDetail.writeReviewTitle', 'Write a review')}</h2>
           {hasReviewed ? (
-            <p className="text-sm text-[#12343B] font-medium mt-1">
+            <p className="text-sm text-xplora-ink font-medium mt-1">
               {pendingApproval
                 ? t('neighbourhoodDetail.reviewThanksPending', "Thanks! Your review will appear once it's approved.")
                 : t('neighbourhoodDetail.reviewThanksLive', 'Thanks — your review is live!')}
@@ -167,7 +167,7 @@ export function NeighbourhoodRating({ neighbourhoodId }: { neighbourhoodId: stri
       {!reviewsLoading && reviews.length > 0 && (
         <div className="space-y-3">
           <h3 className="font-serif text-lg text-gray-900 flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-[#12343B]" aria-hidden="true" />
+            <MessageSquare className="w-4 h-4 text-xplora-ink" aria-hidden="true" />
             {t('neighbourhoodDetail.reviewsTitle', 'What explorers are saying')}
           </h3>
           <div className="grid sm:grid-cols-2 gap-4">
@@ -179,8 +179,8 @@ export function NeighbourhoodRating({ neighbourhoodId }: { neighbourhoodId: stri
                 </div>
                 {review.comment && <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>}
                 {review.admin_reply && (
-                  <div className="mt-3 pl-3 border-l-2 border-[#12343B]/20">
-                    <p className="text-xs font-medium text-[#12343B] mb-0.5">{t('neighbourhoodDetail.adminReplyLabel', 'Xplora replied')}</p>
+                  <div className="mt-3 pl-3 border-l-2 border-xplora-ink/20">
+                    <p className="text-xs font-medium text-xplora-ink mb-0.5">{t('neighbourhoodDetail.adminReplyLabel', 'Xplora replied')}</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">{review.admin_reply}</p>
                   </div>
                 )}

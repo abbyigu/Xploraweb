@@ -135,7 +135,7 @@ export function DealsScreen() {
                         </div>
                         <div className="flex-1">
                           <h3 className="text-lg mb-0.5">{deal.title}</h3>
-                          <p className="text-sm text-secondary">{deal.business}</p>
+                          <p className="text-sm text-secondary-ink">{deal.business}</p>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground mb-3">

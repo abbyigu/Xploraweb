@@ -30,7 +30,7 @@ function Paywall() {
           {previewPerks.map((perk, i) => (
             <div key={i} className="bg-card rounded-2xl overflow-hidden border border-border">
               <div className="h-40 overflow-hidden">
-                <img src={perk.image} alt="" className="w-full h-full object-cover" />
+                <img loading="lazy" decoding="async" src={perk.image} alt="" className="w-full h-full object-cover" />
               </div>
               <div className="p-4">
                 <h3 className="text-base mb-1">{perk.title}</h3>
@@ -254,8 +254,8 @@ export function PerksScreen() {
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-base mb-0.5 group-hover:text-secondary transition-colors">{perk.title}</h3>
-                    <p className="text-sm text-secondary mb-2">{perk.venue}</p>
+                    <h3 className="text-base mb-0.5 group-hover:text-secondary-ink transition-colors">{perk.title}</h3>
+                    <p className="text-sm text-secondary-ink mb-2">{perk.venue}</p>
                     <p className="text-sm text-muted-foreground mb-3">
                       {perk.description}
                     </p>

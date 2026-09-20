@@ -200,7 +200,7 @@ export function AdminSiteContentPanel() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="flex items-center gap-2 px-5 py-2.5 bg-[#12343B] text-white rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
+        className="flex items-center gap-2 px-5 py-2.5 bg-xplora-ink text-white rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
       >
         {saving ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
           : saved ? <Check className="w-4 h-4" /> : null}

@@ -114,7 +114,7 @@ export function SharedItineraryScreen() {
         <p className="text-sm text-muted-foreground max-w-sm">{t('sharedItinerary.notFoundBody')}</p>
         <button
           onClick={() => navigate('/itinerary')}
-          className="mt-2 px-5 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+          className="mt-2 px-5 py-2.5 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition"
         >
           {t('sharedItinerary.backToGenerator')}
         </button>
@@ -226,7 +226,7 @@ export function SharedItineraryScreen() {
             {itinerary.review.photos.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {itinerary.review.photos.map((url) => (
-                  <img key={url} src={url} alt="" className="w-20 h-20 rounded-lg object-cover" />
+                  <img loading="lazy" decoding="async" key={url} src={url} alt="" className="w-20 h-20 rounded-lg object-cover" />
                 ))}
               </div>
             )}

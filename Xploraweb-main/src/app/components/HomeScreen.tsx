@@ -91,7 +91,7 @@ function FeatureTile({
       ref={ref}
       style={style}
       onClick={onClick}
-      className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-[#12343B]/30 hover:-translate-y-0.5 transition-all ${className} ${extraClassName ?? ''}`}
+      className={`group flex flex-col text-left rounded-2xl border border-gray-200 bg-white overflow-hidden hover:shadow-lg hover:border-xplora-ink/30 hover:-translate-y-0.5 transition-all ${className} ${extraClassName ?? ''}`}
     >
       <div className="relative aspect-[4/3] overflow-hidden">
         <picture>
@@ -107,7 +107,7 @@ function FeatureTile({
         </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-transparent" />
         <div className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-sm">
-          <Icon className="w-4 h-4 text-[#12343B]" />
+          <Icon className="w-4 h-4 text-xplora-ink" />
         </div>
       </div>
       <div className="p-4 md:p-5">
@@ -131,7 +131,7 @@ function ValuePillar({ label, desc, icon, delay, className: extraClassName }: { 
       >
         {icon}
       </div>
-      <p className="text-[15px] md:text-base font-semibold text-[#12343B] mb-1">{label}</p>
+      <p className="text-[15px] md:text-base font-semibold text-xplora-ink mb-1">{label}</p>
       <p className="text-[13px] md:text-sm text-gray-500 leading-snug">{desc}</p>
     </div>
   );
@@ -166,14 +166,14 @@ function NeighbourhoodCard({ name, tagline, image, webpImage, count, onClick, de
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </picture>
-      <div className="absolute inset-0 bg-gradient-to-t from-[#12343B]/90 via-[#12343B]/10 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-xplora-ink/90 via-xplora-ink/10 to-transparent" />
       <div className="absolute top-3 left-3 w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
-        <MapPin className="w-4 h-4 text-[#12343B]" />
+        <MapPin className="w-4 h-4 text-xplora-ink" />
       </div>
       <div className="absolute bottom-3.5 left-3.5 right-3.5">
         <p className="text-[15px] font-semibold text-white mb-1 leading-tight">{name}</p>
         {tagline && <p className="text-xs text-white/80 leading-snug mb-1.5 line-clamp-2">{tagline}</p>}
-        {count != null && <p className="text-[11px] text-white/65">{t('home.placesCount', { count })}</p>}
+        {count != null && <p className="text-xs text-white/65">{t('home.placesCount', { count })}</p>}
       </div>
     </button>
   );
@@ -214,16 +214,16 @@ function GemCard({ image, title, category, rating, reviews, area, onClick, delay
           </div>
         )}
         {category && (
-          <div className="absolute bottom-2.5 left-2.5 bg-[#12343B]/75 text-white text-[10.5px] font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide">
+          <div className="absolute bottom-2.5 left-2.5 bg-xplora-ink/75 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wide">
             {category}
           </div>
         )}
       </div>
-      <p className="text-[14.5px] font-semibold text-[#12343B] mb-1 leading-tight">{title}</p>
+      <p className="text-[14.5px] font-semibold text-xplora-ink mb-1 leading-tight">{title}</p>
       <div className="flex items-center gap-1 text-xs text-gray-500">
         {typeof rating === 'number' && (
           <>
-            <Star className="w-3 h-3 fill-[#119FB3] text-[#119FB3]" />
+            <Star className="w-3 h-3 fill-[#119FB3] text-primary" />
             <span className="font-medium text-gray-700">{rating.toFixed(1)}</span>
             {typeof reviews === 'number' && <span>({reviews})</span>}
             {area && <span>· {area}</span>}
@@ -262,7 +262,7 @@ export function HomeScreen() {
       label: t('home.pillarSelfGuidedLabel'),
       desc: t('home.pillarSelfGuidedDesc'),
       icon: (
-        <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
           <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
         </svg>
@@ -272,7 +272,7 @@ export function HomeScreen() {
       label: t('home.pillarLocalLabel'),
       desc: t('home.pillarLocalDesc'),
       icon: (
-        <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
         </svg>
       ),
@@ -281,7 +281,7 @@ export function HomeScreen() {
       label: t('home.pillarCuratedLabel'),
       desc: t('home.pillarCuratedDesc'),
       icon: (
-        <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
         </svg>
       ),
@@ -290,7 +290,7 @@ export function HomeScreen() {
       label: t('home.pillarCommunityLabel'),
       desc: t('home.pillarCommunityDesc'),
       icon: (
-        <svg className="w-6 h-6 text-[#12343B]" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
           <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
         </svg>
       ),
@@ -340,13 +340,13 @@ export function HomeScreen() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5">
         <div className="relative h-[560px] sm:h-[580px] md:h-[600px] rounded-[20px] md:rounded-3xl overflow-hidden">
           <HeroSlideshow />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#12343B]/85 via-[#12343B]/45 to-[#12343B]/5 md:from-[#12343B]/60 md:via-[#12343B]/18 md:to-[#12343B]/0 pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-r from-xplora-ink/85 via-xplora-ink/45 to-xplora-ink/5 md:from-xplora-ink/60 md:via-xplora-ink/18 md:to-xplora-ink/0 pointer-events-none" />
 
           <div className="absolute inset-0 flex flex-col md:flex-row items-center md:justify-between gap-8 px-6 sm:px-9 md:px-11 py-10 md:py-0">
             {/* Wording + CTA — left */}
             <div className="flex-1 min-w-0 md:max-w-[480px] flex flex-col items-center md:items-start text-center md:text-left gap-5">
-              <p className="inline-flex items-center gap-2 bg-white/90 text-[#12343B] px-3.5 py-[7px] rounded-full text-[12.5px] font-semibold tracking-wide animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both">
-                <Sparkles className="w-3 h-3 text-[#119FB3]" />
+              <p className="inline-flex items-center gap-2 bg-white/90 text-xplora-ink px-3.5 py-[7px] rounded-full text-[12.5px] font-semibold tracking-wide animate-in fade-in slide-in-from-bottom-2 duration-700 fill-mode-both">
+                <Sparkles className="w-3 h-3 text-primary" />
                 {t('home.heroEyebrow')}
               </p>
               <h1 className="font-serif text-4xl sm:text-5xl leading-[1.1] text-white drop-shadow animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100 fill-mode-both">
@@ -364,14 +364,14 @@ export function HomeScreen() {
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300 fill-mode-both">
                 <Link
                   to="/itinerary"
-                  className="inline-flex items-center gap-2 px-[22px] py-[14px] bg-[#12343B] text-white rounded-full text-[14.5px] font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all whitespace-nowrap"
+                  className="inline-flex items-center gap-2 px-[22px] py-[14px] bg-xplora-ink text-white rounded-full text-[14.5px] font-semibold hover:opacity-90 hover:-translate-y-0.5 hover:shadow-lg transition-all whitespace-nowrap"
                 >
                   {heroCtaLabel}
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   to="/neighbourhoods"
-                  className="inline-flex items-center px-[22px] py-[14px] bg-white/92 text-[#12343B] rounded-full text-[14.5px] font-semibold hover:bg-white hover:-translate-y-0.5 hover:shadow-lg transition-all whitespace-nowrap"
+                  className="inline-flex items-center px-[22px] py-[14px] bg-white/92 text-xplora-ink rounded-full text-[14.5px] font-semibold hover:bg-white hover:-translate-y-0.5 hover:shadow-lg transition-all whitespace-nowrap"
                 >
                   {t('home.heroExploreMap')}
                 </Link>
@@ -379,8 +379,8 @@ export function HomeScreen() {
             </div>
 
             {/* Floating spot finder card — right */}
-            <div className="hidden md:block flex-shrink-0 w-[320px] bg-white/97 rounded-[20px] shadow-2xl shadow-[#12343B]/25 p-[26px] animate-in fade-in slide-in-from-right-6 duration-700 delay-300 fill-mode-both">
-              <div className="inline-flex items-center gap-1.5 bg-[#E6F6F8] text-[#119FB3] px-3 py-[5px] rounded-full text-[11px] font-semibold mb-4">
+            <div className="hidden md:block flex-shrink-0 w-[320px] bg-white/97 rounded-[20px] shadow-2xl shadow-xplora-ink/25 p-[26px] animate-in fade-in slide-in-from-right-6 duration-700 delay-300 fill-mode-both">
+              <div className="inline-flex items-center gap-1.5 bg-[#E6F6F8] text-primary px-3 py-[5px] rounded-full text-xs font-semibold mb-4">
                 <Sparkles className="w-2.5 h-2.5" />
                 {t('home.previewEyebrow')}
               </div>
@@ -393,11 +393,11 @@ export function HomeScreen() {
         {/* Utility row — nav shortcuts + search, tucked below the framed hero */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 pt-4 pb-2">
           <div className="flex items-center gap-3 text-sm">
-            <Link to="/how-it-works" className="text-[#12343B]/80 hover:text-[#12343B] underline underline-offset-4 transition">
+            <Link to="/how-it-works" className="inline-flex items-center min-h-11 text-xplora-ink/80 hover:text-xplora-ink underline underline-offset-4 transition">
               {t('home.heroSeeHowItWorks')}
             </Link>
-            <span className="text-[#12343B]/30">·</span>
-            <Link to="/business" className="text-[#12343B]/80 hover:text-[#12343B] underline underline-offset-4 transition">
+            <span className="text-xplora-ink/30">·</span>
+            <Link to="/business" className="inline-flex items-center min-h-11 text-xplora-ink/80 hover:text-xplora-ink underline underline-offset-4 transition">
               {t('home.heroForBusiness')}
             </Link>
           </div>
@@ -438,7 +438,7 @@ export function HomeScreen() {
               <p className="text-sm font-semibold text-gray-900">{t('home.moreWaysTitle')}</p>
               <p className="text-xs text-gray-500 mt-0.5">{t('home.moreWaysDesc')}</p>
             </div>
-            <ArrowRight className="w-4 h-4 text-[#12343B] flex-shrink-0" />
+            <ArrowRight className="w-4 h-4 text-xplora-ink flex-shrink-0" />
           </Link>
         </div>
       </section>
@@ -447,10 +447,10 @@ export function HomeScreen() {
       <section className="max-w-7xl mx-auto px-6 md:px-8 pt-14 md:pt-16 pb-4">
         <div className="flex items-baseline justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs font-semibold text-[#119FB3] uppercase tracking-wide mb-2">{t('home.neighbourhoodsEyebrow')}</p>
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-[#12343B]">{t('home.neighbourhoodsTitle')}</h2>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">{t('home.neighbourhoodsEyebrow')}</p>
+            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink">{t('home.neighbourhoodsTitle')}</h2>
           </div>
-          <Link to="/neighbourhoods" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-[#12343B] hover:gap-2 transition-all flex-shrink-0">
+          <Link to="/neighbourhoods" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-xplora-ink hover:gap-2 transition-all flex-shrink-0">
             {t('home.neighbourhoodsCta')} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
@@ -475,10 +475,10 @@ export function HomeScreen() {
         <section className="max-w-7xl mx-auto px-6 md:px-8 pt-14 md:pt-16 pb-4">
           <div className="flex items-baseline justify-between gap-4 mb-5">
             <div>
-              <p className="text-xs font-semibold text-[#119FB3] uppercase tracking-wide mb-2">{t('home.gemsEyebrow')}</p>
-              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-[#12343B]">{t('home.gemsTitle')}</h2>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">{t('home.gemsEyebrow')}</p>
+              <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink">{t('home.gemsTitle')}</h2>
             </div>
-            <Link to="/loved" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-[#12343B] hover:gap-2 transition-all flex-shrink-0">
+            <Link to="/loved" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-xplora-ink hover:gap-2 transition-all flex-shrink-0">
               {t('home.gemsCta')} <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -512,16 +512,16 @@ export function HomeScreen() {
       <section className="mt-8 bg-[#ECEEE8] px-6 py-16 md:py-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-14 md:gap-16 items-center">
           <div>
-            <p className="text-xs font-semibold text-[#119FB3] uppercase tracking-wide mb-2.5">{t('home.howEyebrow')}</p>
-            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-[#12343B] mb-9">{t('home.howTitle')}</h2>
+            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2.5">{t('home.howEyebrow')}</p>
+            <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink mb-9">{t('home.howTitle')}</h2>
             <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4 sm:gap-x-4 lg:flex lg:items-start lg:gap-x-0">
               {HOW_STEPS.map(({ icon: Icon, title, desc }, i) => (
                 <div key={title} className="flex items-start lg:flex-1 w-full">
                   <div className="lg:pr-4">
                     <div className="w-11 h-11 rounded-xl bg-white flex items-center justify-center mb-3.5">
-                      <Icon className="w-5 h-5 text-[#12343B]" />
+                      <Icon className="w-5 h-5 text-xplora-ink" />
                     </div>
-                    <p className="text-[13.5px] font-semibold text-[#12343B] mb-1 max-w-[130px]">{title}</p>
+                    <p className="text-[13.5px] font-semibold text-xplora-ink mb-1 max-w-[130px]">{title}</p>
                     <p className="text-xs leading-relaxed text-gray-500 max-w-[160px]">{desc}</p>
                   </div>
                   {i < HOW_STEPS.length - 1 && (
@@ -539,25 +539,25 @@ export function HomeScreen() {
           <div
             ref={howVisualReveal.ref}
             style={howVisualReveal.style}
-            className={`relative w-[260px] h-[520px] mx-auto bg-[#12343B] rounded-[40px] p-3.5 shadow-2xl shadow-[#12343B]/25 ${howVisualReveal.className}`}
+            className={`relative w-[260px] h-[520px] mx-auto bg-xplora-ink rounded-[40px] p-3.5 shadow-2xl shadow-xplora-ink/25 ${howVisualReveal.className}`}
           >
             <div className="relative w-full h-full rounded-[28px] overflow-hidden bg-[#ECEEE8]">
               <HowItWorksMap spots={phoneMapSpots} />
               <div className="absolute top-4 left-4 right-4 bg-white/95 rounded-xl px-3 py-2.5 flex items-center gap-2">
                 <Search className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
-                <span className="text-[11px] text-gray-500 truncate">{t('home.howSearchPlaceholder')}</span>
+                <span className="text-xs text-gray-500 truncate">{t('home.howSearchPlaceholder')}</span>
               </div>
               <div className="absolute left-3.5 right-3.5 bottom-4 bg-white rounded-xl shadow-lg px-3 py-2.5 flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-lg bg-gray-200 flex-shrink-0 flex items-center justify-center overflow-hidden">
                   {phoneMapSpots[0]?.image ? (
-                    <img src={phoneMapSpots[0].image} alt="" className="w-full h-full object-cover" />
+                    <img loading="lazy" decoding="async" src={phoneMapSpots[0].image} alt="" className="w-full h-full object-cover" />
                   ) : (
                     <MapPin className="w-4 h-4 text-gray-400" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-semibold text-[#12343B] truncate">{phoneMapSpots[0]?.name ?? t('home.howPopupTitle')}</p>
-                  <p className="text-[10px] text-gray-500 truncate">{phoneMapSpots[0]?.neighbourhood ?? t('home.howPopupSubtitle')}</p>
+                  <p className="text-xs font-semibold text-xplora-ink truncate">{phoneMapSpots[0]?.name ?? t('home.howPopupTitle')}</p>
+                  <p className="text-xs text-gray-500 truncate">{phoneMapSpots[0]?.neighbourhood ?? t('home.howPopupSubtitle')}</p>
                 </div>
                 <ArrowLeft className="w-3.5 h-3.5 text-gray-400 flex-shrink-0 rotate-180" />
               </div>
@@ -571,7 +571,7 @@ export function HomeScreen() {
         <div
           ref={businessReveal.ref}
           style={businessReveal.style}
-          className={`max-w-2xl mx-auto text-center bg-[#12343B] text-white rounded-3xl p-8 md:p-10 ${businessReveal.className}`}
+          className={`max-w-2xl mx-auto text-center bg-xplora-ink text-white rounded-3xl p-8 md:p-10 ${businessReveal.className}`}
         >
           <p className="text-xs uppercase tracking-widest text-[#7ecfcf] mb-3 inline-flex items-center gap-2 justify-center">
             <Building2 className="w-3.5 h-3.5" /> {t('home.businessComingSoonEyebrow')}

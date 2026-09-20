@@ -408,7 +408,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
               </label>
               {imagePreview && (
                 <div className="mt-2 relative">
-                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+                  <img loading="lazy" decoding="async" src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
                   <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
                 </div>
               )}
@@ -429,7 +429,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
             {perks.map((perk) => (
               <div key={perk.id} className="bg-card border border-border rounded-2xl p-5 flex items-start gap-4">
                 {perk.image_url && (
-                  <img src={perk.image_url} alt={perk.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                  <img loading="lazy" decoding="async" src={perk.image_url} alt={perk.title} className="w-16 h-16 rounded-xl object-cover flex-shrink-0" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -437,7 +437,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
                     <span className={`text-xs px-2 py-0.5 rounded-full ${perk.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}`}>
                       {perk.status === 'active' ? 'Live' : 'Paused'}
                     </span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${perk.type === 'paid' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${perk.type === 'paid' ? 'bg-secondary/10 text-secondary-ink' : 'bg-primary/10 text-primary'}`}>
                       {perk.type === 'paid' ? `$${((perk.price_cents || 0) / 100).toFixed(0)}` : 'Free'}
                     </span>
                   </div>

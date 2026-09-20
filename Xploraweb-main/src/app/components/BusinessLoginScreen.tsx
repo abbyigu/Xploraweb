@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, Building2 } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
@@ -12,6 +12,7 @@ export function BusinessLoginScreen() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const uid = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,7 +42,7 @@ export function BusinessLoginScreen() {
           <div className="flex justify-center mb-4">
             <XploraLogo variant="full" className="h-14" />
           </div>
-          <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-3 py-1 rounded-full text-xs mb-3">
+          <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary-ink px-3 py-1 rounded-full text-xs mb-3">
             <Building2 className="w-3.5 h-3.5" /> {t('business.loginTitle')}
           </div>
           <h1 className="text-2xl mb-1">{t('business.loginSubtitle')}</h1>
@@ -49,15 +50,17 @@ export function BusinessLoginScreen() {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">{error}</div>
+          <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-1.5">{t('business.email')}</label>
+            <label htmlFor={`${uid}-email`} className="block text-sm mb-1.5">{t('business.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
+                id={`${uid}-email`}
+                autoComplete="email"
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -69,10 +72,12 @@ export function BusinessLoginScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-1.5">{t('business.password')}</label>
+            <label htmlFor={`${uid}-password`} className="block text-sm mb-1.5">{t('business.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
+                id={`${uid}-password`}
+                autoComplete="current-password"
                 type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}

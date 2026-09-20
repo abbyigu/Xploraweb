@@ -10,7 +10,7 @@ export function NotificationsScreen() {
       id: 1,
       icon: Sparkles,
       iconBg: 'bg-xplora-icon-bg',
-      iconColor: 'text-xplora-primary',
+      iconColor: 'text-primary',
       title: t('notifications.notif1Title'),
       body: t('notifications.notif1Body'),
       time: t('notifications.notif1Time'),
@@ -60,7 +60,7 @@ export function NotificationsScreen() {
         {PLACEHOLDER_NOTIFICATIONS.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-16 h-16 rounded-full bg-xplora-icon-bg flex items-center justify-center mb-4">
-              <Bell className="w-8 h-8 text-xplora-primary" />
+              <Bell className="w-8 h-8 text-primary" />
             </div>
             <h2 className="text-lg font-medium text-foreground mb-2">{t('notifications.allCaughtUp')}</h2>
             <p className="text-sm text-muted-foreground max-w-xs">

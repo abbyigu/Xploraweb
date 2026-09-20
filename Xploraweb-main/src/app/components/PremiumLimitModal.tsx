@@ -93,7 +93,7 @@ export function PremiumLimitModal({ open, onOpenChange }: Props) {
               type="button"
               onClick={handleUnlockClick}
               disabled={checkoutLoading}
-              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+              className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
             >
               {checkoutLoading && <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />}
               {t('premiumModal.unlockButton')}

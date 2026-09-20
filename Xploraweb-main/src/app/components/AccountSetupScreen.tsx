@@ -58,7 +58,7 @@ export function AccountSetupScreen() {
                 <div className="absolute bottom-0 right-0 bg-primary text-primary-foreground p-2 rounded-full hover:opacity-90">
                   <Upload className="w-4 h-4" />
                 </div>
-                <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+                <input type="file" accept="image/*" aria-label={t('accountSetup.uploadPhoto')} className="hidden" onChange={handleImageUpload} />
               </label>
             </div>
             <p className="text-sm text-muted-foreground mt-2">{t('accountSetup.uploadPhoto')}</p>
@@ -72,6 +72,7 @@ export function AccountSetupScreen() {
                   key={interest}
                   type="button"
                   onClick={() => toggleInterest(interest)}
+                  aria-pressed={interests.includes(interest)}
                   className={`p-3 rounded-xl border-2 transition-all text-sm text-center ${
                     interests.includes(interest)
                       ? 'border-primary bg-primary/10 text-primary'
