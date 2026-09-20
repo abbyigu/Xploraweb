@@ -88,12 +88,6 @@ function orderedCategories(itinerary: GeneratedItinerary, max = 4): string[] {
   return seen;
 }
 
-function durationBucketKey(minutes: number): 'short' | 'half' | 'full' {
-  if (minutes <= 150) return 'short';
-  if (minutes <= 330) return 'half';
-  return 'full';
-}
-
 /** The full stop-by-stop view of one itinerary — hero, info bar, stops + map,
  * shared by the pre-save preview dialog, the full-width generator result, and
  * the permanent /i/:slug page. */
@@ -152,9 +146,6 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
               <span className="inline-flex items-center gap-1.5">
                 <Footprints className="w-4 h-4" aria-hidden="true" /> {t('itineraryBuilder.resultDistanceLabel', { distance: itinerary.estimatedDistanceKm })}
               </span>
-              <span className="inline-flex items-center gap-1.5">
-                <Clock className="w-4 h-4" aria-hidden="true" /> {t(`itineraryBuilder.duration.${durationBucketKey(itinerary.estimatedDurationMin)}`)}
-              </span>
               {pace && (
                 <span className="inline-flex items-center gap-1.5">
                   <Gauge className="w-4 h-4" aria-hidden="true" /> {t(`itineraryBuilder.paceOption.${pace}`)}
@@ -167,7 +158,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                   href={mapsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition"
                 >
                   <Play className="w-4 h-4 fill-white" aria-hidden="true" />
                   {t('itineraryFullView.startItinerary')}
@@ -191,13 +182,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
         {banner}
 
         {/* Info bar */}
-        <div className="mt-4 rounded-2xl border border-border bg-muted/40 px-6 py-5 grid grid-cols-2 md:grid-cols-4 gap-6">
-          <div>
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-              <MapPin className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.location')}
-            </p>
-            <p className="text-sm font-medium text-xplora-ink">{location}</p>
-          </div>
+        <div className="mt-4 rounded-2xl border border-border bg-muted/40 px-6 py-5">
           <div>
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
               <Heart className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.interests')}
@@ -205,20 +190,6 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
             <p className="text-sm font-medium text-xplora-ink">
               {categories.map((c, i) => `${i + 1}. ${t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}`).join(', ')}
             </p>
-          </div>
-          <div>
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-              <Clock className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryFullView.durationLabel')}
-            </p>
-            <p className="text-sm font-medium text-xplora-ink">
-              {t(`itineraryBuilder.duration.${durationBucketKey(itinerary.estimatedDurationMin)}`)}, {t('itineraryBuilder.resultDurationLabel', { duration: itinerary.estimatedDurationMin })}
-            </p>
-          </div>
-          <div>
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
-              <Gauge className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.pace')}
-            </p>
-            <p className="text-sm font-medium text-xplora-ink">{pace ? t(`itineraryBuilder.paceOption.${pace}`) : '—'}</p>
           </div>
         </div>
       </div>
@@ -257,8 +228,8 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                   <div className="w-9 h-9 rounded-full bg-primary text-white text-sm font-semibold flex items-center justify-center flex-shrink-0">
                     {item.order}
                   </div>
-                  {categoryLabel && <p className="text-[10px] font-bold uppercase tracking-wide text-primary mt-2 leading-tight">{categoryLabel}</p>}
-                  {item.spot.visitTime && <p className="text-[11px] text-muted-foreground leading-tight">{item.spot.visitTime}</p>}
+                  {categoryLabel && <p className="text-xs font-bold uppercase tracking-wide text-primary mt-2 leading-tight">{categoryLabel}</p>}
+                  {item.spot.visitTime && <p className="text-xs text-muted-foreground leading-tight">{item.spot.visitTime}</p>}
                   {!isLast && <div className="flex-1 border-l-2 border-dashed border-border mt-2" />}
                 </div>
 
@@ -266,7 +237,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                   <div className="rounded-2xl border border-border bg-card overflow-hidden flex flex-col sm:flex-row">
                     <div className="w-full h-40 sm:h-auto sm:w-36 flex-shrink-0 bg-muted">
                       {item.spot.image ? (
-                        <img src={item.spot.image} alt="" className="w-full h-full object-cover" />
+                        <img loading="lazy" decoding="async" src={item.spot.image} alt="" className="w-full h-full object-cover" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-muted-foreground">
                           <MapPin className="w-6 h-6" aria-hidden="true" />
@@ -282,14 +253,14 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                             aria-pressed={pinned}
                             aria-label={t(pinned ? 'itineraryBuilder.unpinSpot' : 'itineraryBuilder.pinSpot')}
                             title={t(pinned ? 'itineraryBuilder.unpinSpot' : 'itineraryBuilder.pinSpot')}
-                            className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                              pinned ? 'bg-[#12343B] text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
+                            className={`relative before:absolute before:-inset-y-2 before:-inset-x-[3px] before:content-[''] w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
+                              pinned ? 'bg-xplora-ink text-white' : 'bg-muted text-muted-foreground hover:bg-muted/70'
                             }`}
                           >
                             <Pin className="w-3.5 h-3.5" fill={pinned ? 'currentColor' : 'none'} aria-hidden="true" />
                           </button>
                         )}
-                        <SaveSpotButton spot={item.spot} className="w-7 h-7 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground flex items-center justify-center transition-colors" />
+                        <SaveSpotButton spot={item.spot} className="relative before:absolute before:-inset-y-2 before:-inset-x-[3px] before:content-[''] w-7 h-7 rounded-full bg-muted hover:bg-muted/70 text-muted-foreground flex items-center justify-center transition-colors" />
                       </div>
                       <h3 className="font-serif text-lg font-semibold text-xplora-ink leading-tight pr-16">{item.spot.name}</h3>
                       {item.spot.description && <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{item.spot.description}</p>}
@@ -409,7 +380,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
 
       <button
         onClick={() => setMobileView(v => (v === 'map' ? 'list' : 'map'))}
-        className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-medium shadow-lg"
+        className="md:hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-5 py-2.5 rounded-full bg-xplora-ink text-white text-sm font-medium shadow-lg"
       >
         {mobileView === 'map'
           ? <><ListIcon className="w-4 h-4" aria-hidden="true" /> {t('itineraryBuilder.listView')}</>

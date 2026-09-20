@@ -67,7 +67,7 @@ export function NeighbourhoodDetailScreen() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-lg font-medium">{t('neighbourhoodDetail.notFound', 'Neighbourhood not found.')}</p>
-        <Link to="/neighbourhoods" className="text-sm text-[#12343B] font-medium inline-flex items-center gap-1">
+        <Link to="/neighbourhoods" className="text-sm text-xplora-ink font-medium inline-flex items-center gap-1">
           <ArrowLeft className="w-4 h-4" /> {t('neighbourhoodDetail.back', 'All neighbourhoods')}
         </Link>
       </div>
@@ -95,7 +95,7 @@ export function NeighbourhoodDetailScreen() {
             <img
               src={neighbourhoodImage(nbhd.name, nbhd.coverImage)}
               alt={nbhd.name}
-              fetchPriority="high"
+              {...({ fetchpriority: 'high' } as Record<string, string>)}
               onError={e => { if (e.currentTarget.src !== DEFAULT_NBHD_IMG) e.currentTarget.src = DEFAULT_NBHD_IMG; }}
               className="w-full h-full object-cover"
             />
@@ -105,7 +105,7 @@ export function NeighbourhoodDetailScreen() {
           {/* Floating back-to-all-neighbourhoods button */}
           <Link
             to="/neighbourhoods"
-            className="absolute top-4 left-4 md:top-6 md:left-6 z-10 inline-flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-[#12343B] text-white text-sm font-semibold shadow-lg ring-2 ring-white/80 hover:bg-[#0d262c] hover:scale-105 transition-all"
+            className="absolute top-4 left-4 md:top-6 md:left-6 z-10 inline-flex items-center gap-2 pl-3 pr-4 py-2.5 rounded-full bg-xplora-ink text-white text-sm font-semibold shadow-lg ring-2 ring-white/80 hover:bg-[#0d262c] hover:scale-105 transition-all"
           >
             <ArrowLeft className="w-5 h-5" />
             <span>{t('neighbourhoodDetail.back', 'All neighbourhoods')}</span>
@@ -134,7 +134,7 @@ export function NeighbourhoodDetailScreen() {
         {nbhd.famousStreets.length > 0 && (
           <section className="max-w-3xl mx-auto text-center">
             <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4 flex items-center justify-center gap-2">
-              <Signpost className="w-5 h-5 text-[#12343B]" />
+              <Signpost className="w-5 h-5 text-xplora-ink" />
               {t('neighbourhoodDetail.famousStreets', 'Famous streets')}
             </h2>
             <div className="flex flex-wrap justify-center gap-2">
@@ -144,16 +144,18 @@ export function NeighbourhoodDetailScreen() {
                 return (
                   <button
                     key={street}
+                    type="button"
+                    aria-pressed={isActive}
                     onClick={() => selectStreet(street)}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
                       isActive
-                        ? 'bg-[#12343B] text-white border-[#12343B]'
-                        : 'bg-[#12343B]/5 text-[#12343B] border-[#12343B]/10 hover:bg-[#12343B]/10'
+                        ? 'bg-xplora-ink text-white border-xplora-ink'
+                        : 'bg-xplora-ink/5 text-xplora-ink border-xplora-ink/10 hover:bg-xplora-ink/10'
                     }`}
                   >
                     <MapPin className="w-3.5 h-3.5" /> {street}
                     {spotCount > 0 && (
-                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-[#12343B]/10 text-[#12343B]'}`}>
+                      <span className={`text-xs font-semibold px-1.5 py-0.5 rounded-full ${isActive ? 'bg-white/20 text-white' : 'bg-xplora-ink/10 text-xplora-ink'}`}>
                         {spotCount}
                       </span>
                     )}
@@ -165,7 +167,7 @@ export function NeighbourhoodDetailScreen() {
               <p className="mt-3 text-xs text-muted-foreground">
                 {t('neighbourhoodDetail.filteringByStreet', 'Showing spots on')} <strong>{activeStreet}</strong>
                 {' · '}
-                <button onClick={() => setActiveStreet(null)} className="text-[#12343B] font-medium hover:underline inline-flex items-center gap-0.5">
+                <button onClick={() => setActiveStreet(null)} className="text-xplora-ink font-medium hover:underline inline-flex items-center gap-0.5">
                   <X className="w-3 h-3" /> {t('neighbourhoodDetail.clearFilter', 'Clear')}
                 </button>
               </p>
@@ -179,7 +181,7 @@ export function NeighbourhoodDetailScreen() {
             <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-1.5">
               {t('neighbourhoodDetail.spots', 'Local spots')}
               {(activeStreet || activeCategory || activeMichelinOnly) && (
-                <span className="ml-2 text-base font-normal text-[#12343B]">
+                <span className="ml-2 text-base font-normal text-xplora-ink">
                   — {[activeStreet, activeCategory, activeMichelinOnly ? t('neighbourhoodDetail.michelinGuide', 'Michelin Guide') : null].filter(Boolean).join(' · ')}
                 </span>
               )}
@@ -210,7 +212,7 @@ export function NeighbourhoodDetailScreen() {
                 </p>
                 <button
                   onClick={() => { setActiveStreet(null); setActiveCategory(null); setActiveMichelinOnly(false); }}
-                  className="mt-3 text-sm text-[#12343B] font-medium hover:underline"
+                  className="mt-3 text-sm text-xplora-ink font-medium hover:underline"
                 >
                   {t('neighbourhoodDetail.showAllSpots', 'Show all spots')}
                 </button>
@@ -233,7 +235,7 @@ export function NeighbourhoodDetailScreen() {
         <div className="flex justify-center">
           <a
             href="#top"
-            className="inline-flex items-center gap-1.5 text-sm text-[#12343B] font-medium hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm text-xplora-ink font-medium hover:underline"
           >
             <ArrowUp className="w-4 h-4" /> {t('neighbourhoodDetail.backToTop', 'Back to top')}
           </a>

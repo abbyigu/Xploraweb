@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { Mail, Lock, User } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
@@ -13,6 +13,7 @@ export function SignupScreen() {
   const [newsletter, setNewsletter] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const uid = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,18 +59,20 @@ export function SignupScreen() {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">
+          <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">{t('signup.fullName')}</label>
+            <label htmlFor={`${uid}-name`} className="block text-sm mb-2">{t('signup.fullName')}</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-name`}
                 type="text"
+                autoComplete="name"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
@@ -80,11 +83,13 @@ export function SignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">{t('signup.email')}</label>
+            <label htmlFor={`${uid}-email`} className="block text-sm mb-2">{t('signup.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-email`}
                 type="email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
@@ -95,11 +100,13 @@ export function SignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">{t('signup.password')}</label>
+            <label htmlFor={`${uid}-password`} className="block text-sm mb-2">{t('signup.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-password`}
                 type="password"
+                autoComplete="new-password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"
@@ -110,11 +117,13 @@ export function SignupScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">{t('signup.confirmPassword')}</label>
+            <label htmlFor={`${uid}-confirm`} className="block text-sm mb-2">{t('signup.confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-confirm`}
                 type="password"
+                autoComplete="new-password"
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 className="w-full pl-12 pr-4 py-3 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary"

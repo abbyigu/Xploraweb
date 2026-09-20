@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useId } from 'react';
 import { useNavigate } from 'react-router';
 import { Lock, Eye, EyeOff } from 'lucide-react';
 import { XploraLogo } from './XploraLogo';
@@ -15,6 +15,7 @@ export function ResetPasswordScreen() {
   const [done, setDone] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const uid = useId();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,15 +65,17 @@ export function ResetPasswordScreen() {
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">{error}</div>
+          <div role="alert" className="bg-red-50 text-red-600 px-4 py-3 rounded-xl mb-4 text-sm">{error}</div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm mb-2">{t('resetPassword.newPassword')}</label>
+            <label htmlFor={`${uid}-password`} className="block text-sm mb-2">{t('resetPassword.newPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-password`}
+                autoComplete="new-password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -83,6 +86,7 @@ export function ResetPasswordScreen() {
               <button
                 type="button"
                 onClick={() => setShowPassword(v => !v)}
+                aria-label={showPassword ? t('a11y.hidePassword') : t('a11y.showPassword')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -91,10 +95,12 @@ export function ResetPasswordScreen() {
           </div>
 
           <div>
-            <label className="block text-sm mb-2">{t('resetPassword.confirmPassword')}</label>
+            <label htmlFor={`${uid}-confirm`} className="block text-sm mb-2">{t('resetPassword.confirmPassword')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <input
+                id={`${uid}-confirm`}
+                autoComplete="new-password"
                 type={showConfirm ? 'text' : 'password'}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
@@ -105,6 +111,7 @@ export function ResetPasswordScreen() {
               <button
                 type="button"
                 onClick={() => setShowConfirm(v => !v)}
+                aria-label={showConfirm ? t('a11y.hidePassword') : t('a11y.showPassword')}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
               >
                 {showConfirm ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}

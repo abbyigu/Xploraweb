@@ -20,7 +20,7 @@ export function NotifyMeForm({ className = '', source = 'unknown' }: { className
 
   if (status === 'done') {
     return (
-      <p className={`flex items-center gap-1.5 text-sm text-primary font-medium ${className}`}>
+      <p role="status" className={`flex items-center gap-1.5 text-sm text-primary font-medium ${className}`}>
         <Check className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
         {t('notify.success')}
       </p>
@@ -31,6 +31,7 @@ export function NotifyMeForm({ className = '', source = 'unknown' }: { className
     <form onSubmit={handleSubmit} className={`flex gap-2 ${className}`}>
       <input
         type="email"
+        autoComplete="email"
         required
         value={email}
         onChange={e => setEmail(e.target.value)}
@@ -41,7 +42,7 @@ export function NotifyMeForm({ className = '', source = 'unknown' }: { className
       <button
         type="submit"
         disabled={status === 'loading'}
-        className="flex-shrink-0 px-4 py-2 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
+        className="flex-shrink-0 px-4 py-2 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
       >
         {status === 'loading' ? t('notify.loading') : t('notify.cta')}
       </button>

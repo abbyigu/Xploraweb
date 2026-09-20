@@ -73,7 +73,7 @@ export function MembershipScreen() {
               <>
                 <span className="text-5xl font-serif">$100</span>
                 <span className="text-muted-foreground text-lg">/year</span>
-                <p className="text-sm text-secondary mt-1">{t('membership.yearlyDetail')}</p>
+                <p className="text-sm text-secondary-ink mt-1">{t('membership.yearlyDetail')}</p>
               </>
             )}
           </div>

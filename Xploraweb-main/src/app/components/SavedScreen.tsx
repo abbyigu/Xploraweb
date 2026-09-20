@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { Heart, ExternalLink, User, MapPin, Star, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { fetchSavedItineraries, deleteSavedItinerary } from '../lib/savedItineraries';
 import type { SavedItinerary } from '../lib/savedItineraries';
 import { buildGoogleMapsUrl } from '../lib/maps';
-import { getSavedSpots, removeSavedSpot, onSavedSpotsChange } from '../lib/savedSpots';
-import { SPOT_CATEGORY_KEY } from '../data/products';
+import { getSavedSpots, removeSavedSpot, toggleSavedSpot, onSavedSpotsChange } from '../lib/savedSpots';
+import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { useSaveUsage } from '../hooks/useSaveUsage';
 import { Footer } from './Footer';
 import { XploraLogo } from './XploraLogo';
@@ -44,10 +44,48 @@ export function SavedScreen() {
 
   useEffect(() => onSavedSpotsChange(() => setSavedSpots(getSavedSpots())), []);
 
-  const removeItinerary = async (id: string) => {
-    setSavedItineraries((prev) => prev.filter((i) => i.id !== id));
-    await deleteSavedItinerary(id);
-    refreshSaveUsage();
+  // Undo: an itinerary's DB delete is deferred until the toast lapses (re-saving
+  // would mint a new id/slug and lose the scrapbook); spots are just localStorage.
+  const [undo, setUndo] = useState<{ onUndo: () => void } | null>(null);
+  const undoTimer = useRef<number>();
+  const pendingDelete = useRef<string | null>(null);
+
+  const flushUndo = () => {
+    window.clearTimeout(undoTimer.current);
+    const id = pendingDelete.current;
+    pendingDelete.current = null;
+    setUndo(null);
+    if (id) deleteSavedItinerary(id).then(refreshSaveUsage);
+  };
+  const offerUndo = (onUndo: () => void) => {
+    setUndo({ onUndo });
+    undoTimer.current = window.setTimeout(flushUndo, 6000);
+  };
+  // Leaving the page commits any pending delete.
+  useEffect(() => () => {
+    window.clearTimeout(undoTimer.current);
+    if (pendingDelete.current) deleteSavedItinerary(pendingDelete.current);
+  }, []);
+
+  const removeItinerary = (item: SavedItinerary) => {
+    flushUndo();
+    const index = savedItineraries.findIndex((i) => i.id === item.id);
+    setSavedItineraries((prev) => prev.filter((i) => i.id !== item.id));
+    pendingDelete.current = item.id;
+    offerUndo(() => {
+      pendingDelete.current = null;
+      setSavedItineraries((prev) => {
+        const next = [...prev];
+        next.splice(Math.min(index, next.length), 0, item);
+        return next;
+      });
+    });
+  };
+
+  const removeSpot = (spot: Spot) => {
+    flushUndo();
+    removeSavedSpot(spot.id);
+    offerUndo(() => { toggleSavedSpot(spot); });
   };
 
   const copyItineraryLink = (slug: string, id: string) => {
@@ -115,31 +153,6 @@ export function SavedScreen() {
 
       <div className="max-w-5xl mx-auto px-6 py-6 space-y-8">
 
-        {!saveUsage.premium && (
-          <div className="bg-muted/40 border border-border rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4">
-            <div className="w-9 h-9 rounded-full bg-xplora-icon-bg flex items-center justify-center flex-shrink-0">
-              <Lock className="w-4 h-4 text-primary" aria-hidden="true" />
-            </div>
-            <div className="flex-1 w-full">
-              <p className="text-sm font-medium">{t('itineraryBuilder.freePlanTitle', { limit: saveUsage.limit })}</p>
-              <p className="text-xs text-muted-foreground mb-1.5">{t('itineraryBuilder.freePlanUsed', { count: saveUsage.count, limit: saveUsage.limit })}</p>
-              <div className="h-1.5 rounded-full bg-border overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary"
-                  style={{ width: `${Math.min(100, (saveUsage.count / saveUsage.limit) * 100)}%` }}
-                />
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => setPremiumModalOpen(true)}
-              className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0"
-            >
-              {t('itineraryBuilder.seePlans')}
-            </button>
-          </div>
-        )}
-
         {/* Saved Itineraries */}
         <div>
           <h3 className="text-xl mb-4">{t('account.savedItineraries')}</h3>
@@ -157,12 +170,11 @@ export function SavedScreen() {
                 return (
                   <div
                     key={item.id}
-                    className="break-inside-avoid mb-3 bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow cursor-pointer"
-                    onClick={() => navigate(`/i/${item.slug}`, { state: { owned: true, itineraryId: item.id } })}
+                    className="relative break-inside-avoid mb-3 bg-card rounded-2xl overflow-hidden border border-border hover:shadow-md transition-shadow"
                   >
                     <div className="relative">
                       {thumb ? (
-                        <img src={thumb} alt="" className="w-full h-auto block" />
+                        <img loading="lazy" decoding="async" src={thumb} alt="" className="w-full aspect-[4/3] object-cover block" />
                       ) : (
                         <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center">
                           <MapPin className="w-8 h-8 text-muted-foreground" aria-hidden="true" />
@@ -172,15 +184,25 @@ export function SavedScreen() {
                         {t('saved.itineraryBadge')}
                       </span>
                       <button
-                        onClick={(e) => { e.stopPropagation(); removeItinerary(item.id); }}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/55 flex items-center justify-center transition-colors"
+                        onClick={(e) => { e.stopPropagation(); removeItinerary(item); }}
+                        className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-black/40 hover:bg-black/55 flex items-center justify-center transition-colors"
                         aria-label={t('common.remove')}
                       >
                         <Heart className="w-4 h-4 fill-secondary text-secondary" aria-hidden="true" />
                       </button>
                     </div>
                     <div className="p-3">
-                      <h4 className="text-sm font-semibold mb-1 truncate">{item.title}</h4>
+                      <h4 className="text-sm font-semibold mb-1 truncate">
+                        {item.slug ? (
+                          <Link
+                            to={`/i/${item.slug}`}
+                            state={{ owned: true, itineraryId: item.id }}
+                            className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-xplora-ink/40"
+                          >
+                            {item.title}
+                          </Link>
+                        ) : item.title}
+                      </h4>
                       <p className="text-xs text-muted-foreground">
                         {t('itineraryBuilder.resultMeta', { duration: item.estimatedDurationMin, distance: item.estimatedDistanceKm })}
                         {' · '}{new Date(item.createdAt).toLocaleDateString(i18n.language === 'fr' ? 'fr-CA' : 'en-CA')}
@@ -198,7 +220,7 @@ export function SavedScreen() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            className="relative z-10 inline-flex items-center gap-1 text-xs text-primary hover:underline"
                           >
                             {t('account.openMaps')} <ExternalLink className="w-3 h-3" />
                           </a>
@@ -206,7 +228,7 @@ export function SavedScreen() {
                         {item.slug && (
                           <button
                             onClick={(e) => { e.stopPropagation(); copyItineraryLink(item.slug!, item.id); }}
-                            className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
+                            className="relative z-10 inline-flex items-center gap-1 text-xs text-primary hover:underline"
                           >
                             {copiedItineraryId === item.id ? t('itineraryBuilder.linkCopied') : t('account.copyLink')}
                           </button>
@@ -231,7 +253,7 @@ export function SavedScreen() {
                 <div key={spot.id} className="break-inside-avoid mb-3 bg-card rounded-2xl overflow-hidden border border-border">
                   <div className="relative">
                     {spot.image ? (
-                      <img src={spot.image} alt={spot.name} className="w-full h-auto block" />
+                      <img loading="lazy" decoding="async" src={spot.image} alt={spot.name} className="w-full aspect-[4/3] object-cover block" />
                     ) : (
                       <div className="w-full aspect-[4/3] bg-muted flex items-center justify-center">
                         <MapPin className="w-8 h-8 text-muted-foreground" aria-hidden="true" />
@@ -243,7 +265,7 @@ export function SavedScreen() {
                       </span>
                     )}
                     <button
-                      onClick={() => removeSavedSpot(spot.id)}
+                      onClick={() => removeSpot(spot)}
                       className="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/40 hover:bg-black/55 flex items-center justify-center transition-colors"
                       aria-label={t('saved.removePlace')}
                     >
@@ -271,12 +293,52 @@ export function SavedScreen() {
           )}
         </div>
 
+        {!saveUsage.premium && (
+          <div className="bg-muted/40 border border-border rounded-3xl p-4 md:p-5 flex flex-col sm:flex-row items-center gap-4">
+            <div className="w-9 h-9 rounded-full bg-xplora-icon-bg flex items-center justify-center flex-shrink-0">
+              <Lock className="w-4 h-4 text-primary" aria-hidden="true" />
+            </div>
+            <div className="flex-1 w-full">
+              <p className="text-sm font-medium">{t('itineraryBuilder.freePlanTitle', { limit: saveUsage.limit })}</p>
+              <p className="text-xs text-muted-foreground mb-1.5">{t('itineraryBuilder.freePlanUsed', { count: saveUsage.count, limit: saveUsage.limit })}</p>
+              <div className="h-1.5 rounded-full bg-border overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-primary"
+                  style={{ width: `${Math.min(100, (saveUsage.count / saveUsage.limit) * 100)}%` }}
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setPremiumModalOpen(true)}
+              className="px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0"
+            >
+              {t('itineraryBuilder.seePlans')}
+            </button>
+          </div>
+        )}
+
         <button
           onClick={() => navigate('/dashboard')}
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition"
         >
           <User className="w-3.5 h-3.5" aria-hidden="true" /> {t('saved.backToAccount')}
         </button>
+      </div>
+
+      <div role="status" aria-live="polite" className="fixed inset-x-4 bottom-20 md:bottom-6 z-50 flex justify-center pointer-events-none">
+        {undo && (
+          <div className="pointer-events-auto flex items-center gap-2 pl-4 pr-1 rounded-2xl bg-xplora-ink text-white shadow-2xl text-sm font-medium">
+            <span>{t('saved.removed')}</span>
+            <button
+              type="button"
+              onClick={() => { undo.onUndo(); flushUndo(); }}
+              className="min-h-[44px] px-4 rounded-xl font-semibold underline underline-offset-2 hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+            >
+              {t('saved.undo')}
+            </button>
+          </div>
+        )}
       </div>
 
       <PremiumLimitModal open={premiumModalOpen} onOpenChange={setPremiumModalOpen} />

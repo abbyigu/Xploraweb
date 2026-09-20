@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface Props {
   value: string[];
@@ -12,6 +13,7 @@ interface Props {
 // tags (across all spots) to reuse, and free typing + "," or Enter to add a
 // brand new one.
 export function TagInput({ value, onChange, suggestions, placeholder }: Props) {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -55,8 +57,8 @@ export function TagInput({ value, onChange, suggestions, placeholder }: Props) {
         {value.map(tag => (
           <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
             {tag}
-            <button type="button" onClick={() => removeTag(tag)} className="hover:opacity-70">
-              <X className="w-3 h-3" />
+            <button type="button" onClick={() => removeTag(tag)} aria-label={t('a11y.removeTag', { tag })} className="hover:opacity-70">
+              <X className="w-3 h-3" aria-hidden="true" />
             </button>
           </span>
         ))}
@@ -67,6 +69,7 @@ export function TagInput({ value, onChange, suggestions, placeholder }: Props) {
           onFocus={() => setOpen(true)}
           onBlur={() => addTag(input)}
           placeholder={value.length === 0 ? placeholder : undefined}
+          aria-label={placeholder}
           className="flex-1 min-w-[6rem] outline-none bg-transparent py-0.5"
         />
       </div>

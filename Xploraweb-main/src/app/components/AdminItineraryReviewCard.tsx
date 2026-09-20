@@ -91,7 +91,7 @@ export function AdminItineraryReviewCard({ review, onRespond }: Props) {
       {review.photos.length > 0 && (
         <div className="flex flex-wrap gap-2 mb-3">
           {review.photos.map(photo => (
-            <img key={photo.url} src={photo.url} alt="" className="w-16 h-16 rounded-lg object-cover" />
+            <img loading="lazy" decoding="async" key={photo.url} src={photo.url} alt="" className="w-16 h-16 rounded-lg object-cover" />
           ))}
         </div>
       )}
@@ -112,7 +112,7 @@ export function AdminItineraryReviewCard({ review, onRespond }: Props) {
           <button
             onClick={handlePostResponse}
             disabled={!responseDraft.trim() || posting}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#12343B] text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
+            className="flex items-center gap-1.5 px-3 py-2 bg-xplora-ink text-white rounded-lg text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
           >
             <Send className="w-3.5 h-3.5" /> Publish
           </button>

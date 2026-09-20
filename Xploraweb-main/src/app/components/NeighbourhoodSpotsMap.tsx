@@ -157,11 +157,13 @@ export function NeighbourhoodSpotsMap({
           {categories.map(cat => (
             <button
               key={cat}
+              type="button"
+              aria-pressed={activeCategory === cat}
               onClick={() => onCategoryChange?.(activeCategory === cat ? null : cat)}
               className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
                 activeCategory === cat
-                  ? 'bg-[#12343B] text-white border-[#12343B]'
-                  : 'bg-white text-[#12343B] border-[#12343B]/20 hover:bg-[#12343B]/5'
+                  ? 'bg-xplora-ink text-white border-xplora-ink'
+                  : 'bg-white text-xplora-ink border-xplora-ink/20 hover:bg-xplora-ink/5'
               }`}
             >
               {categoryLabel(cat)}
@@ -169,6 +171,8 @@ export function NeighbourhoodSpotsMap({
           ))}
           {hasMichelinSpots && (
             <button
+              type="button"
+              aria-pressed={michelinOnly}
               onClick={() => onMichelinChange?.(!michelinOnly)}
               className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
                 michelinOnly
@@ -218,7 +222,7 @@ export function NeighbourhoodSpotsMap({
                   <InfoWindowF onCloseClick={() => setOpenSpotIndex(null)}>
                     <div style={{ width: 180, fontFamily: 'inherit' }}>
                       {spot.image && (
-                        <img src={spot.image} alt="" style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
+                        <img loading="lazy" decoding="async" src={spot.image} alt="" style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
                       )}
                       {(spot.category || spot.priceRange) && (
                         <div style={{ fontSize: 11, color: '#12343B', fontWeight: 600, marginBottom: 2 }}>

@@ -29,10 +29,10 @@ function weightedPick(candidates: Spot[]): Spot {
 }
 
 const selectClass =
-  'w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#12343B]/30';
+  'w-full px-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
 
 const compactSelectClass =
-  'w-full px-3.5 py-[13px] rounded-xl bg-[#F7F8F5] text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#12343B]/30';
+  'w-full px-3.5 py-[13px] rounded-xl bg-[#F7F8F5] text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-xplora-ink/30';
 
 export function SpotFinder({ compact = false }: { compact?: boolean }) {
   const { t } = useTranslation();
@@ -97,8 +97,8 @@ export function SpotFinder({ compact = false }: { compact?: boolean }) {
       onClick={handleFind}
       className={
         compact
-          ? 'flex items-center justify-center gap-2 w-full bg-[#12343B] text-white py-[13px] rounded-xl text-[14.5px] font-semibold hover:opacity-90 transition'
-          : 'inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition'
+          ? 'flex items-center justify-center gap-2 w-full bg-xplora-ink text-white py-[13px] rounded-xl text-[14.5px] font-semibold hover:opacity-90 transition'
+          : 'inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition'
       }
     >
       <Sparkles className="w-4 h-4" />
@@ -117,7 +117,7 @@ export function SpotFinder({ compact = false }: { compact?: boolean }) {
       <SpotCard spot={result} />
       <button
         onClick={handleFind}
-        className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-[#12343B] hover:bg-[#12343B]/5 transition"
+        className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-xplora-ink hover:bg-xplora-ink/5 transition"
       >
         <RefreshCw className="w-3.5 h-3.5" />
         {t('spotFinder.again', 'Try another')}
@@ -129,7 +129,7 @@ export function SpotFinder({ compact = false }: { compact?: boolean }) {
     return (
       <div>
         {!result && (
-          <p className="font-serif text-[21px] font-semibold text-[#12343B] mb-4">
+          <p className="font-serif text-[21px] font-semibold text-xplora-ink mb-4">
             {t('spotFinder.title', 'Not sure what to do?')}
           </p>
         )}
@@ -138,7 +138,7 @@ export function SpotFinder({ compact = false }: { compact?: boolean }) {
         {result && (
           <button
             onClick={handleReset}
-            className="mt-2 text-sm font-medium text-[#12343B] underline underline-offset-4 hover:opacity-80 transition"
+            className="mt-2 text-sm font-medium text-xplora-ink underline underline-offset-4 hover:opacity-80 transition"
           >
             {t('spotFinder.reset', 'Reset')}
           </button>

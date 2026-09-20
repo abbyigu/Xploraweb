@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router';
-import { Heart, Info, MapPin, Sparkles, Star, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router';
+import { Info, MapPin, Sparkles, Star, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GoogleMap, OverlayViewF, OVERLAY_MOUSE_TARGET, PolygonF } from '@react-google-maps/api';
 import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { type Neighbourhood } from '../hooks/useNeighbourhoods';
 import type { Spot } from '../data/products';
 import { neighbourhoodColor } from '../lib/neighbourhoodColors';
+import { SaveSpotButton } from './SaveSpotButton';
 import { getVisitedSpots, onVisitedSpotsChange } from '../lib/visitedSpots';
 
 // The /neighbourhoods page's interactive map: replaces the old plain
@@ -50,12 +51,25 @@ interface Props {
 export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourhood: activeNbhd, onSelectNeighbourhood }: Props) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { isLoaded } = useGoogleMaps();
+  const { isLoaded, loadError } = useGoogleMaps();
+  // Map unavailable: script failed to load, key rejected (Google calls
+  // gm_authFailure, e.g. ApiProjectMapError), or still not ready after 8s.
+  const [authFailed, setAuthFailed] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    (window as any).gm_authFailure = () => setAuthFailed(true);
+    return () => { delete (window as any).gm_authFailure; };
+  }, []);
+  useEffect(() => {
+    if (isLoaded) return;
+    const id = window.setTimeout(() => setTimedOut(true), 8000);
+    return () => window.clearTimeout(id);
+  }, [isLoaded]);
+  const mapFailed = !!loadError || authFailed || (timedOut && !isLoaded);
   const mapRef = useRef<google.maps.Map | null>(null);
   const initialBoundsRef = useRef<google.maps.LatLngBounds | null>(null);
   const timersRef = useRef<number[]>([]);
 
-  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{ visible: boolean; label: string }>({ visible: false, label: '' });
   const [visitedIds, setVisitedIds] = useState<Set<string>>(() => new Set(getVisitedSpots().map(s => s.id)));
   const [showPanelHint, setShowPanelHint] = useState(false);
@@ -146,14 +160,6 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
     return inNbhd.length ? inNbhd : defaultCards;
   }, [activeNbhd, spots, defaultCards]);
 
-  const toggleLiked = (id: string) => {
-    setLikedIds(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
   useEffect(() => () => timersRef.current.forEach(id => window.clearTimeout(id)), []);
 
   const runSurprise = () => {
@@ -169,14 +175,15 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
     timersRef.current = [t1, t2];
   };
 
+  const slugFor = (spot: Spot) => (spot.neighbourhood ? slugByName.get(spot.neighbourhood.trim().toLowerCase()) : undefined);
   const goToSpot = (spot: Spot) => {
-    const slug = spot.neighbourhood ? slugByName.get(spot.neighbourhood.trim().toLowerCase()) : undefined;
+    const slug = slugFor(spot);
     if (slug) navigate(`/neighbourhoods/${encodeURIComponent(slug)}`);
   };
 
   return (
-    <div className="relative isolate flex flex-col h-[600px] sm:h-[660px] md:h-[700px] rounded-2xl overflow-hidden border border-gray-200 shadow-lg shadow-[#12343B]/10 bg-[#ECEEE8]">
-      {isLoaded && hasMapData ? (
+    <div className={`relative isolate flex flex-col h-[600px] sm:h-[660px] md:h-[700px] rounded-2xl ${mapFailed ? 'overflow-y-auto' : 'overflow-hidden'} border border-gray-200 shadow-lg shadow-xplora-ink/10 bg-[#ECEEE8]`}>
+      {isLoaded && hasMapData && !authFailed ? (
         <GoogleMap
           mapContainerStyle={{ width: '100%', height: '100%' }}
           center={QC_CENTRE}
@@ -206,14 +213,16 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                 )}
                 {centroid && (
                   <OverlayViewF position={centroid} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -w / 2, y: -h / 2 })}>
-                    <div
+                    <button
+                      type="button"
                       onClick={() => selectNeighbourhood(n.name)}
+                      aria-pressed={activeNbhd === n.name}
                       style={{ borderColor: color, color, opacity: dim ? 0.4 : 1 }}
-                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[10px] font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity"
+                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[10px] font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
                     >
                       {n.name}
                       {count > 0 && <span className="opacity-70">· {count}</span>}
-                    </div>
+                    </button>
                   </OverlayViewF>
                 )}
               </div>
@@ -224,62 +233,85 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
         <div className="absolute inset-0 bg-gradient-to-br from-[#ECEEE8] to-[#dbe4e0]" />
       )}
 
+      {mapFailed && (
+        <p role="status" className="relative z-20 mx-4 sm:mx-6 mt-4 sm:mt-5 text-sm text-xplora-ink/70">
+          {t('neighbourhoods.explorerMapUnavailable')}
+        </p>
+      )}
+
       {/* Search / chip card */}
-      <div className="absolute top-4 sm:top-5 left-4 sm:left-6 right-4 sm:right-6 md:right-auto md:w-[420px] max-h-[calc(100%-32px)] overflow-y-auto z-20 bg-white/85 backdrop-blur-xl border border-white/60 rounded-2xl p-4 shadow-xl shadow-[#12343B]/15">
-        <p className="text-[11px] font-bold uppercase tracking-wide text-[#119FB3] mb-2.5">{t('neighbourhoods.explorerSearchLabel')}</p>
+      <div className={`${mapFailed ? 'relative m-4 sm:m-6' : 'absolute top-4 sm:top-5 left-4 sm:left-6 right-4 sm:right-6 max-h-[calc(100%-32px)] overflow-y-auto'} md:right-auto md:w-[420px] z-20 bg-white/85 backdrop-blur-xl border border-white/60 rounded-2xl p-4 shadow-xl shadow-xplora-ink/15`}>
+        <p className="text-[11px] font-bold uppercase tracking-wide text-primary mb-2.5">{t('neighbourhoods.explorerSearchLabel')}</p>
         <div className="flex flex-wrap gap-2">
           {neighbourhoods.map((n, i) => (
             <button
               key={n.id}
+              type="button"
               onClick={() => selectNeighbourhood(n.name)}
+              aria-pressed={activeNbhd === n.name}
               className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-semibold border transition-all hover:-translate-y-0.5 ${
-                activeNbhd === n.name ? 'text-white border-transparent' : 'bg-[#F7F8F5] text-[#12343B] border-[#12343B]/10'
+                activeNbhd === n.name ? 'text-white border-transparent' : 'bg-[#F7F8F5] text-xplora-ink border-xplora-ink/10'
               }`}
               style={activeNbhd === n.name ? { background: neighbourhoodColor(i) } : undefined}
             >
               <span className="w-2 h-2 rounded-full flex-none" style={{ background: activeNbhd === n.name ? '#fff' : neighbourhoodColor(i) }} />
               {n.name}
-              <span className={activeNbhd === n.name ? 'opacity-80' : 'text-[#12343B]/50'}>{spotCountFor(n.name)}</span>
+              <span className={activeNbhd === n.name ? 'opacity-80' : 'text-xplora-ink/50'}>{spotCountFor(n.name)}</span>
             </button>
           ))}
           <button
             onClick={runSurprise}
-            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-semibold bg-[#12343B] text-white hover:-translate-y-0.5 transition-all"
+            className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full text-[12px] font-semibold bg-xplora-ink text-white hover:-translate-y-0.5 transition-all"
           >
             <Sparkles className="w-3.5 h-3.5" />
             {t('neighbourhoods.explorerSurpriseMe')}
           </button>
         </div>
+        {categorizedVisitedCount === 0 && (
+          <p className="mt-3 text-[11px] leading-snug text-xplora-ink/55">{t('neighbourhoods.explorerPanelEmpty')}</p>
+        )}
       </div>
+
+      {mapFailed && (
+        <ul className="relative z-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mx-4 sm:mx-6 mb-6">
+          {neighbourhoods.filter(n => n.slug).map(n => (
+            <li key={n.id}>
+              <Link
+                to={`/neighbourhoods/${encodeURIComponent(n.slug)}`}
+                className="block rounded-2xl bg-white border border-xplora-ink/10 px-4 py-3 hover:shadow-md transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
+              >
+                <span className="block font-serif text-[15px] font-semibold text-xplora-ink">{n.name}</span>
+                <span className="block text-xs text-xplora-ink/60 mt-0.5">{t('neighbourhoods.explorerSpotCount', { count: spotCountFor(n.name) })}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {/* Neighbourhood side panel — desktop only. Shows this visitor's own
           exploration breakdown: of the places marked "I've been here", what
           share falls in each neighbourhood. */}
-      {neighbourhoods.length > 0 && (
-        <div className="hidden lg:block absolute top-[220px] left-6 z-[15] w-[190px] max-h-[calc(100%-236px)] overflow-y-auto bg-white rounded-2xl p-3.5 shadow-lg shadow-[#12343B]/10">
+      {!mapFailed && categorizedVisitedCount > 0 && (
+        <div className="hidden lg:block absolute top-[220px] left-6 z-[15] w-[190px] max-h-[calc(100%-236px)] overflow-y-auto bg-white rounded-2xl p-3.5 shadow-lg shadow-xplora-ink/10">
           <div className="flex items-center justify-between mb-2.5">
-            <h3 className="text-[11px] font-bold uppercase tracking-wide text-[#12343B]/55">{t('neighbourhoods.explorerPanelTitle')}</h3>
+            <h3 className="text-[11px] font-bold uppercase tracking-wide text-xplora-ink/55">{t('neighbourhoods.explorerPanelTitle')}</h3>
             <button
               type="button"
               onClick={() => setShowPanelHint(v => !v)}
               aria-label={t('neighbourhoods.explorerPanelInfoLabel', 'How this works')}
               aria-pressed={showPanelHint}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-[#12343B]/40 hover:text-[#119FB3] hover:bg-[#119FB3]/10 transition-colors flex-none"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-xplora-ink/40 hover:text-primary hover:bg-[#119FB3]/10 transition-colors flex-none"
             >
               {showPanelHint ? <X className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
             </button>
           </div>
 
           {showPanelHint ? (
-            <p className="text-[12px] leading-relaxed text-[#12343B]/70">
+            <p className="text-[12px] leading-relaxed text-xplora-ink/70">
               {t(
                 'neighbourhoods.explorerPanelHint',
                 "This is your own exploration breakdown — it fills in as you go. Tap the ✓ on any place card to mark \"I've been here\", and that neighbourhood's share grows."
               )}
-            </p>
-          ) : categorizedVisitedCount === 0 ? (
-            <p className="text-[12px] leading-relaxed text-[#12343B]/50">
-              {t('neighbourhoods.explorerPanelEmpty', "Mark a place as visited to start filling this in.")}
             </p>
           ) : (
             neighbourhoods.map((n, i) => {
@@ -289,14 +321,16 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
               return (
                 <button
                   key={n.id}
+                  type="button"
                   onClick={() => selectNeighbourhood(n.name)}
-                  className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-[#119FB3]/10' : 'hover:bg-[#12343B]/5'}`}
+                  aria-pressed={isActive}
+                  className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-[#119FB3]/10' : 'hover:bg-xplora-ink/5'}`}
                 >
-                  <div className="flex items-center justify-between text-xs font-semibold text-[#12343B] mb-1">
+                  <div className="flex items-center justify-between text-xs font-semibold text-xplora-ink mb-1">
                     <span className="truncate">{n.name}</span>
-                    <span className="text-[#119FB3] font-bold flex-none ml-1.5">{pct}%</span>
+                    <span className="text-primary font-bold flex-none ml-1.5">{pct}%</span>
                   </div>
-                  <div className="w-16 h-[5px] rounded-full bg-[#12343B]/8 overflow-hidden">
+                  <div className="w-16 h-[5px] rounded-full bg-xplora-ink/8 overflow-hidden">
                     <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 3)}%`, background: neighbourhoodColor(i) }} />
                   </div>
                 </button>
@@ -307,38 +341,33 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
       )}
 
       {/* Floating spot cards */}
-      {cards.length > 0 && (
+      {!mapFailed && cards.length > 0 && (
         <div className="absolute bottom-4 sm:bottom-5 left-4 right-4 sm:left-auto sm:right-6 z-[14] flex gap-4 justify-end overflow-x-auto sm:overflow-visible">
           {cards.map((spot, i) => (
             <div
               key={spot.id}
-              onClick={() => goToSpot(spot)}
-              className={`group flex-none w-[168px] sm:w-[188px] rounded-2xl overflow-hidden bg-white border border-[#12343B]/8 shadow-lg shadow-[#12343B]/15 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all animate-in fade-in slide-in-from-bottom-3 duration-500 fill-mode-both ${
+              className={`group relative flex-none w-[168px] sm:w-[188px] rounded-2xl overflow-hidden bg-white border border-xplora-ink/8 shadow-lg shadow-xplora-ink/15 cursor-pointer hover:-translate-y-1 hover:shadow-xl transition-all animate-in fade-in slide-in-from-bottom-3 duration-500 fill-mode-both ${
                 i === 0 ? '' : 'hidden sm:block'
               }`}
               style={{ animationDelay: `${i * 120}ms` }}
             >
               <div className="relative aspect-[3/2] overflow-hidden bg-gray-100">
                 {spot.image ? (
-                  <img src={spot.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img loading="lazy" decoding="async" src={spot.image} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-300"><MapPin className="w-6 h-6" /></div>
                 )}
-                <button
-                  onClick={e => { e.stopPropagation(); toggleLiked(spot.id); }}
-                  aria-label={t('a11y.toggleLike', 'Like')}
-                  className={`absolute top-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-colors ${
-                    likedIds.has(spot.id) ? 'bg-[#119FB3]' : 'bg-white/85 hover:bg-white'
-                  }`}
-                >
-                  <Heart className={`w-3.5 h-3.5 ${likedIds.has(spot.id) ? 'fill-white stroke-white' : 'stroke-[#12343B]'}`} />
-                </button>
+                <SaveSpotButton spot={spot} />
               </div>
               <div className="p-3">
-                <p className="font-serif text-[14px] font-semibold text-[#12343B] leading-tight truncate">{spot.name}</p>
+                <p className="font-serif text-[14px] font-semibold text-xplora-ink leading-tight truncate">
+                  {slugFor(spot) ? (
+                    <button type="button" onClick={() => goToSpot(spot)} className="block w-full text-left truncate after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-xplora-ink/40">{spot.name}</button>
+                  ) : spot.name}
+                </p>
                 {typeof spot.googleRating === 'number' ? (
                   <span className="flex items-center gap-1 text-[11px] text-gray-500 mt-1">
-                    <Star className="w-3 h-3 fill-[#119FB3] text-[#119FB3]" />
+                    <Star className="w-3 h-3 fill-[#119FB3] text-primary" />
                     <span className="font-medium text-gray-700">{spot.googleRating.toFixed(1)}</span>
                     {spot.neighbourhood && <span className="truncate">· {spot.neighbourhood}</span>}
                   </span>
@@ -353,7 +382,9 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
 
       {/* Surprise-me toast */}
       <div
-        className={`absolute bottom-5 left-1/2 -translate-x-1/2 z-[80] min-w-[220px] bg-[#12343B] text-white px-5 py-3.5 rounded-2xl text-[13px] font-semibold shadow-2xl transition-all duration-300 ${
+        role="status"
+        aria-live="polite"
+        className={`absolute bottom-5 left-1/2 -translate-x-1/2 z-[80] min-w-[220px] bg-xplora-ink text-white px-5 py-3.5 rounded-2xl text-[13px] font-semibold shadow-2xl transition-all duration-300 ${
           toast.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3 pointer-events-none'
         }`}
       >

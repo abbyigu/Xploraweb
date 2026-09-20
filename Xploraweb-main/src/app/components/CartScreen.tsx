@@ -90,7 +90,7 @@ export function CartScreen() {
         {items.map(item => (
           <div key={item.id} className="bg-card rounded-2xl border border-border overflow-hidden flex gap-4 p-4">
             {item.image && (
-              <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
+              <img loading="lazy" decoding="async" src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-xl flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-2">
@@ -110,17 +110,17 @@ export function CartScreen() {
                     </p>
                   )}
                 </div>
-                <button onClick={() => removeItem(item.id)} aria-label={t('a11y.removeItem', { name: item.name })} className="text-muted-foreground hover:text-red-500 transition-colors flex-shrink-0 p-1">
+                <button onClick={() => removeItem(item.id)} aria-label={t('a11y.removeItem', { name: item.name })} className="text-muted-foreground hover:text-red-500 transition-colors relative before:absolute before:-inset-2.5 before:content-[''] flex-shrink-0 p-1">
                   <Trash2 className="w-4 h-4" aria-hidden="true" />
                 </button>
               </div>
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center gap-2">
-                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label={t('a11y.decreaseQty', { name: item.name })} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <button onClick={() => updateQuantity(item.id, item.quantity - 1)} aria-label={t('a11y.decreaseQty', { name: item.name })} className="relative before:absolute before:-inset-2 before:content-[''] w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
                     <Minus className="w-3 h-3" aria-hidden="true" />
                   </button>
                   <span className="text-sm w-4 text-center" aria-live="polite">{item.quantity}</span>
-                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label={t('a11y.increaseQty', { name: item.name })} className="w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
+                  <button onClick={() => updateQuantity(item.id, item.quantity + 1)} aria-label={t('a11y.increaseQty', { name: item.name })} className="relative before:absolute before:-inset-2 before:content-[''] w-7 h-7 rounded-full border border-border flex items-center justify-center hover:bg-muted transition-colors">
                     <Plus className="w-3 h-3" aria-hidden="true" />
                   </button>
                 </div>

@@ -49,7 +49,7 @@ export function Header() {
                 <Link
                   to={path}
                   aria-current={isActive(path) ? 'page' : undefined}
-                  className={`px-3 lg:px-4 py-2 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap ${
+                  className={`px-3 lg:px-4 py-2.5 rounded-xl border-2 transition-all text-sm lg:text-base whitespace-nowrap ${
                     isActive(path)
                       ? 'bg-primary/15 border-primary text-foreground font-medium'
                       : 'border-transparent text-foreground hover:bg-muted/40'
@@ -62,8 +62,9 @@ export function Header() {
                     key="saved"
                     to="/saved"
                     aria-label={t('bottomNav.saved')}
+                    title={t('bottomNav.saved')}
                     aria-current={isSavedActive ? 'page' : undefined}
-                    className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-opacity ${
+                    className={`relative before:absolute before:-inset-1 before:content-[''] w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-opacity ${
                       isSavedActive ? 'bg-primary' : 'bg-xplora-ink hover:opacity-90'
                     }`}
                   >
@@ -77,17 +78,17 @@ export function Header() {
           <div className="flex items-center gap-2 lg:gap-4">
             <SiteSearch variant="header" />
 
-            <Link to="/business" className="text-sm text-secondary hover:underline transition-colors whitespace-nowrap">{t('header.forBusinesses')}</Link>
+            <Link to="/business" className="inline-flex items-center min-h-11 text-sm text-secondary-ink hover:underline transition-colors whitespace-nowrap">{t('header.forBusinesses')}</Link>
 
             <button
               onClick={() => setLanguage(language === 'fr' ? 'en' : 'fr')}
               aria-label={language === 'fr' ? t('a11y.switchToEn') : t('a11y.switchToFr')}
-              className="text-xs font-medium px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
+              className="text-xs font-medium px-3 min-h-11 min-w-11 rounded-lg border border-border hover:bg-muted/40 transition-colors text-muted-foreground hover:text-foreground"
             >
               <span aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
             </button>
 
-            <Link to="/dashboard" aria-label={t('a11y.account')}>
+            <Link to="/dashboard" aria-label={t('a11y.account')} className="relative before:absolute before:-inset-1 before:content-['']">
               <div className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
                 {avatar.url
                   ? <img src={avatar.url} alt="" aria-hidden="true" className="w-full h-full object-cover" />

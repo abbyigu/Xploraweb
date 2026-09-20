@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Pause, Play } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 type Slide = {
@@ -26,6 +26,10 @@ const SLIDE_DURATION_MS = 6000;
 export function HeroSlideshow() {
   const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
+  // WCAG 2.2.2: user-pausable autoplay; starts paused when the OS asks for reduced motion.
+  const [paused, setPaused] = useState(
+    () => typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  );
   const [loadedSlides, setLoadedSlides] = useState<Set<number>>(() => new Set([0]));
 
   const markLoaded = (index: number) => {
@@ -38,11 +42,12 @@ export function HeroSlideshow() {
   }, [activeIndex]);
 
   useEffect(() => {
+    if (paused) return;
     const timer = setInterval(() => {
       setActiveIndex((i) => (i + 1) % SLIDES.length);
     }, SLIDE_DURATION_MS);
     return () => clearInterval(timer);
-  }, [activeIndex]);
+  }, [activeIndex, paused]);
 
   const goTo = (index: number) => {
     const normalized = (index + SLIDES.length) % SLIDES.length;
@@ -57,7 +62,7 @@ export function HeroSlideshow() {
         const fadeClass = `transition-opacity duration-1000 ease-in-out ${i === activeIndex ? 'opacity-100' : 'opacity-0'}`;
         const imgProps = {
           loading: (i === 0 ? 'eager' : 'lazy') as const,
-          fetchPriority: (i === 0 ? 'high' : 'low') as const,
+          fetchpriority: (i === 0 ? 'high' : 'low') as const,
           decoding: (i === 0 ? 'sync' : 'async') as const,
         };
 
@@ -112,18 +117,31 @@ export function HeroSlideshow() {
         <ChevronRight className="w-5 h-5" />
       </button>
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center">
         {SLIDES.map((slide, i) => (
           <button
             key={slide.src}
             type="button"
             onClick={() => goTo(i)}
             aria-label={t('a11y.goToPhoto', { n: i + 1 })}
-            className={`h-1.5 rounded-full transition-all ${
-              i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50 hover:bg-white/75'
-            }`}
-          />
+            aria-current={i === activeIndex}
+            className="h-11 min-w-11 flex items-center justify-center group"
+          >
+            <span
+              className={`block h-1.5 rounded-full transition-all ${
+                i === activeIndex ? 'w-6 bg-white' : 'w-1.5 bg-white/50 group-hover:bg-white/75'
+              }`}
+            />
+          </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setPaused((p) => !p)}
+          aria-label={paused ? t('a11y.playSlideshow') : t('a11y.pauseSlideshow')}
+          className="h-11 w-11 flex items-center justify-center text-white/70 hover:text-white transition"
+        >
+          {paused ? <Play className="w-3 h-3" fill="currentColor" /> : <Pause className="w-3 h-3" fill="currentColor" />}
+        </button>
       </div>
     </div>
   );

@@ -59,10 +59,20 @@ export function ExperienceMap({ experiences, activeId, onMarkerClick }: Experien
             >
               <div className="xplora-price-marker">
                 <span
-                  className={exp.id === activeId ? 'is-active' : ''}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${exp.name}, ${priceLabel(exp)}`}
+                  className={`${exp.id === activeId ? 'is-active ' : ''}focus-visible:outline focus-visible:outline-2 focus-visible:outline-xplora-ink`}
                   onClick={() => {
                     setOpenId(exp.id);
                     onMarkerClick?.(exp.id);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      setOpenId(exp.id);
+                      onMarkerClick?.(exp.id);
+                    }
                   }}
                 >
                   {priceLabel(exp)}
@@ -77,7 +87,7 @@ export function ExperienceMap({ experiences, activeId, onMarkerClick }: Experien
               onCloseClick={() => setOpenId(null)}
             >
               <div style={{ width: 172, fontFamily: 'inherit' }}>
-                <img src={openExp.image} alt="" style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
+                <img loading="lazy" decoding="async" src={openExp.image} alt="" style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
                 <div style={{ fontSize: 12, color: '#b45309', fontWeight: 600, marginBottom: 2 }}>
                   ★ {getRating(openExp).rating.toFixed(1)}
                 </div>

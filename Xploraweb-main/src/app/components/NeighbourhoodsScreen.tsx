@@ -58,7 +58,7 @@ function NeighbourhoodTile({
         </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         {isNew && (
-          <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-[#12343B] text-white">
+          <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-xplora-ink text-white">
             {t('neighbourhoods.newBadge', 'New')}
           </span>
         )}
@@ -73,7 +73,7 @@ function NeighbourhoodTile({
         {featured && description && (
           <p className="text-sm text-gray-600 mb-2.5 leading-relaxed">{description}</p>
         )}
-        <span className="text-sm text-[#12343B] font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
+        <span className="text-sm text-xplora-ink font-medium inline-flex items-center gap-1 group-hover:gap-2 transition-all">
           {t('neighbourhoods.discover', 'Discover')}
           <ArrowRight className="w-4 h-4" />
         </span>

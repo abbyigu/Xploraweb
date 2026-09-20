@@ -43,7 +43,7 @@ function singleLine(str) {
   return String(str ?? '').replace(/\s+/g, ' ').trim();
 }
 
-const DEFAULT_IMAGE = `${BASE_URL}/hero/petit-champlain.jpg`;
+const DEFAULT_IMAGE = `${BASE_URL}/hero/petit-champlain-og.jpg`;
 
 function injectHead(html, { title, description, canonical, schemas = [], image = DEFAULT_IMAGE, preloadLinks = [] }) {
   const url = `${BASE_URL}${canonical}`;

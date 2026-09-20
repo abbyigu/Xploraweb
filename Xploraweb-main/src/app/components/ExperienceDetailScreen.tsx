@@ -188,7 +188,7 @@ export function ExperienceDetailScreen() {
                   i === photoIndex ? 'border-primary opacity-100' : 'border-transparent opacity-60 hover:opacity-90'
                 }`}
               >
-                <img src={photo} alt="" className="w-full h-full object-cover" aria-hidden="true" />
+                <img loading="lazy" decoding="async" src={photo} alt="" className="w-full h-full object-cover" aria-hidden="true" />
               </button>
             ))}
           </div>
@@ -204,7 +204,7 @@ export function ExperienceDetailScreen() {
             {/* Strong opening: what, how long, who */}
             <div>
               {exp.category && (
-                <p className="text-xs uppercase tracking-widest text-secondary font-medium mb-2">
+                <p className="text-xs uppercase tracking-widest text-secondary-ink font-medium mb-2">
                   {CAT_TYPE_KEY[exp.category] ? t(CAT_TYPE_KEY[exp.category]) : exp.category}
                 </p>
               )}
@@ -400,7 +400,7 @@ export function ExperienceDetailScreen() {
                   onClick={purchaseAndAdd}
                   disabled={inCart}
                   className={`w-full py-3 rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
-                    inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                    inCart ? 'bg-green-500 text-white' : 'bg-xplora-ink text-white hover:bg-xplora-ink/90'
                   }`}
                 >
                   {inCart
@@ -439,7 +439,7 @@ export function ExperienceDetailScreen() {
             <button
               onClick={() => { if (!inCart) purchaseAndAdd(); else navigate('/cart'); }}
               className={`px-6 py-3 rounded-2xl font-medium text-sm transition-all flex items-center gap-2 ${
-                inCart ? 'bg-green-500 text-white' : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                inCart ? 'bg-green-500 text-white' : 'bg-xplora-ink text-white hover:bg-xplora-ink/90'
               }`}
             >
               {isSelfGuided

@@ -696,7 +696,7 @@ function PricingPanel() {
             </p>
           </div>
           {deals.length > 0 && (
-            <span className="bg-secondary/20 text-secondary text-xs px-2.5 py-1 rounded-full font-medium">
+            <span className="bg-secondary/20 text-secondary-ink text-xs px-2.5 py-1 rounded-full font-medium">
               {deals.length} active
             </span>
           )}
@@ -707,7 +707,7 @@ function PricingPanel() {
             const isDeal = deals.includes(exp.id);
             return (
               <div key={exp.id} className={`flex items-center gap-4 rounded-xl border p-4 transition-colors ${isDeal ? 'bg-secondary/5 border-secondary/30' : 'bg-card border-border'}`}>
-                <img src={exp.image} alt={exp.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                <img loading="lazy" decoding="async" src={exp.image} alt={exp.name} className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{exp.name}</p>
                   <p className="text-xs text-muted-foreground">
@@ -719,7 +719,7 @@ function PricingPanel() {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {isDeal && (
-                    <span className="hidden sm:flex items-center gap-1 text-xs text-secondary font-medium">
+                    <span className="hidden sm:flex items-center gap-1 text-xs text-secondary-ink font-medium">
                       <Tag className="w-3 h-3" /> Deal active
                     </span>
                   )}

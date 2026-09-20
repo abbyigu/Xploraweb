@@ -28,14 +28,14 @@ function TeamCard({ member }: { member: (typeof TEAM)[0] }) {
             className="w-16 h-16 rounded-2xl object-cover bg-xplora-icon-bg"
           />
         ) : (
-          <div className="w-16 h-16 rounded-2xl bg-xplora-icon-bg flex items-center justify-center text-xplora-primary font-medium text-lg">
+          <div className="w-16 h-16 rounded-2xl bg-xplora-icon-bg flex items-center justify-center text-primary font-medium text-lg">
             {member.initials}
           </div>
         )}
       </div>
       <div className="space-y-0.5">
         <p className="font-medium text-foreground text-sm">{member.name}</p>
-        <p className="text-xs text-xplora-primary uppercase tracking-wide">{t('about.founderRole')}</p>
+        <p className="text-xs text-primary uppercase tracking-wide">{t('about.founderRole')}</p>
         <p className="text-sm text-muted-foreground leading-relaxed pt-1">{t('about.founderBio')}</p>
       </div>
     </div>
@@ -95,7 +95,7 @@ export function AboutScreen() {
           </p>
           <div className="flex items-center gap-3 pt-2">
             <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-primary/20">
-              <img src="/team/founder.jpeg" alt="Ariel B." className="w-full h-full object-cover object-top" />
+              <img loading="lazy" decoding="async" src="/team/founder.jpeg" alt="Ariel B." className="w-full h-full object-cover object-top" />
             </div>
             <div>
               <p className="text-sm font-semibold text-foreground">Ariel B.</p>
@@ -108,7 +108,7 @@ export function AboutScreen() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {stats.map((s) => (
             <div key={s.label} className="bg-card border border-border rounded-2xl p-4 flex flex-col items-center text-center gap-1">
-              <s.icon className="w-4 h-4 text-xplora-primary mb-1" />
+              <s.icon className="w-4 h-4 text-primary mb-1" />
               <span className="text-xl font-medium text-foreground">{s.value}</span>
               <span className="text-xs text-muted-foreground leading-tight">{s.label}</span>
             </div>
@@ -141,7 +141,7 @@ export function AboutScreen() {
           <ul className="space-y-3">
             {trustPoints.map((point) => (
               <li key={point} className="flex items-start gap-3">
-                <BadgeCheck className="w-5 h-5 text-xplora-primary flex-shrink-0 mt-0.5" />
+                <BadgeCheck className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span className="text-sm md:text-base text-muted-foreground leading-relaxed">{point}</span>
               </li>
             ))}
@@ -157,7 +157,7 @@ export function AboutScreen() {
           <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
             <Link
               to="/itinerary"
-              className="px-7 py-3.5 bg-[#12343B] text-white rounded-2xl text-sm font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+              className="px-7 py-3.5 bg-xplora-ink text-white rounded-2xl text-sm font-medium hover:bg-xplora-ink/90 transition-opacity flex items-center justify-center gap-2"
             >
               {t('about.ctaExperiences')}
               <ArrowRight className="w-4 h-4" />

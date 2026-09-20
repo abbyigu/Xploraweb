@@ -113,13 +113,13 @@ export function LandingPage() {
       </div>
 
       {/* Explorer count banner */}
-      <div className="bg-[#12343B] text-white py-4 px-6">
+      <div className="bg-xplora-ink text-white py-4 px-6">
         <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
           <div className="flex -space-x-2">
             {AVATAR_SEEDS.map((seed) => (
               <div
                 key={seed}
-                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold border-2 border-[#12343B]"
+                className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold border-2 border-xplora-ink"
               >
                 {seed[0]}
               </div>
@@ -242,7 +242,7 @@ export function LandingPage() {
           <div className="max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row gap-12 md:items-center">
               <div className="flex-1 space-y-6">
-                <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary px-4 py-1.5 rounded-full text-sm">
+                <div className="inline-flex items-center gap-2 bg-secondary/10 text-secondary-ink px-4 py-1.5 rounded-full text-sm">
                   <Building2 className="w-4 h-4" /> For Québec City Businesses
                 </div>
                 <h2 className="text-3xl md:text-4xl">{t('landing.businessTagline')}</h2>
@@ -281,7 +281,7 @@ export function LandingPage() {
                   { stat: t('landing.real'), label: t('landing.realDesc') },
                 ].map((item) => (
                   <div key={item.label} className="bg-card border border-border rounded-2xl p-5">
-                    <p className="text-2xl font-serif text-secondary mb-1">{item.stat}</p>
+                    <p className="text-2xl font-serif text-secondary-ink mb-1">{item.stat}</p>
                     <p className="text-sm text-muted-foreground">{item.label}</p>
                   </div>
                 ))}
@@ -298,7 +298,7 @@ export function LandingPage() {
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2">
           <Link
             to="/how-it-works"
-            className="flex items-center gap-2 bg-[#12343B] text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 bg-xplora-ink text-white px-5 py-3 rounded-full shadow-xl text-sm font-semibold hover:opacity-90 transition-opacity"
           >
             <span className="w-2 h-2 rounded-full bg-yellow-400 animate-pulse flex-shrink-0" />
             {t('landing.newHereFab')}
@@ -309,7 +309,7 @@ export function LandingPage() {
               sessionStorage.setItem('hiw_fab_dismissed', '1');
             }}
             aria-label="Dismiss"
-            className="w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
+            className="relative before:absolute before:-inset-2.5 before:content-[''] w-6 h-6 rounded-full bg-white text-foreground shadow border border-border flex items-center justify-center hover:bg-muted transition-colors"
           >
             <X className="w-3 h-3" />
           </button>

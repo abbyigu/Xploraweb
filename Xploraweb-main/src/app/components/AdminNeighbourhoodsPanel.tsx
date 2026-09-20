@@ -198,7 +198,7 @@ export function AdminNeighbourhoodsPanel() {
           <p className="text-xs text-muted-foreground mt-0.5">Manage the neighbourhoods shown in the app and on the landing page.</p>
         </div>
         {!showForm && (
-          <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-[#12343B] text-white rounded-xl text-sm hover:opacity-90 transition">
+          <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-xplora-ink text-white rounded-xl text-sm hover:opacity-90 transition">
             <Plus className="w-4 h-4" /> Add neighbourhood
           </button>
         )}
@@ -311,7 +311,7 @@ export function AdminNeighbourhoodsPanel() {
             </div>
             <p className="text-[11px] text-muted-foreground">Paste an image URL or upload a picture from your device.</p>
             {form.cover_image_url && (
-              <img src={form.cover_image_url} alt="preview" className="mt-2 w-full h-32 object-cover rounded-xl" />
+              <img loading="lazy" decoding="async" src={form.cover_image_url} alt="preview" className="mt-2 w-full h-32 object-cover rounded-xl" />
             )}
           </div>
 
@@ -354,7 +354,7 @@ export function AdminNeighbourhoodsPanel() {
             <button
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#12343B] text-white rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 bg-xplora-ink text-white rounded-xl text-sm font-medium hover:opacity-90 transition disabled:opacity-50"
             >
               {saving ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 : saved ? <Check className="w-4 h-4" /> : null}
@@ -380,7 +380,7 @@ export function AdminNeighbourhoodsPanel() {
           {rows.map(row => (
             <div key={row.id} className="bg-card border border-border rounded-xl p-4 flex items-center gap-4">
               {row.cover_image_url ? (
-                <img src={row.cover_image_url} alt={row.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
+                <img loading="lazy" decoding="async" src={row.cover_image_url} alt={row.name} className="w-14 h-14 rounded-xl object-cover flex-shrink-0" />
               ) : (
                 <div className="w-14 h-14 rounded-xl bg-muted flex-shrink-0" />
               )}

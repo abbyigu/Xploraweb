@@ -16,6 +16,14 @@ const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping', 'Family', 'History', 'Stays', 'Sweets', 'Terraces'] as const;
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const PACES = ['relaxed', 'moderate', 'packed'] as const;
+const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
+const WHO_HINTS: Record<(typeof WHO_OPTIONS)[number], string> = {
+  solo: 'The traveller is exploring solo — favour spots that are comfortable and welcoming on your own.',
+  couple: 'The travellers are a couple — favour romantic, intimate spots.',
+  friends: 'The travellers are a group of friends — favour lively, social spots.',
+  family: 'The travellers are a family with kids — favour kid-friendly spots and avoid late-night bars.',
+  visitors: 'The travellers are first-time visitors — favour the iconic must-see spots.',
+};
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 const CANDIDATE_CAP = 24;
@@ -55,6 +63,7 @@ const RequestSchema = z.object({
   restaurantHopping: z.boolean().optional().default(false),
   michelinOnly: z.boolean().optional().default(false),
   pace: z.enum(PACES).optional().default('moderate'),
+  who: z.enum(WHO_OPTIONS).optional(),
   // Stops the user pinned on a previous generation — kept in every regenerated
   // option (not subject to the balanced-mix caps below) while the rest varies.
   // Order matters: it's the sequence the traveller last saw them in, and
@@ -169,6 +178,7 @@ Requirements:
 - Estimate a realistic total walking + visiting duration and distance for each route, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
 - Order each itinerary's stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
 - ${PACE_INSTRUCTION[body.pace]}
+${body.who ? `- ${WHO_HINTS[body.who]}` : ''}
 ${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
 ${!restaurantHopping && body.categories.length >= 2 ? `- The traveller wants to move through these categories roughly in this order: ${body.categories.join(' → ')}. Order each itinerary's stops to follow that sequence as closely as the geography allows (e.g. a ${body.categories[0]} stop earlier in the route, a ${body.categories[body.categories.length - 1]} stop later).` : ''}

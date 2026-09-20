@@ -69,6 +69,9 @@ export function bucketForStopCount(stopCount: number, restaurantHopping: boolean
 export const PACE_OPTIONS = ['relaxed', 'moderate', 'packed'] as const;
 export type Pace = (typeof PACE_OPTIONS)[number];
 
+export const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
+export type Who = (typeof WHO_OPTIONS)[number];
+
 export interface ItineraryGenerateRequest {
   stopCount: number;
   categories: SpotCategory[];
@@ -78,6 +81,8 @@ export interface ItineraryGenerateRequest {
   restaurantHopping: boolean;
   michelinOnly: boolean;
   pace: Pace;
+  /** Travel party — optional, becomes a one-line preference hint in the AI prompt. */
+  who?: Who;
   // Stops the user pinned on a previous generation — carried into the next
   // regeneration so they survive it instead of being reshuffled away. Order
   // matters: pass them in the sequence they were last shown in so the API

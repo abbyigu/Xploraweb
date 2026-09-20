@@ -1,7 +1,7 @@
 import { Clock, MapPin, ShoppingCart, Check } from 'lucide-react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import type { Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 
@@ -23,7 +23,6 @@ const EVENT_TYPE_STYLE: Record<string, { label: string; className: string }> = {
 
 export function EventCard({ exp }: { exp: Product }) {
   const { addItem, items } = useCart();
-  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const inCart = items.some(i => i.id === exp.id);
   const typeStyle = exp.eventType ? EVENT_TYPE_STYLE[exp.eventType] : null;
@@ -35,16 +34,15 @@ export function EventCard({ exp }: { exp: Product }) {
 
   return (
     <div
-      className="flex bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow cursor-pointer"
-      onClick={() => navigate(`/experience/${exp.id}`)}
+      className="relative flex bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow cursor-pointer"
       role="article"
     >
       {/* Date block */}
       {dateInfo && (
         <div className="flex-shrink-0 w-14 flex flex-col items-center justify-center bg-primary/8 border-r border-border px-1 py-4 gap-0.5">
-          <span className="text-[10px] font-semibold tracking-widest text-muted-foreground">{dateInfo.weekday}</span>
+          <span className="text-[11px] font-semibold tracking-widest text-muted-foreground">{dateInfo.weekday}</span>
           <span className="text-2xl font-bold leading-none text-foreground">{dateInfo.day}</span>
-          <span className="text-[10px] font-semibold tracking-widest text-muted-foreground">{dateInfo.month}</span>
+          <span className="text-[11px] font-semibold tracking-widest text-muted-foreground">{dateInfo.month}</span>
         </div>
       )}
 
@@ -52,7 +50,7 @@ export function EventCard({ exp }: { exp: Product }) {
       <div className="relative w-24 sm:w-32 flex-shrink-0">
         <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
         {exp.badge && (
-          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[10px] px-1.5 py-0.5 rounded-full font-medium leading-tight">
+          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[11px] px-1.5 py-0.5 rounded-full font-medium leading-tight">
             {exp.badge}
           </span>
         )}
@@ -63,7 +61,7 @@ export function EventCard({ exp }: { exp: Product }) {
         {/* Type badge + time */}
         <div className="flex items-center gap-2 flex-wrap">
           {typeStyle && (
-            <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold leading-tight ${typeStyle.className}`}>
+            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold leading-tight ${typeStyle.className}`}>
               {t(`events.${exp.eventType}`, typeStyle.label)}
             </span>
           )}
@@ -76,7 +74,9 @@ export function EventCard({ exp }: { exp: Product }) {
         </div>
 
         {/* Title */}
-        <h3 className="text-sm font-semibold leading-snug line-clamp-2">{exp.name}</h3>
+        <h3 className="text-sm font-semibold leading-snug line-clamp-2">
+          <Link to={`/experience/${exp.id}`} className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-xplora-ink/40">{exp.name}</Link>
+        </h3>
 
         {/* Location */}
         {locationShort && (
@@ -100,10 +100,10 @@ export function EventCard({ exp }: { exp: Product }) {
               <span className="text-sm font-semibold text-primary">{t('experienceCard.free')}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); if (!inCart) addItem(exp); }}
-                className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl font-medium transition-all ${
+                className={`relative z-10 flex items-center gap-1 text-xs px-3 py-1.5 rounded-xl font-medium transition-all ${
                   inCart
                     ? 'bg-green-500 text-white cursor-default'
-                    : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                    : 'bg-xplora-ink text-white hover:bg-xplora-ink/90'
                 }`}
                 aria-label={inCart ? t('experienceCard.added') : `${t('experienceCard.bookPaid')} ${exp.name}`}
               >

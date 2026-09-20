@@ -43,7 +43,7 @@ export function ContactScreen() {
             <ExternalLink className="w-6 h-6 text-secondary" />
           </div>
           <div className="space-y-0.5">
-            <p className="font-medium group-hover:text-secondary transition-colors">
+            <p className="font-medium group-hover:text-secondary-ink transition-colors">
               {t('contact.partnerLabel')}
             </p>
             <p className="text-sm text-muted-foreground">{t('contact.partnerDesc')}</p>

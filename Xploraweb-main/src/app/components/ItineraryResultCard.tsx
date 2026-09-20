@@ -123,7 +123,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
             <button
               type="button"
               onClick={copyShareLink}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#12343B] text-white text-xs font-medium hover:opacity-90 transition"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-xplora-ink text-white text-xs font-medium hover:opacity-90 transition"
             >
               {copied ? <Check className="w-3.5 h-3.5" aria-hidden="true" /> : <Copy className="w-3.5 h-3.5" aria-hidden="true" />}
               {copied ? t('itineraryBuilder.linkCopied') : t('itineraryBuilder.copyLink')}
@@ -154,7 +154,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
           <button
             type="button"
             onClick={confirmPinSave}
-            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition"
+            className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition"
           >
             {t('itineraryBuilder.pinSaveConfirmConfirm')}
           </button>
@@ -195,7 +195,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
       <div className="rounded-3xl border border-border bg-card overflow-hidden flex flex-col">
         <div className="relative aspect-[3/2] overflow-hidden bg-muted">
           {coverImage ? (
-            <img src={coverImage} alt={itinerary.title} className="w-full h-full object-cover" />
+            <img loading="lazy" decoding="async" src={coverImage} alt={itinerary.title} className="w-full h-full object-cover" />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground">
               <MapPin className="w-8 h-8" aria-hidden="true" />

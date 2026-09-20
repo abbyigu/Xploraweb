@@ -19,7 +19,7 @@
   --card-foreground: #243238;
   --popover: #ffffff;
   --popover-foreground: #243238;
-  --primary: #119FB3;
+  --primary: #0B7383; /* AA on white (5.5:1); brand fill teal stays --xplora-primary */
   --primary-foreground: #ffffff;
   --secondary: #33C0A3;
   --secondary-foreground: #ffffff;
@@ -91,6 +91,8 @@
 
 @theme inline {
   /* Xplora brand tokens — usable as bg-xplora-primary, text-xplora-ink, etc. */
+  /* Text-safe variant of --secondary (#33C0A3 is 2.3:1 on white); use for text on light surfaces */
+  --color-secondary-ink: #0F766E;
   --color-xplora-primary: var(--xplora-primary);
   --color-xplora-primary-light: var(--xplora-primary-light);
   --color-xplora-accent-teal: var(--xplora-accent-teal);

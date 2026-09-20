@@ -71,14 +71,14 @@ export function SpotReviewForm({ spotId }: { spotId: string }) {
 
   return (
     <div className="mt-2 pt-2 border-t border-border space-y-2" onClick={(e) => e.stopPropagation()}>
-      <div className="flex items-center gap-0.5">
+      <div className="flex items-center">
         {[1, 2, 3, 4, 5].map((n) => (
           <button
             key={n}
             type="button"
             onClick={() => { setRating(n); setSaved(false); }}
-            aria-label={`${n} star${n > 1 ? 's' : ''}`}
-            className="p-0.5"
+            aria-label={t('a11y.rateStars', { n })}
+            className="p-2"
           >
             <Star className={`w-4 h-4 ${n <= rating ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground'}`} />
           </button>
@@ -89,10 +89,11 @@ export function SpotReviewForm({ spotId }: { spotId: string }) {
         value={comment}
         onChange={(e) => { setComment(e.target.value); setSaved(false); setBlockedError(false); }}
         placeholder={t('saved.placeNotesPlaceholder')}
+        aria-label={t('saved.placeNotesPlaceholder')}
         className="w-full px-2.5 py-1.5 rounded-lg border border-border text-xs focus:outline-none focus:ring-2 focus:ring-primary resize-none"
       />
       {blockedError && (
-        <p className="text-xs text-red-600">{t('common.reviewBlockedLanguage')}</p>
+        <p role="alert" className="text-xs text-red-600">{t('common.reviewBlockedLanguage')}</p>
       )}
       {review?.reviewStatus === 'pending' && (
         <p className="text-xs text-amber-700">{t('saved.reviewPendingLong')}</p>
@@ -101,7 +102,7 @@ export function SpotReviewForm({ spotId }: { spotId: string }) {
         type="button"
         onClick={handleSave}
         disabled={rating === 0}
-        className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#12343B] text-white text-xs font-medium hover:opacity-90 transition disabled:opacity-40"
+        className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg bg-xplora-ink text-white text-xs font-medium hover:opacity-90 transition disabled:opacity-40"
       >
         {saved ? <><Check className="w-3.5 h-3.5" aria-hidden="true" /> {t('account.saved')}</> : t('sharedItinerary.saveReview')}
       </button>

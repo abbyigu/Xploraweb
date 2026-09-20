@@ -8,13 +8,13 @@ import { containsInappropriateLanguage } from '../lib/contentModeration';
 
 function StarRating({ value, onChange }: { value: number; onChange: (rating: number) => void }) {
   return (
-    <div className="flex items-center gap-0.5">
+    <div className="flex items-center">
       {[1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
           type="button"
           onClick={() => onChange(n)}
-          className="p-0.5"
+          className="p-2"
           aria-label={`${n} star${n > 1 ? 's' : ''}`}
         >
           <Star className={`w-4 h-4 ${n <= value ? 'fill-amber-400 text-amber-400' : 'text-muted-foreground'}`} />
@@ -123,7 +123,7 @@ export function ItineraryScrapbook({
         <div className="flex flex-wrap gap-2">
           {itinerary.photos.map((photo) => (
             <div key={photo.url} className="relative w-20 h-20 rounded-lg overflow-hidden group">
-              <img src={photo.url} alt="" className="w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={photo.url} alt="" className="w-full h-full object-cover" />
               <button
                 onClick={() => removePhoto(photo.url)}
                 className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
@@ -139,7 +139,7 @@ export function ItineraryScrapbook({
             className="w-20 h-20 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center gap-1 text-muted-foreground hover:border-primary hover:text-primary transition-colors disabled:opacity-60"
           >
             {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Camera className="w-5 h-5" />}
-            <span className="text-[10px]">{t('account.addPhoto')}</span>
+            <span className="text-xs">{t('account.addPhoto')}</span>
           </button>
           <input
             ref={fileInputRef}
@@ -170,7 +170,7 @@ export function ItineraryScrapbook({
           <button
             onClick={saveNotes}
             disabled={notesDraft === itinerary.notes}
-            className="mt-2 text-sm px-3 py-1.5 rounded-lg bg-[#12343B] text-white hover:opacity-90 transition disabled:opacity-40"
+            className="mt-2 text-sm px-3 py-1.5 rounded-lg bg-xplora-ink text-white hover:opacity-90 transition disabled:opacity-40"
           >
             {notesSaved ? t('account.saved') : t('account.saveNotes')}
           </button>
@@ -250,7 +250,7 @@ export function ItineraryScrapbook({
       {standalone && (
         <button
           onClick={saveNotes}
-          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#12343B] text-white text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-2"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition flex items-center justify-center gap-2"
         >
           {notesSaved ? <><Check className="w-4 h-4" aria-hidden="true" /> {t('account.saved')}</> : t('sharedItinerary.saveReview')}
         </button>

@@ -2,7 +2,7 @@ import { Clock, MapPin, Check, ArrowRight, Star, Bookmark } from 'lucide-react';
 import { useState } from 'react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { useCart } from '../context/CartContext';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import type { Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { normalizeDifficulty, DIFFICULTY_META, getRating } from '../lib/experienceMeta';
@@ -32,11 +32,10 @@ export function ExperienceCard({ exp }: { exp: Product }) {
   }
 
   return (
-    <div className="group flex flex-col h-full bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow">
+    <div className="group relative flex flex-col h-full bg-card rounded-2xl overflow-hidden shadow-sm border border-border hover:shadow-md transition-shadow">
       {/* Image */}
       <div
-        className="relative h-40 sm:h-44 cursor-pointer flex-shrink-0"
-        onClick={() => navigate(`/experience/${exp.id}`)}
+        className="relative h-40 sm:h-44 flex-shrink-0"
       >
         <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
         {exp.badge && (
@@ -50,7 +49,7 @@ export function ExperienceCard({ exp }: { exp: Product }) {
           onClick={e => { e.stopPropagation(); analytics.saveToggle(exp.id, exp.name, !saved); setSaved(s => !s); }}
           aria-label={saved ? t('experienceCard.removeFromSaved') : t('experienceCard.save')}
           aria-pressed={saved}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/95 shadow-sm flex items-center justify-center hover:bg-white transition-colors"
+          className="absolute top-3 right-3 z-10 before:absolute before:-inset-1.5 before:content-[''] w-8 h-8 rounded-full bg-white/95 shadow-sm flex items-center justify-center hover:bg-white transition-colors"
         >
           <Bookmark className={`w-4 h-4 ${saved ? 'fill-primary text-primary' : 'text-foreground'}`} aria-hidden="true" />
         </button>
@@ -80,11 +79,8 @@ export function ExperienceCard({ exp }: { exp: Product }) {
         </div>
 
         {/* Title */}
-        <h3
-          className="text-base font-semibold leading-snug cursor-pointer hover:text-primary transition-colors"
-          onClick={() => navigate(`/experience/${exp.id}`)}
-        >
-          {exp.name}
+        <h3 className="text-base font-semibold leading-snug hover:text-primary transition-colors">
+          <Link to={`/experience/${exp.id}`} className="after:absolute after:inset-0 focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-inset focus-visible:after:ring-xplora-ink/40">{exp.name}</Link>
         </h3>
 
         {/* Location */}
@@ -107,10 +103,10 @@ export function ExperienceCard({ exp }: { exp: Product }) {
               <span className="text-base font-semibold text-primary">{t('experienceCard.free')}</span>
               <button
                 onClick={handleCTA}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+                className={`relative z-10 flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
                   inCart
                     ? 'bg-green-500 text-white cursor-default'
-                    : 'bg-[#12343B] text-white hover:bg-[#12343B]/90'
+                    : 'bg-xplora-ink text-white hover:bg-xplora-ink/90'
                 }`}
               >
                 {inCart ? (

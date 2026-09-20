@@ -388,7 +388,7 @@ export function AdminSpotsPanel() {
                   onClick={geocodeAddress}
                   disabled={geocoding || !form.address.trim()}
                   title="Look up coordinates from address"
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border text-sm text-xplora-ink hover:bg-xplora-ink/5 disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   <LocateFixed className={`w-4 h-4 ${geocoding ? 'animate-spin' : ''}`} />
                   {geocoding ? 'Locating…' : 'Get coords'}
@@ -605,7 +605,7 @@ export function AdminSpotsPanel() {
               </div>
               {imagePreview && (
                 <div className="mt-2 relative">
-                  <img src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
+                  <img loading="lazy" decoding="async" src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
                   <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
                 </div>
               )}
@@ -619,7 +619,7 @@ export function AdminSpotsPanel() {
                   type="button"
                   onClick={autoTranslate}
                   disabled={translating || (!form.name.trim() && !form.xplora_tips.trim())}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-[#12343B] hover:bg-[#12343B]/5 disabled:opacity-40 transition-colors whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-border text-xs text-xplora-ink hover:bg-xplora-ink/5 disabled:opacity-40 transition-colors whitespace-nowrap"
                 >
                   {translating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Languages className="w-3.5 h-3.5" />}
                   {translating ? 'Translating…' : 'Auto-translate'}
@@ -783,7 +783,7 @@ export function AdminSpotsPanel() {
                 <div key={spot.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     {spot.image_url ? (
-                      <img src={spot.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
+                      <img loading="lazy" decoding="async" src={spot.image_url} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />
                     ) : (
                       <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                         <MapPin className="w-4 h-4 text-muted-foreground" />

@@ -31,7 +31,7 @@ function FaqItem({ q, a, link }: FaqItemData) {
           {link && (
             <Link
               to={link.to}
-              className="inline-flex items-center gap-1 text-sm text-xplora-primary hover:underline"
+              className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
             >
               {link.label}
               <ArrowRight className="w-3 h-3" />
@@ -145,7 +145,7 @@ export function FaqScreen() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
               <a
                 href="mailto:hello@goxplora.ca"
-                className="px-7 py-3.5 bg-[#12343B] text-white rounded-2xl text-sm font-medium hover:bg-[#12343B]/90 transition-opacity flex items-center justify-center gap-2"
+                className="px-7 py-3.5 bg-xplora-ink text-white rounded-2xl text-sm font-medium hover:bg-xplora-ink/90 transition-opacity flex items-center justify-center gap-2"
               >
                 <Mail className="w-4 h-4" />
                 {t('faq.ctaContact')}
