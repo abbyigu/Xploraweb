@@ -121,6 +121,17 @@ function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
   return body.restaurantHopping === true;
 }
 
+// Fisher-Yates — used to vary which candidates make the CANDIDATE_CAP cut
+// (and thus what the LLM can pick from) between regenerations with the same filters.
+function shuffle<T>(items: T[]): T[] {
+  const result = [...items];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 // Confirms real walking distances with Google (see api/_lib/googleRoutes.ts)
 // for the given stops so ordering reflects an actual walkable path rather
 // than a straight line that might cut through a cliff, the river, or a
@@ -323,7 +334,7 @@ export default async function handler(req: any, res: any) {
   // Prefer spots the traveller hasn't already seen, but fall back to the
   // full (unexcluded) pool rather than fail to fill the route when the
   // filters don't leave enough fresh candidates.
-  const fillCandidates = (freshDestinations.length >= Math.max(stopsToGenerate, 2) ? freshDestinations : unpinnedDestinations)
+  const fillCandidates = shuffle(freshDestinations.length >= Math.max(stopsToGenerate, 2) ? freshDestinations : unpinnedDestinations)
     .slice(0, CANDIDATE_CAP);
 
   if (fillCandidates.length < 2 && pinnedStops.length < 2) {
@@ -340,6 +351,7 @@ export default async function handler(req: any, res: any) {
         model: anthropic('claude-haiku-4-5-20251001'),
         schema: ItinerarySetSchema,
         prompt,
+        temperature: 1,
       });
       object = result.object;
     } catch (err: any) {
