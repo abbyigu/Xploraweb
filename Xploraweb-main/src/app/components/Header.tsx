@@ -36,14 +36,14 @@ export function Header() {
   return (
     <header className="hidden md:block bg-white border-b sticky top-0 z-50">
       <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between relative">
           <div className="flex items-center -ml-4">
             <Link to="/" aria-label={t('header.home', 'Home')} className="block">
               <XploraLogo variant="full" className="h-28 block" />
             </Link>
           </div>
 
-          <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-2 lg:gap-3">
+          <nav aria-label={t('header.mainNav', 'Main navigation')} className="flex items-center gap-2 lg:gap-3 absolute left-1/2 -translate-x-1/2">
             {navItems.map(({ path, labelKey }) => (
               <Fragment key={path}>
                 <Link
