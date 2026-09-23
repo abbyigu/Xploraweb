@@ -132,7 +132,7 @@ function FeatureTile({
       </div>
       <div className="p-4 md:p-5">
         <p className="font-semibold text-sm md:text-base text-gray-900">{label}</p>
-        <p className="text-xs md:text-sm text-gray-400 mt-0.5">{desc}</p>
+        <p className="text-xs md:text-sm text-gray-600 mt-0.5">{desc}</p>
       </div>
     </button>
   );
@@ -243,7 +243,7 @@ function GemCard({ image, title, category, rating, reviews, area, onClick, delay
       <div className="flex items-center gap-1 text-xs text-gray-500">
         {typeof rating === 'number' && (
           <>
-            <Star className="w-3 h-3 fill-[#119FB3] text-primary" />
+            <Star className="w-3 h-3 fill-xplora-primary text-primary" />
             <span className="font-medium text-gray-700">{rating.toFixed(1)}</span>
             {typeof reviews === 'number' && <span>({reviews})</span>}
             {area && <span>· {area}</span>}
@@ -467,7 +467,6 @@ export function HomeScreen() {
       <section className="max-w-7xl mx-auto px-6 md:px-8 pt-14 md:pt-16 pb-4">
         <div className="flex items-baseline justify-between gap-4 mb-5">
           <div>
-            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">{t('home.neighbourhoodsEyebrow')}</p>
             <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink">{t('home.neighbourhoodsTitle')}</h2>
           </div>
           <Link to="/neighbourhoods" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-xplora-ink hover:gap-2 transition-all flex-shrink-0">
@@ -495,7 +494,6 @@ export function HomeScreen() {
         <section className="max-w-7xl mx-auto px-6 md:px-8 pt-14 md:pt-16 pb-4">
           <div className="flex items-baseline justify-between gap-4 mb-5">
             <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2">{t('home.gemsEyebrow')}</p>
               <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink">{t('home.gemsTitle')}</h2>
             </div>
             <Link to="/loved" className="hidden sm:inline-flex items-center gap-1 text-sm font-semibold text-xplora-ink hover:gap-2 transition-all flex-shrink-0">
@@ -532,7 +530,6 @@ export function HomeScreen() {
       <section className="mt-8 bg-[#ECEEE8] px-6 py-16 md:py-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-14 md:gap-16 items-center">
           <div>
-            <p className="text-xs font-semibold text-primary uppercase tracking-wide mb-2.5">{t('home.howEyebrow')}</p>
             <h2 className="font-serif text-2xl md:text-3xl font-semibold text-xplora-ink mb-9">{t('home.howTitle')}</h2>
             <div className="grid grid-cols-2 gap-x-6 gap-y-9 sm:grid-cols-4 sm:gap-x-4 lg:flex lg:items-start lg:gap-x-0">
               {HOW_STEPS.map(({ icon: Icon, title, desc }, i) => (

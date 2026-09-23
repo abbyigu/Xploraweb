@@ -184,7 +184,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
         {/* Info bar */}
         <div className="mt-4 rounded-2xl border border-border bg-muted/40 px-6 py-5">
           <div>
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground mb-1">
+            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">
               <Heart className="w-3.5 h-3.5" aria-hidden="true" /> {t('itineraryBuilder.interests')}
             </p>
             <p className="text-sm font-medium text-xplora-ink">

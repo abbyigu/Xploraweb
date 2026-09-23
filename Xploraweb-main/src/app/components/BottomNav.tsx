@@ -42,7 +42,7 @@ export function BottomNav() {
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
-            <span className="text-[11px] leading-tight">{label}</span>
+            <span className="text-xs leading-tight">{label}</span>
           </Link>
         ))}
         <button
@@ -52,7 +52,7 @@ export function BottomNav() {
           className="relative flex flex-1 min-w-11 flex-col items-center gap-0.5 px-0.5 py-2.5 min-h-[44px] rounded-lg transition-all text-foreground hover:text-foreground hover:bg-muted/40"
         >
           <Languages className="w-4 h-4" />
-          <span className="text-[11px] leading-tight" aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
+          <span className="text-xs leading-tight" aria-hidden="true">{language === 'fr' ? 'EN' : 'FR'}</span>
         </button>
       </div>
     </nav>

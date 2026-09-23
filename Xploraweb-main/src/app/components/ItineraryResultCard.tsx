@@ -222,7 +222,7 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
           {categories.length > 0 && (
             <div className="flex flex-wrap gap-1.5 mt-1">
               {categories.map(c => (
-                <span key={c} className="text-[11px] font-medium px-2 py-1 rounded-full bg-muted text-foreground/80 border border-border">
+                <span key={c} className="text-xs font-medium px-2 py-1 rounded-full bg-muted text-foreground/80 border border-border">
                   {t(`categories.${SPOT_CATEGORY_KEY[c]}`, c)}
                 </span>
               ))}
