@@ -1,4 +1,4 @@
-import { type ReactNode, useMemo } from 'react';
+import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowRight, ArrowLeft, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +39,27 @@ function phonePinIcon(color: string): google.maps.Symbol {
   };
 }
 
+// The Maps SDK (~1 MB of JS) only loads once this decorative phone-mock map is near the viewport,
+// so it stays off the critical path of the landing page.
 function HowItWorksMap({ spots }: { spots: Spot[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [near, setNear] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || near) return;
+    if (!('IntersectionObserver' in window)) { setNear(true); return; }
+    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setNear(true); io.disconnect(); } }, { rootMargin: '400px' });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [near]);
+  return (
+    <div ref={ref} className="absolute inset-0">
+      {near ? <HowItWorksMapLoaded spots={spots} /> : <div className="absolute inset-0 bg-[#ECEEE8]" />}
+    </div>
+  );
+}
+
+function HowItWorksMapLoaded({ spots }: { spots: Spot[] }) {
   const { isLoaded } = useGoogleMaps();
   if (!isLoaded || spots.length === 0) {
     return <div className="absolute inset-0 bg-[#ECEEE8]" />;
@@ -522,7 +542,7 @@ export function HomeScreen() {
                       <Icon className="w-5 h-5 text-xplora-ink" />
                     </div>
                     <p className="text-[13.5px] font-semibold text-xplora-ink mb-1 max-w-[130px]">{title}</p>
-                    <p className="text-xs leading-relaxed text-gray-500 max-w-[160px]">{desc}</p>
+                    <p className="text-xs leading-relaxed text-gray-600 max-w-[160px]">{desc}</p>
                   </div>
                   {i < HOW_STEPS.length - 1 && (
                     <div
