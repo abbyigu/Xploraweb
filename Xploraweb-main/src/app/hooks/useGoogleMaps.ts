@@ -3,7 +3,7 @@ import { useJsApiLoader, type Libraries } from '@react-google-maps/api';
 
 // Module-level constant so the `libraries` array reference is stable across
 // renders — useJsApiLoader reloads the script (and warns) if it changes.
-const LIBRARIES: Libraries = ['drawing'];
+const LIBRARIES: Libraries = [];
 
 /** Loads the Google Maps JS SDK once, shared by every map component. */
 export function useGoogleMaps() {
