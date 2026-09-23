@@ -40,9 +40,9 @@ export function EventCard({ exp }: { exp: Product }) {
       {/* Date block */}
       {dateInfo && (
         <div className="flex-shrink-0 w-14 flex flex-col items-center justify-center bg-primary/8 border-r border-border px-1 py-4 gap-0.5">
-          <span className="text-[11px] font-semibold tracking-widest text-muted-foreground">{dateInfo.weekday}</span>
+          <span className="text-xs font-semibold tracking-widest text-muted-foreground">{dateInfo.weekday}</span>
           <span className="text-2xl font-bold leading-none text-foreground">{dateInfo.day}</span>
-          <span className="text-[11px] font-semibold tracking-widest text-muted-foreground">{dateInfo.month}</span>
+          <span className="text-xs font-semibold tracking-widest text-muted-foreground">{dateInfo.month}</span>
         </div>
       )}
 
@@ -50,7 +50,7 @@ export function EventCard({ exp }: { exp: Product }) {
       <div className="relative w-24 sm:w-32 flex-shrink-0">
         <ImageWithFallback src={exp.image} alt={exp.name} className="w-full h-full object-cover" />
         {exp.badge && (
-          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-[11px] px-1.5 py-0.5 rounded-full font-medium leading-tight">
+          <span className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-1.5 py-0.5 rounded-full font-medium leading-tight">
             {exp.badge}
           </span>
         )}
@@ -61,7 +61,7 @@ export function EventCard({ exp }: { exp: Product }) {
         {/* Type badge + time */}
         <div className="flex items-center gap-2 flex-wrap">
           {typeStyle && (
-            <span className={`text-[11px] px-2 py-0.5 rounded-full font-semibold leading-tight ${typeStyle.className}`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full font-semibold leading-tight ${typeStyle.className}`}>
               {t(`events.${exp.eventType}`, typeStyle.label)}
             </span>
           )}

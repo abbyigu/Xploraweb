@@ -47,7 +47,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
       <div className={`flex flex-col flex-1 ${compact ? 'p-2 gap-0.5' : 'p-4 gap-1.5'}`}>
         <div className="flex items-start justify-between gap-2">
           <p className={`font-medium text-gray-900 leading-tight truncate ${compact ? 'text-xs' : ''}`}>{spot.name}</p>
-          <span className={`flex-shrink-0 inline-flex items-center gap-2 text-muted-foreground ${compact ? 'text-[11px]' : 'text-xs'}`}>
+          <span className={`flex-shrink-0 inline-flex items-center gap-2 text-muted-foreground ${compact ? 'text-xs' : 'text-xs'}`}>
             {spot.priceRange && (
               <span className="font-mono font-semibold text-xplora-ink">
                 {spot.priceRange === 'Free' ? t('neighbourhoodDetail.free', 'Free') : spot.priceRange}
@@ -61,7 +61,7 @@ export const SpotCard = memo(function SpotCard({ spot, badge, pinAction, compact
           </span>
         </div>
         {typeof spot.googleRating === 'number' && (
-          <span className={`flex items-center gap-1 text-foreground ${compact ? 'text-[11px]' : 'text-xs'}`}>
+          <span className={`flex items-center gap-1 text-foreground ${compact ? 'text-xs' : 'text-xs'}`}>
             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" aria-hidden="true" />
             <span className="font-medium">{spot.googleRating.toFixed(1)}</span>
             {typeof spot.googleReviewCount === 'number' && (

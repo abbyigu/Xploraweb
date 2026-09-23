@@ -164,7 +164,7 @@ export function SiteSearch({ variant = 'header', className }: { variant?: 'heade
                     <MapPin className="w-4 h-4 text-xplora-ink flex-shrink-0" />
                     <span className="min-w-0">
                       <span className="block text-sm font-medium text-gray-900 truncate">{r.label}</span>
-                      {r.sublabel && <span className="block text-xs text-gray-400 truncate">{r.sublabel}</span>}
+                      {r.sublabel && <span className="block text-xs text-gray-500 truncate">{r.sublabel}</span>}
                     </span>
                   </button>
                 </li>

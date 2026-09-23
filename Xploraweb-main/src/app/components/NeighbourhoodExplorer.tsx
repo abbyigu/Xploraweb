@@ -218,7 +218,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                       onClick={() => selectNeighbourhood(n.name)}
                       aria-pressed={activeNbhd === n.name}
                       style={{ borderColor: color, color, opacity: dim ? 0.4 : 1 }}
-                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-[11px] font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
+                      className="flex items-center gap-1 px-2.5 py-[3px] rounded-full text-xs font-bold uppercase tracking-wide bg-white/90 border-[1.3px] cursor-pointer whitespace-nowrap shadow-sm transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-xplora-ink/40"
                     >
                       {n.name}
                       {count > 0 && <span className="opacity-70">· {count}</span>}
@@ -241,7 +241,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
 
       {/* Search / chip card */}
       <div className={`${mapFailed ? 'relative m-4 sm:m-6' : 'absolute top-4 sm:top-5 left-4 sm:left-6 right-4 sm:right-6 max-h-[calc(100%-32px)] overflow-y-auto'} md:right-auto md:w-[420px] z-20 bg-white/85 backdrop-blur-xl border border-white/60 rounded-2xl p-4 shadow-xl shadow-xplora-ink/15`}>
-        <p className="text-[11px] font-bold uppercase tracking-wide text-primary mb-2.5">{t('neighbourhoods.explorerSearchLabel')}</p>
+        <p className="text-xs font-bold uppercase tracking-wide text-primary mb-2.5">{t('neighbourhoods.explorerSearchLabel')}</p>
         <div className="flex flex-wrap gap-2">
           {neighbourhoods.map((n, i) => (
             <button
@@ -268,7 +268,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
           </button>
         </div>
         {categorizedVisitedCount === 0 && (
-          <p className="mt-3 text-[11px] leading-snug text-xplora-ink/55">{t('neighbourhoods.explorerPanelEmpty')}</p>
+          <p className="mt-3 text-xs leading-snug text-xplora-ink/55">{t('neighbourhoods.explorerPanelEmpty')}</p>
         )}
       </div>
 
@@ -294,13 +294,13 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
       {!mapFailed && categorizedVisitedCount > 0 && (
         <div className="hidden lg:block absolute top-[220px] left-6 z-[15] w-[190px] max-h-[calc(100%-236px)] overflow-y-auto bg-white rounded-2xl p-3.5 shadow-lg shadow-xplora-ink/10">
           <div className="flex items-center justify-between mb-2.5">
-            <h3 className="text-[11px] font-bold uppercase tracking-wide text-xplora-ink/55">{t('neighbourhoods.explorerPanelTitle')}</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wide text-xplora-ink/55">{t('neighbourhoods.explorerPanelTitle')}</h3>
             <button
               type="button"
               onClick={() => setShowPanelHint(v => !v)}
               aria-label={t('neighbourhoods.explorerPanelInfoLabel', 'How this works')}
               aria-pressed={showPanelHint}
-              className="w-5 h-5 rounded-full flex items-center justify-center text-xplora-ink/40 hover:text-primary hover:bg-[#119FB3]/10 transition-colors flex-none"
+              className="w-5 h-5 rounded-full flex items-center justify-center text-xplora-ink/40 hover:text-primary hover:bg-xplora-primary/10 transition-colors flex-none"
             >
               {showPanelHint ? <X className="w-3.5 h-3.5" /> : <Info className="w-3.5 h-3.5" />}
             </button>
@@ -324,7 +324,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                   type="button"
                   onClick={() => selectNeighbourhood(n.name)}
                   aria-pressed={isActive}
-                  className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-[#119FB3]/10' : 'hover:bg-xplora-ink/5'}`}
+                  className={`block w-full text-left -mx-1.5 px-1.5 py-1 rounded-lg mb-2 last:mb-0 transition-colors ${isActive ? 'bg-xplora-primary/10' : 'hover:bg-xplora-ink/5'}`}
                 >
                   <div className="flex items-center justify-between text-xs font-semibold text-xplora-ink mb-1">
                     <span className="truncate">{n.name}</span>
@@ -366,13 +366,13 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                   ) : spot.name}
                 </p>
                 {typeof spot.googleRating === 'number' ? (
-                  <span className="flex items-center gap-1 text-[11px] text-gray-500 mt-1">
-                    <Star className="w-3 h-3 fill-[#119FB3] text-primary" />
+                  <span className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                    <Star className="w-3 h-3 fill-xplora-primary text-primary" />
                     <span className="font-medium text-gray-700">{spot.googleRating.toFixed(1)}</span>
                     {spot.neighbourhood && <span className="truncate">· {spot.neighbourhood}</span>}
                   </span>
                 ) : spot.neighbourhood ? (
-                  <p className="text-[11px] text-gray-500 mt-1 truncate">{spot.neighbourhood}</p>
+                  <p className="text-xs text-gray-500 mt-1 truncate">{spot.neighbourhood}</p>
                 ) : null}
               </div>
             </div>

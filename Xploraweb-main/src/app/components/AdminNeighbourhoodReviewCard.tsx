@@ -114,6 +114,7 @@ export function AdminNeighbourhoodReviewCard({ review, onApprove, onReject, onPo
                   type="text"
                   value={messageDraft}
                   onChange={e => setMessageDraft(e.target.value)}
+                  aria-label="Private follow-up to reviewer"
                   placeholder="Private follow-up (visible only to you and the reviewer, sent by email)..."
                   className="flex-1 min-w-0 border border-border rounded-xl px-3 py-1.5 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
                 />
@@ -121,7 +122,7 @@ export function AdminNeighbourhoodReviewCard({ review, onApprove, onReject, onPo
                   onClick={handleEmailFollowUp}
                   disabled={!messageDraft.trim() || sending || !review.reviewer_email}
                   title={review.reviewer_email ? 'Email this reviewer' : 'No email on file for this reviewer'}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-xplora-ink text-white rounded-xl text-xs font-medium disabled:opacity-40 flex-shrink-0"
+                  className="relative before:absolute before:-inset-y-1 before:content-[''] flex items-center gap-1.5 px-3 py-1.5 bg-xplora-ink text-white rounded-xl text-xs font-medium disabled:opacity-40 flex-shrink-0"
                 >
                   <Mail className="w-3.5 h-3.5" /> Email reviewer
                 </button>
@@ -134,13 +135,14 @@ export function AdminNeighbourhoodReviewCard({ review, onApprove, onReject, onPo
               type="text"
               value={replyDraft}
               onChange={e => setReplyDraft(e.target.value)}
+              aria-label="Public reply"
               placeholder="Write a public reply..."
               className="flex-1 min-w-0 border border-border rounded-xl px-3 py-1.5 text-xs bg-background focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             <button
               onClick={handlePostPublicReply}
               disabled={!replyDraft.trim() || posting}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-xplora-ink text-white rounded-xl text-xs font-medium disabled:opacity-40 flex-shrink-0"
+              className="relative before:absolute before:-inset-y-1 before:content-[''] flex items-center gap-1.5 px-3 py-1.5 bg-xplora-ink text-white rounded-xl text-xs font-medium disabled:opacity-40 flex-shrink-0"
             >
               <Send className="w-3.5 h-3.5" /> Post public reply
             </button>

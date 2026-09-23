@@ -25,7 +25,7 @@ export function VisitSpotButton({ spot, className }: { spot: Spot; className?: s
       aria-pressed={visited}
       className={className ?? "absolute top-2 right-11 before:absolute before:-inset-x-0.5 before:-inset-y-1.5 before:content-[''] w-8 h-8 rounded-full bg-black/40 hover:bg-black/55 flex items-center justify-center transition-colors z-10"}
     >
-      <CheckCircle2 className={`w-4 h-4 ${visited ? 'fill-[#119FB3] text-white' : 'fill-none text-white'}`} aria-hidden="true" />
+      <CheckCircle2 className={`w-4 h-4 ${visited ? 'fill-xplora-primary text-white' : 'fill-none text-white'}`} aria-hidden="true" />
     </button>
   );
 }

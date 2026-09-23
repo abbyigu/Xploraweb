@@ -263,7 +263,7 @@ function PreferenceRow({
       <div className="flex items-start gap-2.5 min-w-0">
         <Icon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
         <div className="min-w-0">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground">{label}</p>
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">{label}</p>
           <p className="text-sm font-medium truncate">{value}</p>
         </div>
       </div>

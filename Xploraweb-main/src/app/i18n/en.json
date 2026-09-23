@@ -81,7 +81,11 @@
     "reviewThanksPending": "Thanks! Your review will appear once it's approved.",
     "reviewError": "Couldn't save your review — please try again.",
     "reviewsTitle": "What explorers are saying",
-    "adminReplyLabel": "Xplora replied"
+    "adminReplyLabel": "Xplora replied",
+    "filteringByStreet": "Showing spots on",
+    "clearFilter": "Clear",
+    "noSpotsOnStreet": "No spots found here yet.",
+    "showAllSpots": "Show all spots"
   },
   "spotFinder": {
     "title": "Not sure what to do?",
@@ -119,7 +123,8 @@
     "contact": "Contact",
     "forBusinesses": "For Businesses",
     "exploring": "Exploring",
-    "city": "Québec City, QC"
+    "city": "Québec City, QC",
+    "mainNav": "Main navigation"
   },
   "footer": {
     "tagline": "Be First in the Door",
@@ -149,7 +154,8 @@
     "linkTermsOfService": "Terms of service",
     "linkCookiePolicy": "Cookie policy",
     "linkAccessibility": "Accessibility",
-    "copyrightLine": "© 2026 GoXplora · Québec City, QC"
+    "copyrightLine": "© 2026 GoXplora · Québec City, QC",
+    "linksLabel": "Footer links"
   },
   "landing": {
     "headline": "Book the best local tours and experiences in Québec City.",
@@ -271,14 +277,11 @@
     "heroExploreMap": "Explore the map",
     "previewEyebrow": "Spot Finder",
     "previewFootnote": "No sign up required · Free to try",
-    "neighbourhoodsEyebrow": "Explore your city",
     "neighbourhoodsTitle": "Discover by neighbourhood",
     "neighbourhoodsCta": "View all neighbourhoods",
     "placesCount": "{{count}} places",
-    "gemsEyebrow": "Handpicked for you",
     "gemsTitle": "Hidden gems worth discovering",
     "gemsCta": "View all places",
-    "howEyebrow": "Plan less. Experience more.",
     "howTitle": "How Goxplora works",
     "howStep1Title": "Tell us your vibe",
     "howStep1Desc": "Pick a vibe, walk length, and radius — no account needed.",

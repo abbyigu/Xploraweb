@@ -132,7 +132,7 @@ export function HowItWorksScreen() {
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
                       <Icon className="w-5 h-5" />
                     </div>
-                    <span className={`text-[11px] font-medium uppercase tracking-wide px-2 py-0.5 rounded-full ${live ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                    <span className={`text-xs font-medium uppercase tracking-wide px-2 py-0.5 rounded-full ${live ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
                       {live ? t('howItWorks.statusLive') : t('howItWorks.statusComingSoon')}
                     </span>
                   </div>

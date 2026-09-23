@@ -184,7 +184,7 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-muted-foreground">Map</label>
-        <div className="flex gap-3 text-[11px] text-muted-foreground">
+        <div className="flex gap-3 text-xs text-muted-foreground">
           <span>📍 Click map to set centre pin</span>
           <span>⬡ Draw boundary</span>
           <span>〰 Draw walk route</span>
@@ -198,7 +198,7 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
       />
 
       {(value.lat != null || value.boundary || value.route) && (
-        <div className="flex gap-4 text-[11px] text-muted-foreground font-mono bg-muted/40 rounded-lg px-3 py-2">
+        <div className="flex gap-4 text-xs text-muted-foreground font-mono bg-muted/40 rounded-lg px-3 py-2">
           {value.lat != null && (
             <span>📍 {value.lat}, {value.lng}</span>
           )}

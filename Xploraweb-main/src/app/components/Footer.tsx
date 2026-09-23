@@ -20,6 +20,8 @@ export function Footer() {
                   alt="GoXplora"
                   width={336}
                   height={223}
+                  loading="lazy"
+                  decoding="async"
                   style={{ height: 100, marginTop: -24, marginLeft: -10, mixBlendMode: 'screen', filter: 'invert(1) hue-rotate(180deg) brightness(1.6)' }}
                 />
               </picture>
@@ -37,7 +39,7 @@ export function Footer() {
 
           {/* Explore */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer.exploreHeading')}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">{t('footer.exploreHeading')}</p>
             <ul className="text-sm text-white/70">
               <li><Link to="/itinerary" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkWalks')}</Link></li>
               <li><Link to="/neighbourhoods" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkMapView')}</Link></li>
@@ -46,7 +48,7 @@ export function Footer() {
 
           {/* Company */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer.companyHeading')}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">{t('footer.companyHeading')}</p>
             <ul className="text-sm text-white/70">
               <li><Link to="/about" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkAboutUs')}</Link></li>
               <li><Link to="/business" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkForBusinesses')}</Link></li>
@@ -58,7 +60,7 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-white/40 mb-4">{t('footer.legalHeading')}</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">{t('footer.legalHeading')}</p>
             <ul className="text-sm text-white/70">
               <li><Link to="/privacy" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkPrivacyPolicy')}</Link></li>
               <li><Link to="/terms" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkTermsOfService')}</Link></li>
@@ -70,7 +72,7 @@ export function Footer() {
 
         {/* Bottom row */}
         <div className="border-t border-white/10 pt-6 flex items-center justify-center">
-          <p className="text-xs text-white/40">{t('footer.copyrightLine')}</p>
+          <p className="text-xs text-white/60">{t('footer.copyrightLine')}</p>
         </div>
       </div>
     </footer>

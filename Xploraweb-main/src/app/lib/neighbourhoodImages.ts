@@ -46,6 +46,10 @@ export function neighbourhoodImage(name: string, coverImage?: string | null): st
  * anywhere). Returns null when there's no local webp companion.
  */
 export function neighbourhoodImageWebp(name: string, coverImage?: string | null): string | null {
-  if (coverImage) return null;
+  if (coverImage) {
+    // A cover image pointing at our own /nbhd/ JPEG still has a webp companion; anything else may point anywhere.
+    const candidate = coverImage.replace(/\.(jpe?g|png)$/i, '.webp');
+    return candidate !== coverImage && Object.values(LOCAL_IMAGES_WEBP).includes(candidate) ? candidate : null;
+  }
   return LOCAL_IMAGES_WEBP[norm(name)] || null;
 }

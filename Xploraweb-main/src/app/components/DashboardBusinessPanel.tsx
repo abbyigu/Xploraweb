@@ -303,7 +303,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
 
         {showForm && (
           <form onSubmit={handleSubmit} className="bg-card border border-border rounded-2xl p-6 mb-6 space-y-4">
-            {error && <p className="text-red-500 text-sm">{error}</p>}
+            {error && <p role="alert" className="text-red-500 text-sm">{error}</p>}
 
             {/* Type toggle */}
             <div className="flex gap-2">
@@ -321,36 +321,36 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
 
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm mb-1.5">Title</label>
-                <input type="text" value={form.title} onChange={set('title')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder={form.type === 'free' ? 'First drink on us' : 'Evening Wine Tasting'} required />
+                <label htmlFor="biz-title" className="block text-sm mb-1.5">Title</label>
+                <input id="biz-title" type="text" value={form.title} onChange={set('title')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder={form.type === 'free' ? 'First drink on us' : 'Evening Wine Tasting'} required />
               </div>
               {form.type === 'free' ? (
                 <div>
-                  <label className="block text-sm mb-1.5">Offer</label>
-                  <input type="text" value={form.offer} onChange={set('offer')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Free welcome cocktail" required />
+                  <label htmlFor="biz-offer" className="block text-sm mb-1.5">Offer</label>
+                  <input id="biz-offer" type="text" value={form.offer} onChange={set('offer')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Free welcome cocktail" required />
                 </div>
               ) : (
                 <div>
-                  <label className="block text-sm mb-1.5">Price per ticket (CAD)</label>
-                  <input type="number" value={form.price} onChange={set('price')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="50" min="1" step="0.01" required={form.type === 'paid'} />
+                  <label htmlFor="biz-price" className="block text-sm mb-1.5">Price per ticket (CAD)</label>
+                  <input id="biz-price" type="number" value={form.price} onChange={set('price')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="50" min="1" step="0.01" required={form.type === 'paid'} />
                 </div>
               )}
             </div>
 
             <div>
-              <label className="block text-sm mb-1.5">Description</label>
-              <textarea value={form.description} onChange={set('description')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm resize-none" rows={2} placeholder="What members will experience" required />
+              <label htmlFor="biz-description" className="block text-sm mb-1.5">Description</label>
+              <textarea id="biz-description" value={form.description} onChange={set('description')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm resize-none" rows={2} placeholder="What members will experience" required />
             </div>
 
             {form.type === 'paid' && (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm mb-1.5">Spots available</label>
-                  <input type="number" value={form.spots} onChange={set('spots')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="10" min="1" />
+                  <label htmlFor="biz-spots" className="block text-sm mb-1.5">Spots available</label>
+                  <input id="biz-spots" type="number" value={form.spots} onChange={set('spots')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="10" min="1" />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-sm mb-1.5">Date & Time <span className="text-muted-foreground">(optional)</span></label>
-                  <input type="datetime-local" value={form.event_date} onChange={set('event_date')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" />
+                  <label htmlFor="biz-event-date" className="block text-sm mb-1.5">Date & Time <span className="text-muted-foreground">(optional)</span></label>
+                  <input id="biz-event-date" type="datetime-local" value={form.event_date} onChange={set('event_date')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" />
                 </div>
               </div>
             )}
@@ -358,45 +358,45 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
             {form.type === 'xplora_experience' ? (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm mb-1.5">Xplora Category</label>
-                  <select value={form.xplora_category} onChange={set('xplora_category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                  <label htmlFor="biz-xplora-category" className="block text-sm mb-1.5">Xplora Category</label>
+                  <select id="biz-xplora-category" value={form.xplora_category} onChange={set('xplora_category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
                     {XPLORA_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm mb-1.5">Duration</label>
-                  <input type="text" value={form.duration} onChange={set('duration')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="2–3 hours" />
+                  <label htmlFor="biz-duration" className="block text-sm mb-1.5">Duration</label>
+                  <input id="biz-duration" type="text" value={form.duration} onChange={set('duration')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="2–3 hours" />
                 </div>
                 <div>
-                  <label className="block text-sm mb-1.5">Neighbourhood</label>
-                  <input type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
+                  <label htmlFor="biz-location" className="block text-sm mb-1.5">Neighbourhood</label>
+                  <input id="biz-location" type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
                 </div>
               </div>
             ) : (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-sm mb-1.5">Category</label>
-                  <select value={form.category} onChange={set('category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                  <label htmlFor="biz-category" className="block text-sm mb-1.5">Category</label>
+                  <select id="biz-category" value={form.category} onChange={set('category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
                     {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm mb-1.5">Timing</label>
-                  <select value={form.timing} onChange={set('timing')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
+                  <label htmlFor="biz-timing" className="block text-sm mb-1.5">Timing</label>
+                  <select id="biz-timing" value={form.timing} onChange={set('timing')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
                     {TIMINGS.map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm mb-1.5">Neighbourhood</label>
-                  <input type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
+                  <label htmlFor="biz-location" className="block text-sm mb-1.5">Neighbourhood</label>
+                  <input id="biz-location" type="text" value={form.location} onChange={set('location')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="Saint-Roch" required />
                 </div>
               </div>
             )}
 
             {form.type === 'paid' && (
               <div>
-                <label className="block text-sm mb-1.5">Full Address <span className="text-muted-foreground">(sent to clients for GPS)</span></label>
-                <input type="text" value={form.address} onChange={set('address')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="123 Rue Saint-Jean, Québec City, QC" />
+                <label htmlFor="biz-address" className="block text-sm mb-1.5">Full Address <span className="text-muted-foreground">(sent to clients for GPS)</span></label>
+                <input id="biz-address" type="text" value={form.address} onChange={set('address')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm" placeholder="123 Rue Saint-Jean, Québec City, QC" />
               </div>
             )}
 
@@ -409,7 +409,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
               {imagePreview && (
                 <div className="mt-2 relative">
                   <img loading="lazy" decoding="async" src={imagePreview} alt="Preview" className="w-full h-40 object-cover rounded-xl" />
-                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg">Remove</button>
+                  <button type="button" onClick={() => { setImageFile(null); setImagePreview(''); }} className="absolute top-2 right-2 bg-black/50 text-white text-xs px-2 py-1 rounded-lg before:absolute before:-inset-1 before:content-['']">Remove</button>
                 </div>
               )}
             </div>
@@ -447,10 +447,10 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
                   )}
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <button onClick={() => toggleStatus(perk)} className="p-2 rounded-lg hover:bg-muted transition-colors" title={perk.status === 'active' ? 'Pause' : 'Activate'}>
+                  <button onClick={() => toggleStatus(perk)} aria-label={perk.status === 'active' ? 'Pause perk' : 'Activate perk'} className="p-2 rounded-lg hover:bg-muted transition-colors" title={perk.status === 'active' ? 'Pause' : 'Activate'}>
                     {perk.status === 'active' ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-primary" />}
                   </button>
-                  <button onClick={() => deletePerk(perk.id)} className="p-2 rounded-lg hover:bg-red-50 transition-colors">
+                  <button onClick={() => deletePerk(perk.id)} aria-label="Delete perk" className="p-2 rounded-lg hover:bg-red-50 transition-colors">
                     <Trash2 className="w-4 h-4 text-red-400" />
                   </button>
                 </div>

@@ -184,7 +184,7 @@ export function SharedItineraryScreen() {
           </button>
         </div>
 
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
           {t('sharedItinerary.savedItineraryLabel')}
         </p>
       </div>

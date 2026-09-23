@@ -40,7 +40,7 @@ function NeighbourhoodTile({
     <button
       onClick={onClick}
       className={`group text-left rounded-2xl overflow-hidden border bg-white transition-all duration-300 ${
-        featured ? 'border-[#119FB3] shadow-lg ring-1 ring-[#119FB3]/25' : 'border-gray-200 hover:shadow-lg'
+        featured ? 'border-xplora-primary shadow-lg ring-1 ring-xplora-primary/25' : 'border-gray-200 hover:shadow-lg'
       }`}
     >
       <div className={`relative overflow-hidden transition-all duration-300 ${featured ? 'aspect-[21/9]' : 'aspect-[3/2]'}`}>
@@ -58,7 +58,7 @@ function NeighbourhoodTile({
         </picture>
         <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
         {isNew && (
-          <span className="absolute top-2 left-2 text-[11px] font-semibold px-2 py-1 rounded-full bg-xplora-ink text-white">
+          <span className="absolute top-2 left-2 text-xs font-semibold px-2 py-1 rounded-full bg-xplora-ink text-white">
             {t('neighbourhoods.newBadge', 'New')}
           </span>
         )}
@@ -155,7 +155,7 @@ export function NeighbourhoodsScreen() {
             {otherNbhds.length > 0 && (
               <div>
                 {featuredNbhd && (
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
+                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
                     {t('neighbourhoods.otherNeighbourhoods', 'Other neighbourhoods')}
                   </p>
                 )}
