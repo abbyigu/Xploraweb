@@ -22,7 +22,7 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
   const [notifPrefs, setNotifPrefs] = useState({ email: true, push: false, newsletter: true });
   const [passwordEmailSent, setPasswordEmailSent] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState('');
-  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'loading' | 'done'>('idle');
+  const [feedbackStatus, setFeedbackStatus] = useState<'idle' | 'loading' | 'done' | 'error'>('idle');
   const [exploreToggles, setExploreToggles] = useState(() => {
     try {
       const raw = localStorage.getItem('xplora_explore_toggles');
@@ -43,7 +43,8 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
   const handleSubmitFeedback = async () => {
     if (!feedbackMessage.trim() || feedbackStatus === 'loading') return;
     setFeedbackStatus('loading');
-    await submitFeedback(feedbackMessage.trim(), profile.email);
+    const result = await submitFeedback(feedbackMessage.trim(), profile.email);
+    if (!result.ok) { setFeedbackStatus('error'); return; }
     setFeedbackMessage('');
     setFeedbackStatus('done');
     setTimeout(() => setFeedbackStatus('idle'), 3000);
@@ -283,6 +284,9 @@ export function DashboardProfilePanel({ profile, setProfile, initialTab }: { pro
                     >
                       {feedbackStatus === 'loading' ? t('feedback.submitting') : t('feedback.submit')}
                     </button>
+                    {feedbackStatus === 'error' && (
+                      <p role="alert" className="text-sm text-red-600">{t('feedback.errorDesc')}</p>
+                    )}
                   </>
                 )}
               </div>
