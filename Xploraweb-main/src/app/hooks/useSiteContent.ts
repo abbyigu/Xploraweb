@@ -14,7 +14,7 @@ export interface SiteContent {
 // English copy used only to prefill the admin "Site Content" form.
 export const SITE_CONTENT_DEFAULTS = {
   heroHeadline: 'Discover local.\nLive more.',
-  heroSubheadline: 'Curated by locals — self-guided walks, handpicked spots, and experiences that support the community.',
+  heroSubheadline: 'Hot spots, cool vibes and friendly faces',
   heroCtaLabel: 'Get My Free Route',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,
