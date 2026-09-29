@@ -157,12 +157,16 @@ export function AdminNeighbourhoodsPanel() {
       route: mapState.route,
     };
 
-    const { error: err } = editing
-      ? await supabase.from('neighbourhoods').update(payload).eq('id', editing)
-      : await supabase.from('neighbourhoods').insert(payload);
+    const { data: saved_rows, error: err } = editing
+      ? await supabase.from('neighbourhoods').update(payload).eq('id', editing).select('id')
+      : await supabase.from('neighbourhoods').insert(payload).select('id');
 
     setSaving(false);
     if (err) { setError(err.message); return; }
+    if (!saved_rows || saved_rows.length === 0) {
+      setError('Save did not go through: no rows were updated. Check that you are signed in as an admin.');
+      return;
+    }
 
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
