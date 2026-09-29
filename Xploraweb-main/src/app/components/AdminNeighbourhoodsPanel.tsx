@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Plus, Trash2, Edit2, X, Check, Upload } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { uploadViaApi } from '../lib/uploadImage';
@@ -94,6 +94,12 @@ export function AdminNeighbourhoodsPanel() {
   }
 
   useEffect(() => { load(); }, []);
+
+  // The form renders above the list; scroll to it so Edit visibly does something.
+  const formRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (showForm) formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [showForm, editing]);
 
   const openNew = () => {
     setForm({ ...BLANK });
@@ -210,7 +216,7 @@ export function AdminNeighbourhoodsPanel() {
 
       {/* Form */}
       {showForm && (
-        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+        <div ref={formRef} className="bg-card border border-border rounded-2xl p-6 space-y-4 scroll-mt-4">
           <div className="flex items-center justify-between mb-1">
             <h4 className="text-sm font-semibold">{editing ? 'Edit neighbourhood' : 'New neighbourhood'}</h4>
             <button onClick={() => { setShowForm(false); setEditing(null); }} aria-label="Close form" className="text-muted-foreground hover:text-foreground relative before:absolute before:-inset-2 before:content-['']">
