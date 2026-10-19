@@ -266,7 +266,6 @@ export function HomeScreen() {
   const { neighbourhoods } = useNeighbourhoods();
   const { spots } = useSpots();
 
-  const moreWaysReveal = useReveal<HTMLAnchorElement>();
   const businessReveal = useReveal<HTMLDivElement>();
   const howVisualReveal = useReveal<HTMLDivElement>({ delay: 150 });
 
@@ -448,18 +447,6 @@ export function HomeScreen() {
             </div>
             <div className="pointer-events-none absolute top-0 right-0 bottom-1 w-10 md:w-16 bg-gradient-to-l from-background to-transparent" />
           </div>
-          <Link
-            ref={moreWaysReveal.ref}
-            style={moreWaysReveal.style}
-            to="/how-it-works"
-            className={`mt-3 flex items-center justify-between gap-4 rounded-2xl border border-[#b0d8d8]/60 bg-[#c9e8e8]/20 px-5 py-4 hover:bg-[#c9e8e8]/30 hover:-translate-y-0.5 transition-all ${moreWaysReveal.className}`}
-          >
-            <div>
-              <p className="text-sm font-semibold text-gray-900">{t('home.moreWaysTitle')}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{t('home.moreWaysDesc')}</p>
-            </div>
-            <ArrowRight className="w-4 h-4 text-xplora-ink flex-shrink-0" />
-          </Link>
         </div>
       </section>
 
