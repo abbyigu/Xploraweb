@@ -15,7 +15,7 @@ export interface SiteContent {
 export const SITE_CONTENT_DEFAULTS = {
   heroHeadline: 'Discover local.\nLive more.',
   heroSubheadline: 'Hot spots, cool vibes and friendly faces',
-  heroCtaLabel: 'Get My Free Route',
+  heroCtaLabel: 'Plan My Outing',
   heroImageUrl: '/hero/window-flower-box.jpg',
   itineraryPaywalled: false,
 };
