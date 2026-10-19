@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
-import { GoogleMap, InfoWindowF, OverlayView, OverlayViewF } from '@react-google-maps/api';
 import { useNavigate } from 'react-router';
-import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import type { Map as MLMap } from 'maplibre-gl';
+import { fitPoints, HtmlMarker, MapPopup, MapView } from './MapLibre';
 import type { Product } from '../data/products';
 import { getExperienceCoords, getRating } from '../lib/experienceMeta';
 
@@ -17,11 +17,10 @@ interface ExperienceMapProps {
   onMarkerClick?: (id: string) => void;
 }
 
-const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false };
+
 
 export function ExperienceMap({ experiences, activeId, onMarkerClick }: ExperienceMapProps) {
   const navigate = useNavigate();
-  const { isLoaded } = useGoogleMaps();
   const [openId, setOpenId] = useState<string | null>(null);
 
   const points = useMemo(
@@ -30,33 +29,15 @@ export function ExperienceMap({ experiences, activeId, onMarkerClick }: Experien
   );
   const openExp = points.find(p => p.exp.id === openId)?.exp ?? null;
 
-  const onLoad = (map: google.maps.Map) => {
-    const bounds = new google.maps.LatLngBounds();
-    points.forEach(({ pos }) => bounds.extend({ lat: pos[0], lng: pos[1] }));
-    if (points.length === 1) {
-      map.setCenter({ lat: points[0].pos[0], lng: points[0].pos[1] });
-      map.setZoom(14);
-    } else if (points.length > 1) {
-      map.fitBounds(bounds, 48);
-    }
+  const onLoad = (map: MLMap) => {
+    fitPoints(map, points.map(({ pos }) => ({ lat: pos[0], lng: pos[1] })), 48, 14, false);
   };
 
   return (
     <div className="w-full h-full" style={{ background: '#e8eef0' }}>
-      {isLoaded && (
-        <GoogleMap
-          mapContainerStyle={{ width: '100%', height: '100%' }}
-          center={QC_CENTRE}
-          zoom={13}
-          options={MAP_OPTIONS}
-          onLoad={onLoad}
-        >
+      <MapView center={QC_CENTRE} zoom={13} options={{ scrollZoom: false }} onLoad={onLoad}>
           {points.map(({ exp, pos }) => (
-            <OverlayViewF
-              key={exp.id}
-              position={{ lat: pos[0], lng: pos[1] }}
-              mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
-            >
+            <HtmlMarker key={exp.id} position={{ lat: pos[0], lng: pos[1] }}>
               <div className="xplora-price-marker">
                 <span
                   role="button"
@@ -78,13 +59,13 @@ export function ExperienceMap({ experiences, activeId, onMarkerClick }: Experien
                   {priceLabel(exp)}
                 </span>
               </div>
-            </OverlayViewF>
+            </HtmlMarker>
           ))}
 
           {openExp && (
-            <InfoWindowF
+            <MapPopup
               position={{ lat: getExperienceCoords(openExp)[0], lng: getExperienceCoords(openExp)[1] }}
-              onCloseClick={() => setOpenId(null)}
+              onClose={() => setOpenId(null)} offset={18}
             >
               <div style={{ width: 172, fontFamily: 'inherit' }}>
                 <img loading="lazy" decoding="async" src={openExp.image} alt="" style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
@@ -102,10 +83,9 @@ export function ExperienceMap({ experiences, activeId, onMarkerClick }: Experien
                   View details
                 </button>
               </div>
-            </InfoWindowF>
+            </MapPopup>
           )}
-        </GoogleMap>
-      )}
+      </MapView>
     </div>
   );
 }

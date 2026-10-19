@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GoogleMap, InfoWindowF, MarkerF, PolygonF, PolylineF } from '@react-google-maps/api';
-import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import type { Map as MLMap } from 'maplibre-gl';
+import { fitPoints, HtmlMarker, MapPopup, MapView, Polygon, Polyline, type LatLng } from './MapLibre';
 import type { Spot } from '../data/products';
 import { SPOT_CATEGORY_KEY } from '../data/products';
 
@@ -18,24 +18,16 @@ function AwardIcon({ className }: { className?: string }) {
 
 const QC_CENTRE = { lat: 46.8139, lng: -71.208 };
 
-// Teardrop pin path (30x38 viewBox, anchored at the tip) shared by both
-// marker variants below.
-const PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z';
-
-function spotIcon(): google.maps.Symbol {
-  return {
-    path: PIN_PATH,
-    fillColor: '#12343B',
-    fillOpacity: 1,
-    strokeWeight: 0,
-    scale: 1,
-    anchor: new google.maps.Point(15, 38),
-  };
-}
-
-// Numbered pin used for itinerary stops so travel order is visible on the map.
-function numberedSpotIcon(): google.maps.Symbol {
-  return spotIcon();
+// Teardrop pin (30x38, anchored at the tip), optionally numbered so travel order is visible (itinerary stops).
+function SpotPin({ label, onClick }: { label?: string; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} aria-label={label ? `Stop ${label}` : 'Spot'} style={{ display: 'block', background: 'none', border: 0, padding: 0, cursor: 'pointer' }}>
+      <svg width="30" height="38" viewBox="0 0 30 38" aria-hidden="true">
+        <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B" />
+        {label && <text x="15" y="20" textAnchor="middle" fill="#fff" fontSize="14" fontWeight="700" fontFamily="inherit">{label}</text>}
+      </svg>
+    </button>
+  );
 }
 
 interface Props {
@@ -59,13 +51,6 @@ interface Props {
   height?: number;
 }
 
-// clickableIcons: false stops taps on Google's own base-map business/landmark
-// icons from popping its default info card — on mobile that card auto-pans
-// and can render low enough to sit over the app's fixed bottom nav. This map
-// already shows the neighbourhood's own spots as markers, so the base map's
-// icons don't need to be clickable too.
-const MAP_OPTIONS: google.maps.MapOptions = { scrollwheel: false, streetViewControl: false, mapTypeControl: false, clickableIcons: false };
-
 export function NeighbourhoodSpotsMap({
   spots,
   center,
@@ -83,8 +68,7 @@ export function NeighbourhoodSpotsMap({
   height = 360,
 }: Props) {
   const { t } = useTranslation();
-  const { isLoaded } = useGoogleMaps();
-  const mapRef = useRef<google.maps.Map | null>(null);
+  const mapRef = useRef<MLMap | null>(null);
   const [openSpotIndex, setOpenSpotIndex] = useState<number | null>(null);
 
   const categories = useMemo(
@@ -106,7 +90,7 @@ export function NeighbourhoodSpotsMap({
   );
 
   const boundaryPath = useMemo(
-    () => (boundary && boundary.length >= 3 ? boundary.map(([lat, lng]) => ({ lat, lng })) : null),
+    (): LatLng[] | null => (boundary && boundary.length >= 3 ? boundary.map(([lat, lng]) => ({ lat, lng })) : null),
     [boundary],
   );
   const routePath = useMemo(
@@ -114,22 +98,16 @@ export function NeighbourhoodSpotsMap({
     [route],
   );
 
-  const fitToContent = (map: google.maps.Map) => {
-    const bounds = new google.maps.LatLngBounds();
-    let count = 0;
-    boundaryPath?.forEach(p => { bounds.extend(p); count++; });
-    routePath?.forEach(p => { bounds.extend(p); count++; });
-    visibleSpots.forEach(({ spot }) => { bounds.extend({ lat: spot.lat!, lng: spot.lng! }); count++; });
-
-    if (count === 1) {
-      map.setCenter(bounds.getCenter());
-      map.setZoom(15);
-    } else if (count > 1) {
-      map.fitBounds(bounds, 40);
-    }
+  const fitToContent = (map: MLMap, animate = false) => {
+    const pts: LatLng[] = [
+      ...(boundaryPath ?? []),
+      ...(routePath ?? []),
+      ...visibleSpots.map(({ spot }) => ({ lat: spot.lat!, lng: spot.lng! })),
+    ];
+    if (pts.length) fitPoints(map, pts, 40, 15, animate);
   };
 
-  const onLoad = (map: google.maps.Map) => {
+  const onLoad = (map: MLMap) => {
     mapRef.current = map;
     fitToContent(map);
   };
@@ -143,7 +121,7 @@ export function NeighbourhoodSpotsMap({
   useEffect(() => {
     if (!visible || !mapRef.current) return;
     const id = setTimeout(() => {
-      google.maps.event.trigger(mapRef.current!, 'resize');
+      mapRef.current!.resize();
       fitToContent(mapRef.current!);
     }, 50);
     return () => clearTimeout(id);
@@ -189,37 +167,20 @@ export function NeighbourhoodSpotsMap({
         className="w-full isolate rounded-2xl overflow-hidden border border-gray-200"
         style={{ height, background: '#e8eef0' }}
       >
-        {isLoaded && (
-          <GoogleMap
-            mapContainerStyle={{ width: '100%', height: '100%' }}
-            center={center ? { lat: center[0], lng: center[1] } : QC_CENTRE}
-            zoom={14}
-            options={MAP_OPTIONS}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-          >
-            {boundaryPath && (
-              <PolygonF
-                path={boundaryPath}
-                options={{ strokeColor: '#12343B', strokeWeight: 2, fillColor: '#7ecfcf', fillOpacity: 0.12 }}
-              />
-            )}
-            {routePath && (
-              <PolylineF
-                path={routePath}
-                options={{ strokeColor: '#12343B', strokeWeight: 6, strokeOpacity: 0.9 }}
-              />
-            )}
-            {visibleSpots.map(({ spot, index }) => (
-              <MarkerF
-                key={spot.id}
-                position={{ lat: spot.lat!, lng: spot.lng! }}
-                icon={numbered ? numberedSpotIcon() : spotIcon()}
-                label={numbered ? { text: String(index + 1), color: '#ffffff', fontSize: '14px', fontWeight: '700' } : undefined}
-                onClick={() => setOpenSpotIndex(index)}
-              >
-                {openSpotIndex === index && (
-                  <InfoWindowF onCloseClick={() => setOpenSpotIndex(null)}>
+        <MapView
+          center={center ? { lat: center[0], lng: center[1] } : QC_CENTRE}
+          zoom={14}
+          options={{ scrollZoom: false }}
+          onLoad={onLoad}
+          onUnmount={onUnmount}
+        >
+          {boundaryPath && <Polygon path={boundaryPath} color="#12343B" width={2} fillColor="#7ecfcf" fillOpacity={0.12} />}
+          {routePath && <Polyline path={routePath} color="#12343B" width={6} opacity={0.9} />}
+          {visibleSpots.map(({ spot, index }) => (
+            <HtmlMarker key={spot.id} position={{ lat: spot.lat!, lng: spot.lng! }} anchor="bottom">
+              <SpotPin label={numbered ? String(index + 1) : undefined} onClick={() => setOpenSpotIndex(index)} />
+              {openSpotIndex === index && (
+                <MapPopup position={{ lat: spot.lat!, lng: spot.lng! }} offset={40} onClose={() => setOpenSpotIndex(null)}>
                     <div style={{ width: 180, fontFamily: 'inherit' }}>
                       {spot.image && (
                         <img loading="lazy" decoding="async" src={spot.image} alt="" style={{ width: '100%', height: 90, objectFit: 'cover', borderRadius: 8, marginBottom: 8 }} />
@@ -252,12 +213,11 @@ export function NeighbourhoodSpotsMap({
                         )}
                       </div>
                     </div>
-                  </InfoWindowF>
-                )}
-              </MarkerF>
-            ))}
-          </GoogleMap>
-        )}
+                </MapPopup>
+              )}
+            </HtmlMarker>
+          ))}
+        </MapView>
       </div>
     </div>
   );

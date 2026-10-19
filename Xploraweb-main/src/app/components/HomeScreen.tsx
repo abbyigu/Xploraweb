@@ -2,12 +2,11 @@ import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowRight, ArrowLeft, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { GoogleMap, MarkerF } from '@react-google-maps/api';
+import { fitPoints, HtmlMarker, MapView } from './MapLibre';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useReveal } from '../hooks/useReveal';
 import { useNeighbourhoods, localizedTagline } from '../hooks/useNeighbourhoods';
 import { useSpots } from '../hooks/useSpots';
-import { useGoogleMaps } from '../hooks/useGoogleMaps';
 import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
@@ -20,26 +19,10 @@ import { NEIGHBOURHOODS_FALLBACK } from './NeighbourhoodsScreen';
 // shows a couple of real nearby spots instead of decorative fake pins.
 const PHONE_PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15C0 26 15 38 15 38C15 38 30 26 30 15C30 6.7 23.3 0 15 0Z';
 const PHONE_PIN_COLORS = ['#119FB3', '#33C0A3', '#119FB3'];
-const PHONE_MAP_OPTIONS: google.maps.MapOptions = {
-  disableDefaultUI: true,
-  gestureHandling: 'none',
-  keyboardShortcuts: false,
-  clickableIcons: false,
-  draggable: false,
-};
+// Decorative: no interaction at all.
+const PHONE_MAP_OPTIONS = { interactive: false, attributionControl: false } as const;
 
-function phonePinIcon(color: string): google.maps.Symbol {
-  return {
-    path: PHONE_PIN_PATH,
-    fillColor: color,
-    fillOpacity: 1,
-    strokeWeight: 0,
-    scale: 0.7,
-    anchor: new google.maps.Point(15, 38),
-  };
-}
-
-// The Maps SDK (~1 MB of JS) only loads once this decorative phone-mock map is near the viewport,
+// The map library only loads once this decorative phone-mock map is near the viewport,
 // so it stays off the critical path of the landing page.
 function HowItWorksMap({ spots }: { spots: Spot[] }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -60,27 +43,24 @@ function HowItWorksMap({ spots }: { spots: Spot[] }) {
 }
 
 function HowItWorksMapLoaded({ spots }: { spots: Spot[] }) {
-  const { isLoaded } = useGoogleMaps();
-  if (!isLoaded || spots.length === 0) {
+  if (spots.length === 0) {
     return <div className="absolute inset-0 bg-[#ECEEE8]" />;
   }
   return (
-    <GoogleMap
-      mapContainerStyle={{ width: '100%', height: '100%' }}
+    <MapView
       center={{ lat: spots[0].lat!, lng: spots[0].lng! }}
       zoom={14}
       options={PHONE_MAP_OPTIONS}
       onLoad={map => {
-        if (spots.length < 2) return;
-        const bounds = new google.maps.LatLngBounds();
-        spots.forEach(s => bounds.extend({ lat: s.lat!, lng: s.lng! }));
-        map.fitBounds(bounds, 30);
+        if (spots.length > 1) fitPoints(map, spots.map(s => ({ lat: s.lat!, lng: s.lng! })), 30, 14, false);
       }}
     >
       {spots.map((spot, i) => (
-        <MarkerF key={spot.id} position={{ lat: spot.lat!, lng: spot.lng! }} icon={phonePinIcon(PHONE_PIN_COLORS[i % PHONE_PIN_COLORS.length])} />
+        <HtmlMarker key={spot.id} position={{ lat: spot.lat!, lng: spot.lng! }} anchor="bottom">
+          <svg width="21" height="27" viewBox="0 0 30 38" aria-hidden="true"><path d={PHONE_PIN_PATH} fill={PHONE_PIN_COLORS[i % PHONE_PIN_COLORS.length]} /></svg>
+        </HtmlMarker>
       ))}
-    </GoogleMap>
+    </MapView>
   );
 }
 

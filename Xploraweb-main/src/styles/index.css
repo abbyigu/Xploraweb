@@ -2,9 +2,6 @@
 @import './theme.css';
 
 /* AllTrails-style price pill markers for the experiences map */
-.xplora-price-marker {
-  transform: translate(-50%, -50%);
-}
 .xplora-price-marker > span {
   display: inline-block;
   white-space: nowrap;
