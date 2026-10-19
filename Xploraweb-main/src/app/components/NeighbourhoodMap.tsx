@@ -1,12 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import { useState } from 'react';
+import { HtmlMarker, MapView, Polygon, Polyline, type LatLng } from './MapLibre';
 
-// Uses the raw Google Maps JS API imperatively (not the declarative
-// <GoogleMap>/<PolygonF> components) so live vertex edits never fight with
-// React re-rendering a controlled `path` prop — mirrors the mount-once
-// imperative style the old Leaflet version used. Drawing is a small
-// click-to-add-points tool (Google removed the Drawing library's
-// DrawingManager in Maps JS v3.65).
+// Admin editor: click to drop the centre pin, "Draw boundary"/"Draw walk
+// route" to click out a shape, then drag the round handles to reshape it,
+// click a faint midpoint handle to insert a vertex, double-click a handle
+// to delete it. Fully controlled by `value` — shapes re-render from props.
 
 const QC = { lat: 46.8139, lng: -71.208 };
 
@@ -22,187 +20,74 @@ interface Props {
   onChange: (v: MapState) => void;
 }
 
-const BOUNDARY_STYLE: google.maps.PolygonOptions = {
-  strokeColor: '#12343B', fillColor: '#7ecfcf', fillOpacity: 0.15, strokeWeight: 2,
-  editable: true, draggable: false,
-};
+type Pt = [number, number];
+const round = (n: number) => +n.toFixed(6);
+const toLL = ([lat, lng]: Pt): LatLng => ({ lat, lng });
 
-// Style for the highlighted walk route (e.g. "stroll rue du Petit-Champlain").
-const ROUTE_STYLE: google.maps.PolylineOptions = {
-  strokeColor: '#12343B', strokeWeight: 6, strokeOpacity: 0.9, editable: true, draggable: false,
-};
-
-function ringOf(path: google.maps.MVCArray<google.maps.LatLng>): [number, number][] {
-  return path.getArray().map(ll => [+ll.lat().toFixed(6), +ll.lng().toFixed(6)]);
+function Handle({ at, faint, onDrag, onClick, onDelete }: {
+  at: LatLng; faint?: boolean; onDrag?: (ll: LatLng) => void; onClick?: () => void; onDelete?: () => void;
+}) {
+  return (
+    <HtmlMarker position={at} draggable={!!onDrag} onDragEnd={onDrag}>
+      <div
+        onClick={onClick}
+        onDoubleClick={onDelete}
+        title={onDelete ? 'Drag to move · double-click to delete' : onClick ? 'Click to add a point here' : undefined}
+        style={{
+          width: faint ? 10 : 14, height: faint ? 10 : 14, borderRadius: '50%', boxSizing: 'border-box',
+          background: faint ? 'rgba(255,255,255,0.7)' : '#fff', border: '2px solid #12343B',
+          opacity: faint ? 0.7 : 1, cursor: onDrag ? 'move' : 'pointer',
+        }}
+      />
+    </HtmlMarker>
+  );
 }
 
-function lineOf(path: google.maps.MVCArray<google.maps.LatLng>): [number, number][] {
-  return path.getArray().map(ll => [+ll.lat().toFixed(6), +ll.lng().toFixed(6)]);
+/** Vertex + midpoint handles for an editable ring/line. */
+function ShapeHandles({ pts, closed, min, onChange }: { pts: Pt[]; closed: boolean; min: number; onChange: (p: Pt[]) => void }) {
+  const mids: { at: Pt; index: number }[] = [];
+  const last = closed ? pts.length : pts.length - 1;
+  for (let i = 0; i < last; i++) {
+    const [a, b] = [pts[i], pts[(i + 1) % pts.length]];
+    mids.push({ at: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], index: i + 1 });
+  }
+  return (
+    <>
+      {mids.map(m => (
+        <Handle key={`m${m.index}-${pts.length}`} faint at={toLL(m.at)}
+          onClick={() => onChange([...pts.slice(0, m.index), [round(m.at[0]), round(m.at[1])], ...pts.slice(m.index)])} />
+      ))}
+      {pts.map((p, i) => (
+        <Handle key={`v${i}-${pts.length}`} at={toLL(p)}
+          onDrag={ll => onChange(pts.map((q, j) => (j === i ? [round(ll.lat), round(ll.lng)] : q)))}
+          onDelete={pts.length > min ? () => onChange(pts.filter((_, j) => j !== i)) : undefined} />
+      ))}
+    </>
+  );
 }
 
 export function NeighbourhoodMap({ value, onChange }: Props) {
-  const { isLoaded } = useGoogleMaps();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const markerRef = useRef<google.maps.Marker | null>(null);
-  const polyRef = useRef<google.maps.Polygon | null>(null);
-  const routeRef = useRef<google.maps.Polyline | null>(null);
-  const draftRef = useRef<google.maps.Polygon | google.maps.Polyline | null>(null);
-  const draftPtsRef = useRef<google.maps.LatLng[]>([]);
-  const modeRef = useRef<'boundary' | 'route' | null>(null);
-  const [mode, setModeState] = useState<'boundary' | 'route' | null>(null);
-  const [ptCount, setPtCount] = useState(0);
-  const setMode = (m: 'boundary' | 'route' | null) => { modeRef.current = m; setModeState(m); };
+  const [mode, setMode] = useState<'boundary' | 'route' | null>(null);
+  const [draft, setDraft] = useState<Pt[]>([]);
 
-  // Keep the latest value/onChange reachable from map event handlers
-  // without re-initialising the map.
-  const valueRef = useRef(value);
-  valueRef.current = value;
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
+  const boundary = value.boundary && value.boundary.length >= 3 ? value.boundary : null;
+  const route = value.route && value.route.length >= 2 ? value.route : null;
+  const draftLL = draft.map(toLL);
 
-  const syncBoundary = () =>
-    onChangeRef.current({ ...valueRef.current, boundary: polyRef.current ? ringOf(polyRef.current.getPath()) : null });
-  const syncRoute = () =>
-    onChangeRef.current({ ...valueRef.current, route: routeRef.current ? lineOf(routeRef.current.getPath()) : null });
-
-  const attachPathListeners = (path: google.maps.MVCArray<google.maps.LatLng>, sync: () => void) => {
-    path.addListener('insert_at', sync);
-    path.addListener('remove_at', sync);
-    path.addListener('set_at', sync);
-  };
-
-  const discardDraft = () => {
-    draftRef.current?.setMap(null);
-    draftRef.current = null;
-    draftPtsRef.current = [];
-    setPtCount(0);
-    setMode(null);
-  };
-
-  const startDraw = (kind: 'boundary' | 'route') => {
-    const map = mapRef.current;
-    if (!map) return;
-    discardDraft();
-    const draft = kind === 'boundary'
-      ? new google.maps.Polygon({ ...BOUNDARY_STYLE, editable: false, clickable: false, map })
-      : new google.maps.Polyline({ ...ROUTE_STYLE, editable: false, clickable: false, map });
-    draftRef.current = draft;
-    setMode(kind);
-  };
+  const discardDraft = () => { setDraft([]); setMode(null); };
 
   const finishDraw = () => {
-    const kind = modeRef.current;
-    const draft = draftRef.current;
-    const pts = draftPtsRef.current;
-    if (!kind || !draft || pts.length < (kind === 'boundary' ? 3 : 2)) { discardDraft(); return; }
-    draft.setOptions({ editable: true, clickable: true });
-    draftRef.current = null;
-    draftPtsRef.current = [];
-    setPtCount(0);
-    setMode(null);
-    // Keep a single shape of each kind: drop the previous one.
-    if (kind === 'boundary') {
-      polyRef.current?.setMap(null);
-      polyRef.current = draft as google.maps.Polygon;
-      attachPathListeners(polyRef.current.getPath(), syncBoundary);
-      syncBoundary();
-    } else {
-      routeRef.current?.setMap(null);
-      routeRef.current = draft as google.maps.Polyline;
-      attachPathListeners(routeRef.current.getPath(), syncRoute);
-      syncRoute();
-    }
+    if (!mode || draft.length < (mode === 'boundary' ? 3 : 2)) { discardDraft(); return; }
+    onChange({ ...value, [mode]: draft });
+    discardDraft();
   };
 
-  // ── Init map once (after the SDK has loaded) ────────────────────────────────
-  useEffect(() => {
-    if (!isLoaded || !containerRef.current || mapRef.current) return;
+  const onMapClick = (ll: LatLng) => {
+    if (mode) { setDraft(d => [...d, [round(ll.lat), round(ll.lng)]]); return; }
+    onChange({ ...value, lat: round(ll.lat), lng: round(ll.lng) });
+  };
 
-    const map = new google.maps.Map(containerRef.current, {
-      center: value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : QC,
-      zoom: 14,
-      streetViewControl: false,
-      mapTypeControl: false,
-    });
-    mapRef.current = map;
-
-    // Click to set the centre pin.
-    map.addListener('click', (e: google.maps.MapMouseEvent) => {
-      if (!e.latLng) return;
-      // While drawing, clicks add vertices instead of moving the pin.
-      if (modeRef.current && draftRef.current) {
-        draftPtsRef.current = [...draftPtsRef.current, e.latLng];
-        draftRef.current.setPath(draftPtsRef.current);
-        setPtCount(draftPtsRef.current.length);
-        return;
-      }
-      onChangeRef.current({
-        ...valueRef.current,
-        lat: +e.latLng.lat().toFixed(6),
-        lng: +e.latLng.lng().toFixed(6),
-      });
-    });
-
-    // Seed an existing boundary as an editable polygon.
-    if (value.boundary && value.boundary.length >= 3) {
-      const polygon = new google.maps.Polygon({ ...BOUNDARY_STYLE, paths: value.boundary.map(([lat, lng]) => ({ lat, lng })) });
-      polygon.setMap(map);
-      polyRef.current = polygon;
-      attachPathListeners(polygon.getPath(), syncBoundary);
-    }
-
-    // Seed an existing walk route as an editable polyline.
-    if (value.route && value.route.length >= 2) {
-      const polyline = new google.maps.Polyline({ ...ROUTE_STYLE, path: value.route.map(([lat, lng]) => ({ lat, lng })) });
-      polyline.setMap(map);
-      routeRef.current = polyline;
-      attachPathListeners(polyline.getPath(), syncRoute);
-    }
-
-    return () => {
-      draftRef.current?.setMap(null);
-      polyRef.current?.setMap(null);
-      routeRef.current?.setMap(null);
-      markerRef.current?.setMap(null);
-      mapRef.current = null;
-      markerRef.current = null;
-      polyRef.current = null;
-      routeRef.current = null;
-      draftRef.current = null;
-      draftPtsRef.current = [];
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLoaded]);
-
-  // ── Sync the centre marker to value (covers clicks + "Clear all") ───────────
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-    if (value.lat != null && value.lng != null) {
-      if (markerRef.current) markerRef.current.setPosition({ lat: value.lat, lng: value.lng });
-      else markerRef.current = new google.maps.Marker({ position: { lat: value.lat, lng: value.lng }, map });
-    } else if (markerRef.current) {
-      markerRef.current.setMap(null);
-      markerRef.current = null;
-    }
-  }, [value.lat, value.lng]);
-
-  // ── Remove the boundary polygon when cleared from outside ───────────────────
-  useEffect(() => {
-    if ((!value.boundary || value.boundary.length < 3) && polyRef.current) {
-      polyRef.current.setMap(null);
-      polyRef.current = null;
-    }
-  }, [value.boundary]);
-
-  // ── Remove the walk route when cleared from outside ─────────────────────────
-  useEffect(() => {
-    if ((!value.route || value.route.length < 2) && routeRef.current) {
-      routeRef.current.setMap(null);
-      routeRef.current = null;
-    }
-  }, [value.route]);
+  const ptCount = draft.length;
 
   return (
     <div className="space-y-2">
@@ -224,17 +109,32 @@ export function NeighbourhoodMap({ value, onChange }: Props) {
           </>
         ) : (
           <>
-            <button type="button" onClick={() => startDraw('boundary')} className="px-3 py-1 rounded-lg border border-border hover:bg-muted">⬡ Draw boundary</button>
-            <button type="button" onClick={() => startDraw('route')} className="px-3 py-1 rounded-lg border border-border hover:bg-muted">〰 Draw walk route</button>
+            <button type="button" onClick={() => { setDraft([]); setMode('boundary'); }} className="px-3 py-1 rounded-lg border border-border hover:bg-muted">⬡ Draw boundary</button>
+            <button type="button" onClick={() => { setDraft([]); setMode('route'); }} className="px-3 py-1 rounded-lg border border-border hover:bg-muted">〰 Draw walk route</button>
           </>
         )}
       </div>
 
-      <div
-        ref={containerRef}
-        className="rounded-xl overflow-hidden border border-border"
-        style={{ height: 360 }}
-      />
+      <div className="rounded-xl overflow-hidden border border-border" style={{ height: 360 }}>
+        <MapView
+          center={value.lat != null && value.lng != null ? { lat: value.lat, lng: value.lng } : QC}
+          zoom={14}
+          onClick={onMapClick}
+        >
+          {boundary && <Polygon path={boundary.map(toLL)} color="#12343B" width={2} fillColor="#7ecfcf" fillOpacity={0.15} />}
+          {route && <Polyline path={route.map(toLL)} color="#12343B" width={6} opacity={0.9} />}
+          {mode === 'boundary' && draft.length >= 3 && <Polygon path={draftLL} color="#12343B" width={2} fillColor="#7ecfcf" fillOpacity={0.15} />}
+          {mode && draft.length >= 2 && !(mode === 'boundary' && draft.length >= 3) && <Polyline path={draftLL} color="#12343B" width={mode === 'route' ? 6 : 2} opacity={0.9} />}
+          {mode && draft.map((p, i) => <Handle key={`d${i}`} at={toLL(p)} />)}
+          {!mode && boundary && <ShapeHandles pts={boundary} closed min={3} onChange={b => onChange({ ...value, boundary: b })} />}
+          {!mode && route && <ShapeHandles pts={route} closed={false} min={2} onChange={r => onChange({ ...value, route: r })} />}
+          {value.lat != null && value.lng != null && (
+            <HtmlMarker position={{ lat: value.lat, lng: value.lng }} anchor="bottom">
+              <svg width="25" height="32" viewBox="0 0 30 38" aria-hidden="true"><path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 13.6 22 14.2 22.5.5.4 1.2.4 1.7 0C16.4 37 30 25.5 30 15 30 6.7 23.3 0 15 0z" fill="#12343B" /></svg>
+            </HtmlMarker>
+          )}
+        </MapView>
+      </div>
 
       {(value.lat != null || value.boundary || value.route) && (
         <div className="flex gap-4 text-xs text-muted-foreground font-mono bg-muted/40 rounded-lg px-3 py-2">

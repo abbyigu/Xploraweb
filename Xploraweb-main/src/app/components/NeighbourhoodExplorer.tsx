@@ -2,8 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Info, MapPin, Sparkles, Star, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { GoogleMap, OverlayViewF, OVERLAY_MOUSE_TARGET, PolygonF } from '@react-google-maps/api';
-import { useGoogleMaps } from '../hooks/useGoogleMaps';
+import type { Map as MLMap } from 'maplibre-gl';
+import { fitPoints, HtmlMarker, MapView, Polygon, toBounds } from './MapLibre';
 import { type Neighbourhood } from '../hooks/useNeighbourhoods';
 import type { Spot } from '../data/products';
 import { neighbourhoodColor } from '../lib/neighbourhoodColors';
@@ -16,29 +16,13 @@ import { getVisitedSpots, onVisitedSpotsChange } from '../lib/visitedSpots';
 // floating spot cards that filter to whichever neighbourhood is selected.
 
 const QC_CENTRE = { lat: 46.8139, lng: -71.208 };
-const MAP_OPTIONS: google.maps.MapOptions = {
-  disableDefaultUI: true,
-  zoomControl: false,
-  scrollwheel: false,
-  streetViewControl: false,
-  mapTypeControl: false,
-  // Without this, tapping a labelled business/landmark baked into Google's
-  // base map tiles opens Google's own default info card — on mobile it
-  // auto-pans and can render low enough to sit over the app's fixed bottom
-  // nav. We show our own spot cards, so the base map's icons don't need to
-  // be clickable at all.
-  clickableIcons: false,
-  // 'greedy' so a single-finger touch drag pans the map directly on mobile —
-  // 'cooperative' requires a two-finger gesture to pan, which just eats a
-  // normal one-finger swipe (feels broken/unresponsive on phones).
-  gestureHandling: 'greedy',
-};
+// 'scrollZoom: false' keeps page scroll working over the map; one-finger touch
+// drag pans directly on mobile.
+const MAP_OPTIONS = { scrollZoom: false, cooperativeGestures: false, attributionControl: { compact: true } } as const;
 
 function centroidOf(boundary: [number, number][]) {
-  const bounds = new google.maps.LatLngBounds();
-  boundary.forEach(([lat, lng]) => bounds.extend({ lat, lng }));
-  const c = bounds.getCenter();
-  return { lat: c.lat(), lng: c.lng() };
+  const [[w, s], [e, n]] = toBounds(boundary.map(([lat, lng]) => ({ lat, lng }))) as [[number, number], [number, number]];
+  return { lat: (s + n) / 2, lng: (w + e) / 2 };
 }
 
 interface Props {
@@ -51,23 +35,14 @@ interface Props {
 export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourhood: activeNbhd, onSelectNeighbourhood }: Props) {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { isLoaded, loadError } = useGoogleMaps();
-  // Map unavailable: script failed to load, key rejected (Google calls
-  // gm_authFailure, e.g. ApiProjectMapError), or still not ready after 8s.
-  const [authFailed, setAuthFailed] = useState(false);
-  const [timedOut, setTimedOut] = useState(false);
+  const [mapFailed, setMapFailed] = useState(false);
+  // Fallback if WebGL is unavailable or the tile style can't load.
   useEffect(() => {
-    (window as any).gm_authFailure = () => setAuthFailed(true);
-    return () => { delete (window as any).gm_authFailure; };
+    const canvas = document.createElement('canvas');
+    if (!canvas.getContext('webgl2') && !canvas.getContext('webgl')) setMapFailed(true);
   }, []);
-  useEffect(() => {
-    if (isLoaded) return;
-    const id = window.setTimeout(() => setTimedOut(true), 8000);
-    return () => window.clearTimeout(id);
-  }, [isLoaded]);
-  const mapFailed = !!loadError || authFailed || (timedOut && !isLoaded);
-  const mapRef = useRef<google.maps.Map | null>(null);
-  const initialBoundsRef = useRef<google.maps.LatLngBounds | null>(null);
+  const mapRef = useRef<MLMap | null>(null);
+  const initialPointsRef = useRef<{ lat: number; lng: number }[]>([]);
   const timersRef = useRef<number[]>([]);
 
   const [toast, setToast] = useState<{ visible: boolean; label: string }>({ visible: false, label: '' });
@@ -97,7 +72,6 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
     spots.filter(s => visitedIds.has(s.id) && (s.neighbourhood || '').trim().toLowerCase() === name.trim().toLowerCase()).length;
 
   const centroids = useMemo(() => {
-    if (!isLoaded) return {} as Record<string, { lat: number; lng: number }>;
     const map: Record<string, { lat: number; lng: number }> = {};
     neighbourhoods.forEach(n => {
       if (n.boundary && n.boundary.length >= 3) {
@@ -107,7 +81,7 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
       }
     });
     return map;
-  }, [isLoaded, neighbourhoods]);
+  }, [neighbourhoods]);
 
   const selectNeighbourhood = (name: string) => {
     onSelectNeighbourhood(activeNbhd === name ? null : name);
@@ -116,36 +90,29 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
   // Pan/zoom the map to whatever's selected (or back to the full view).
   useEffect(() => {
     const map = mapRef.current;
-    if (!map || !isLoaded) return;
+    if (!map) return;
     const target = activeNbhd ? neighbourhoods.find(n => n.name === activeNbhd) : null;
     if (target?.boundary && target.boundary.length >= 3) {
-      const bounds = new google.maps.LatLngBounds();
-      target.boundary.forEach(([lat, lng]) => bounds.extend({ lat, lng }));
-      map.fitBounds(bounds, 48);
+      fitPoints(map, target.boundary.map(([lat, lng]) => ({ lat, lng })), 48, 15.5);
     } else if (target?.lat != null && target?.lng != null) {
-      map.panTo({ lat: target.lat, lng: target.lng });
-      map.setZoom(15.5);
-    } else if (initialBoundsRef.current) {
-      map.fitBounds(initialBoundsRef.current, 32);
+      map.easeTo({ center: [target.lng, target.lat], zoom: 15.5 });
+    } else if (initialPointsRef.current.length) {
+      fitPoints(map, initialPointsRef.current, 32, 13);
     }
-  }, [activeNbhd, isLoaded, neighbourhoods]);
+  }, [activeNbhd, neighbourhoods]);
 
-  const onMapLoad = (map: google.maps.Map) => {
+  const onMapLoad = (map: MLMap) => {
     mapRef.current = map;
-    const bounds = new google.maps.LatLngBounds();
-    let count = 0;
+    const pts: { lat: number; lng: number }[] = [];
     neighbourhoods.forEach(n => {
       if (n.boundary && n.boundary.length >= 3) {
-        n.boundary.forEach(([lat, lng]) => { bounds.extend({ lat, lng }); count++; });
+        n.boundary.forEach(([lat, lng]) => pts.push({ lat, lng }));
       } else if (n.lat != null && n.lng != null) {
-        bounds.extend({ lat: n.lat, lng: n.lng });
-        count++;
+        pts.push({ lat: n.lat, lng: n.lng });
       }
     });
-    if (count > 0) {
-      initialBoundsRef.current = bounds;
-      map.fitBounds(bounds, 32);
-    }
+    initialPointsRef.current = pts;
+    if (pts.length) fitPoints(map, pts, 32, 13, false);
   };
 
   const defaultCards = useMemo(() => {
@@ -183,14 +150,8 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
 
   return (
     <div className={`relative isolate flex flex-col h-[600px] sm:h-[660px] md:h-[700px] rounded-2xl ${mapFailed ? 'overflow-y-auto' : 'overflow-hidden'} border border-gray-200 shadow-lg shadow-xplora-ink/10 bg-[#ECEEE8]`}>
-      {isLoaded && hasMapData && !authFailed ? (
-        <GoogleMap
-          mapContainerStyle={{ width: '100%', height: '100%' }}
-          center={QC_CENTRE}
-          zoom={13}
-          options={MAP_OPTIONS}
-          onLoad={onMapLoad}
-        >
+      {hasMapData && !mapFailed ? (
+        <MapView center={QC_CENTRE} zoom={13} options={MAP_OPTIONS} onLoad={onMapLoad}>
           {neighbourhoods.map((n, i) => {
             const color = neighbourhoodColor(i);
             const dim = activeNbhd != null && activeNbhd !== n.name;
@@ -199,20 +160,17 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
             return (
               <div key={n.id}>
                 {n.boundary && n.boundary.length >= 3 && (
-                  <PolygonF
+                  <Polygon
                     path={n.boundary.map(([lat, lng]) => ({ lat, lng }))}
-                    options={{
-                      strokeColor: color,
-                      strokeWeight: activeNbhd === n.name ? 3.5 : 2.5,
-                      strokeOpacity: dim ? 0.25 : 0.85,
-                      fillColor: color,
-                      fillOpacity: activeNbhd === n.name ? 0.22 : 0.1,
-                    }}
+                    color={color}
+                    width={activeNbhd === n.name ? 3.5 : 2.5}
+                    opacity={dim ? 0.25 : 0.85}
+                    fillOpacity={activeNbhd === n.name ? 0.22 : 0.1}
                     onClick={() => selectNeighbourhood(n.name)}
                   />
                 )}
                 {centroid && (
-                  <OverlayViewF position={centroid} mapPaneName={OVERLAY_MOUSE_TARGET} getPixelPositionOffset={(w, h) => ({ x: -w / 2, y: -h / 2 })}>
+                  <HtmlMarker position={centroid}>
                     <button
                       type="button"
                       onClick={() => selectNeighbourhood(n.name)}
@@ -223,12 +181,12 @@ export function NeighbourhoodExplorer({ neighbourhoods, spots, activeNeighbourho
                       {n.name}
                       {count > 0 && <span className="opacity-70">· {count}</span>}
                     </button>
-                  </OverlayViewF>
+                  </HtmlMarker>
                 )}
               </div>
             );
           })}
-        </GoogleMap>
+        </MapView>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-[#ECEEE8] to-[#dbe4e0]" />
       )}
