@@ -135,7 +135,7 @@ export interface Spot {
 
 export const EXPERIENCE_CATEGORIES: { id: ExperienceCategory; name: string; tagline: string }[] = [
   { id: 'xplorators',    name: 'Xplorators',             tagline: 'Explore at your pace · Self-guided' },
-  // Xplorators+, Xplora Nights, and Tours hidden for the moment
+  // Xplorators+, GoXplora Nights, and Tours hidden for the moment
   { id: 'limoilou',      name: 'Xplorators · Limoilou',  tagline: 'Discover Limoilou · Neighbourhood routes' },
   { id: 'cartier',       name: 'Xplorators · Cartier',   tagline: 'Discover Cartier · Neighbourhood routes' },
 ];
@@ -554,7 +554,7 @@ export const experiences: Product[] = [
       "Point de vue — dernière note audio, le regard d'un habitué sur l'importance de ce quartier",
     ],
   },
-  // Xplora Nights
+  // GoXplora Nights
   {
     id: 'exp-6',
     name: 'Nightlife Tour',
@@ -635,8 +635,8 @@ export const experiences: Product[] = [
 export const merch: Product[] = [
   {
     id: 'merch-1',
-    name: 'Xplora Tote Bag',
-    nameFr: 'Sac fourre-tout Xplora',
+    name: 'GoXplora Tote Bag',
+    nameFr: 'Sac fourre-tout GoXplora',
     description: 'Canvas tote — carry the city with you',
     descriptionFr: 'Sac en toile — emportez la ville avec vous',
     price: 2500,
@@ -645,8 +645,8 @@ export const merch: Product[] = [
   },
   {
     id: 'merch-2',
-    name: 'Xplora Water Bottle',
-    nameFr: "Bouteille d'eau Xplora",
+    name: 'GoXplora Water Bottle',
+    nameFr: "Bouteille d'eau GoXplora",
     description: 'Insulated 500ml — stay hydrated on every adventure',
     descriptionFr: 'Isolée 500 ml — restez hydraté à chaque aventure',
     price: 3500,
@@ -665,8 +665,8 @@ export const merch: Product[] = [
   },
   {
     id: 'merch-4',
-    name: 'Xplora Cap',
-    nameFr: 'Casquette Xplora',
+    name: 'GoXplora Cap',
+    nameFr: 'Casquette GoXplora',
     description: 'Adjustable embroidered cap',
     descriptionFr: 'Casquette brodée ajustable',
     price: 3000,
@@ -678,7 +678,7 @@ export const merch: Product[] = [
 export const memberships: Product[] = [
   {
     id: 'member-monthly',
-    name: 'Xplora Membership — Monthly',
+    name: 'GoXplora Membership — Monthly',
     description: 'Early access, member pricing, guest pass, monthly 5 à 7, insider perks & surprise upgrades',
     price: 1000,
     image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',
@@ -687,7 +687,7 @@ export const memberships: Product[] = [
   },
   {
     id: 'member-yearly',
-    name: 'Xplora Membership — Yearly',
+    name: 'GoXplora Membership — Yearly',
     description: 'Everything in monthly — save $20 by paying annually',
     price: 10000,
     image: 'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600',

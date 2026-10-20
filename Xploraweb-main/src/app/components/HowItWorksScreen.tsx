@@ -96,7 +96,7 @@ export function HowItWorksScreen() {
 
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-7xl mx-auto">
-          <p className="text-xs uppercase tracking-widest opacity-60 mb-1">Xplora</p>
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-1">GoXplora</p>
           <h1 className="text-2xl md:text-3xl mb-1">{t('howItWorks.title')}</h1>
           <p className="text-sm md:text-base opacity-90">{t('howItWorks.subtitle')}</p>
         </div>

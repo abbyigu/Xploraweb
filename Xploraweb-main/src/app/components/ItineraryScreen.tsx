@@ -323,6 +323,13 @@ function GeneratingPanel({ place }: { place: string }) {
   );
 }
 
+const QUICK_STARTS: { key: string; durationKey: DurationBucket['key']; categories?: SpotCategory[]; priceRanges?: PriceRange[]; who?: Who }[] = [
+  { key: 'oneHour', durationKey: 'short' },
+  { key: 'rainy', durationKey: 'half', categories: ['Culture', 'Cafe'] },
+  { key: 'date', durationKey: 'half', categories: ['Food', 'Terraces'], who: 'couple' },
+  { key: 'under25', durationKey: 'half', priceRanges: ['$'] },
+];
+
 export function ItineraryScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -790,6 +797,24 @@ export function ItineraryScreen() {
             <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start gap-6 lg:gap-8">
               {/* Steps */}
               <div className="space-y-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm text-muted-foreground">{t('itineraryBuilder.quickStart')}</span>
+                  {QUICK_STARTS.map(q => (
+                    <button
+                      key={q.key}
+                      type="button"
+                      className="min-h-11 px-4 rounded-full border text-sm hover:bg-muted transition"
+                      onClick={() => {
+                        setDurationKey(q.durationKey);
+                        setCategories(q.categories ?? []);
+                        setPriceRanges(q.priceRanges ?? []);
+                        setSelectedWho(q.who ?? null);
+                      }}
+                    >
+                      {t(`itineraryBuilder.quick.${q.key}`)}
+                    </button>
+                  ))}
+                </div>
                 <StepCard
                   id="step-location"
                   index={1}
@@ -1062,14 +1087,14 @@ export function ItineraryScreen() {
                     <PreferenceRow
                       icon={Wallet}
                       label={t('itinerary.price')}
-                      value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.interestsAny')}
+                      value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.priceAny')}
                       changeLabel={t('itineraryBuilder.change')}
                       onChange={() => goToStep('step-budget')}
                     />
                     <PreferenceRow
                       icon={Users}
                       label={t('itineraryBuilder.withWhoLabel')}
-                      value={selectedWho ? t(`itineraryBuilder.whoOption.${selectedWho}`) : t('itineraryBuilder.interestsAny')}
+                      value={selectedWho ? t(`itineraryBuilder.whoOption.${selectedWho}`) : t('itineraryBuilder.whoAny')}
                       changeLabel={t('itineraryBuilder.change')}
                       onChange={() => goToStep('step-who')}
                     />

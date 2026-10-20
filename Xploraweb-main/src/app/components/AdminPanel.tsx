@@ -341,14 +341,14 @@ export function AdminPanel() {
 
         {activeTab === 'businesses' && (
           <div className="space-y-8">
-            {/* Xplora Xperiences published by businesses */}
+            {/* GoXplora Xperiences published by businesses */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Map className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-base font-medium">Xplora Xperiences ({adminXperiences.length})</h3>
+                <h3 className="text-base font-medium">GoXplora Xperiences ({adminXperiences.length})</h3>
               </div>
               {adminXperiences.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No Xplora Xperiences yet.</p>
+                <p className="text-sm text-muted-foreground">No GoXplora Xperiences yet.</p>
               ) : (
                 <div className="space-y-2">
                   {adminXperiences.map(xp => (

@@ -64,8 +64,8 @@ export function Footer() {
             <ul className="text-sm text-white/70">
               <li><Link to="/privacy" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkPrivacyPolicy')}</Link></li>
               <li><Link to="/terms" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkTermsOfService')}</Link></li>
-              <li><a href="#" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkCookiePolicy')}</a></li>
-              <li><a href="#" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkAccessibility')}</a></li>
+              <li><Link to="/privacy" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkCookiePolicy')}</Link></li>
+              <li><Link to="/faq" className="inline-flex items-center min-h-11 hover:text-white transition">{t('footer.linkAccessibility')}</Link></li>
             </ul>
           </div>
         </div>

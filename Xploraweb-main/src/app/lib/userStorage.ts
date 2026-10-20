@@ -1,5 +1,5 @@
 /**
- * Xplora user profile — stored in localStorage so data persists across sessions.
+ * GoXplora user profile — stored in localStorage so data persists across sessions.
  */
 
 export interface UserProfile {

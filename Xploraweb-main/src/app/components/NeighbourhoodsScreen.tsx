@@ -104,7 +104,7 @@ export function NeighbourhoodsScreen() {
   return (
     <div className="min-h-screen pb-24 md:pb-0 font-sans">
       <PageSEO
-        title={t('neighbourhoods.seoTitle', 'Québec City Neighbourhoods — Xplora')}
+        title={t('neighbourhoods.seoTitle', 'Québec City Neighbourhoods — GoXplora')}
         description={t('neighbourhoods.seoDesc', 'Explore Québec City neighbourhood by neighbourhood — from the Old Port to Saint-Roch and Limoilou. Discover curated self-guided tours and local experiences in each area.')}
         canonical="/neighbourhoods"
       />
@@ -118,7 +118,7 @@ export function NeighbourhoodsScreen() {
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-xl">
             {sortNew
-              ? t('neighbourhoods.newSubtitle', "The latest additions to Xplora, freshest first.")
+              ? t('neighbourhoods.newSubtitle', "The latest additions to GoXplora, freshest first.")
               : t('neighbourhoods.subtitle', 'Every corner of the city has its own character. Pick a neighbourhood to see the experiences waiting there.')}
           </p>
         </div>

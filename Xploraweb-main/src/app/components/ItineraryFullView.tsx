@@ -36,6 +36,11 @@ interface Props {
   /** The pace this route was generated with — only known at generation time,
    * so omitted (and hidden) on the saved/shared view. */
   pace?: Pace;
+  /** Swaps one stop for another suggested spot, keeping the rest. Omitted
+   * where there are no alternates (e.g. the saved/public /i/:slug view). */
+  onReplaceStop?: (spotId: string) => void;
+  /** Last replace attempt found nothing left to swap in. */
+  noAlternate?: boolean;
 }
 
 const EARTH_RADIUS_M = 6371000;
@@ -91,7 +96,7 @@ function orderedCategories(itinerary: GeneratedItinerary, max = 4): string[] {
 /** The full stop-by-stop view of one itinerary — hero, info bar, stops + map,
  * shared by the pre-save preview dialog, the full-width generator result, and
  * the permanent /i/:slug page. */
-export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace }: Props) {
+export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace, onReplaceStop, noAlternate }: Props) {
   const { t } = useTranslation();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -197,6 +202,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
       <div className="max-w-7xl mx-auto px-6 md:px-8 mt-8 md:grid md:grid-cols-[1fr_380px] md:gap-8 md:items-start">
         {/* Stops */}
         <div className={mobileView === 'map' ? 'hidden md:block' : 'block'}>
+          {noAlternate && <p role="status" className="text-sm text-muted-foreground mb-4">{t('itineraryFullView.noAlternate')}</p>}
           {itinerary.stops.map((item, i) => {
             const isLast = i === itinerary.stops.length - 1;
 
@@ -274,6 +280,16 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                         </div>
                       )}
                       {item.note && <p className="text-xs text-muted-foreground italic mt-2">{item.note}</p>}
+                      {onReplaceStop && !pinned && (
+                        <button
+                          type="button"
+                          onClick={() => onReplaceStop(item.spot.id)}
+                          className="mt-3 inline-flex items-center gap-1.5 min-h-11 text-xs text-primary hover:underline"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+                          {t('itineraryFullView.replaceStop')}
+                        </button>
+                      )}
                     </div>
                   </div>
                   {walk && (

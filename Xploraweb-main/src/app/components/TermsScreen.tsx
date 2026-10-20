@@ -8,7 +8,7 @@ export function TermsScreen() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-6 md:px-8 pt-12 pb-10">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Xplora</p>
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">GoXplora</p>
           <h1 className="text-3xl md:text-4xl">{t('terms.title')}</h1>
           <p className="text-muted-foreground mt-2 text-sm">{t('terms.lastUpdated')}</p>
         </div>
@@ -18,7 +18,7 @@ export function TermsScreen() {
 
         <section className="space-y-3">
           <p className="text-muted-foreground">
-            {t('terms.intro', 'These Terms of Service govern your use of Xplora (goxplora.ca), operated by Club Horizon, Québec City, QC. By creating an account or using the platform, you agree to these terms.')}
+            {t('terms.intro', 'These Terms of Service govern your use of GoXplora (goxplora.ca), operated by Club Horizon, Québec City, QC. By creating an account or using the platform, you agree to these terms.')}
           </p>
         </section>
 

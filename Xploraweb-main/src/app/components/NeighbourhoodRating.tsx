@@ -183,7 +183,7 @@ export function NeighbourhoodRating({ neighbourhoodId }: { neighbourhoodId: stri
                 {review.comment && <p className="text-sm text-muted-foreground leading-relaxed">{review.comment}</p>}
                 {review.admin_reply && (
                   <div className="mt-3 pl-3 border-l-2 border-xplora-ink/20">
-                    <p className="text-xs font-medium text-xplora-ink mb-0.5">{t('neighbourhoodDetail.adminReplyLabel', 'Xplora replied')}</p>
+                    <p className="text-xs font-medium text-xplora-ink mb-0.5">{t('neighbourhoodDetail.adminReplyLabel', 'GoXplora replied')}</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">{review.admin_reply}</p>
                   </div>
                 )}

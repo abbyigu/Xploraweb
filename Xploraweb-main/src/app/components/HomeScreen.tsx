@@ -15,7 +15,7 @@ import { HeroSlideshow } from './HeroSlideshow';
 import { SiteSearch } from './SiteSearch';
 import { NEIGHBOURHOODS_FALLBACK } from './NeighbourhoodsScreen';
 
-// Small read-only map used inside the "How Goxplora works" phone mockup —
+// Small read-only map used inside the "How GoXplora works" phone mockup —
 // shows a couple of real nearby spots instead of decorative fake pins.
 const PHONE_PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15C0 26 15 38 15 38C15 38 30 26 30 15C30 6.7 23.3 0 15 0Z';
 const PHONE_PIN_COLORS = ['#119FB3', '#33C0A3', '#119FB3'];
@@ -325,7 +325,7 @@ export function HomeScreen() {
     return [...loved, ...hot].slice(0, 5);
   }, [spots]);
 
-  // A couple of real, geolocated spots for the "How Goxplora works" phone
+  // A couple of real, geolocated spots for the "How GoXplora works" phone
   // mockup map — prefers the same curated set as Hidden gems.
   const phoneMapSpots = useMemo(() => {
     const withCoords = (list: typeof spots) => list.filter(s => s.lat != null && s.lng != null);
@@ -413,6 +413,25 @@ export function HomeScreen() {
               <ValuePillar key={label} label={label} desc={desc} icon={icon} delay={i * 75} className="w-[46%] flex-shrink-0 snap-start md:w-auto md:flex-shrink md:snap-none" />
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Sample outing */}
+      <section className="pt-10 pb-2">
+        <div className="max-w-7xl mx-auto px-6 md:px-8">
+          <h2 className="text-xl md:text-2xl font-medium">{t('home.sampleTitle')}</h2>
+          <p className="text-sm text-muted-foreground mt-1 mb-5">{t('home.sampleSub')}</p>
+          <ol className="grid gap-3 md:grid-cols-3">
+            {[1, 2, 3].map(n => (
+              <li key={n} className="rounded-xl border p-4 flex gap-3">
+                <span className="flex-shrink-0 size-7 rounded-full bg-[#12343B] text-white text-sm flex items-center justify-center">{n}</span>
+                <div>
+                  <p className="font-medium">{t(`home.sampleStop${n}`)}</p>
+                  <p className="text-sm text-muted-foreground">{t(`home.sampleStop${n}Desc`)}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
@@ -506,7 +525,7 @@ export function HomeScreen() {
         <SpotFinder />
       </div>
 
-      {/* How Goxplora works */}
+      {/* How GoXplora works */}
       <section className="mt-8 bg-[#ECEEE8] px-6 py-16 md:py-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-14 md:gap-16 items-center">
           <div>

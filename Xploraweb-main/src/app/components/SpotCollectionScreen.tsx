@@ -86,7 +86,7 @@ export function HotspotsScreen() {
       emptyMessage={t('hotspots.empty', 'No hotspots yet — check back soon.')}
       icon={<Flame className="w-6 h-6 text-red-500" />}
       filter={spot => !!spot.isHotspot}
-      seoTitle={t('hotspots.seoTitle', 'Hotspots in Québec City — Xplora')}
+      seoTitle={t('hotspots.seoTitle', 'Hotspots in Québec City — GoXplora')}
       seoDesc={t('hotspots.seoDesc', 'The buzzing spots our team keeps coming back to in Québec City.')}
       canonical="/hotspots"
     />
@@ -102,8 +102,8 @@ export function MichelinScreen() {
       emptyMessage={t('michelin.empty', 'No Michelin Guide spots yet — check back soon.')}
       icon={<Award className="w-6 h-6 text-red-600" />}
       filter={spot => !!spot.michelinUrl}
-      seoTitle={t('michelin.seoTitle', 'Michelin Guide spots in Québec City — Xplora')}
-      seoDesc={t('michelin.seoDesc', 'Every restaurant in Québec City listed in the Michelin Guide, handpicked by Xplora.')}
+      seoTitle={t('michelin.seoTitle', 'Michelin Guide spots in Québec City — GoXplora')}
+      seoDesc={t('michelin.seoDesc', 'Every restaurant in Québec City listed in the Michelin Guide, handpicked by GoXplora.')}
       canonical="/michelin"
     />
   );
@@ -114,12 +114,12 @@ export function PlacesWeLoveScreen() {
   return (
     <SpotCollectionScreen
       title={t('placesWeLove.title', 'Places We Love')}
-      subtitle={t('placesWeLove.subtitle', 'Our favorite local finds, handpicked by the Xplora team.')}
+      subtitle={t('placesWeLove.subtitle', 'Our favorite local finds, handpicked by the GoXplora team.')}
       emptyMessage={t('placesWeLove.empty', 'No favorites yet — check back soon.')}
       icon={<Heart className="w-6 h-6 text-pink-500" />}
       filter={spot => !!spot.isLoved}
-      seoTitle={t('placesWeLove.seoTitle', 'Places We Love in Québec City — Xplora')}
-      seoDesc={t('placesWeLove.seoDesc', 'Our favorite local finds, handpicked by the Xplora team in Québec City.')}
+      seoTitle={t('placesWeLove.seoTitle', 'Places We Love in Québec City — GoXplora')}
+      seoDesc={t('placesWeLove.seoDesc', 'Our favorite local finds, handpicked by the GoXplora team in Québec City.')}
       canonical="/loved"
     />
   );

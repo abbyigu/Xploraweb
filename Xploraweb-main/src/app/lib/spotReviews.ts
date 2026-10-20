@@ -54,7 +54,7 @@ export async function upsertSpotReview(spotId: string, rating: number, comment: 
   return error ? { ok: false, error: error.message } : { ok: true, review: data ? mapRow(data) : undefined };
 }
 
-/** Approved-review average + count for a batch of spots, for a public "Xplora rating" display. */
+/** Approved-review average + count for a batch of spots, for a public "GoXplora rating" display. */
 export async function getApprovedSpotReviewSummaries(spotIds: string[]): Promise<Record<string, { avgRating: number; count: number }>> {
   if (spotIds.length === 0) return {};
 
