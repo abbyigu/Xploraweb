@@ -197,13 +197,18 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ itineraries: [await finishRoute([single], matrix, candidates, body)] });
   }
   let routed = false;
+  let best: { ordered: CandidateSpot[]; matrix: WalkingMatrix; shortlist: CandidateSpot[]; seconds: number } | null = null;
   for (const shortlist of compactShortlists(candidates, pins, body.categories, body.stopCount)) {
     const matrix = await fetchWalkingMatrix(shortlist.map(spot => ({ id: spot.id, lat: spot.lat!, lng: spot.lng! })));
     if (!matrix) continue;
     routed = true;
     const ordered = solveCompactRoute(shortlist, matrix, opts);
-    if (ordered) return res.status(200).json({ itineraries: [await finishRoute(ordered, matrix, shortlist, body)] });
+    if (ordered) {
+      const seconds = ordered.slice(1).reduce((total, spot, index) => total + walkingLeg(matrix, ordered[index].id, spot.id)!.durationSeconds, 0);
+      if (!best || seconds < best.seconds) best = { ordered, matrix, shortlist, seconds };
+    }
   }
+  if (best) return res.status(200).json({ itineraries: [await finishRoute(best.ordered, best.matrix, best.shortlist, body)] });
   return res.status(routed ? 422 : 503).json({
     code: routed ? 'NO_COMPACT_ROUTE' : 'ROUTING_UNAVAILABLE',
     error: routed ? 'No compact route fits these filters and walking limit.' : 'Walking routes could not be verified.',
