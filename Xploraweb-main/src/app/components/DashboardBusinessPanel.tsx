@@ -6,9 +6,9 @@ import { uploadViaApi } from '../lib/uploadImage';
 import type { DashboardProfile } from './DashboardScreen';
 
 const PARTNERSHIP_BENEFITS = [
-  { icon: Star,   title: 'Featured Venue',             desc: 'Dedicated spotlight in the Xplora member app' },
+  { icon: Star,   title: 'Featured Venue',             desc: 'Dedicated spotlight in the GoXplora member app' },
   { icon: MapPin, title: 'Official Xplora-tours Stop',  desc: 'Named stop on our curated guided city tours' },
-  { icon: Mail,   title: 'Newsletter Highlight',        desc: 'Featured in the Xplora member newsletter' },
+  { icon: Mail,   title: 'Newsletter Highlight',        desc: 'Featured in the GoXplora member newsletter' },
   { icon: Globe,  title: 'Logo on Website',             desc: 'Your brand in the Partners section of goxplora.ca' },
 ];
 
@@ -36,7 +36,7 @@ const TIMINGS = ['Tonight only', 'This week', 'Weekends', 'Friday nights', 'Satu
 const XPLORA_CATEGORIES = [
   { id: 'xplorators', label: 'Xplora-tors (self-guided, free)' },
   { id: 'xplorateurs', label: 'Xplora-tours (guided, paid)' },
-  { id: 'xploranights', label: 'Xplora Nights (events)' },
+  { id: 'xploranights', label: 'GoXplora Nights (events)' },
 ];
 
 const EMPTY_FORM = {
@@ -314,7 +314,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
                   onClick={() => setForm((f) => ({ ...f, type: t }))}
                   className={`flex-1 py-2.5 rounded-xl text-xs font-medium border transition-colors ${form.type === t ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted/40'}`}
                 >
-                  {t === 'free' ? '✨ Free Perk' : t === 'paid' ? '🎟️ Paid Experience' : '🗺️ Xplora Xperience'}
+                  {t === 'free' ? '✨ Free Perk' : t === 'paid' ? '🎟️ Paid Experience' : '🗺️ GoXplora Xperience'}
                 </button>
               ))}
             </div>
@@ -358,7 +358,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
             {form.type === 'xplora_experience' ? (
               <div className="grid md:grid-cols-3 gap-4">
                 <div>
-                  <label htmlFor="biz-xplora-category" className="block text-sm mb-1.5">Xplora Category</label>
+                  <label htmlFor="biz-xplora-category" className="block text-sm mb-1.5">GoXplora Category</label>
                   <select id="biz-xplora-category" value={form.xplora_category} onChange={set('xplora_category')} className="w-full px-4 py-2.5 rounded-xl border border-border focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background">
                     {XPLORA_CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
                   </select>
@@ -415,7 +415,7 @@ export function DashboardBusinessPanel({ profile }: { profile: DashboardProfile 
             </div>
 
             <button type="submit" disabled={submitting} className="w-full bg-primary text-primary-foreground py-3 rounded-xl text-sm hover:opacity-90 transition-opacity disabled:opacity-60">
-              {submitting ? 'Publishing…' : form.type === 'free' ? 'Publish Free Perk' : form.type === 'paid' ? 'Publish Paid Experience' : 'Publish Xplora Xperience'}
+              {submitting ? 'Publishing…' : form.type === 'free' ? 'Publish Free Perk' : form.type === 'paid' ? 'Publish Paid Experience' : 'Publish GoXplora Xperience'}
             </button>
           </form>
         )}

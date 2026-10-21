@@ -79,7 +79,7 @@ const STATIC_PERKS = [
     id: 2,
     title: "First sip on us",
     venue: "Le Perché Rooftop",
-    description: "Welcome cocktail for Xplora members",
+    description: "Welcome cocktail for GoXplora members",
     image: "https://images.unsplash.com/photo-1597672468179-aa540e33bf5c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=600",
     timing: "This week",
     unlocked: true,

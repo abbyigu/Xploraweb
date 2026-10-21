@@ -10,12 +10,13 @@ import { useSpots } from '../hooks/useSpots';
 import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
+import { OutingStarters } from './OutingStarters';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
 import { SiteSearch } from './SiteSearch';
 import { NEIGHBOURHOODS_FALLBACK } from './NeighbourhoodsScreen';
 
-// Small read-only map used inside the "How Goxplora works" phone mockup —
+// Small read-only map used inside the "How GoXplora works" phone mockup —
 // shows a couple of real nearby spots instead of decorative fake pins.
 const PHONE_PIN_PATH = 'M15 0C6.7 0 0 6.7 0 15C0 26 15 38 15 38C15 38 30 26 30 15C30 6.7 23.3 0 15 0Z';
 const PHONE_PIN_COLORS = ['#119FB3', '#33C0A3', '#119FB3'];
@@ -325,7 +326,7 @@ export function HomeScreen() {
     return [...loved, ...hot].slice(0, 5);
   }, [spots]);
 
-  // A couple of real, geolocated spots for the "How Goxplora works" phone
+  // A couple of real, geolocated spots for the "How GoXplora works" phone
   // mockup map — prefers the same curated set as Hidden gems.
   const phoneMapSpots = useMemo(() => {
     const withCoords = (list: typeof spots) => list.filter(s => s.lat != null && s.lng != null);
@@ -404,6 +405,8 @@ export function HomeScreen() {
           <SiteSearch variant="hero" className="w-full max-w-sm" />
         </div>
       </section>
+
+      <OutingStarters />
 
       {/* Feature strip */}
       <section className="pt-12 md:pt-16 pb-4">
@@ -506,7 +509,7 @@ export function HomeScreen() {
         <SpotFinder />
       </div>
 
-      {/* How Goxplora works */}
+      {/* How GoXplora works */}
       <section className="mt-8 bg-[#ECEEE8] px-6 py-16 md:py-20">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-14 md:gap-16 items-center">
           <div>
@@ -563,6 +566,15 @@ export function HomeScreen() {
         </div>
       </section>
 
+      <section className="max-w-7xl mx-auto px-6 md:px-8 py-10">
+        <div className="rounded-3xl bg-card p-6 md:p-8">
+          <p className="text-xs uppercase tracking-widest text-primary">{t('home.storyEyebrow')}</p>
+          <h2 className="font-serif text-2xl text-xplora-ink mt-2">{t('home.sectionBreakQuote')}</h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl">{t('home.storyBody')}</p>
+          <Link to="/about" className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">{t('outingStarters.meetFounder')}</Link>
+        </div>
+      </section>
+
       {/* For Business */}
       <section id="for-business" className="px-6 py-10 md:py-12">
         <div
@@ -591,3 +603,4 @@ export function HomeScreen() {
     </div>
   );
 }
+

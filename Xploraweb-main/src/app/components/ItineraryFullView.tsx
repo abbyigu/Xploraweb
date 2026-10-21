@@ -36,6 +36,11 @@ interface Props {
   /** The pace this route was generated with — only known at generation time,
    * so omitted (and hidden) on the saved/shared view. */
   pace?: Pace;
+  /** Swaps one stop for another suggested spot, keeping the rest. Omitted
+   * where there are no alternates (e.g. the saved/public /i/:slug view). */
+  onReplaceStop?: (spotId: string) => void;
+  /** Last replace attempt found nothing left to swap in. */
+  noAlternate?: boolean;
 }
 
 const EARTH_RADIUS_M = 6371000;
@@ -91,11 +96,18 @@ function orderedCategories(itinerary: GeneratedItinerary, max = 4): string[] {
 /** The full stop-by-stop view of one itinerary — hero, info bar, stops + map,
  * shared by the pre-save preview dialog, the full-width generator result, and
  * the permanent /i/:slug page. */
-export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace }: Props) {
+export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace, onReplaceStop, noAlternate }: Props) {
   const { t } = useTranslation();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [michelinOnly, setMichelinOnly] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle');
+
+  async function copyOuting() {
+    const text = [itinerary.title, ...itinerary.stops.map(item => item.spot.name + (item.spot.address ? ` — ${item.spot.address}` : '')), mapsUrl].filter(Boolean).join('\n');
+    try { await navigator.clipboard.writeText(text); setCopyStatus('copied'); }
+    catch { setCopyStatus('error'); }
+  }
 
   const mapsUrl = buildGoogleMapsUrl(itinerary.stops);
 
@@ -180,6 +192,16 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
         </div>
 
         {banner}
+        <div className="mt-4 rounded-2xl bg-card border border-border p-5 space-y-3">
+          <h3 className="text-sm font-semibold">{t('outingDetails.beforeYouGo')}</h3>
+          <p className="text-sm text-muted-foreground">{t('outingDetails.checkDetails')}</p>
+          <p className="text-xs text-muted-foreground">{t('outingDetails.costNote')}</p>
+          {onRegenerate && <p className="text-xs text-muted-foreground">{t('outingDetails.changeStopHint')}</p>}
+          <button type="button" onClick={copyOuting} className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">{t('outingDetails.copyOuting')}</button>
+          <p role="status" className="text-xs text-muted-foreground">{copyStatus === 'idle' ? t('outingDetails.copyHint') : t(`outingDetails.${copyStatus}`)}</p>
+        </div>
+
+        <p className="mt-4 text-sm text-muted-foreground">{t('outingDetails.returnPrompt')} <Link to="/feedback" className="text-primary underline">{t('outingDetails.feedback')}</Link> · <Link to="/saved" className="text-primary underline">{t('outingDetails.savedPlaces')}</Link></p>
 
         {/* Info bar */}
         <div className="mt-4 rounded-2xl border border-border bg-muted/40 px-6 py-5">
@@ -197,6 +219,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
       <div className="max-w-7xl mx-auto px-6 md:px-8 mt-8 md:grid md:grid-cols-[1fr_380px] md:gap-8 md:items-start">
         {/* Stops */}
         <div className={mobileView === 'map' ? 'hidden md:block' : 'block'}>
+          {noAlternate && <p role="status" className="text-sm text-muted-foreground mb-4">{t('itineraryFullView.noAlternate')}</p>}
           {itinerary.stops.map((item, i) => {
             const isLast = i === itinerary.stops.length - 1;
 
@@ -273,7 +296,23 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                           </div>
                         </div>
                       )}
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 text-xs">
+                        <span className="text-muted-foreground">{item.spot.priceRange || t('outingDetails.priceUnknown')}</span>
+                        {item.spot.website && /^https?:\/\//i.test(item.spot.website) && <a href={item.spot.website} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-primary underline">{t('outingDetails.website')}</a>}
+                        {item.spot.reservationUrl && /^https?:\/\//i.test(item.spot.reservationUrl) && <a href={item.spot.reservationUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center text-primary underline">{t('outingDetails.reservations')}</a>}
+                      </div>
+                      {item.spot.address && <p className="text-xs text-muted-foreground mt-1">{item.spot.address}</p>}
                       {item.note && <p className="text-xs text-muted-foreground italic mt-2">{item.note}</p>}
+                      {onReplaceStop && !pinned && (
+                        <button
+                          type="button"
+                          onClick={() => onReplaceStop(item.spot.id)}
+                          className="mt-3 inline-flex items-center gap-1.5 min-h-11 text-xs text-primary hover:underline"
+                        >
+                          <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
+                          {t('itineraryFullView.replaceStop')}
+                        </button>
+                      )}
                     </div>
                   </div>
                   {walk && (
@@ -389,3 +428,4 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
     </div>
   );
 }
+

@@ -125,7 +125,7 @@ export function FaqScreen() {
       {/* Hero */}
       <div className="bg-gradient-to-b from-primary/40 to-primary/30 text-foreground px-6 md:px-8 pt-8 pb-8 rounded-b-[3rem] md:rounded-none">
         <div className="max-w-3xl mx-auto space-y-1">
-          <p className="text-xs uppercase tracking-widest opacity-60">Xplora</p>
+          <p className="text-xs uppercase tracking-widest opacity-60">GoXplora</p>
           <h1 className="text-2xl md:text-3xl">{t('faq.headline')}</h1>
           <p className="text-sm md:text-base opacity-80">{t('faq.subheadline')}</p>
         </div>

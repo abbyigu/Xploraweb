@@ -113,7 +113,7 @@ export default async function handler(req: any, res: any) {
             </div>
             <p style="color:#666;font-size:14px;">Show this email (or your booking code) at the venue. Amount paid: <strong>$${amountPaid.toFixed(2)} CAD</strong></p>
             <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
-            <p style="color:#999;font-size:12px;">Club Horizon by Xplora · Québec City</p>
+            <p style="color:#999;font-size:12px;">Club Horizon by GoXplora · Québec City</p>
           </div>
         `,
       );
@@ -139,7 +139,7 @@ export default async function handler(req: any, res: any) {
               </div>
               <p style="color:#666;font-size:14px;">Ask the client to show their booking code <strong>${bookingCode}</strong> when they arrive.</p>
               <hr style="border:none;border-top:1px solid #eee;margin:24px 0;">
-              <p style="color:#999;font-size:12px;">Club Horizon Partner Program · Xplora</p>
+              <p style="color:#999;font-size:12px;">Club Horizon Partner Program · GoXplora</p>
             </div>
           `,
         );

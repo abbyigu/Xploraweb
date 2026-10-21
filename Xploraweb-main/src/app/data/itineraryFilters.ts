@@ -148,3 +148,23 @@ export interface GeneratedItinerarySet {
 }
 
 export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED';
+
+/** Swaps one stop for the closest unused alternate (same category preferred),
+ * keeping every other stop and the order. Returns null when no alternate is
+ * left. Distance/duration totals are left as generated. */
+export function replaceStop(itinerary: GeneratedItinerary, spotId: string): GeneratedItinerary | null {
+  const idx = itinerary.stops.findIndex(s => !isJourneyStep(s) && s.spot.id === spotId);
+  if (idx < 0) return null;
+  const old = itinerary.stops[idx].spot;
+  const used = new Set(itinerary.stops.map(s => s.spot.id));
+  const pool = (itinerary.alternates ?? []).filter(a => !used.has(a.id));
+  const dist = (a: Spot) =>
+    old.lat == null || old.lng == null || a.lat == null || a.lng == null
+      ? Infinity
+      : (a.lat - old.lat) ** 2 + (a.lng - old.lng) ** 2;
+  const sameCat = pool.filter(a => a.category === old.category);
+  const best = [...(sameCat.length ? sameCat : pool)].sort((a, b) => dist(a) - dist(b))[0];
+  if (!best) return null;
+  const stops = itinerary.stops.map((s, i) => (i === idx ? { ...(s as GeneratedItineraryStop), note: '', spot: best } : s));
+  return { ...itinerary, stops, alternates: (itinerary.alternates ?? []).filter(a => a.id !== best.id) };
+}

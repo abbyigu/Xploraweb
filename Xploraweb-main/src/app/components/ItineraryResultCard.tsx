@@ -8,6 +8,7 @@ import { AuthModal } from './AuthModal';
 import { PremiumLimitModal } from './PremiumLimitModal';
 import { useItinerarySave } from '../hooks/useItinerarySave';
 import { SPOT_CATEGORY_KEY } from '../data/products';
+import { replaceStop } from '../data/itineraryFilters';
 import type { GeneratedItinerary, Pace } from '../data/itineraryFilters';
 
 interface Props {
@@ -48,10 +49,19 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin, onModify, pace }: Props) {
+export function ItineraryResultCard({ itinerary: generated, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin, onModify, pace }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
+  // Local copy so a single stop can be replaced without regenerating the route.
+  const [itinerary, setItinerary] = useState(generated);
+  useEffect(() => setItinerary(generated), [generated]);
+  const [noAlternate, setNoAlternate] = useState(false);
+  function handleReplaceStop(spotId: string) {
+    const next = replaceStop(itinerary, spotId);
+    setNoAlternate(!next);
+    if (next) setItinerary(next);
+  }
   const [copied, setCopied] = useState(false);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [pinSaveConfirmOpen, setPinSaveConfirmOpen] = useState(false);
@@ -181,6 +191,8 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
           onTogglePin={onTogglePin ? handleTogglePin : undefined}
           onRegenerate={handleRegenerate}
           onModify={onModify}
+          onReplaceStop={itinerary.alternates?.length ? handleReplaceStop : undefined}
+          noAlternate={noAlternate}
           pace={pace}
         />
         <AuthModal open={authModalOpen} onOpenChange={setAuthModalOpen} onAuthenticated={handleAuthenticated} />
@@ -264,6 +276,8 @@ export function ItineraryResultCard({ itinerary, index, onRegenerate, layout = '
               onTogglePin={onTogglePin ? handleTogglePin : undefined}
               onRegenerate={handleRegenerate}
               onModify={onModify}
+              onReplaceStop={itinerary.alternates?.length ? handleReplaceStop : undefined}
+              noAlternate={noAlternate}
               pace={pace}
             />
           </div>

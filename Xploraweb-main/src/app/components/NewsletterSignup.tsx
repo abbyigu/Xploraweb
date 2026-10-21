@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Xplora Newsletter Signup — powered by Kit (club-horizon)
+ * GoXplora Newsletter Signup — powered by Kit (club-horizon)
  * Embed UID: 361503f84f
  */
 export default function NewsletterSignup() {

@@ -42,7 +42,7 @@ export function BottomNav() {
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
-            <span className="text-xs leading-tight">{label}</span>
+            <span className="text-[10px] leading-tight break-words max-w-full text-center">{label}</span>
           </Link>
         ))}
         <button
@@ -58,3 +58,4 @@ export function BottomNav() {
     </nav>
   );
 }
+

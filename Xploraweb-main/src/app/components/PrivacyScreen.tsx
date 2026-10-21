@@ -15,7 +15,7 @@ export function PrivacyScreen() {
     <div className="min-h-screen pb-24 md:pb-8 bg-background">
       <div className="bg-gradient-to-b from-primary/20 to-transparent px-6 md:px-8 pt-12 pb-10">
         <div className="max-w-3xl mx-auto">
-          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">Xplora</p>
+          <p className="text-xs uppercase tracking-widest opacity-60 mb-2">GoXplora</p>
           <h1 className="text-3xl md:text-4xl">{t('privacy.title')}</h1>
           <p className="text-muted-foreground mt-2 text-sm">{t('privacy.lastUpdated')}</p>
         </div>
@@ -25,7 +25,7 @@ export function PrivacyScreen() {
 
         <section className="space-y-3">
           <p className="text-muted-foreground">
-            {t('privacy.intro', 'Xplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information.')}
+            {t('privacy.intro', 'GoXplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information.')}
           </p>
         </section>
 
@@ -67,7 +67,7 @@ export function PrivacyScreen() {
           <p className="text-muted-foreground">{t('privacy.s3footer')}</p>
         </section>
 
-        <section className="space-y-3">
+        <section id="cookies" className="space-y-3 scroll-mt-24">
           <h2 className="text-lg font-medium">{t('privacy.s4title')}</h2>
           <p className="text-muted-foreground">{t('privacy.s4desc')}</p>
         </section>
@@ -118,3 +118,4 @@ export function PrivacyScreen() {
     </div>
   );
 }
+
