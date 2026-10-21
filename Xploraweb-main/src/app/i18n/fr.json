@@ -463,7 +463,16 @@
     "checkingReplacement": "Vérification du trajet…",
     "maxWalkTitle": "Marche maximale entre deux arrêts",
     "maxWalkOption": "{{count}} min",
-    "maxWalkHint": "Les trajets à pied réels priment sur l’ordre préféré des catégories."
+    "maxWalkHint": "Les trajets à pied réels priment sur l’ordre préféré des catégories.",
+    "exactInterestCountHint": "Un arrêt par intérêt sélectionné. Ajoutez des arrêts seulement si vous le souhaitez.",
+    "openCountHint": "Sans intérêt sélectionné, la durée donne le nombre de départ. Choisissez des intérêts pour demander un arrêt de chaque type.",
+    "hoppingCountHint": "Le nombre de restaurants dépend de la durée choisie.",
+    "totalStops_one": "{{count}} arrêt au total",
+    "totalStops_other": "{{count}} arrêts au total",
+    "noExtraStops": "Aucun arrêt supplémentaire",
+    "extraStops_one": "+{{count}} arrêt",
+    "extraStops_other": "+{{count}} arrêts",
+    "pinsCountHint": "Les arrêts que vous avez épinglés sont inclus et peuvent augmenter le total."
   },
   "authModal": {
     "title": "Sauvegardez votre itinéraire pour plus tard",

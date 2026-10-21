@@ -26,6 +26,7 @@ import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 import { analytics } from '../lib/analytics';
 import { getOutingStarter } from '../data/outingStarters';
+import { requestedStopCount } from '../data/requestedStopCount';
 
 type EventTimeBucket = 'today' | 'weekend' | 'month';
 type GenState = 'idle' | 'loading' | 'success' | 'error';
@@ -342,6 +343,7 @@ export function ItineraryScreen() {
   const [durationKey, setDurationKey] = useState<DurationBucket['key']>(saved.durationKey ?? 'half');
   const [pace, setPace] = useState<Pace>(saved.pace ?? 'moderate');
   const [maxWalkMinutes, setMaxWalkMinutes] = useState(saved.maxWalkMinutes ?? 10);
+  const [extraStops, setExtraStops] = useState(0);
   const [categories, setCategories] = useState<SpotCategory[]>(saved.restaurantHopping ? [] : saved.categories ?? []);
   const [restaurantHopping, setRestaurantHopping] = useState(saved.restaurantHopping ?? false);
   const [michelinOnly, setMichelinOnly] = useState(saved.michelinOnly ?? false);
@@ -362,6 +364,7 @@ export function ItineraryScreen() {
     setPace(starter.pace);
     setMaxWalkMinutes(10);
     setCategories([...starter.categories]);
+    setExtraStops(0);
     setPriceRanges([...starter.priceRanges]);
     setSelectedWho(starter.who);
     setNeighbourhoods([]);
@@ -412,6 +415,8 @@ export function ItineraryScreen() {
   // regeneration surfaces fresh picks instead of repeating them.
   const [pinnedSpotIds, setPinnedSpotIds] = useState<Set<string>>(new Set());
   const [shownSpotIds, setShownSpotIds] = useState<Set<string>>(new Set());
+  const selectedBucket = DURATION_BUCKETS.find(bucket => bucket.key === durationKey) || DURATION_BUCKETS[1];
+  const stopCount = requestedStopCount({ categories, extraStops, bucket: selectedBucket, restaurantHopping, pinnedCount: pinnedSpotIds.size });
 
   function toggleSpotPin(spotId: string) {
     setPinnedSpotIds(prev => {
@@ -463,7 +468,8 @@ export function ItineraryScreen() {
     setPriceRanges(prev => prev.includes(p) ? prev.filter(x => x !== p) : [...prev, p]);
   }
   function toggleCategory(c: SpotCategory) {
-    setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
+    setExtraStops(0);
+    setCategories(prev => prev.includes(c) ? prev.filter(x => x !== c) : prev.length < 9 ? [...prev, c] : prev);
   }
   // Reorders the visit-order sequence in place — categories is already the
   // source of truth for both "which" and "in what order" (see toggleCategory).
@@ -543,6 +549,7 @@ export function ItineraryScreen() {
   }, [dragFromIndex]);
 
   function handleRestaurantHoppingChange(next: boolean) {
+    setExtraStops(0);
     setRestaurantHopping(next);
     if (next) {
       prevCategoriesRef.current = categories;
@@ -587,8 +594,6 @@ export function ItineraryScreen() {
   async function handleGenerate() {
     setGenState('loading');
     setErrorCode(null);
-    const bucket = DURATION_BUCKETS.find(b => b.key === durationKey) || DURATION_BUCKETS[1];
-    const stopCount = stopCountForBucket(bucket, restaurantHopping);
     const body: ItineraryGenerateRequest = {
       stopCount,
       maxWalkMinutes,
@@ -992,6 +997,14 @@ export function ItineraryScreen() {
                   </div>
                 </StepCard>
 
+                <StepCard id="step-count" icon={MapPin} title={t('itineraryBuilder.stopCount')} subtitle={t(restaurantHopping ? 'itineraryBuilder.hoppingCountHint' : categories.length ? 'itineraryBuilder.exactInterestCountHint' : 'itineraryBuilder.openCountHint')}>
+                  <p className="text-sm font-semibold mb-3" role="status">{t('itineraryBuilder.totalStops', { count: stopCount })}</p>
+                  {!restaurantHopping && <div className="flex flex-wrap gap-2">
+                    {[0, 1, 2, 3].map(extra => <Chip key={extra} active={extraStops === extra} onClick={() => setExtraStops(extra)}>{extra === 0 ? t('itineraryBuilder.noExtraStops') : t('itineraryBuilder.extraStops', { count: extra })}</Chip>)}
+                  </div>}
+                  {pinnedSpotIds.size > 0 && <p className="text-xs text-muted-foreground mt-2">{t('itineraryBuilder.pinsCountHint')}</p>}
+                </StepCard>
+
                 <details open={fineTuneOpen} onToggle={e => setFineTuneOpen(e.currentTarget.open)} className="group">
                   <summary className="flex items-center justify-between gap-3 bg-card border border-border rounded-3xl p-5 md:p-6 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                     <span className="min-w-0">
@@ -1095,6 +1108,7 @@ export function ItineraryScreen() {
                   <p className="text-xs text-muted-foreground mt-0.5">{t('itineraryBuilder.yourPreferencesSubtitle')}</p>
                   <p className="text-xs text-muted-foreground mt-3">{t('outingStarters.accountNote')} <Link to="/membership" className="text-primary underline">{t('outingStarters.plans')}</Link></p>
                   <div className="mt-2">
+                    <PreferenceRow icon={MapPin} label={t('itineraryBuilder.stopCount')} value={t('itineraryBuilder.totalStops', { count: stopCount })} changeLabel={t('itineraryBuilder.change')} onChange={() => goToStep('step-count')} />
                     <PreferenceRow
                       icon={MapPin}
                       label={t('itineraryBuilder.location')}

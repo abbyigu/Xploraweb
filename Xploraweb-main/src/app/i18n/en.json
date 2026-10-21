@@ -463,7 +463,16 @@
     "checkingReplacement": "Checking walking route…",
     "maxWalkTitle": "Maximum walk between stops",
     "maxWalkOption": "{{count}} min",
-    "maxWalkHint": "Actual walking connections take priority over your preferred category order."
+    "maxWalkHint": "Actual walking connections take priority over your preferred category order.",
+    "exactInterestCountHint": "One stop per selected interest. Add extra stops only if you want them.",
+    "openCountHint": "With no interests selected, duration sets the starting count. Choose interests to request one stop of each type.",
+    "hoppingCountHint": "The restaurant count follows your selected duration.",
+    "totalStops_one": "{{count}} stop total",
+    "totalStops_other": "{{count}} stops total",
+    "noExtraStops": "No extra stops",
+    "extraStops_one": "+{{count}} stop",
+    "extraStops_other": "+{{count}} stops",
+    "pinsCountHint": "Your explicitly pinned stops are included and may increase the total."
   },
   "authModal": {
     "title": "Save your itinerary for later",

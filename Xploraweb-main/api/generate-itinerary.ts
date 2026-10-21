@@ -14,7 +14,7 @@ const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping',
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const PACES = ['relaxed', 'moderate', 'packed'] as const;
 const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
-const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
+const REGULAR_STOP_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
 
 // Columns mapSpotRow actually reads — narrower than `select('*')` so the
@@ -53,7 +53,7 @@ const RequestSchema = z.object({
   pace: z.enum(PACES).optional().default('moderate'),
   who: z.enum(WHO_OPTIONS).optional(),
   maxWalkMinutes: z.number().int().min(5).max(30).optional().default(10),
-  replacement: z.object({ stopIds: z.array(z.string()).min(2).max(9), spotId: z.string() }).optional(),
+  replacement: z.object({ stopIds: z.array(z.string()).min(1).max(9), spotId: z.string() }).optional(),
   // Stops the user pinned on a previous generation — kept in every regenerated
   // option (not subject to the balanced-mix caps below) while the rest varies.
   // Order matters: it's the sequence the traveller last saw them in, and
@@ -106,7 +106,7 @@ async function describeRoute(stops: CandidateSpot[], language: 'en' | 'fr') {
   try {
     const result = await generateObject({
       model: anthropic('claude-haiku-4-5-20251001'), schema: CopySchema, temperature: 0.4, maxRetries: 0, abortSignal: AbortSignal.timeout(8000),
-      prompt: `Write a title, short summary and a note for each stop in ${language === 'fr' ? 'French' : 'English'} for this Québec City outing. The route has already been selected and verified by a walking router. Keep these exact stop ids and order. Do not select, add or reorder places. Do not invent opening hours, walking times, stairs, transportation or accessibility claims. Ground notes in the supplied facts. Stops: ${JSON.stringify(stops.map(spot => ({ id: spot.id, name: spot.name, description: spot.description, tips: spot.xploraTips })))}`,
+      prompt: `Write a title, short summary and a note for each stop in ${language === 'fr' ? 'French' : 'English'} for this Québec City outing. The route has already been selected and verified by a walking router. Keep these exact stop ids and order. Do not select, add or reorder places. Notes should describe the place itself, not the sequence: never say begin, start, end or finish the outing in a stop note. Do not invent opening hours, walking times, stairs, transportation or accessibility claims. Ground notes in the supplied facts. Stops: ${JSON.stringify(stops.map(spot => ({ id: spot.id, name: spot.name, description: spot.description, tips: spot.xploraTips })))}`,
     });
     return result.object;
   } catch (error) {
@@ -123,7 +123,7 @@ async function finishRoute(ordered: CandidateSpot[], matrix: WalkingMatrix, pool
     const next = ordered[i + 1];
     const walkToNext = next ? walkingLeg(matrix, spot.id, next.id)! : undefined;
     if (walkToNext) { distanceMeters += walkToNext.distanceMeters; durationSeconds += walkToNext.durationSeconds; }
-    return { type: 'stop' as const, order: i + 1, note: notes.get(spot.id) || '', spot, ...(walkToNext ? { walkToNext } : {}) };
+    return { type: 'stop' as const, order: i + 1, note: /\b(begin|start|end|finish|commencez|terminez|finissez)\b/i.test(notes.get(spot.id) || '') ? spot.xploraTips[0] || '' : notes.get(spot.id) || '', spot, ...(walkToNext ? { walkToNext } : {}) };
   });
   const chosen = new Set(ordered.map(spot => spot.id));
   return {
@@ -170,6 +170,12 @@ export default async function handler(req: any, res: any) {
     // Rank geography before paying for routing; keep the entire existing route
     // in the matrix so both connections and the unchanged legs are verified.
     const shortlist = compactShortlists(candidates, existing, [old.category || ''], existing.length)[0] || existing;
+    if (existing.length === 1) {
+      const replacement = candidates[0];
+      if (!replacement) return res.status(422).json({ code: 'NO_COMPACT_ROUTE', error: 'No matching replacement is available.' });
+      const matrix = { ids: [replacement.id], distanceMeters: [[0]], durationSeconds: [[0]] };
+      return res.status(200).json({ itineraries: [await finishRoute([replacement], matrix, candidates, body)] });
+    }
     const matrix = await fetchWalkingMatrix(shortlist.map(spot => ({ id: spot.id, lat: spot.lat!, lng: spot.lng! })));
     if (!matrix) return res.status(503).json({ code: 'ROUTING_UNAVAILABLE', error: 'Walking routes are temporarily unavailable.' });
     const ordered = solveReplacement(existing, old.id, shortlist.filter(spot => !ids.includes(spot.id)), matrix, opts);
@@ -183,6 +189,12 @@ export default async function handler(req: any, res: any) {
   const candidates = fresh.length + pins.filter(pin => !fresh.some(spot => spot.id === pin.id)).length >= body.stopCount ? fresh : pool;
   if (new Set([...candidates, ...pins].map(spot => spot.id)).size < body.stopCount) {
     return res.status(422).json({ code: 'NO_CANDIDATES', error: 'Not enough places match your filters.' });
+  }
+  if (body.stopCount === 1) {
+    const single = pins[0] || compactShortlists(candidates, [], body.categories, 1)[0]?.find(spot => !body.categories.length || body.categories.includes(spot.category as any));
+    if (!single) return res.status(422).json({ code: 'NO_CANDIDATES', error: 'No place matches this interest.' });
+    const matrix = { ids: [single.id], distanceMeters: [[0]], durationSeconds: [[0]] };
+    return res.status(200).json({ itineraries: [await finishRoute([single], matrix, candidates, body)] });
   }
   let routed = false;
   for (const shortlist of compactShortlists(candidates, pins, body.categories, body.stopCount)) {
