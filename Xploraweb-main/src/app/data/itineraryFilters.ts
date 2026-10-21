@@ -75,6 +75,8 @@ export type Who = (typeof WHO_OPTIONS)[number];
 
 export interface ItineraryGenerateRequest {
   stopCount: number;
+  maxWalkMinutes?: number;
+  replacement?: { stopIds: string[]; spotId: string };
   categories: SpotCategory[];
   priceRanges: PriceRange[];
   neighbourhoods: string[];
@@ -95,7 +97,16 @@ export interface ItineraryGenerateRequest {
   excludeSpotIds?: string[];
 }
 
+export interface WalkingLeg {
+  fromSpotId: string;
+  toSpotId: string;
+  distanceMeters: number;
+  durationSeconds: number;
+  source: 'walking';
+}
+
 export interface GeneratedItineraryStop {
+  walkToNext?: WalkingLeg;
   type?: 'stop'; // absent on itineraries saved before journey steps existed — treat as 'stop'
   order: number;
   note: string;
@@ -148,7 +159,7 @@ export interface GeneratedItinerarySet {
   itineraries: GeneratedItinerary[];
 }
 
-export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED';
+export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDIDATES' | 'LLM_ERROR' | 'METHOD_NOT_ALLOWED' | 'ROUTING_UNAVAILABLE' | 'NO_COMPACT_ROUTE';
 
 /** Swaps one stop for the closest unused alternate (same category preferred),
  * keeping every other stop and the order. Returns null when no alternate is

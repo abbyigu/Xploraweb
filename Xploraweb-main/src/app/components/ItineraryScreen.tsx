@@ -32,6 +32,8 @@ type GenState = 'idle' | 'loading' | 'success' | 'error';
 
 const ERROR_KEY: Record<ItineraryErrorCode, string> = {
   INVALID_INPUT: 'itineraryBuilder.errorLlm',
+  ROUTING_UNAVAILABLE: 'itineraryBuilder.routingUnavailable',
+  NO_COMPACT_ROUTE: 'itineraryBuilder.noCompactRoute',
   NOT_CONFIGURED: 'itineraryBuilder.errorNotConfigured',
   NO_CANDIDATES: 'itineraryBuilder.errorNoCandidates',
   LLM_ERROR: 'itineraryBuilder.errorTransient',
@@ -47,7 +49,7 @@ const CATEGORY_ICON: Record<SpotCategory, React.ElementType> = {
 const FILTERS_KEY = 'xplora.itinerary.filters.v1';
 type SavedFilters = Partial<{
   neighbourhoods: string[]; categories: SpotCategory[]; priceRanges: PriceRange[]; durationKey: DurationBucket['key'];
-  pace: Pace; who: Who | null; restaurantHopping: boolean; michelinOnly: boolean;
+  pace: Pace; maxWalkMinutes: number; who: Who | null; restaurantHopping: boolean; michelinOnly: boolean;
 }>;
 
 function loadSavedFilters(): SavedFilters {
@@ -60,6 +62,7 @@ function loadSavedFilters(): SavedFilters {
       priceRanges: pick(r.priceRanges, PRICE_RANGES),
       durationKey: DURATION_BUCKETS.find(b => b.key === r.durationKey)?.key,
       pace: PACE_OPTIONS.find(p => p === r.pace),
+      maxWalkMinutes: [10, 15, 20, 30].includes(r.maxWalkMinutes) ? r.maxWalkMinutes : 10,
       who: WHO_OPTIONS.find(w => w === r.who) ?? null,
       restaurantHopping: r.restaurantHopping === true,
       michelinOnly: r.restaurantHopping === true && r.michelinOnly === true,
@@ -338,6 +341,7 @@ export function ItineraryScreen() {
   const [saved] = useState(loadSavedFilters);
   const [durationKey, setDurationKey] = useState<DurationBucket['key']>(saved.durationKey ?? 'half');
   const [pace, setPace] = useState<Pace>(saved.pace ?? 'moderate');
+  const [maxWalkMinutes, setMaxWalkMinutes] = useState(saved.maxWalkMinutes ?? 10);
   const [categories, setCategories] = useState<SpotCategory[]>(saved.restaurantHopping ? [] : saved.categories ?? []);
   const [restaurantHopping, setRestaurantHopping] = useState(saved.restaurantHopping ?? false);
   const [michelinOnly, setMichelinOnly] = useState(saved.michelinOnly ?? false);
@@ -356,6 +360,7 @@ export function ItineraryScreen() {
     if (!starter) return;
     setDurationKey(starter.durationKey);
     setPace(starter.pace);
+    setMaxWalkMinutes(10);
     setCategories([...starter.categories]);
     setPriceRanges([...starter.priceRanges]);
     setSelectedWho(starter.who);
@@ -386,12 +391,12 @@ export function ItineraryScreen() {
       if (genState === 'success') sessionStorage.removeItem(FILTERS_KEY);
       else {
         sessionStorage.setItem(FILTERS_KEY, JSON.stringify({
-          neighbourhoods, categories: restaurantHopping ? prevCategoriesRef.current : categories, priceRanges, durationKey, pace,
+          neighbourhoods, categories: restaurantHopping ? prevCategoriesRef.current : categories, priceRanges, durationKey, pace, maxWalkMinutes,
           who: selectedWho, restaurantHopping, michelinOnly,
         }));
       }
     } catch { /* storage unavailable (private mode etc.) — form just won't persist */ }
-  }, [genState, neighbourhoods, categories, priceRanges, durationKey, pace, selectedWho, restaurantHopping, michelinOnly]);
+  }, [genState, neighbourhoods, categories, priceRanges, durationKey, pace, maxWalkMinutes, selectedWho, restaurantHopping, michelinOnly]);
 
   // Bring the progress / error region into view — on mobile the form (and the
   // Build button) sits far above it.
@@ -586,6 +591,7 @@ export function ItineraryScreen() {
     const stopCount = stopCountForBucket(bucket, restaurantHopping);
     const body: ItineraryGenerateRequest = {
       stopCount,
+      maxWalkMinutes,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
       neighbourhoods,
@@ -607,6 +613,7 @@ export function ItineraryScreen() {
       if (!res.ok) {
         setErrorCode((data?.code as ItineraryErrorCode) || 'LLM_ERROR');
         setGenState('error');
+        setFiltersOpen(true);
         return;
       }
       const set = data as GeneratedItinerarySet;
@@ -628,6 +635,24 @@ export function ItineraryScreen() {
       setErrorCode('LLM_ERROR');
       setGenState('error');
     }
+  }
+
+  async function handleReplaceRoute(itinerary: GeneratedItinerary, spotId: string): Promise<GeneratedItinerary> {
+    const stopIds = itinerary.stops.filter(item => !isJourneyStep(item)).map(item => item.spot.id);
+    const body: ItineraryGenerateRequest = {
+      stopCount: stopIds.length, maxWalkMinutes, categories: restaurantHopping ? [] : categories,
+      priceRanges, neighbourhoods, language: i18n.language === 'fr' ? 'fr' : 'en',
+      restaurantHopping, michelinOnly: restaurantHopping && michelinOnly, pace,
+      who: selectedWho ?? undefined, pinnedSpotIds: [...pinnedSpotIds],
+      replacement: { stopIds, spotId },
+    };
+    const response = await fetch('/api/generate-itinerary', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const data = await response.json();
+    if (!response.ok || !data.itineraries?.[0]) throw new Error(data.code === 'ROUTING_UNAVAILABLE' ? 'ROUTING_UNAVAILABLE' : 'NO_COMPACT_ROUTE');
+    const next = data.itineraries[0] as GeneratedItinerary;
+    setResults(previous => previous?.map(item => item === itinerary ? next : item) ?? null);
+    setShownSpotIds(previous => new Set([...previous, ...next.stops.map(item => item.spot.id)]));
+    return next;
   }
 
   function renderNightsSection() {
@@ -988,6 +1013,13 @@ export function ItineraryScreen() {
                     ))}
                   </div>
                   <div className="mt-4 pt-4 border-t border-border">
+                    <p className="text-sm font-medium mb-2">{t('itineraryBuilder.maxWalkTitle')}</p>
+                    <div className="flex flex-wrap gap-2">
+                      {[10, 15, 20, 30].map(minutes => <Chip key={minutes} active={maxWalkMinutes === minutes} onClick={() => setMaxWalkMinutes(minutes)}>{t('itineraryBuilder.maxWalkOption', { count: minutes })}</Chip>)}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">{t('itineraryBuilder.maxWalkHint')}</p>
+                  </div>
+                  <div className="mt-4 pt-4 border-t border-border">
                     <p className="text-sm font-medium mb-2 inline-flex items-center gap-2">
                       <Footprints className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
                       {t('itineraryBuilder.exploreStyleQuestion')}
@@ -1211,6 +1243,7 @@ export function ItineraryScreen() {
                 key={genKey}
                 itineraries={results}
                 onRegenerate={handleGenerate}
+                onReplaceRoute={handleReplaceRoute}
                 onSaved={refreshUsage}
                 pinnedSpotIds={pinnedSpotIds}
                 onTogglePin={toggleSpotPin}

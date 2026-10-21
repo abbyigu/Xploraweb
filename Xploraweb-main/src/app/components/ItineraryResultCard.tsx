@@ -8,7 +8,6 @@ import { AuthModal } from './AuthModal';
 import { PremiumLimitModal } from './PremiumLimitModal';
 import { useItinerarySave } from '../hooks/useItinerarySave';
 import { SPOT_CATEGORY_KEY } from '../data/products';
-import { replaceStop } from '../data/itineraryFilters';
 import type { GeneratedItinerary, Pace } from '../data/itineraryFilters';
 
 interface Props {
@@ -16,6 +15,7 @@ interface Props {
   index?: number;
   /** Re-run generation with the current filters, producing a fresh set of itineraries. */
   onRegenerate?: () => void;
+  onReplaceRoute?: (itinerary: GeneratedItinerary, spotId: string) => Promise<GeneratedItinerary>;
   /** 'full' renders the itinerary directly on the page instead of a small
    * preview card behind a dialog — used when it's the only result. */
   layout?: 'card' | 'full';
@@ -49,7 +49,7 @@ function priceRangeSummary(itinerary: GeneratedItinerary): string | null {
   return min === max ? min : `${min}-${max}`;
 }
 
-export function ItineraryResultCard({ itinerary: generated, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin, onModify, pace }: Props) {
+export function ItineraryResultCard({ itinerary: generated, index, onRegenerate, layout = 'card', onSaved, pinnedSpotIds, onTogglePin, onModify, pace, onReplaceRoute }: Props) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [viewOpen, setViewOpen] = useState(false);
@@ -57,10 +57,14 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
   const [itinerary, setItinerary] = useState(generated);
   useEffect(() => { setItinerary(generated); setNoAlternate(false); }, [generated]);
   const [noAlternate, setNoAlternate] = useState(false);
-  function handleReplaceStop(spotId: string) {
-    const next = replaceStop(itinerary, spotId);
-    setNoAlternate(!next);
-    if (next) setItinerary(next);
+  const [replacingStopId, setReplacingStopId] = useState<string | null>(null);
+  const [replacementError, setReplacementError] = useState<string | null>(null);
+  async function handleReplaceStop(spotId: string) {
+    if (!onReplaceRoute || replacingStopId) return;
+    setReplacingStopId(spotId); setReplacementError(null); setNoAlternate(false);
+    try { setItinerary(await onReplaceRoute(itinerary, spotId)); }
+    catch (error) { setReplacementError(error instanceof Error && error.message === 'ROUTING_UNAVAILABLE' ? 'itineraryBuilder.routingUnavailable' : 'itineraryBuilder.replacementFailed'); }
+    finally { setReplacingStopId(null); }
   }
   const [copied, setCopied] = useState(false);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
@@ -106,7 +110,7 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
     <button
       type="button"
       onClick={handleSaveClick}
-      disabled={saveState === 'saving' || saveState === 'saved'}
+      disabled={!!replacingStopId || saveState === 'saving' || saveState === 'saved'}
       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-card text-sm font-medium hover:bg-muted/50 transition disabled:opacity-70"
     >
       {saveState === 'saving' ? (
@@ -191,7 +195,9 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
           onTogglePin={onTogglePin ? handleTogglePin : undefined}
           onRegenerate={handleRegenerate}
           onModify={onModify}
-          onReplaceStop={saveState !== 'saving' && itinerary.alternates?.length ? handleReplaceStop : undefined}
+          onReplaceStop={saveState !== 'saving' && onReplaceRoute ? handleReplaceStop : undefined}
+          replacingStopId={replacingStopId}
+          replacementError={replacementError}
           noAlternate={noAlternate}
           pace={pace}
         />
@@ -252,7 +258,7 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
           <button
             type="button"
             onClick={handleSaveClick}
-            disabled={saveState === 'saving' || saveState === 'saved'}
+            disabled={!!replacingStopId || saveState === 'saving' || saveState === 'saved'}
             aria-label={t('itineraryBuilder.saveThisItinerary')}
             className="p-2 rounded-full hover:bg-muted/60 transition disabled:opacity-70"
           >
@@ -276,7 +282,9 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
               onTogglePin={onTogglePin ? handleTogglePin : undefined}
               onRegenerate={handleRegenerate}
               onModify={onModify}
-              onReplaceStop={saveState !== 'saving' && itinerary.alternates?.length ? handleReplaceStop : undefined}
+              onReplaceStop={saveState !== 'saving' && onReplaceRoute ? handleReplaceStop : undefined}
+          replacingStopId={replacingStopId}
+          replacementError={replacementError}
               noAlternate={noAlternate}
               pace={pace}
             />

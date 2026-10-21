@@ -380,7 +380,7 @@
     "signupNudgeDismiss": "Maybe later",
     "location": "Location",
     "interests": "Interests",
-    "interestsSequenceHint": "Tap to pick your stops in order — drag a bubble or use the arrows to rearrange them.",
+    "interestsSequenceHint": "Choose your interests; drag the bubbles to suggest an order. The route may adjust it to reduce walking.",
     "moveEarlier": "Move {{name}} earlier in the route",
     "moveLater": "Move {{name}} later in the route",
     "dragToReorder": "Drag to reorder",
@@ -456,7 +456,14 @@
     "locating": "Locating…",
     "locateMeError": "Couldn't get your location. Try again, or pick a neighbourhood above.",
     "anyBudget": "Any budget",
-    "anyCompany": "Any group"
+    "anyCompany": "Any group",
+    "routingUnavailable": "Walking routes cannot be verified right now. Please try again later; we won’t invent walking times.",
+    "noCompactRoute": "No route fits these interests and walking limit. Increase the time between stops, change the neighbourhood, or choose fewer stops. Distant pinned places may also require a longer walk.",
+    "replacementFailed": "No nearby replacement fits this walking limit. Your route is unchanged; you can adjust the filters and regenerate.",
+    "checkingReplacement": "Checking walking route…",
+    "maxWalkTitle": "Maximum walk between stops",
+    "maxWalkOption": "{{count}} min",
+    "maxWalkHint": "Actual walking connections take priority over your preferred category order."
   },
   "authModal": {
     "title": "Save your itinerary for later",
@@ -1373,7 +1380,10 @@
     "returnPrompt": "After your outing, tell us what you enjoyed and keep ideas for next time.",
     "feedback": "Give feedback",
     "savedPlaces": "Saved places",
-    "replacementEstimates": "After replacing a stop, totals are recalculated approximately using straight-line distances. Confirm the walking route and travel time in Google Maps."
+    "replacementEstimates": "After replacing a stop, totals are recalculated approximately using straight-line distances. Confirm the walking route and travel time in Google Maps.",
+    "verifiedRouting": "Between-stop distances and walking times come from the walking-routing service. Visit durations remain estimates. Map lines connect stops; open Google Maps for street-by-street directions.",
+    "unverifiedRouting": "This older route has no verified walking legs. Generate a new route or check distances and times in Google Maps.",
+    "walkingUnknown": "Check in Google Maps"
   },
   "accessibilityPage": {
     "title": "Accessibility and planning your outing",

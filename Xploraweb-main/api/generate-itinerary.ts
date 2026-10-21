@@ -2,14 +2,11 @@ import { generateObject } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { z } from 'zod';
 import { getServiceClient } from './_lib/usage.js';
-import {
-  resolveRole, canBeGeneratedAsStop, canAppearAsJourneyStep, isCompleteCandidate,
-  selectBalancedStops, mergePinnedAndFilled, orderByNearestNeighbor, orderByCategorySequence, applyBarTimeOfDayRule,
-  preservePinnedOrder, assembleItineraryItems, hasStrongCulturalPreference, isCafeFocused, dedupeStops,
-  distanceFnFromMatrix, sumWalkingMetrics,
-} from './_itineraryLogic.js';
-import type { CandidateSpot, StopCandidate, ItineraryItem, WalkingMatrix } from './_itineraryLogic.js';
+import { resolveRole, canBeGeneratedAsStop, isCompleteCandidate } from './_itineraryLogic.js';
+import type { CandidateSpot, WalkingMatrix } from './_itineraryLogic.js';
 import { fetchWalkingMatrix } from './_lib/googleRoutes.js';
+import { compactShortlists, solveCompactRoute, solveReplacement, walkingLeg, visitMinutes, ROUTING_CANDIDATE_LIMIT } from './_compactRouting.js';
+import type { RouteOptions } from './_compactRouting.js';
 
 const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -17,17 +14,8 @@ const SPOT_CATEGORIES = ['Food', 'Cafe', 'Bar', 'Culture', 'Nature', 'Shopping',
 const PRICE_RANGES = ['$', '$$', '$$$', '$$$$'] as const;
 const PACES = ['relaxed', 'moderate', 'packed'] as const;
 const WHO_OPTIONS = ['solo', 'couple', 'friends', 'family', 'visitors'] as const;
-const WHO_HINTS: Record<(typeof WHO_OPTIONS)[number], string> = {
-  solo: 'The traveller is exploring solo — favour spots that are comfortable and welcoming on your own.',
-  couple: 'The travellers are a couple — favour romantic, intimate spots.',
-  friends: 'The travellers are a group of friends — favour lively, social spots.',
-  family: 'The travellers are a family with kids — favour kid-friendly spots and avoid late-night bars.',
-  visitors: 'The travellers are first-time visitors — favour the iconic must-see spots.',
-};
 const REGULAR_STOP_COUNTS = [3, 5, 7, 9];
 const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6];
-const CANDIDATE_CAP = 24;
-const ITINERARY_SET_SIZE = 1;
 
 // Columns mapSpotRow actually reads — narrower than `select('*')` so the
 // (infrequently-changing) spots table transfers and parses faster on every request.
@@ -64,11 +52,13 @@ const RequestSchema = z.object({
   michelinOnly: z.boolean().optional().default(false),
   pace: z.enum(PACES).optional().default('moderate'),
   who: z.enum(WHO_OPTIONS).optional(),
+  maxWalkMinutes: z.number().int().min(5).max(30).optional().default(10),
+  replacement: z.object({ stopIds: z.array(z.string()).min(2).max(9), spotId: z.string() }).optional(),
   // Stops the user pinned on a previous generation — kept in every regenerated
   // option (not subject to the balanced-mix caps below) while the rest varies.
   // Order matters: it's the sequence the traveller last saw them in, and
   // preservePinnedOrder keeps them in that relative order across the regeneration.
-  pinnedSpotIds: z.array(z.string()).optional().default([]),
+  pinnedSpotIds: z.array(z.string()).max(9).optional().default([]),
   // Non-pinned spots already suggested in an earlier generation this session —
   // left out of the fill pool where possible so a regeneration surfaces fresh
   // picks instead of repeating what the traveller already saw.
@@ -77,22 +67,6 @@ const RequestSchema = z.object({
   body => (body.restaurantHopping ? FOOD_HOP_STOP_COUNTS : REGULAR_STOP_COUNTS).includes(body.stopCount),
   { message: 'Invalid stop count for the selected mode.', path: ['stopCount'] },
 );
-
-const StopSchema = z.object({
-  spotId: z.string(),
-  order: z.number().int().min(1),
-  note: z.string().max(280),
-});
-const ItinerarySchema = z.object({
-  title: z.string().max(80),
-  summary: z.string().max(400),
-  estimatedDurationMin: z.number().int().positive(),
-  estimatedDistanceKm: z.number().positive(),
-  stops: z.array(StopSchema).min(1).max(12),
-});
-const ItinerarySetSchema = z.object({
-  itineraries: z.array(ItinerarySchema).length(ITINERARY_SET_SIZE),
-});
 
 function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
   const pick = (fr: string | null, en: string | null) => (lang === 'fr' && fr) ? fr : (en || null);
@@ -117,154 +91,47 @@ function mapSpotRow(row: any, lang: 'en' | 'fr'): CandidateSpot {
   };
 }
 
-function isRestaurantHopping(body: z.infer<typeof RequestSchema>): boolean {
-  return body.restaurantHopping === true;
-}
+const CopySchema = z.object({
+  title: z.string().max(80), summary: z.string().max(400),
+  stops: z.array(z.object({ spotId: z.string(), note: z.string().max(280) })).max(9),
+});
 
-// Fisher-Yates — used to vary which candidates make the CANDIDATE_CAP cut
-// (and thus what the LLM can pick from) between regenerations with the same filters.
-function shuffle<T>(items: T[]): T[] {
-  const result = [...items];
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
-
-// Confirms real walking distances with Google (see api/_lib/googleRoutes.ts)
-// for the given stops so ordering reflects an actual walkable path rather
-// than a straight line that might cut through a cliff, the river, or a
-// building. Returns null (never throws) if Google is unreachable or
-// unconfigured — callers fall back to straight-line distance.
-async function getWalkingMatrix(stops: { spot: CandidateSpot }[]): Promise<WalkingMatrix | null> {
+async function describeRoute(stops: CandidateSpot[], language: 'en' | 'fr') {
+  const fallback = {
+    title: language === 'fr' ? 'Votre sortie locale à pied' : 'Your local walking outing',
+    summary: language === 'fr' ? 'Un parcours de proximité, dans l’ordre de visite indiqué.' : 'A nearby outing, arranged in walking order.',
+    stops: stops.map(spot => ({ spotId: spot.id, note: spot.xploraTips[0] || '' })),
+  };
+  if (!process.env.ANTHROPIC_API_KEY) return fallback;
   try {
-    return await fetchWalkingMatrix(stops.map(s => ({ id: s.spot.id, lat: s.spot.lat!, lng: s.spot.lng! })));
-  } catch (err: any) {
-    console.error('getWalkingMatrix failed:', err?.message || err);
-    return null;
+    const result = await generateObject({
+      model: anthropic('claude-haiku-4-5-20251001'), schema: CopySchema, temperature: 0.4, maxRetries: 0, abortSignal: AbortSignal.timeout(8000),
+      prompt: `Write a title, short summary and a note for each stop in ${language === 'fr' ? 'French' : 'English'} for this Québec City outing. The route has already been selected and verified by a walking router. Keep these exact stop ids and order. Do not select, add or reorder places. Do not invent opening hours, walking times, stairs, transportation or accessibility claims. Ground notes in the supplied facts. Stops: ${JSON.stringify(stops.map(spot => ({ id: spot.id, name: spot.name, description: spot.description, tips: spot.xploraTips })))}`,
+    });
+    return result.object;
+  } catch (error) {
+    console.error('Route copy unavailable; using factual fallback.');
+    return fallback;
   }
 }
 
-// Orders a route geographically (no backtracking) — using real Google
-// walking distance when available, straight-line distance otherwise — then,
-// if the traveller picked an activity order (2+ categories, in the order
-// they chose them), re-groups it by that category sequence while keeping the
-// geographic order within each group.
-function orderRoute<T extends { spot: CandidateSpot }>(
-  stops: T[], body: z.infer<typeof RequestSchema>, matrix: WalkingMatrix | null,
-): T[] {
-  const byDistance = orderByNearestNeighbor(stops, matrix ? distanceFnFromMatrix(matrix) : undefined);
-  if (isRestaurantHopping(body) || body.categories.length < 2) return byDistance;
-  return orderByCategorySequence(byDistance, body.categories);
-}
-
-function isMichelinOnly(body: z.infer<typeof RequestSchema>): boolean {
-  return isRestaurantHopping(body) && body.michelinOnly === true;
-}
-
-const PACE_INSTRUCTION: Record<(typeof PACES)[number], string> = {
-  relaxed: 'The traveller wants a relaxed pace — favour fewer, longer stops with generous dwell time and a leisurely total duration estimate.',
-  moderate: 'The traveller wants a moderate, comfortable pace — balance sightseeing time with walking, nothing rushed.',
-  packed: 'The traveller wants a packed, efficient pace — keep dwell times tighter so more ground gets covered without feeling rushed.',
-};
-
-function buildPrompt(candidates: CandidateSpot[], stopsToGenerate: number, body: z.infer<typeof RequestSchema>): string {
-  const candidateList = candidates.map(c => ({
-    id: c.id, name: c.name, category: c.category, priceRange: c.priceRange,
-    neighbourhood: c.neighbourhood, visitTime: c.visitTime, lat: c.lat, lng: c.lng,
-    ...(c.vibes.length > 0 ? { tags: c.vibes } : {}),
-  }));
-  const restaurantHopping = isRestaurantHopping(body);
-  const multiple = ITINERARY_SET_SIZE > 1;
-  return `You are assembling ${multiple ? `${ITINERARY_SET_SIZE} distinct self-guided walking itinerary OPTIONS` : 'a self-guided walking itinerary'} in Québec City from a fixed list of real places${multiple ? ', so a traveller can compare and pick one.' : '.'}
-
-Candidate spots (JSON, only use these — never invent an id):
-${JSON.stringify(candidateList)}
-
-Requirements:
-- Return exactly ${ITINERARY_SET_SIZE} itinerar${multiple ? 'ies' : 'y'} in "itineraries".${multiple ? " Each one must be a genuinely different route — vary the sub-area, focus, or mix of stops between them (don't just reorder the same stops). A spot may reappear across itineraries only if there isn't enough variety among the candidates to avoid it." : ''}
-- Every candidate here is a genuine destination worth stopping at — none of them are transit, stairs, or walking connectors, so you never need to filter those out yourself.
-- Each itinerary must include exactly ${stopsToGenerate} stops.
-- Estimate a realistic total walking + visiting duration and distance for each route, and report them in "estimatedDurationMin"/"estimatedDistanceKm".
-- Order each itinerary's stops into a sensible walking route (avoid backtracking where possible, based on lat/lng).
-- ${PACE_INSTRUCTION[body.pace]}
-${body.who ? `- ${WHO_HINTS[body.who]}` : ''}
-${body.neighbourhoods.length ? `- Stay within these neighbourhoods: ${body.neighbourhoods.join(', ')}.` : ''}
-${!restaurantHopping && body.categories.length ? `- Prefer categories: ${body.categories.join(', ')}.` : ''}
-${!restaurantHopping && body.categories.length >= 2 ? `- The traveller wants to move through these categories roughly in this order: ${body.categories.join(' → ')}. Order each itinerary's stops to follow that sequence as closely as the geography allows (e.g. a ${body.categories[0]} stop earlier in the route, a ${body.categories[body.categories.length - 1]} stop later).` : ''}
-${body.priceRanges.length ? `- Prefer spots in this price range: ${body.priceRanges.join(', ')}.` : ''}
-${restaurantHopping ? '- This is a restaurant-hopping route: every stop must be a Food-category spot.' : '- Include at most 1 Food-category stop total per itinerary; prioritize variety across other categories.'}
-${isMichelinOnly(body) ? '- Every stop must be a Michelin Guide-listed restaurant, drawn only from the Michelin-listed candidates provided.' : ''}
-- Avoid picking two near-identical spots (same name, or virtually the same place) within one itinerary.
-- Each candidate's "tags" (when present) describe what's actually notable there (e.g. specific dishes, drinks, or features) — use them to pick a varied, well-fitting set of stops and to ground each note in something concrete.
-- Write ${multiple ? 'each title and summary' : 'the title and summary'} in ${body.language === 'fr' ? 'French' : 'English'}.${multiple ? ` Give each of the ${ITINERARY_SET_SIZE} itineraries a distinct, descriptive title reflecting what makes it different from the others.` : ' Give it a distinct, descriptive title.'}
-- For each stop, write a short one-to-two sentence "note" explaining why it fits this route.
-- Every "spotId" you return MUST be one of the candidate ids above, verbatim.`;
-}
-
-interface ProcessedItinerary {
-  title: string;
-  summary: string;
-  estimatedDurationMin: number;
-  estimatedDistanceKm: number;
-  stops: ItineraryItem[];
-  alternates: CandidateSpot[];
-}
-
-async function processItinerary(
-  raw: z.infer<typeof ItinerarySchema>,
-  fillCandidates: CandidateSpot[],
-  pinnedStops: StopCandidate[],
-  connectorPool: CandidateSpot[],
-  destinationPool: CandidateSpot[],
-  body: z.infer<typeof RequestSchema>,
-  stopsToGenerate: number,
-): Promise<ProcessedItinerary | null> {
-  const fillById = new Map(fillCandidates.map(c => [c.id, c]));
-  const picked: StopCandidate[] = raw.stops
-    .filter(s => fillById.has(s.spotId))
-    .sort((a, b) => a.order - b.order)
-    .map(s => ({ note: s.note, spot: fillById.get(s.spotId)! }));
-
-  // Rules 3-5: dedupe near-identical picks and cap museums/galleries, cafés,
-  // and viewpoints, backfilling from the remaining pool up to what's needed.
-  const remainingFillPool = fillCandidates
-    .filter(c => !picked.some(p => p.spot.id === c.id))
-    .map(spot => ({ spot, note: '' }));
-  const balanced = selectBalancedStops(picked, remainingFillPool, {
-    foodCap: isRestaurantHopping(body) ? body.stopCount : 1,
-    strongCulturalPreference: hasStrongCulturalPreference(body.categories),
-    cafeFocused: isCafeFocused(body.categories),
-    targetCount: stopsToGenerate,
+async function finishRoute(ordered: CandidateSpot[], matrix: WalkingMatrix, pool: CandidateSpot[], body: z.infer<typeof RequestSchema>) {
+  const copy = await describeRoute(ordered, body.language);
+  const notes = new Map(copy.stops.map(stop => [stop.spotId, stop.note]));
+  let distanceMeters = 0, durationSeconds = 0;
+  const stops = ordered.map((spot, i) => {
+    const next = ordered[i + 1];
+    const walkToNext = next ? walkingLeg(matrix, spot.id, next.id)! : undefined;
+    if (walkToNext) { distanceMeters += walkToNext.distanceMeters; durationSeconds += walkToNext.durationSeconds; }
+    return { type: 'stop' as const, order: i + 1, note: notes.get(spot.id) || '', spot, ...(walkToNext ? { walkToNext } : {}) };
   });
-
-  const merged = mergePinnedAndFilled(pinnedStops, balanced);
-  if (merged.length < 2) return null;
-
-  const matrix = await getWalkingMatrix(merged);
-  const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(merged, body, matrix), body.pinnedSpotIds));
-  const items = assembleItineraryItems(ordered, connectorPool, body.language);
-
-  const chosenIds = new Set(ordered.map(s => s.spot.id));
-  const alternates = dedupeStops(destinationPool.filter(c => !chosenIds.has(c.id)).map(spot => ({ spot, note: '' })))
-    .map(s => s.spot)
-    .slice(0, CANDIDATE_CAP);
-
-  // Prefer Google's real walking distance between the final stops over the
-  // LLM's guess — falls back to the LLM's estimate if Google's route matrix
-  // wasn't available or didn't cover every consecutive pair. Duration is left
-  // to the LLM: it's meant to include time spent *at* each stop (a museum
-  // visit, a meal), which Google's walking-only matrix has no way to know.
-  const walkingMetrics = matrix ? sumWalkingMetrics(ordered.map(s => s.spot.id), matrix) : null;
-
+  const chosen = new Set(ordered.map(spot => spot.id));
   return {
-    title: raw.title,
-    summary: raw.summary,
-    estimatedDurationMin: raw.estimatedDurationMin,
-    estimatedDistanceKm: walkingMetrics ? Math.round((walkingMetrics.distanceMeters / 1000) * 10) / 10 : raw.estimatedDistanceKm,
-    stops: items,
-    alternates,
+    title: copy.title, summary: copy.summary,
+    estimatedDistanceKm: Math.round(distanceMeters / 10) / 100,
+    estimatedDurationMin: Math.ceil(durationSeconds / 60) + ordered.reduce((sum, spot) => sum + visitMinutes(spot, body.pace), 0),
+    stops,
+    alternates: pool.filter(spot => !chosen.has(spot.id)).slice(0, ROUTING_CANDIDATE_LIMIT),
   };
 }
 
@@ -274,116 +141,59 @@ export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed', code: 'METHOD_NOT_ALLOWED' });
-
   const parsed = RequestSchema.safeParse(req.body);
-  if (!parsed.success) {
-    return res.status(400).json({ error: 'Invalid filters.', code: 'INVALID_INPUT' });
-  }
+  if (!parsed.success) return res.status(400).json({ error: 'Invalid filters.', code: 'INVALID_INPUT' });
   const body = parsed.data;
-
-  const supabase = getServiceClient();
-
+  if (new Set(body.pinnedSpotIds).size > body.stopCount) return res.status(400).json({ error: 'Too many pinned stops.', code: 'INVALID_INPUT' });
   let rows: any[];
-  try {
-    rows = await getActiveSpots(supabase);
-  } catch (dbError: any) {
-    return res.status(500).json({ error: dbError.message, code: 'LLM_ERROR' });
-  }
+  try { rows = await getActiveSpots(getServiceClient()); }
+  catch { return res.status(500).json({ error: 'Places could not be loaded.', code: 'LLM_ERROR' }); }
+  const all = rows.map(row => mapSpotRow(row, body.language)).filter(isCompleteCandidate)
+    .filter(spot => spot.category !== 'Stays' && canBeGeneratedAsStop(spot.role));
+  const byId = new Map(all.map(spot => [spot.id, spot]));
+  let pool = all.filter(spot => !body.neighbourhoods.length || !!spot.neighbourhood && body.neighbourhoods.includes(spot.neighbourhood));
+  if (body.restaurantHopping) pool = pool.filter(spot => spot.category === 'Food' && (!body.michelinOnly || !!spot.michelinUrl));
+  else if (body.categories.length) pool = pool.filter(spot => !!spot.category && body.categories.includes(spot.category as any));
+  if (body.priceRanges.length) pool = pool.filter(spot => !!spot.priceRange && (/^(free|gratuit|gratuite|0\s*\$|\$0)$/i.test(spot.priceRange.trim()) || body.priceRanges.includes(spot.priceRange as any)));
+  const opts: RouteOptions = { count: body.stopCount, categories: body.categories, pinnedIds: [...new Set(body.pinnedSpotIds)], maxLegMinutes: body.maxWalkMinutes, restaurantHopping: body.restaurantHopping };
 
-  // Closed/draft listings are already excluded by the status filter above;
-  // isCompleteCandidate additionally drops rows missing a name or coordinates.
-  const allCandidates = (rows || [])
-    .map(r => mapSpotRow(r, body.language))
-    .filter(isCompleteCandidate)
-    .filter(c => c.category !== 'Stays');
-
-  // Rule 1/2: connectors and transportation are never eligible as primary
-  // stops, and are never sent to the LLM as choosable candidates — they can
-  // only surface afterward as a journey step we insert between two real stops.
-  let destinationPool = allCandidates.filter(c => canBeGeneratedAsStop(c.role));
-  const connectorPool = allCandidates.filter(c => canAppearAsJourneyStep(c.role));
-
-  if (body.neighbourhoods.length > 0) {
-    destinationPool = destinationPool.filter(c => c.neighbourhood && body.neighbourhoods.includes(c.neighbourhood));
-  }
-  if (isRestaurantHopping(body)) {
-    destinationPool = destinationPool.filter(c => c.category === 'Food');
-    if (isMichelinOnly(body)) {
-      destinationPool = destinationPool.filter(c => c.michelinUrl != null);
+  if (body.replacement) {
+    const ids = body.replacement.stopIds;
+    const current = ids.map(id => byId.get(id));
+    if (new Set(ids).size !== ids.length || current.some(spot => !spot) || !ids.includes(body.replacement.spotId)
+      || ids.length !== body.stopCount || body.pinnedSpotIds.includes(body.replacement.spotId)) {
+      return res.status(400).json({ error: 'Invalid replacement.', code: 'INVALID_INPUT' });
     }
-  } else if (body.categories.length > 0) {
-    destinationPool = destinationPool.filter(c => c.category && body.categories.includes(c.category as any));
-  }
-  if (body.priceRanges.length > 0) {
-    destinationPool = destinationPool.filter(c => c.priceRange && body.priceRanges.includes(c.priceRange as any));
-  }
-
-  // Pinned stops must survive regeneration regardless of the filters above
-  // (the user already chose them) — pull them from the unfiltered pool.
-  const allById = new Map<string, CandidateSpot>(allCandidates.map(c => [c.id, c]));
-  const pinnedStops: StopCandidate[] = body.pinnedSpotIds
-    .map(id => allById.get(id))
-    .filter((c): c is CandidateSpot => c !== undefined && canBeGeneratedAsStop(c.role))
-    .map(spot => ({ spot, note: '' }));
-  const pinnedIds = new Set(pinnedStops.map(p => p.spot.id));
-
-  const stopsToGenerate = Math.max(0, body.stopCount - pinnedStops.length);
-  const unpinnedDestinations = destinationPool.filter(c => !pinnedIds.has(c.id));
-  const excludeIds = new Set(body.excludeSpotIds.filter(id => !pinnedIds.has(id)));
-  const freshDestinations = unpinnedDestinations.filter(c => !excludeIds.has(c.id));
-  // Prefer spots the traveller hasn't already seen, but fall back to the
-  // full (unexcluded) pool rather than fail to fill the route when the
-  // filters don't leave enough fresh candidates.
-  const fillCandidates = shuffle(freshDestinations.length >= Math.max(stopsToGenerate, 2) ? freshDestinations : unpinnedDestinations)
-    .slice(0, CANDIDATE_CAP);
-
-  if (fillCandidates.length < 2 && pinnedStops.length < 2) {
-    return res.status(422).json({ error: 'No spots match your filters yet — try fewer filters.', code: 'NO_CANDIDATES' });
+    const existing = current as CandidateSpot[];
+    const old = byId.get(body.replacement.spotId)!;
+    const candidates = pool.filter(spot => !ids.includes(spot.id) && spot.category === old.category);
+    // Rank geography before paying for routing; keep the entire existing route
+    // in the matrix so both connections and the unchanged legs are verified.
+    const shortlist = compactShortlists(candidates, existing, [old.category || ''], existing.length)[0] || existing;
+    const matrix = await fetchWalkingMatrix(shortlist.map(spot => ({ id: spot.id, lat: spot.lat!, lng: spot.lng! })));
+    if (!matrix) return res.status(503).json({ code: 'ROUTING_UNAVAILABLE', error: 'Walking routes are temporarily unavailable.' });
+    const ordered = solveReplacement(existing, old.id, shortlist.filter(spot => !ids.includes(spot.id)), matrix, opts);
+    if (!ordered) return res.status(422).json({ code: 'NO_COMPACT_ROUTE', error: 'No nearby replacement fits the walking limit.' });
+    return res.status(200).json({ itineraries: [await finishRoute(ordered, matrix, shortlist, body)] });
   }
 
-  let itineraries: ProcessedItinerary[] = [];
-
-  if (stopsToGenerate > 0 && fillCandidates.length > 0) {
-    const prompt = buildPrompt(fillCandidates, Math.max(stopsToGenerate, 2), body);
-    let object: z.infer<typeof ItinerarySetSchema> | undefined;
-    try {
-      const result = await generateObject({
-        model: anthropic('claude-haiku-4-5-20251001'),
-        schema: ItinerarySetSchema,
-        prompt,
-        temperature: 1,
-      });
-      object = result.object;
-    } catch (err: any) {
-      console.error('generate-itinerary LLM call failed:', err?.message || err, err?.cause || '');
-    }
-    if (!object) {
-      return res.status(502).json({ error: 'Something went wrong generating your route. Please try again.', code: 'LLM_ERROR' });
-    }
-
-    const processed = await Promise.all(
-      object.itineraries.map(raw => processItinerary(raw, fillCandidates, pinnedStops, connectorPool, destinationPool, body, stopsToGenerate)),
-    );
-    itineraries = processed.filter((it): it is ProcessedItinerary => it !== null);
-  } else if (pinnedStops.length >= 2) {
-    // Nothing left to fill (or none requested) — the pinned stops alone still make a valid route.
-    const matrix = await getWalkingMatrix(pinnedStops);
-    const ordered = applyBarTimeOfDayRule(preservePinnedOrder(orderRoute(pinnedStops, body, matrix), body.pinnedSpotIds));
-    const walkingMetrics = matrix ? sumWalkingMetrics(ordered.map(s => s.spot.id), matrix) : null;
-    itineraries = [{
-      title: body.language === 'fr' ? 'Votre itinéraire' : 'Your itinerary',
-      summary: '',
-      estimatedDurationMin: 0,
-      estimatedDistanceKm: walkingMetrics ? Math.round((walkingMetrics.distanceMeters / 1000) * 10) / 10 : 0,
-      stops: assembleItineraryItems(ordered, connectorPool, body.language),
-      alternates: dedupeStops(destinationPool.filter(c => !pinnedIds.has(c.id)).map(spot => ({ spot, note: '' })))
-        .map(s => s.spot).slice(0, CANDIDATE_CAP),
-    }];
+  const pins = opts.pinnedIds.map(id => byId.get(id)).filter((spot): spot is CandidateSpot => !!spot);
+  if (pins.length !== opts.pinnedIds.length) return res.status(400).json({ code: 'INVALID_INPUT', error: 'A pinned place is unavailable.' });
+  const fresh = pool.filter(spot => !body.excludeSpotIds.includes(spot.id) || opts.pinnedIds.includes(spot.id));
+  const candidates = fresh.length + pins.filter(pin => !fresh.some(spot => spot.id === pin.id)).length >= body.stopCount ? fresh : pool;
+  if (new Set([...candidates, ...pins].map(spot => spot.id)).size < body.stopCount) {
+    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'Not enough places match your filters.' });
   }
-
-  if (itineraries.length === 0) {
-    return res.status(502).json({ error: 'The AI returned an invalid itinerary. Please try again.', code: 'LLM_ERROR' });
+  let routed = false;
+  for (const shortlist of compactShortlists(candidates, pins, body.categories, body.stopCount)) {
+    const matrix = await fetchWalkingMatrix(shortlist.map(spot => ({ id: spot.id, lat: spot.lat!, lng: spot.lng! })));
+    if (!matrix) continue;
+    routed = true;
+    const ordered = solveCompactRoute(shortlist, matrix, opts);
+    if (ordered) return res.status(200).json({ itineraries: [await finishRoute(ordered, matrix, shortlist, body)] });
   }
-
-  res.status(200).json({ itineraries });
+  return res.status(routed ? 422 : 503).json({
+    code: routed ? 'NO_COMPACT_ROUTE' : 'ROUTING_UNAVAILABLE',
+    error: routed ? 'No compact route fits these filters and walking limit.' : 'Walking routes could not be verified.',
+  });
 }
