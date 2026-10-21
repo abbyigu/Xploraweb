@@ -86,7 +86,7 @@ export type ItineraryItem = DestinationStopItem | JourneyStepItem;
 
 /** A listing missing a name or coordinates can't be shown or routed to — drop it. */
 export function isCompleteCandidate(c: CandidateSpot): boolean {
-  return !!(c.name && c.name.trim().length > 0 && c.lat != null && c.lng != null);
+  return !!(c.name && c.name.trim().length > 0 && Number.isFinite(c.lat) && Number.isFinite(c.lng) && Math.abs(c.lat!) <= 90 && Math.abs(c.lng!) <= 180);
 }
 
 const COMBINING_DIACRITICS = new RegExp('[\\u0300-\\u036f]', 'g');

@@ -41,27 +41,17 @@ interface Props {
   onReplaceStop?: (spotId: string) => void;
   /** Last replace attempt found nothing left to swap in. */
   noAlternate?: boolean;
+  replacingStopId?: string | null;
+  replacementError?: string | null;
 }
 
-const EARTH_RADIUS_M = 6371000;
-const WALK_METERS_PER_MIN = 75; // ~4.5 km/h casual walking pace
-
-function haversineMeters(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
-  const dLat = (b.lat - a.lat) * Math.PI / 180;
-  const dLng = (b.lng - a.lng) * Math.PI / 180;
-  const la1 = a.lat * Math.PI / 180;
-  const la2 = b.lat * Math.PI / 180;
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
-  return 2 * EARTH_RADIUS_M * Math.asin(Math.sqrt(h));
-}
-
-/** Rough walk time/distance between two spots, from their coordinates — a
- * straight-line estimate for display only, not a real route (see
- * api/_itineraryLogic.ts for the real Google-routed distance used server-side). */
-function estimateWalk(a: Spot, b: Spot): { minutes: number; meters: number } | null {
-  if (a.lat == null || a.lng == null || b.lat == null || b.lng == null) return null;
-  const meters = haversineMeters({ lat: a.lat, lng: a.lng }, { lat: b.lat, lng: b.lng });
-  return { minutes: Math.max(1, Math.round(meters / WALK_METERS_PER_MIN)), meters };
+// Use only server-verified walking legs. Historic routes have no such data;
+// never turn straight-line distances into claimed walking minutes.
+function verifiedWalk(from: GeneratedItinerary['stops'][number], to: GeneratedItinerary['stops'][number]) {
+  if (isJourneyStep(from)) return null;
+  const leg = from.walkToNext;
+  if (!leg || leg.source !== 'walking' || leg.fromSpotId !== from.spot.id || leg.toSpotId !== to.spot.id) return null;
+  return { minutes: Math.max(1, Math.ceil(leg.durationSeconds / 60)), meters: leg.distanceMeters, seconds: leg.durationSeconds };
 }
 
 function formatMeters(meters: number): string {
@@ -96,7 +86,7 @@ function orderedCategories(itinerary: GeneratedItinerary, max = 4): string[] {
 /** The full stop-by-stop view of one itinerary — hero, info bar, stops + map,
  * shared by the pre-save preview dialog, the full-width generator result, and
  * the permanent /i/:slug page. */
-export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace, onReplaceStop, noAlternate }: Props) {
+export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, onTogglePin, onRegenerate, onModify, pace, onReplaceStop, noAlternate, replacingStopId, replacementError }: Props) {
   const { t } = useTranslation();
   const [mobileView, setMobileView] = useState<'list' | 'map'>('list');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
@@ -122,10 +112,14 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
 
   let totalWalkMinutes = 0;
   let totalWalkMeters = 0;
+  let allLegsVerified = true;
+  let totalWalkSeconds = 0;
   for (let i = 0; i < itinerary.stops.length - 1; i++) {
-    const walk = estimateWalk(itinerary.stops[i].spot, itinerary.stops[i + 1].spot);
-    if (walk) { totalWalkMinutes += walk.minutes; totalWalkMeters += walk.meters; }
+    const walk = verifiedWalk(itinerary.stops[i], itinerary.stops[i + 1]);
+    if (walk) { totalWalkSeconds += walk.seconds; totalWalkMeters += walk.meters; }
+    else allLegsVerified = false;
   }
+  totalWalkMinutes = Math.ceil(totalWalkSeconds / 60);
   const stopsMinutes = Math.max(0, itinerary.estimatedDurationMin - totalWalkMinutes);
 
   return (
@@ -196,7 +190,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
           <h3 className="text-sm font-semibold">{t('outingDetails.beforeYouGo')}</h3>
           <p className="text-sm text-muted-foreground">{t('outingDetails.checkDetails')}</p>
           <p className="text-xs text-muted-foreground">{t('outingDetails.costNote')}</p>
-          <p className="text-xs text-muted-foreground">{t('outingDetails.replacementEstimates')}</p>
+          <p className="text-xs text-muted-foreground">{t(allLegsVerified ? 'outingDetails.verifiedRouting' : 'outingDetails.unverifiedRouting')}</p>
           {onRegenerate && <p className="text-xs text-muted-foreground">{t('outingDetails.changeStopHint')}</p>}
           <button type="button" onClick={copyOuting} className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">{t('outingDetails.copyOuting')}</button>
           <p role="status" className="text-xs text-muted-foreground">{copyStatus === 'idle' ? t('outingDetails.copyHint') : t(`outingDetails.${copyStatus}`)}</p>
@@ -220,6 +214,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
       <div className="max-w-7xl mx-auto px-6 md:px-8 mt-8 md:grid md:grid-cols-[1fr_380px] md:gap-8 md:items-start">
         {/* Stops */}
         <div className={mobileView === 'map' ? 'hidden md:block' : 'block'}>
+          {replacementError && <p role="status" className="text-sm text-red-700 mb-4">{t(replacementError)}</p>}
           {noAlternate && <p role="status" className="text-sm text-muted-foreground mb-4">{t('itineraryFullView.noAlternate')}</p>}
           {itinerary.stops.map((item, i) => {
             const isLast = i === itinerary.stops.length - 1;
@@ -242,7 +237,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
             }
 
             const next = itinerary.stops[i + 1];
-            const walk = !isLast && next && !isJourneyStep(next) ? estimateWalk(item.spot, next.spot) : null;
+            const walk = !isLast && next && !isJourneyStep(next) ? verifiedWalk(item, next) : null;
             const pinned = pinnedSpotIds?.has(item.spot.id) ?? false;
             const categoryLabel = item.spot.category ? t(`categories.${SPOT_CATEGORY_KEY[item.spot.category]}`, item.spot.category) : null;
 
@@ -308,10 +303,11 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
                         <button
                           type="button"
                           onClick={() => onReplaceStop(item.spot.id)}
+                          disabled={!!replacingStopId}
                           className="mt-3 inline-flex items-center gap-1.5 min-h-11 text-xs text-primary hover:underline"
                         >
                           <RefreshCw className="w-3.5 h-3.5" aria-hidden="true" />
-                          {t('itineraryFullView.replaceStop')}
+                          {t(replacingStopId === item.spot.id ? 'itineraryBuilder.checkingReplacement' : 'itineraryFullView.replaceStop')}
                         </button>
                       )}
                     </div>
@@ -359,11 +355,11 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
               </div>
               <div className="border-t border-dashed border-border pt-2.5 flex items-center justify-between">
                 <span className="text-muted-foreground">{t('itineraryFullView.walking')}</span>
-                <span className="text-muted-foreground">{t('itineraryFullView.walkMinutes', { count: totalWalkMinutes })} ({formatMeters(totalWalkMeters)})</span>
+                <span className="text-muted-foreground">{allLegsVerified ? `${t('itineraryFullView.walkMinutes', { count: totalWalkMinutes })} (${formatMeters(totalWalkMeters)})` : t('outingDetails.walkingUnknown')}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{t('itineraryFullView.stops')}</span>
-                <span className="text-muted-foreground">{t('itineraryBuilder.resultDurationLabel', { duration: stopsMinutes })}</span>
+                <span className="text-muted-foreground">{allLegsVerified ? t('itineraryBuilder.resultDurationLabel', { duration: stopsMinutes }) : '—'}</span>
               </div>
             </div>
           </div>

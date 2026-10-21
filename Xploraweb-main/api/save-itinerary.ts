@@ -20,6 +20,10 @@ const StopSchema = z.object({
   note: z.string().optional(),
   description: z.string().optional(),
   spot: z.record(z.any()),
+  walkToNext: z.object({
+    fromSpotId: z.string(), toSpotId: z.string(), source: z.literal('walking'),
+    distanceMeters: z.number().finite().nonnegative(), durationSeconds: z.number().finite().nonnegative(),
+  }).optional(),
 });
 
 const SaveRequestSchema = z.object({

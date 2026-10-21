@@ -41,7 +41,7 @@ function parseDurationSeconds(duration: unknown): number {
 }
 
 export async function fetchWalkingMatrix(points: WalkingPoint[]): Promise<WalkingMatrix | null> {
-  if (!GOOGLE_KEY) return null;
+  if (!GOOGLE_KEY) { console.error('Walking routing unavailable: GOOGLE_MAPS_API_KEY is not configured.'); return null; }
   if (points.length < 2 || points.length > MAX_POINTS) return null;
 
   const waypoints = points.map(p => ({
@@ -59,7 +59,7 @@ export async function fetchWalkingMatrix(points: WalkingPoint[]): Promise<Walkin
       headers: {
         'Content-Type': 'application/json',
         'X-Goog-Api-Key': GOOGLE_KEY,
-        'X-Goog-FieldMask': 'originIndex,destinationIndex,distanceMeters,duration,condition',
+        'X-Goog-FieldMask': 'originIndex,destinationIndex,distanceMeters,duration,status,condition',
       },
       body: JSON.stringify({ origins: waypoints, destinations: waypoints, travelMode: 'WALK' }),
     });
@@ -91,11 +91,11 @@ export async function fetchWalkingMatrix(points: WalkingPoint[]): Promise<Walkin
   for (let i = 0; i < n; i++) { distanceMeters[i][i] = 0; durationSeconds[i][i] = 0; }
 
   for (const el of elements) {
-    if (el?.condition !== 'ROUTE_EXISTS') continue;
+    if (el?.condition !== 'ROUTE_EXISTS' || (el.status?.code && el.status.code !== 0)) continue;
     const i = el.originIndex ?? 0;
     const j = el.destinationIndex ?? 0;
-    if (i < 0 || i >= n || j < 0 || j >= n) continue;
-    distanceMeters[i][j] = typeof el.distanceMeters === 'number' ? el.distanceMeters : Infinity;
+    if (!Number.isInteger(i) || !Number.isInteger(j) || i < 0 || i >= n || j < 0 || j >= n) continue;
+    distanceMeters[i][j] = Number.isFinite(el.distanceMeters) && el.distanceMeters >= 0 ? el.distanceMeters : Infinity;
     durationSeconds[i][j] = parseDurationSeconds(el.duration);
   }
 

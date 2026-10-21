@@ -380,7 +380,7 @@
     "signupNudgeDismiss": "Plus tard",
     "location": "Emplacement",
     "interests": "Intérêts",
-    "interestsSequenceHint": "Choisissez vos arrêts dans l'ordre souhaité — faites glisser une bulle ou utilisez les flèches pour les réorganiser.",
+    "interestsSequenceHint": "Choisissez vos intérêts; faites glisser les bulles pour indiquer votre ordre préféré. Le parcours peut l’ajuster pour réduire la marche.",
     "moveEarlier": "Déplacer {{name}} plus tôt dans le parcours",
     "moveLater": "Déplacer {{name}} plus tard dans le parcours",
     "dragToReorder": "Glisser pour réorganiser",
@@ -456,7 +456,14 @@
     "locating": "Localisation…",
     "locateMeError": "Impossible d'obtenir votre position. Réessayez ou choisissez un quartier ci-dessus.",
     "anyBudget": "Tous les budgets",
-    "anyCompany": "Peu importe"
+    "anyCompany": "Peu importe",
+    "routingUnavailable": "Impossible de vérifier les trajets à pied pour le moment. Réessayez plus tard; aucune durée de marche ne sera inventée.",
+    "noCompactRoute": "Aucun parcours ne respecte ces intérêts et cette limite de marche. Augmentez le temps entre les arrêts, modifiez le quartier ou choisissez moins d’arrêts. Des lieux épinglés éloignés peuvent aussi allonger le trajet.",
+    "replacementFailed": "Aucun remplacement proche ne respecte cette limite de marche. Votre parcours est conservé; vous pouvez modifier les filtres et le régénérer.",
+    "checkingReplacement": "Vérification du trajet…",
+    "maxWalkTitle": "Marche maximale entre deux arrêts",
+    "maxWalkOption": "{{count}} min",
+    "maxWalkHint": "Les trajets à pied réels priment sur l’ordre préféré des catégories."
   },
   "authModal": {
     "title": "Sauvegardez votre itinéraire pour plus tard",
@@ -1373,7 +1380,10 @@
     "returnPrompt": "Après votre sortie, dites-nous ce que vous avez aimé et gardez des idées pour la prochaine fois.",
     "feedback": "Donner mon avis",
     "savedPlaces": "Mes favoris",
-    "replacementEstimates": "Après le remplacement d’un arrêt, les totaux sont recalculés approximativement à partir des distances à vol d’oiseau. Confirmez le trajet à pied et sa durée dans Google Maps."
+    "replacementEstimates": "Après le remplacement d’un arrêt, les totaux sont recalculés approximativement à partir des distances à vol d’oiseau. Confirmez le trajet à pied et sa durée dans Google Maps.",
+    "verifiedRouting": "Les distances et temps de marche entre les arrêts proviennent du service d’itinéraires à pied. Les durées de visite restent des estimations. Les lignes de la carte relient les arrêts; ouvrez Google Maps pour suivre les rues et sentiers.",
+    "unverifiedRouting": "Ce parcours ancien ne contient pas de trajets à pied vérifiés. Générez un nouveau parcours ou confirmez les distances et durées dans Google Maps.",
+    "walkingUnknown": "À vérifier dans Google Maps"
   },
   "accessibilityPage": {
     "title": "Accessibilité et préparation de votre sortie",
