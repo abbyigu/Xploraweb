@@ -35,7 +35,7 @@ export const PRICE_RANGE_LABELS: Record<PriceRange, string> = {
 
 // Regular routes offer a wider spread of stop counts; restaurant-hopping
 // routes cap lower since eating at 6+ places back-to-back is already a lot.
-export const REGULAR_STOP_COUNTS = [3, 5, 7, 9] as const;
+export const REGULAR_STOP_COUNTS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 export const FOOD_HOP_STOP_COUNTS = [3, 4, 5, 6] as const;
 
 export function getStopCountOptions(restaurantHopping: boolean): readonly number[] {

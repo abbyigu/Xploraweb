@@ -32,6 +32,19 @@ beforeEach(() => {
 });
 
 describe('walking-first generation endpoint', () => {
+  it('returns exactly Café + History without an extra history stop', async () => {
+    mocks.from.mockReturnValue({ select: () => ({ eq: async () => ({ data: rows.map(row => ({ ...row, category: row.category === 'Culture' ? 'History' : row.category })), error: null }) }) });
+    const response = await run({ ...body, stopCount: 2, categories: ['Cafe', 'History'] });
+    expect(response.status).toBe(200);
+    expect(response.data.itineraries[0].stops.map((stop: any) => stop.spot.category).sort()).toEqual(['Cafe', 'History']);
+  });
+  it('supports a single interest without requesting a walking route', async () => {
+    const response = await run({ ...body, stopCount: 1, categories: ['Cafe'] });
+    expect(response.status).toBe(200);
+    expect(response.data.itineraries[0].stops).toHaveLength(1);
+    expect(response.data.itineraries[0].estimatedDistanceKm).toBe(0);
+    expect(mocks.matrix).not.toHaveBeenCalled();
+  });
   it('selects a coherent route and returns real per-leg metrics and walking-plus-visit totals', async () => {
     const response = await run();
     expect(response.status).toBe(200);
