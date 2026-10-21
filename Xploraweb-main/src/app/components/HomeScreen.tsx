@@ -10,6 +10,7 @@ import { useSpots } from '../hooks/useSpots';
 import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
+import { OutingStarters } from './OutingStarters';
 import { SpotFinder } from './SpotFinder';
 import { HeroSlideshow } from './HeroSlideshow';
 import { SiteSearch } from './SiteSearch';
@@ -405,6 +406,8 @@ export function HomeScreen() {
         </div>
       </section>
 
+      <OutingStarters />
+
       {/* Feature strip */}
       <section className="pt-12 md:pt-16 pb-4">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
@@ -413,25 +416,6 @@ export function HomeScreen() {
               <ValuePillar key={label} label={label} desc={desc} icon={icon} delay={i * 75} className="w-[46%] flex-shrink-0 snap-start md:w-auto md:flex-shrink md:snap-none" />
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Sample outing */}
-      <section className="pt-10 pb-2">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <h2 className="text-xl md:text-2xl font-medium">{t('home.sampleTitle')}</h2>
-          <p className="text-sm text-muted-foreground mt-1 mb-5">{t('home.sampleSub')}</p>
-          <ol className="grid gap-3 md:grid-cols-3">
-            {[1, 2, 3].map(n => (
-              <li key={n} className="rounded-xl border p-4 flex gap-3">
-                <span className="flex-shrink-0 size-7 rounded-full bg-[#12343B] text-white text-sm flex items-center justify-center">{n}</span>
-                <div>
-                  <p className="font-medium">{t(`home.sampleStop${n}`)}</p>
-                  <p className="text-sm text-muted-foreground">{t(`home.sampleStop${n}Desc`)}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
         </div>
       </section>
 
@@ -582,6 +566,15 @@ export function HomeScreen() {
         </div>
       </section>
 
+      <section className="max-w-7xl mx-auto px-6 md:px-8 py-10">
+        <div className="rounded-3xl bg-card p-6 md:p-8">
+          <p className="text-xs uppercase tracking-widest text-primary">{t('home.storyEyebrow')}</p>
+          <h2 className="font-serif text-2xl text-xplora-ink mt-2">{t('home.sectionBreakQuote')}</h2>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl">{t('home.storyBody')}</p>
+          <Link to="/about" className="inline-flex min-h-11 items-center text-primary underline underline-offset-4">{t('outingStarters.meetFounder')}</Link>
+        </div>
+      </section>
+
       {/* For Business */}
       <section id="for-business" className="px-6 py-10 md:py-12">
         <div
@@ -610,3 +603,4 @@ export function HomeScreen() {
     </div>
   );
 }
+

@@ -25,6 +25,7 @@ import type { SpotCategory, Product } from '../data/products';
 import { useTranslation } from 'react-i18next';
 import { PageSEO } from './PageSEO';
 import { analytics } from '../lib/analytics';
+import { getOutingStarter } from '../data/outingStarters';
 
 type EventTimeBucket = 'today' | 'weekend' | 'month';
 type GenState = 'idle' | 'loading' | 'success' | 'error';
@@ -323,13 +324,6 @@ function GeneratingPanel({ place }: { place: string }) {
   );
 }
 
-const QUICK_STARTS: { key: string; durationKey: DurationBucket['key']; categories?: SpotCategory[]; priceRanges?: PriceRange[]; who?: Who }[] = [
-  { key: 'oneHour', durationKey: 'short' },
-  { key: 'rainy', durationKey: 'half', categories: ['Culture', 'Cafe'] },
-  { key: 'date', durationKey: 'half', categories: ['Food', 'Terraces'], who: 'couple' },
-  { key: 'under25', durationKey: 'half', priceRanges: ['$'] },
-];
-
 export function ItineraryScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
@@ -355,7 +349,23 @@ export function ItineraryScreen() {
   const [selectedWho, setSelectedWho] = useState<Who | null>(saved.who ?? null);
   const [moreFiltersOpen, setMoreFiltersOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(true);
-  const [fineTuneOpen, setFineTuneOpen] = useState(false);
+  const [fineTuneOpen, setFineTuneOpen] = useState(true);
+  const starterId = searchParams.get('starter');
+  useEffect(() => {
+    const starter = getOutingStarter(starterId);
+    if (!starter) return;
+    setDurationKey(starter.durationKey);
+    setPace(starter.pace);
+    setCategories([...starter.categories]);
+    setPriceRanges([...starter.priceRanges]);
+    setSelectedWho(starter.who);
+    setNeighbourhoods([]);
+    setRestaurantHopping(false);
+    setMichelinOnly(false);
+    prevCategoriesRef.current = [];
+    setFineTuneOpen(true);
+    // A starter only prefills the form; generation always needs a click.
+  }, [starterId]);
 
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
@@ -797,24 +807,6 @@ export function ItineraryScreen() {
             <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start gap-6 lg:gap-8">
               {/* Steps */}
               <div className="space-y-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm text-muted-foreground">{t('itineraryBuilder.quickStart')}</span>
-                  {QUICK_STARTS.map(q => (
-                    <button
-                      key={q.key}
-                      type="button"
-                      className="min-h-11 px-4 rounded-full border text-sm hover:bg-muted transition"
-                      onClick={() => {
-                        setDurationKey(q.durationKey);
-                        setCategories(q.categories ?? []);
-                        setPriceRanges(q.priceRanges ?? []);
-                        setSelectedWho(q.who ?? null);
-                      }}
-                    >
-                      {t(`itineraryBuilder.quick.${q.key}`)}
-                    </button>
-                  ))}
-                </div>
                 <StepCard
                   id="step-location"
                   index={1}
@@ -1062,6 +1054,7 @@ export function ItineraryScreen() {
                     <Sparkles className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">{t('itineraryBuilder.yourPreferencesSubtitle')}</p>
+                  <p className="text-xs text-muted-foreground mt-3">{t('outingStarters.accountNote')} <Link to="/membership" className="text-primary underline">{t('outingStarters.plans')}</Link></p>
                   <div className="mt-2">
                     <PreferenceRow
                       icon={MapPin}
@@ -1087,14 +1080,14 @@ export function ItineraryScreen() {
                     <PreferenceRow
                       icon={Wallet}
                       label={t('itinerary.price')}
-                      value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.priceAny')}
+                      value={priceRanges.length > 0 ? priceRanges.map(p => PRICE_RANGE_LABELS[p]).join(', ') : t('itineraryBuilder.anyBudget')}
                       changeLabel={t('itineraryBuilder.change')}
                       onChange={() => goToStep('step-budget')}
                     />
                     <PreferenceRow
                       icon={Users}
                       label={t('itineraryBuilder.withWhoLabel')}
-                      value={selectedWho ? t(`itineraryBuilder.whoOption.${selectedWho}`) : t('itineraryBuilder.whoAny')}
+                      value={selectedWho ? t(`itineraryBuilder.whoOption.${selectedWho}`) : t('itineraryBuilder.anyCompany')}
                       changeLabel={t('itineraryBuilder.change')}
                       onChange={() => goToStep('step-who')}
                     />
@@ -1117,7 +1110,7 @@ export function ItineraryScreen() {
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium mb-1">{t('itineraryBuilder.perksTitle')}</h3>
                     <p className="text-xs text-muted-foreground mb-2">{t('itineraryBuilder.perksBody')}</p>
-                    <Link to="/membership" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
+                    <Link to="/business" className="text-xs font-medium text-primary hover:underline inline-flex items-center gap-1">
                       {t('itineraryBuilder.perksCta')} →
                     </Link>
                   </div>
@@ -1267,3 +1260,4 @@ export function ItineraryScreen() {
     </div>
   );
 }
+

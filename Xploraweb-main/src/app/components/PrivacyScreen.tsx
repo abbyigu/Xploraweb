@@ -67,7 +67,7 @@ export function PrivacyScreen() {
           <p className="text-muted-foreground">{t('privacy.s3footer')}</p>
         </section>
 
-        <section className="space-y-3">
+        <section id="cookies" className="space-y-3 scroll-mt-24">
           <h2 className="text-lg font-medium">{t('privacy.s4title')}</h2>
           <p className="text-muted-foreground">{t('privacy.s4desc')}</p>
         </section>
@@ -118,3 +118,4 @@ export function PrivacyScreen() {
     </div>
   );
 }
+

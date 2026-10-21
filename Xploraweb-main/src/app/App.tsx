@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { BottomNav } from './components/BottomNav';
 import { Header } from './components/Header';
 import { HomeScreen } from './components/HomeScreen';
+import { AccessibilityScreen } from './components/AccessibilityScreen';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
 import { analytics, initGtag } from './lib/analytics';
@@ -65,10 +66,21 @@ function AuthHandler() {
 }
 
 function ScrollToTop() {
-  const { pathname } = useLocation();
+  const { pathname, hash } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
+    if (!hash) { window.scrollTo(0, 0); return; }
+    // Route chunks may load after navigation. Observe until the anchor exists.
+    const scroll = () => {
+      const target = document.getElementById(hash.slice(1));
+      if (!target) return false;
+      target.scrollIntoView({ block: 'start' });
+      return true;
+    };
+    if (scroll()) return;
+    const observer = new MutationObserver(() => { if (scroll()) observer.disconnect(); });
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, [pathname, hash]);
   return null;
 }
 
@@ -160,6 +172,7 @@ export default function App() {
               <Route path="/dashboard" element={<DashboardScreen />} />
               <Route path="/saved" element={<SavedScreen />} />
               <Route path="/privacy" element={<PrivacyScreen />} />
+              <Route path="/accessibility" element={<AccessibilityScreen />} />
               <Route path="/terms" element={<TermsScreen />} />
               <Route path="/how-it-works" element={<HowItWorksScreen />} />
               <Route path="/contact" element={<ContactScreen />} />
@@ -178,3 +191,4 @@ export default function App() {
     </HelmetProvider>
   );
 }
+

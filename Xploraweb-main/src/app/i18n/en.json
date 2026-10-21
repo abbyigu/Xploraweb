@@ -257,15 +257,7 @@
     "whatPeopleSay": "What people are saying",
     "heroEyebrow": "Québec City",
     "heroHeadline": "Discover local.\nLive more.",
-    "heroSubheadline": "Tell us your area, interests, time and budget — we'll plan a local outing for you in seconds.",
-    "sampleTitle": "What an outing looks like",
-    "sampleSub": "A free, self-guided afternoon in Québec City — about 2 hours, mostly on foot.",
-    "sampleStop1": "Café stop",
-    "sampleStop1Desc": "Start with a local roast and a croissant.",
-    "sampleStop2": "Neighbourhood walk",
-    "sampleStop2Desc": "Stroll the side streets, murals and hidden corners.",
-    "sampleStop3": "Local shop",
-    "sampleStop3Desc": "Finish at an independent boutique worth the detour.",
+    "heroSubheadline": "Find your next favourite spot in Québec City. Build a self-guided outing around your interests, time and budget.",
     "heroCtaLabel": "Plan My Outing",
     "heroSeeHowItWorks": "See How It Works",
     "heroForBusiness": "For Business",
@@ -292,11 +284,11 @@
     "gemsCta": "View all places",
     "howTitle": "How GoXplora works",
     "howStep1Title": "Tell us your vibe",
-    "howStep1Desc": "Pick a vibe, walk length, and radius — no account needed.",
+    "howStep1Desc": "Choose your interests, neighbourhood and time available — no account needed.",
     "howStep2Title": "We build your route",
     "howStep2Desc": "Our AI assembles a walking itinerary from real, local spots.",
     "howStep3Title": "Customize & save",
-    "howStep3Desc": "Swap stops, then save your itinerary to come back to later.",
+    "howStep3Desc": "Replace stops you don't like, pin your favourites, then save your route with an account.",
     "howStep4Title": "Go explore",
     "howStep4Desc": "Open your route in Google Maps and go at your own pace.",
     "howSearchPlaceholder": "Search places nearby…",
@@ -381,7 +373,7 @@
     "listView": "List",
     "mapView": "Map",
     "signupNudgeTitle": "You've generated {{count}} routes",
-    "signupNudgeBody": "Create a free account to save your routes, access them offline, and get new Québec City spots delivered weekly.",
+    "signupNudgeBody": "Create a free account to save your routes and return to them later.",
     "signupNudgeCta": "Create Free Account",
     "signupNudgeDismiss": "Maybe later",
     "location": "Location",
@@ -413,10 +405,6 @@
     "modify": "Modify",
     "locationFixed": "Québec City",
     "interestsAny": "Anything goes",
-    "quickStart": "Quick start:",
-    "quick": { "oneHour": "One hour", "rainy": "Rainy afternoon", "date": "Date day", "under25": "Under $25" },
-    "priceAny": "Any budget",
-    "whoAny": "Anyone",
     "resultDurationLabel": "~{{duration}} min",
     "resultDistanceLabel": "{{distance}} km",
     "freePlanTitle": "{{limit}} free saved itineraries",
@@ -426,7 +414,7 @@
     "seePlans": "See Plans",
     "heroTitle": "Let's build your perfect walk",
     "heroSubtitle": "Tell us what you're after and we'll create a custom itinerary just for you.",
-    "heroBadge": "Local tips. Curated stops. GoXplora perks.",
+    "heroBadge": "Local tips. Curated stops. Your own pace.",
     "stepLocationTitle": "Where do you want to explore?",
     "stepLocationSubtitle": "Choose an area or leave it open and we'll surprise you.",
     "anywhereInQuebec": "Anywhere in Québec City",
@@ -435,7 +423,7 @@
     "stepTimeTitle": "How much time do you have?",
     "exploreStyleQuestion": "How do you like to explore?",
     "stepBudgetTitle": "What's your budget?",
-    "stepBudgetSubtitle": "We'll match stops to your comfort level.",
+    "stepBudgetSubtitle": "Approximate CAD ranges per person, per paid stop, based on venue price tiers. These are not whole-outing spending caps; tax and tips are extra.",
     "stepWhoTitle": "Who are you exploring with?",
     "stepWhoSubtitle": "So we can tailor the experience.",
     "whoOption": {
@@ -449,9 +437,9 @@
     "yourPreferencesSubtitle": "Here's what we'll use to create your route.",
     "change": "Change",
     "withWhoLabel": "With who",
-    "perksTitle": "GoXplora perks included",
-    "perksBody": "Local partner offers are coming soon — your route will include them as partners join.",
-    "perksCta": "See how perks work",
+    "perksTitle": "Partner perks are coming",
+    "perksBody": "Our partner program is in development. Offers are not guaranteed on every itinerary.",
+    "perksCta": "Explore the partner program",
     "localTrustTitle": "We keep it local",
     "localTrustBody": "Our itineraries are designed with local expertise and updated regularly to keep things fresh.",
     "buildCta": "Build me an itinerary",
@@ -459,12 +447,14 @@
     "featureLocalTitle": "100% local",
     "featureLocalBody": "Curated by locals who know Québec City best.",
     "featureRealLifeTitle": "Made for real life",
-    "featureRealLifeBody": "Flexible routes. Real walking times. Helpful tips.",
+    "featureRealLifeBody": "Flexible routes. Walking estimates. Helpful tips.",
     "featureTweakTitle": "Love it or tweak it",
-    "featureTweakBody": "Swap stops, shorten the route, or regenerate in seconds.",
+    "featureTweakBody": "Replace a stop, pin your favourites, or generate a different route.",
     "locateMe": "Locate me",
     "locating": "Locating…",
-    "locateMeError": "Couldn't get your location. Try again, or pick a neighbourhood above."
+    "locateMeError": "Couldn't get your location. Try again, or pick a neighbourhood above.",
+    "anyBudget": "Any budget",
+    "anyCompany": "Any group"
   },
   "authModal": {
     "title": "Save your itinerary for later",
@@ -494,7 +484,7 @@
     "checkoutError": "Couldn't start checkout. Please try again."
   },
   "itineraryFullView": {
-    "replaceStop": "Closed or not your vibe? Replace this stop",
+    "replaceStop": "Replace this stop",
     "noAlternate": "No more suggestions nearby — try Modify to adjust your filters.",
     "startItinerary": "Start itinerary",
     "makeItYours": "Make it yours",
@@ -506,7 +496,7 @@
     "stops": "Stops",
     "walkMinutes": "{{count}} min walk",
     "perksCardTitle": "GoXplora Perks",
-    "perksCardBody": "Local partner offers are coming soon — they'll appear along your route as partners join.",
+    "perksCardBody": "Our partner program is in development. Offers are not guaranteed on every itinerary.",
     "perksCardCta": "See all perks on this route",
     "tipsCardTitle": "Need tips before you go?",
     "tipsCardBody": "Check out our local favorites, packing suggestions and best time to go.",
@@ -1327,5 +1317,61 @@
     "stays": "Stays",
     "sweets": "Sweets",
     "terraces": "Terraces"
+  },
+  "outingStarters": {
+    "title": "What should we do this weekend?",
+    "subtitle": "Pick a starting point, then make the outing yours.",
+    "short": {
+      "title": "A short escape",
+      "body": "Coffee and culture · 1–2 hours"
+    },
+    "culture": {
+      "title": "Cafés and culture",
+      "body": "Coffee, culture and shops · Half day"
+    },
+    "date": {
+      "title": "A day for two",
+      "body": "Coffee, culture and food · Half day"
+    },
+    "budget": {
+      "title": "Lower-cost stops",
+      "body": "Coffee and nature · $ price tier"
+    },
+    "sampleBody": "A coffee break, a cultural discovery and a local shop: here is what your outing could look like.",
+    "sample": {
+      "coffee": "Start with a café",
+      "culture": "Discover a cultural stop",
+      "shop": "Browse a local shop"
+    },
+    "sampleNote": "Illustrative example, with no booking. The planner selects actual venues; check their hours and prices before heading out.",
+    "sampleCta": "Make this idea yours",
+    "accountNote": "Build a route without an account. Saving requires an account; free limits and Premium options are explained in the plans. Spending at venues is separate.",
+    "plans": "See plans",
+    "meetFounder": "Meet the founder"
+  },
+  "outingDetails": {
+    "beforeYouGo": "Before you go",
+    "checkDetails": "Check opening hours, reservations and access directly with each venue. Times and distances are estimates; routes may include stairs, hills and outdoor sections.",
+    "costNote": "The $ symbols describe venue price tiers, not the total cost of the outing. Purchases, admission, tax and tips are paid separately at venues. Missing prices are unknown.",
+    "changeStopHint": "Want a different stop? Use “Replace this stop” on any card, or pin the stops you want to keep and generate a different route.",
+    "copyOuting": "Copy outing to share",
+    "copyHint": "No account needed: copy the stops and Google Maps link to send to a friend.",
+    "copied": "Outing copied! Paste it into your message.",
+    "error": "Copy failed. You can select the stop names or share the Google Maps link.",
+    "website": "Website and hours",
+    "reservations": "Reservations",
+    "priceUnknown": "Price not listed",
+    "returnPrompt": "After your outing, tell us what you enjoyed and keep ideas for next time.",
+    "feedback": "Give feedback",
+    "savedPlaces": "Saved places"
+  },
+  "accessibilityPage": {
+    "title": "Accessibility and planning your outing",
+    "intro": "Plan your visit around your needs and tell us about barriers you encounter on GoXplora.",
+    "planningTitle": "Check route conditions",
+    "planningBody": "Our itineraries do not guarantee step-free access. Québec City has hills, stairs and uneven surfaces. Confirm accessible entrances, seating, toilets and accommodations with each venue before heading out.",
+    "helpTitle": "Need help or found a barrier?",
+    "helpBody": "Tell us the page or venue, what went wrong and what would help. Please avoid including medical information or other sensitive details.",
+    "feedback": "Report a problem"
   }
 }
