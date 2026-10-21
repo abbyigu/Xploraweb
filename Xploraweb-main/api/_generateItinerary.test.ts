@@ -54,6 +54,19 @@ describe('walking-first generation endpoint', () => {
     expect(route.estimatedDistanceKm).toBe(0.36);
     expect(route.estimatedDurationMin).toBe(79);
   });
+  it('compares walking routes instead of accepting the first feasible cluster', async () => {
+    const many = Array.from({ length: 14 }, (_, i) => ({ id: `spot-${i}`, name: `Place ${i}`, category: i % 2 ? 'History' : 'Cafe', lat: 46.81 + i * 0.0001, lng: -71.20 }));
+    mocks.from.mockReturnValue({ select: () => ({ eq: async () => ({ data: many, error: null }) }) });
+    let calls = 0;
+    mocks.matrix.mockImplementation(async (points: { id: string }[]) => {
+      const seconds = ++calls === 1 ? 540 : 60;
+      return { ids: points.map(p => p.id), distanceMeters: points.map((_, i) => points.map((_, j) => i === j ? 0 : seconds)), durationSeconds: points.map((_, i) => points.map((_, j) => i === j ? 0 : seconds)) };
+    });
+    const response = await run({ ...body, stopCount: 2, categories: ['Cafe', 'History'] });
+    expect(response.status).toBe(200);
+    expect(mocks.matrix).toHaveBeenCalledTimes(2);
+    expect(response.data.itineraries[0].stops[0].walkToNext.durationSeconds).toBe(60);
+  });
   it('returns an honest unavailable error instead of invented times when routing fails', async () => {
     mocks.matrix.mockResolvedValue(null);
     const response = await run();
