@@ -16,15 +16,7 @@ export function OutingStarters() {
           </Link>
         ))}
       </div>
-      <details id="sample-outing" className="mt-5 rounded-2xl bg-card border border-border p-5 scroll-mt-24">
-        <summary className="cursor-pointer font-medium text-primary">{t('outingStarters.sampleTitle')}</summary>
-        <p className="mt-3 text-sm text-muted-foreground">{t('outingStarters.sampleBody')}</p>
-        <ol className="grid sm:grid-cols-3 gap-4 mt-4 list-decimal list-inside text-sm">
-          {['coffee', 'culture', 'shop'].map(key => <li key={key}>{t(`outingStarters.sample.${key}`)}</li>)}
-        </ol>
-        <p className="mt-4 text-xs text-muted-foreground">{t('outingStarters.sampleNote')}</p>
-        <Link to="/itinerary?starter=culture" className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4">{t('outingStarters.sampleCta')}</Link>
-      </details>
+
       <p className="mt-4 text-sm text-muted-foreground">{t('outingStarters.accountNote')} <Link to="/membership" className="text-primary underline underline-offset-4">{t('outingStarters.plans')}</Link></p>
     </section>
   );

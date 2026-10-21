@@ -196,6 +196,7 @@ export function ItineraryFullView({ itinerary, actions, banner, pinnedSpotIds, o
           <h3 className="text-sm font-semibold">{t('outingDetails.beforeYouGo')}</h3>
           <p className="text-sm text-muted-foreground">{t('outingDetails.checkDetails')}</p>
           <p className="text-xs text-muted-foreground">{t('outingDetails.costNote')}</p>
+          <p className="text-xs text-muted-foreground">{t('outingDetails.replacementEstimates')}</p>
           {onRegenerate && <p className="text-xs text-muted-foreground">{t('outingDetails.changeStopHint')}</p>}
           <button type="button" onClick={copyOuting} className="inline-flex min-h-11 items-center text-sm text-primary underline underline-offset-4">{t('outingDetails.copyOuting')}</button>
           <p role="status" className="text-xs text-muted-foreground">{copyStatus === 'idle' ? t('outingDetails.copyHint') : t(`outingDetails.${copyStatus}`)}</p>

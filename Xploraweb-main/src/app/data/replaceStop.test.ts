@@ -20,4 +20,28 @@ describe('replaceStop', () => {
   it('returns null when nothing is left', () => {
     expect(replaceStop({ ...base, alternates: [] }, 'a')).toBeNull();
   });
+  it('updates distance and duration and leaves the generated route untouched', () => {
+    const original = {
+      ...base, estimatedDistanceKm: 1.1, estimatedDurationMin: 75,
+      stops: [{ order: 1, note: '', spot: sp('a', 'Cafe', 46.81) }, { order: 2, note: '', spot: sp('b', 'Food', 46.82) }],
+      alternates: [sp('c', 'Cafe', 46.815)],
+    };
+    const result = replaceStop(original, 'a')!;
+    expect(result.estimatedDistanceKm).toBeCloseTo(0.56, 2);
+    expect(result.estimatedDurationMin).toBe(68);
+    expect(original.estimatedDistanceKm).toBe(1.1);
+    expect(original.stops[0].spot.id).toBe('a');
+  });
+  it('does not retain old connector instructions after a replacement', () => {
+    const original: GeneratedItinerary = { ...base, stops: [base.stops[0], { type: 'journeyStep', description: 'Old stairs', spot: sp('stairs', 'History', 0.5) }, base.stops[1]] };
+    const result = replaceStop(original, 'a')!;
+    expect(result.stops).toHaveLength(2);
+    expect(result.stops.some(item => item.type === 'journeyStep')).toBe(false);
+  });
+  it('does not replace a route with unknown coordinates and misleading totals', () => {
+    const missing = { ...base, stops: [{ order: 1, note: '', spot: { id: 'a', name: 'Unknown', category: 'Cafe' } }, base.stops[1]] };
+    // The replacement itself has coordinates, so this case can be estimated.
+    expect(replaceStop(missing, 'a')).not.toBeNull();
+    expect(replaceStop({ ...missing, stops: [...missing.stops, { order: 3, note: '', spot: { id: 'unknown', name: 'No coordinates' } }] }, 'a')).toBeNull();
+  });
 });

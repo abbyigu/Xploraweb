@@ -20,6 +20,11 @@ export function useItinerarySave(itinerary: GeneratedItinerary) {
     supabase.auth.getSession().then(({ data: { session } }) => setIsGuest(!session?.user));
   }, []);
 
+  useEffect(() => {
+    setSaveState('idle');
+    setSavedSlug(null);
+  }, [itinerary]);
+
   async function performSave() {
     setSaveState('saving');
     const result = await saveItinerary(itinerary);

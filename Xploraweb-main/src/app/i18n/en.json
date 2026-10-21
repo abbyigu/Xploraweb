@@ -315,7 +315,9 @@
     "businessComingSoonTitle": "Our business partner program is coming soon",
     "businessComingSoonBody": "We're putting the finishing touches on how Québec City businesses can partner with GoXplora and reach engaged local explorers. Want to be first in line?",
     "businessComingSoonCta": "Contact us at hello@goxplora.ca",
-    "storyImageAlt": "Château Frontenac rising above the historic stone rooftops of Lower Town on a rainy day"
+    "storyImageAlt": "Château Frontenac rising above the historic stone rooftops of Lower Town on a rainy day",
+    "browseSecondary": "Or browse neighbourhoods and places",
+    "browsePlacesTitle": "Places to discover"
   },
   "itinerary": {
     "title": "Self-Guided Walks in Québec City",
@@ -406,7 +408,7 @@
     "locationFixed": "Québec City",
     "interestsAny": "Anything goes",
     "resultDurationLabel": "~{{duration}} min",
-    "resultDistanceLabel": "{{distance}} km",
+    "resultDistanceLabel": "~{{distance}} km",
     "freePlanTitle": "{{limit}} free saved itineraries",
     "freePlanUsed": "You've saved {{count}} of {{limit}} free itineraries.",
     "unlockUnlimitedTitle": "Unlock unlimited saves!",
@@ -1345,9 +1347,16 @@
     },
     "sampleNote": "Illustrative example, with no booking. The planner selects actual venues; check their hours and prices before heading out.",
     "sampleCta": "Make this idea yours",
-    "accountNote": "Build a route without an account. Saving requires an account; free limits and Premium options are explained in the plans. Spending at venues is separate.",
+    "accountNote": "Plan without an account. Create one to save your outing.",
     "plans": "See plans",
-    "meetFounder": "Meet the founder"
+    "meetFounder": "Meet the founder",
+    "sampleTitle": "A local outing in three stops",
+    "realSampleBody": "Coffee, a cultural discovery and a shop: three places from our local collection, in one neighbourhood.",
+    "realSampleNote": "A suggestion drawn from our published places. Check hours, prices and reservations before heading out.",
+    "showSampleMap": "See the stops on a map",
+    "loadingMap": "Loading map…",
+    "sampleMapNote": "Lines connect the stops; they are not street-by-street walking directions.",
+    "openSampleRoute": "Open the route in Google Maps"
   },
   "outingDetails": {
     "beforeYouGo": "Before you go",
@@ -1363,7 +1372,8 @@
     "priceUnknown": "Price not listed",
     "returnPrompt": "After your outing, tell us what you enjoyed and keep ideas for next time.",
     "feedback": "Give feedback",
-    "savedPlaces": "Saved places"
+    "savedPlaces": "Saved places",
+    "replacementEstimates": "After replacing a stop, totals are recalculated approximately using straight-line distances. Confirm the walking route and travel time in Google Maps."
   },
   "accessibilityPage": {
     "title": "Accessibility and planning your outing",
