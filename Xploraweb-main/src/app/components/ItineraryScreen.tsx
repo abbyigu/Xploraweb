@@ -367,6 +367,13 @@ export function ItineraryScreen() {
     // A starter only prefills the form; generation always needs a click.
   }, [starterId]);
 
+  const requestedNeighbourhood = searchParams.get('neighbourhood');
+  useEffect(() => {
+    if (!requestedNeighbourhood || !getOutingStarter(starterId)) return;
+    const match = neighbourhoodOptions.find(option => option.name === requestedNeighbourhood);
+    if (match) setNeighbourhoods([match.name]);
+  }, [requestedNeighbourhood, starterId, neighbourhoodOptions]);
+
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
   const [results, setResults] = useState<GeneratedItinerary[] | null>(null);

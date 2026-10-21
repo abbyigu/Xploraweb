@@ -1,4 +1,5 @@
 import { SPOT_CATEGORIES, SPOT_CATEGORY_KEY } from './products';
+import { hasCoordinates, replacementEstimates } from './routeEstimates';
 import type { SpotCategory, Spot } from './products';
 
 export { SPOT_CATEGORIES, SPOT_CATEGORY_KEY };
@@ -151,13 +152,13 @@ export type ItineraryErrorCode = 'INVALID_INPUT' | 'NOT_CONFIGURED' | 'NO_CANDID
 
 /** Swaps one stop for the closest unused alternate (same category preferred),
  * keeping every other stop and the order. Returns null when no alternate is
- * left. Distance/duration totals are left as generated. */
+ * left. Recomputes approximate totals for the updated stops. */
 export function replaceStop(itinerary: GeneratedItinerary, spotId: string): GeneratedItinerary | null {
   const idx = itinerary.stops.findIndex(s => !isJourneyStep(s) && s.spot.id === spotId);
   if (idx < 0) return null;
   const old = itinerary.stops[idx].spot;
   const used = new Set(itinerary.stops.map(s => s.spot.id));
-  const pool = (itinerary.alternates ?? []).filter(a => !used.has(a.id));
+  const pool = (itinerary.alternates ?? []).filter(a => !used.has(a.id) && hasCoordinates(a));
   const dist = (a: Spot) =>
     old.lat == null || old.lng == null || a.lat == null || a.lng == null
       ? Infinity
@@ -166,5 +167,9 @@ export function replaceStop(itinerary: GeneratedItinerary, spotId: string): Gene
   const best = [...(sameCat.length ? sameCat : pool)].sort((a, b) => dist(a) - dist(b))[0];
   if (!best) return null;
   const stops = itinerary.stops.map((s, i) => (i === idx ? { ...(s as GeneratedItineraryStop), note: '', spot: best } : s));
-  return { ...itinerary, stops, alternates: (itinerary.alternates ?? []).filter(a => a.id !== best.id) };
+  // Connectors were chosen for the old route. Do not keep stale stair/funicular instructions.
+  const destinations = stops.filter(item => !isJourneyStep(item));
+  const estimates = replacementEstimates(itinerary, destinations);
+  if (!estimates) return null;
+  return { ...itinerary, ...estimates, stops: destinations, alternates: (itinerary.alternates ?? []).filter(a => a.id !== best.id) };
 }

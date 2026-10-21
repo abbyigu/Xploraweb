@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { ArrowRight, ArrowLeft, Heart, Compass, MapPin, Mail, Building2, Award, Star, Sparkles, Search, type LucideIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -11,7 +11,7 @@ import { SPOT_CATEGORY_KEY, type Spot } from '../data/products';
 import { neighbourhoodImage, neighbourhoodImageWebp, DEFAULT_NBHD_IMG } from '../lib/neighbourhoodImages';
 import { Footer } from './Footer';
 import { OutingStarters } from './OutingStarters';
-import { SpotFinder } from './SpotFinder';
+import { SampleOuting } from './SampleOuting';
 import { HeroSlideshow } from './HeroSlideshow';
 import { SiteSearch } from './SiteSearch';
 import { NEIGHBOURHOODS_FALLBACK } from './NeighbourhoodsScreen';
@@ -119,25 +119,6 @@ function FeatureTile({
   );
 }
 
-function ValuePillar({ label, desc, icon, delay, className: extraClassName }: { label: string; desc: string; icon: ReactNode; delay: number; className?: string }) {
-  const { ref, className, style } = useReveal<HTMLDivElement>({ delay });
-  const iconStyle = style ? { animationDelay: `${delay + 150}ms` } : undefined;
-  return (
-    <div ref={ref} style={style} className={`group text-left ${className} ${extraClassName ?? ''}`}>
-      <div
-        style={iconStyle}
-        className={`w-12 h-12 rounded-2xl bg-[#E6F6F8] flex items-center justify-center mb-4 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3 ${
-          className.includes('opacity-0') ? 'opacity-0' : 'animate-in zoom-in-75 fade-in duration-500 fill-mode-both'
-        }`}
-      >
-        {icon}
-      </div>
-      <p className="text-[15px] md:text-base font-semibold text-xplora-ink mb-1">{label}</p>
-      <p className="text-[13px] md:text-sm text-gray-500 leading-snug">{desc}</p>
-    </div>
-  );
-}
-
 function NeighbourhoodCard({ name, tagline, image, webpImage, count, onClick, delay }: {
   name: string;
   tagline: string;
@@ -238,6 +219,7 @@ function GemCard({ image, title, category, rating, reviews, area, onClick, delay
 
 export function HomeScreen() {
   const navigate = useNavigate();
+  const [browseOpen, setBrowseOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const { content: siteContent } = useSiteContent();
   const heroHeadline = siteContent.heroHeadline ?? t('home.heroHeadline');
@@ -254,48 +236,6 @@ export function HomeScreen() {
   const FEATURE_TILES = [
     { label: t('home.tileLovedLabel'),    desc: t('home.tileLovedDesc'),    icon: Heart,   to: '/loved', image: '/hero/balloon-art-alley.jpg', webpImage: '/hero/balloon-art-alley-tile.webp', imagePosition: 'center 15%' },
     { label: t('home.tileMichelinLabel'), desc: t('home.tileMichelinDesc'), icon: Award,   to: '/michelin', image: '/hero/michelin-plated-dish.jpg', webpImage: '/hero/michelin-plated-dish.webp' },
-    { label: t('home.tileWalkLabel'),     desc: t('home.tileWalkDesc'),     icon: Compass, to: '/itinerary', image: '/hero/park-garden-walk.jpg', webpImage: '/hero/park-garden-walk-tile.webp' },
-    { label: t('home.tileHoodsLabel'),    desc: t('home.tileHoodsDesc'),    icon: MapPin,  to: '/neighbourhoods?sort=new', image: '/nbhd/montcalm.jpg', webpImage: '/nbhd/montcalm.webp' },
-  ];
-
-  const VALUE_PILLARS = [
-    {
-      label: t('home.pillarSelfGuidedLabel'),
-      desc: t('home.pillarSelfGuidedDesc'),
-      icon: (
-        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-        </svg>
-      ),
-    },
-    {
-      label: t('home.pillarLocalLabel'),
-      desc: t('home.pillarLocalDesc'),
-      icon: (
-        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
-        </svg>
-      ),
-    },
-    {
-      label: t('home.pillarCuratedLabel'),
-      desc: t('home.pillarCuratedDesc'),
-      icon: (
-        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
-        </svg>
-      ),
-    },
-    {
-      label: t('home.pillarCommunityLabel'),
-      desc: t('home.pillarCommunityDesc'),
-      icon: (
-        <svg className="w-6 h-6 text-xplora-ink" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"/>
-        </svg>
-      ),
-    },
   ];
 
   const HOW_STEPS = [
@@ -339,7 +279,7 @@ export function HomeScreen() {
 
       {/* Hero — boxed/framed image card, matching the imported mockup */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-3 sm:pt-5">
-        <div className="relative h-[560px] sm:h-[580px] md:h-[600px] rounded-[20px] md:rounded-3xl overflow-hidden">
+        <div className="relative h-[460px] sm:h-[480px] md:h-[480px] rounded-[20px] md:rounded-3xl overflow-hidden">
           <HeroSlideshow />
           <div className="absolute inset-0 bg-gradient-to-r from-xplora-ink/85 via-xplora-ink/45 to-xplora-ink/5 md:from-xplora-ink/60 md:via-xplora-ink/18 md:to-xplora-ink/0 pointer-events-none" />
 
@@ -370,59 +310,31 @@ export function HomeScreen() {
                   {heroCtaLabel}
                   <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
-                <Link
-                  to="/neighbourhoods"
-                  className="inline-flex items-center px-[22px] py-[14px] bg-white/92 text-xplora-ink rounded-full text-[14.5px] font-semibold hover:bg-white hover:-translate-y-0.5 hover:shadow-lg transition-all whitespace-nowrap"
-                >
-                  {t('home.heroExploreMap')}
-                </Link>
+                <a href="#browse-places" onClick={() => setBrowseOpen(true)} className="inline-flex min-h-11 items-center text-sm text-white underline underline-offset-4">
+                  {t('home.browseSecondary')}
+                </a>
               </div>
             </div>
 
-            {/* Floating spot finder card — right */}
-            <div className="hidden md:block flex-shrink-0 w-[320px] bg-white/97 rounded-[20px] shadow-2xl shadow-xplora-ink/25 p-[26px] animate-in fade-in slide-in-from-right-6 duration-700 delay-300 fill-mode-both">
-              <div className="inline-flex items-center gap-1.5 bg-[#E6F6F8] text-primary px-3 py-[5px] rounded-full text-xs font-semibold mb-4">
-                <Sparkles className="w-2.5 h-2.5" />
-                {t('home.previewEyebrow')}
-              </div>
-              <SpotFinder compact />
-              <p className="text-center text-xs text-gray-500 mt-3">{t('home.previewFootnote')}</p>
-            </div>
+
           </div>
         </div>
 
-        {/* Utility row — nav shortcuts + search, tucked below the framed hero */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5 pt-4 pb-2">
-          <div className="flex items-center gap-3 text-sm">
-            <Link to="/how-it-works" className="inline-flex items-center min-h-11 text-xplora-ink/80 hover:text-xplora-ink underline underline-offset-4 transition">
-              {t('home.heroSeeHowItWorks')}
-            </Link>
-            <span className="text-xplora-ink/30">·</span>
-            <Link to="/business" className="inline-flex items-center min-h-11 text-xplora-ink/80 hover:text-xplora-ink underline underline-offset-4 transition">
-              {t('home.heroForBusiness')}
-            </Link>
-          </div>
-          <SiteSearch variant="hero" className="w-full max-w-sm" />
-        </div>
+
       </section>
 
       <OutingStarters />
 
-      {/* Feature strip */}
-      <section className="pt-12 md:pt-16 pb-4">
-        <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-1 -mx-6 px-6 md:grid md:grid-cols-4 md:gap-10 md:overflow-visible md:mx-0 md:px-0 md:pb-0">
-            {VALUE_PILLARS.map(({ label, desc, icon }, i) => (
-              <ValuePillar key={label} label={label} desc={desc} icon={icon} delay={i * 75} className="w-[46%] flex-shrink-0 snap-start md:w-auto md:flex-shrink md:snap-none" />
-            ))}
-          </div>
-        </div>
-      </section>
+      <SampleOuting spots={spots} />
+
+      <details id="browse-places" open={browseOpen} onToggle={event => setBrowseOpen(event.currentTarget.open)} className="max-w-7xl mx-auto scroll-mt-24 mb-8">
+        <summary className="mx-6 md:mx-8 rounded-2xl bg-card px-5 py-4 cursor-pointer font-medium text-xplora-ink">{t('home.browseSecondary')}</summary>
+        <div className="px-6 md:px-8 pt-5"><SiteSearch variant="hero" className="w-full max-w-lg" /></div>
 
       {/* Discover more */}
       <section className="pt-8 pb-4">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
-          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.whereToStart')}</h2>
+          <h2 className="font-serif text-xl md:text-2xl text-gray-900 mb-4">{t('home.browsePlacesTitle')}</h2>
           <div className="relative">
             <div className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory pb-1 -mx-6 px-6 md:mx-0 md:px-0">
               {FEATURE_TILES.map(({ label, desc, icon, to, image, webpImage, imagePosition }, i) => (
@@ -504,10 +416,7 @@ export function HomeScreen() {
         </section>
       )}
 
-      {/* Spot finder — mobile only; desktop matches the Claude Design mockup without it */}
-      <div className="md:hidden pt-8">
-        <SpotFinder />
-      </div>
+      </details>
 
       {/* How GoXplora works */}
       <section className="mt-8 bg-[#ECEEE8] px-6 py-16 md:py-20">

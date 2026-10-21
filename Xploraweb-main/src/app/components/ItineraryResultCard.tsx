@@ -55,7 +55,7 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
   const [viewOpen, setViewOpen] = useState(false);
   // Local copy so a single stop can be replaced without regenerating the route.
   const [itinerary, setItinerary] = useState(generated);
-  useEffect(() => setItinerary(generated), [generated]);
+  useEffect(() => { setItinerary(generated); setNoAlternate(false); }, [generated]);
   const [noAlternate, setNoAlternate] = useState(false);
   function handleReplaceStop(spotId: string) {
     const next = replaceStop(itinerary, spotId);
@@ -191,7 +191,7 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
           onTogglePin={onTogglePin ? handleTogglePin : undefined}
           onRegenerate={handleRegenerate}
           onModify={onModify}
-          onReplaceStop={itinerary.alternates?.length ? handleReplaceStop : undefined}
+          onReplaceStop={saveState !== 'saving' && itinerary.alternates?.length ? handleReplaceStop : undefined}
           noAlternate={noAlternate}
           pace={pace}
         />
@@ -276,7 +276,7 @@ export function ItineraryResultCard({ itinerary: generated, index, onRegenerate,
               onTogglePin={onTogglePin ? handleTogglePin : undefined}
               onRegenerate={handleRegenerate}
               onModify={onModify}
-              onReplaceStop={itinerary.alternates?.length ? handleReplaceStop : undefined}
+              onReplaceStop={saveState !== 'saving' && itinerary.alternates?.length ? handleReplaceStop : undefined}
               noAlternate={noAlternate}
               pace={pace}
             />

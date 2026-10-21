@@ -315,7 +315,9 @@
     "businessComingSoonTitle": "Notre programme de partenariat pour les entreprises arrive bientôt",
     "businessComingSoonBody": "Nous mettons la touche finale à la façon dont les entreprises de Québec pourront s'associer à GoXplora et rejoindre des explorateurs locaux engagés. Vous voulez être parmi les premiers avisés ?",
     "businessComingSoonCta": "Contactez-nous à hello@goxplora.ca",
-    "storyImageAlt": "Le Château Frontenac surplombant les toits de pierre historiques de la Basse-Ville sous la pluie"
+    "storyImageAlt": "Le Château Frontenac surplombant les toits de pierre historiques de la Basse-Ville sous la pluie",
+    "browseSecondary": "Ou parcourir les quartiers et les adresses",
+    "browsePlacesTitle": "Des adresses à découvrir"
   },
   "itinerary": {
     "title": "Balades autonomes à Québec",
@@ -406,7 +408,7 @@
     "locationFixed": "Ville de Québec",
     "interestsAny": "Tout m'intéresse",
     "resultDurationLabel": "~{{duration}} min",
-    "resultDistanceLabel": "{{distance}} km",
+    "resultDistanceLabel": "~{{distance}} km",
     "freePlanTitle": "{{limit}} itinéraires gratuits sauvegardés",
     "freePlanUsed": "Vous avez sauvegardé {{count}} de {{limit}} itinéraires gratuits.",
     "unlockUnlimitedTitle": "Débloquez les sauvegardes illimitées!",
@@ -1345,9 +1347,16 @@
     },
     "sampleNote": "Exemple illustratif, sans réservation. Le planificateur sélectionne les lieux réels; vérifiez leurs horaires et leurs prix avant de partir.",
     "sampleCta": "Personnaliser cette idée",
-    "accountNote": "Créez un parcours sans compte. La sauvegarde nécessite un compte; les limites gratuites et les options Premium sont présentées dans les forfaits. Les dépenses sur place sont séparées.",
+    "accountNote": "Planifiez sans compte. Créez-en un pour sauvegarder votre sortie.",
     "plans": "Voir les forfaits",
-    "meetFounder": "Rencontrer la fondatrice"
+    "meetFounder": "Rencontrer la fondatrice",
+    "sampleTitle": "Une sortie locale, en trois arrêts",
+    "realSampleBody": "Un café, une découverte culturelle et une boutique : trois adresses de notre sélection, dans le même quartier.",
+    "realSampleNote": "Suggestion tirée de nos adresses publiées. Vérifiez les horaires, les prix et les réservations avant de partir.",
+    "showSampleMap": "Voir les arrêts sur la carte",
+    "loadingMap": "Chargement de la carte…",
+    "sampleMapNote": "Les lignes relient les arrêts; elles ne représentent pas les rues à emprunter.",
+    "openSampleRoute": "Ouvrir le parcours dans Google Maps"
   },
   "outingDetails": {
     "beforeYouGo": "Avant de partir",
@@ -1363,7 +1372,8 @@
     "priceUnknown": "Prix non renseigné",
     "returnPrompt": "Après votre sortie, dites-nous ce que vous avez aimé et gardez des idées pour la prochaine fois.",
     "feedback": "Donner mon avis",
-    "savedPlaces": "Mes favoris"
+    "savedPlaces": "Mes favoris",
+    "replacementEstimates": "Après le remplacement d’un arrêt, les totaux sont recalculés approximativement à partir des distances à vol d’oiseau. Confirmez le trajet à pied et sa durée dans Google Maps."
   },
   "accessibilityPage": {
     "title": "Accessibilité et préparation de votre sortie",
