@@ -82,3 +82,22 @@ describe('walking-first generation endpoint', () => {
     expect(response.data.code).toBe('NO_COMPACT_ROUTE');
   });
 });
+
+describe('filter accuracy', () => {
+  it('rejects a missing interest before requesting routes or copy', async () => {
+    const response = await run({ ...body, stopCount: 2, categories: ['Cafe', 'History'] });
+    expect(response.status).toBe(422);
+    expect(response.data.code).toBe('NO_CANDIDATES');
+    expect(mocks.matrix).not.toHaveBeenCalled();
+  });
+  it('enforces the supplied time budget including visits', async () => {
+    const response = await run({ ...body, maxDurationMinutes: 60 } as any);
+    expect(response.status).toBe(422);
+    expect(response.data.itineraries).toBeUndefined();
+  });
+  it('rejects a single pinned visit longer than the available time', async () => {
+    mocks.from.mockReturnValue({ select: () => ({ eq: async () => ({ data: [{ ...rows[0], visit_time: '3 h' }], error: null }) }) });
+    const response = await run({ ...body, stopCount: 1, categories: ['Cafe'], pinnedSpotIds: ['lower'], maxDurationMinutes: 120 } as any);
+    expect(response.status).toBe(422);
+  });
+});

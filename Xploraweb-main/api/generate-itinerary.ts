@@ -52,6 +52,7 @@ const RequestSchema = z.object({
   michelinOnly: z.boolean().optional().default(false),
   pace: z.enum(PACES).optional().default('moderate'),
   who: z.enum(WHO_OPTIONS).optional(),
+  maxDurationMinutes: z.number().int().min(30).max(720).optional(),
   maxWalkMinutes: z.number().int().min(5).max(30).optional().default(10),
   replacement: z.object({ stopIds: z.array(z.string()).min(1).max(9), spotId: z.string() }).optional(),
   // Stops the user pinned on a previous generation — kept in every regenerated
@@ -106,7 +107,7 @@ async function describeRoute(stops: CandidateSpot[], language: 'en' | 'fr') {
   try {
     const result = await generateObject({
       model: anthropic('claude-haiku-4-5-20251001'), schema: CopySchema, temperature: 0.4, maxRetries: 0, abortSignal: AbortSignal.timeout(8000),
-      prompt: `Write a title, short summary and a note for each stop in ${language === 'fr' ? 'French' : 'English'} for this Québec City outing. The route has already been selected and verified by a walking router. Keep these exact stop ids and order. Do not select, add or reorder places. Notes should describe the place itself, not the sequence: never say begin, start, end or finish the outing in a stop note. Do not invent opening hours, walking times, stairs, transportation or accessibility claims. Ground notes in the supplied facts. Stops: ${JSON.stringify(stops.map(spot => ({ id: spot.id, name: spot.name, description: spot.description, tips: spot.xploraTips })))}`,
+      prompt: `Write a title, short summary and a note for each stop in ${language === 'fr' ? 'French' : 'English'} for this Québec City outing. The stop order has already been selected. Walking times may be approximate; do not claim the route is verified. Keep these exact stop ids and order. Do not select, add or reorder places. Notes should describe the place itself, not the sequence: never say begin, start, end or finish the outing in a stop note. Do not invent opening hours, walking times, stairs, transportation or accessibility claims. Ground notes in the supplied facts. Stops: ${JSON.stringify(stops.map(spot => ({ id: spot.id, name: spot.name, description: spot.description, tips: spot.xploraTips })))}`,
     });
     return result.object;
   } catch (error) {
@@ -155,7 +156,11 @@ export default async function handler(req: any, res: any) {
   if (body.restaurantHopping) pool = pool.filter(spot => spot.category === 'Food' && (!body.michelinOnly || !!spot.michelinUrl));
   else if (body.categories.length) pool = pool.filter(spot => !!spot.category && body.categories.includes(spot.category as any));
   if (body.priceRanges.length) pool = pool.filter(spot => !!spot.priceRange && (/^(free|gratuit|gratuite|0\s*\$|\$0)$/i.test(spot.priceRange.trim()) || body.priceRanges.includes(spot.priceRange as any)));
-  const opts: RouteOptions = { count: body.stopCount, categories: body.categories, pinnedIds: [...new Set(body.pinnedSpotIds)], maxLegMinutes: body.maxWalkMinutes, restaurantHopping: body.restaurantHopping };
+  const opts: RouteOptions = { count: body.stopCount, categories: body.categories, pinnedIds: [...new Set(body.pinnedSpotIds)], maxLegMinutes: body.maxWalkMinutes, restaurantHopping: body.restaurantHopping, maxDurationMinutes: body.maxDurationMinutes, pace: body.pace };
+
+  if (!body.restaurantHopping && new Set(body.categories).size > body.stopCount) {
+    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'Select at least one stop per interest.' });
+  }
 
   if (body.replacement) {
     const ids = body.replacement.stopIds;
@@ -171,7 +176,7 @@ export default async function handler(req: any, res: any) {
     // in the matrix so both connections and the unchanged legs are verified.
     const shortlist = compactShortlists(candidates, existing, [old.category || ''], existing.length)[0] || existing;
     if (existing.length === 1) {
-      const replacement = candidates[0];
+      const replacement = candidates.find(spot => visitMinutes(spot, body.pace) <= (body.maxDurationMinutes ?? Infinity));
       if (!replacement) return res.status(422).json({ code: 'NO_COMPACT_ROUTE', error: 'No matching replacement is available.' });
       const matrix = { ids: [replacement.id], distanceMeters: [[0]], durationSeconds: [[0]] };
       return res.status(200).json({ itineraries: [await finishRoute([replacement], matrix, candidates, body)] });
@@ -190,6 +195,7 @@ export default async function handler(req: any, res: any) {
 
   const pins = opts.pinnedIds.map(id => byId.get(id)).filter((spot): spot is CandidateSpot => !!spot);
   if (pins.length !== opts.pinnedIds.length) return res.status(400).json({ code: 'INVALID_INPUT', error: 'A pinned place is unavailable.' });
+  if (body.maxDurationMinutes) pool = pool.filter(spot => visitMinutes(spot, body.pace) <= body.maxDurationMinutes!);
   const fresh = pool.filter(spot => !body.excludeSpotIds.includes(spot.id) || opts.pinnedIds.includes(spot.id));
   const candidates = fresh.length + pins.filter(pin => !fresh.some(spot => spot.id === pin.id)).length >= body.stopCount ? fresh : pool;
   if (new Set([...candidates, ...pins].map(spot => spot.id)).size < body.stopCount) {
@@ -197,7 +203,7 @@ export default async function handler(req: any, res: any) {
   }
   if (body.stopCount === 1) {
     const single = pins[0] || compactShortlists(candidates, [], body.categories, 1)[0]?.find(spot => !body.categories.length || body.categories.includes(spot.category as any));
-    if (!single) return res.status(422).json({ code: 'NO_CANDIDATES', error: 'No place matches this interest.' });
+    if (!single || visitMinutes(single, body.pace) > (body.maxDurationMinutes ?? Infinity)) return res.status(422).json({ code: 'NO_CANDIDATES', error: 'No place matches this interest.' });
     const matrix = { ids: [single.id], distanceMeters: [[0]], durationSeconds: [[0]] };
     return res.status(200).json({ itineraries: [await finishRoute([single], matrix, candidates, body)] });
   }

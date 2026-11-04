@@ -597,6 +597,7 @@ export function ItineraryScreen() {
     const body: ItineraryGenerateRequest = {
       stopCount,
       maxWalkMinutes,
+      maxDurationMinutes: selectedBucket.maxDurationMinutes,
       categories: restaurantHopping ? [] : categories,
       priceRanges,
       neighbourhoods,
@@ -645,6 +646,7 @@ export function ItineraryScreen() {
   async function handleReplaceRoute(itinerary: GeneratedItinerary, spotId: string): Promise<GeneratedItinerary> {
     const stopIds = itinerary.stops.filter(item => !isJourneyStep(item)).map(item => item.spot.id);
     const body: ItineraryGenerateRequest = {
+      maxDurationMinutes: selectedBucket.maxDurationMinutes,
       stopCount: stopIds.length, maxWalkMinutes, categories: restaurantHopping ? [] : categories,
       priceRanges, neighbourhoods, language: i18n.language === 'fr' ? 'fr' : 'en',
       restaurantHopping, michelinOnly: restaurantHopping && michelinOnly, pace,
