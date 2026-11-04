@@ -50,15 +50,24 @@ export function mapSpotRow(row: any): Spot {
 export function useSpots() {
   const [spots, setSpots] = useState<Spot[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   const reload = async () => {
-    const { data } = await supabase
-      .from('xplora_spots')
-      .select('*')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false });
-    setSpots((data || []).map(mapSpotRow));
-    setLoading(false);
+    setLoading(true);
+    setError(false);
+    try {
+      const { data, error: queryError } = await supabase
+        .from('xplora_spots')
+        .select('*')
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+      if (queryError) throw queryError;
+      setSpots((data || []).map(mapSpotRow));
+    } catch {
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -74,5 +83,5 @@ export function useSpots() {
     return m;
   }, [spots]);
 
-  return { spots, byId, loading, reload };
+  return { spots, byId, loading, error, reload };
 }

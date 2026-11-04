@@ -336,6 +336,12 @@
     "resultsSubtitle_other": "Nous avons créé {{count}} itinéraires uniques selon vos préférences. Cliquez sur un itinéraire pour voir tous les détails et choisir votre favori!"
   },
   "itineraryBuilder": {
+    "categoriesLoading": "Chargement des intérêts disponibles…",
+    "categoriesLoadError": "Impossible de charger les lieux. Réessayez pour voir les intérêts disponibles.",
+    "categoriesEmpty": "Aucun lieu admissible dans ce secteur pour le moment. Choisissez un autre quartier.",
+    "categoriesAvailable": "Seuls les intérêts avec des lieux disponibles dans le secteur choisi sont affichés. Les choix indisponibles sont retirés lorsque vous changez de secteur.",
+    "categoriesRetry": "Réessayer",
+    "noRestaurantsInArea": "Aucun restaurant disponible dans ce secteur. Choisissez un autre quartier ou désactivez le parcours gourmand.",
     "subtitle": "Dites-nous ce que vous cherchez et on assemble un parcours à pied sur mesure.",
     "stopCount": "Nombre d'arrêts",
     "stopCountSingle": "{{count}} arrêts",
