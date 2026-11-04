@@ -1391,7 +1391,7 @@
     "feedback": "Give feedback",
     "savedPlaces": "Saved places",
     "replacementEstimates": "After replacing a stop, totals are recalculated approximately using straight-line distances. Confirm the walking route and travel time in Google Maps.",
-    "verifiedRouting": "Between-stop distances and walking times come from the walking-routing service. Visit durations remain estimates. Map lines connect stops; open Google Maps for street-by-street directions.",
+    "verifiedRouting": "Between-stop distances and walking times are estimated from straight-line distance, so check them in Google Maps. Visit durations are estimates too. Map lines connect stops; open Google Maps for street-by-street directions.",
     "unverifiedRouting": "This older route has no verified walking legs. Generate a new route or check distances and times in Google Maps.",
     "walkingUnknown": "Check in Google Maps"
   },

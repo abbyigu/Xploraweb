@@ -1391,7 +1391,7 @@
     "feedback": "Donner mon avis",
     "savedPlaces": "Mes favoris",
     "replacementEstimates": "Après le remplacement d’un arrêt, les totaux sont recalculés approximativement à partir des distances à vol d’oiseau. Confirmez le trajet à pied et sa durée dans Google Maps.",
-    "verifiedRouting": "Les distances et temps de marche entre les arrêts proviennent du service d’itinéraires à pied. Les durées de visite restent des estimations. Les lignes de la carte relient les arrêts; ouvrez Google Maps pour suivre les rues et sentiers.",
+    "verifiedRouting": "Les distances et temps de marche entre les arrêts sont estimés à partir de la distance à vol d’oiseau; vérifiez-les dans Google Maps. Les durées de visite sont aussi des estimations. Les lignes de la carte relient les arrêts; ouvrez Google Maps pour suivre les rues et sentiers.",
     "unverifiedRouting": "Ce parcours ancien ne contient pas de trajets à pied vérifiés. Générez un nouveau parcours ou confirmez les distances et durées dans Google Maps.",
     "walkingUnknown": "À vérifier dans Google Maps"
   },
