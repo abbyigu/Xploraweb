@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const points = [{ id: 'a', lat: 46.81, lng: -71.21 }, { id: 'b', lat: 46.82, lng: -71.20 }];
-beforeEach(() => { vi.resetModules(); vi.stubEnv('GOOGLE_MAPS_API_KEY', 'test-key'); });
+beforeEach(() => { vi.resetModules(); vi.stubEnv('GOOGLE_MAPS_API_KEY', 'test-key'); vi.stubEnv('USE_GOOGLE_ROUTES', '1'); });
 afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals(); vi.restoreAllMocks(); });
 
 describe('walking-route provider', () => {
