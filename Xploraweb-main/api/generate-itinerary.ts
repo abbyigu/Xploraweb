@@ -183,6 +183,11 @@ export default async function handler(req: any, res: any) {
     return res.status(200).json({ itineraries: [await finishRoute(ordered, matrix, shortlist, body)] });
   }
 
+  // An interest with no matching place must fail loudly, not be silently swapped for another interest.
+  if (!body.restaurantHopping && body.categories.some(cat => !pool.some(spot => spot.category === cat))) {
+    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'No place matches one of your interests in this area.' });
+  }
+
   const pins = opts.pinnedIds.map(id => byId.get(id)).filter((spot): spot is CandidateSpot => !!spot);
   if (pins.length !== opts.pinnedIds.length) return res.status(400).json({ code: 'INVALID_INPUT', error: 'A pinned place is unavailable.' });
   const fresh = pool.filter(spot => !body.excludeSpotIds.includes(spot.id) || opts.pinnedIds.includes(spot.id));
