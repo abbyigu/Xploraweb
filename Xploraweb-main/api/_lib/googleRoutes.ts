@@ -40,7 +40,20 @@ function parseDurationSeconds(duration: unknown): number {
   return match ? parseFloat(match[1]) : Infinity;
 }
 
+// ponytail: straight-line estimate (x1.3 for street detours, ~4.9 km/h) while Google billing is off.
+// Set USE_GOOGLE_ROUTES=1 to verify against real footpaths again; cliffs/river crossings aren't modelled here.
+function estimateWalkingMatrix(points: WalkingPoint[]): WalkingMatrix {
+  const rad = Math.PI / 180;
+  const meters = (a: WalkingPoint, b: WalkingPoint) => {
+    const h = Math.sin((b.lat - a.lat) * rad / 2) ** 2 + Math.cos(a.lat * rad) * Math.cos(b.lat * rad) * Math.sin((b.lng - a.lng) * rad / 2) ** 2;
+    return 2 * 6371000 * Math.asin(Math.sqrt(h)) * 1.3;
+  };
+  const distanceMeters = points.map(a => points.map(b => meters(a, b)));
+  return { ids: points.map(p => p.id), distanceMeters, durationSeconds: distanceMeters.map(row => row.map(m => m / 1.36)) };
+}
+
 export async function fetchWalkingMatrix(points: WalkingPoint[]): Promise<WalkingMatrix | null> {
+  if (process.env.USE_GOOGLE_ROUTES !== '1') return points.length < 2 || points.length > MAX_POINTS ? null : estimateWalkingMatrix(points);
   if (!GOOGLE_KEY) { console.error('Walking routing unavailable: GOOGLE_MAPS_API_KEY is not configured.'); return null; }
   if (points.length < 2 || points.length > MAX_POINTS) return null;
 
