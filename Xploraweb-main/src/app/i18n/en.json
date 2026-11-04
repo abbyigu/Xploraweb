@@ -336,6 +336,12 @@
     "resultsSubtitle_other": "We've crafted {{count}} unique itineraries based on your preferences. Click on any itinerary to see all the details and choose your favourite!"
   },
   "itineraryBuilder": {
+    "categoriesLoading": "Loading available interests…",
+    "categoriesLoadError": "We couldn’t load the places. Try again to see available interests.",
+    "categoriesEmpty": "No eligible places are available in this area yet. Choose another neighbourhood.",
+    "categoriesAvailable": "Only interests with available places in your selected area are shown. Unavailable selections are cleared when you change areas.",
+    "categoriesRetry": "Try again",
+    "noRestaurantsInArea": "No restaurants are available in this area. Choose another neighbourhood or turn off restaurant hopping.",
     "subtitle": "Tell us what you're after and we'll assemble a custom walking route.",
     "stopCount": "Number of stops",
     "stopCountSingle": "{{count}} stops",

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router';
 import {
   Lock, Wand2, Loader2, Award, ChevronDown, ChevronUp, GripVertical, SlidersHorizontal, Sparkles, MapPin, Heart, Clock, Footprints,
@@ -11,6 +11,8 @@ import { Switch } from './ui/switch';
 import { Skeleton } from './ui/skeleton';
 import { ItineraryResultsGrid } from './ItineraryResultsGrid';
 import { PremiumLimitModal } from './PremiumLimitModal';
+import { useSpots } from '../hooks/useSpots';
+import { availableItineraryCategories } from '../data/availableItineraryCategories';
 import { useExperiences } from '../hooks/useExperiences';
 import { useSiteContent } from '../hooks/useSiteContent';
 import { useNeighbourhoods } from '../hooks/useNeighbourhoods';
@@ -332,6 +334,7 @@ export function ItineraryScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { experiences } = useExperiences();
+  const { spots, loading: spotsLoading, error: spotsError, reload: reloadSpots } = useSpots();
   const { content: siteContent } = useSiteContent();
   const { neighbourhoods: neighbourhoodOptions } = useNeighbourhoods();
   const [searchParams] = useSearchParams();
@@ -381,6 +384,19 @@ export function ItineraryScreen() {
     const match = neighbourhoodOptions.find(option => option.name === requestedNeighbourhood);
     if (match) setNeighbourhoods([match.name]);
   }, [requestedNeighbourhood, starterId, neighbourhoodOptions]);
+
+  const availableCategories = useMemo(() => availableItineraryCategories(spots, neighbourhoods), [spots, neighbourhoods]);
+  useEffect(() => {
+    // Never discard saved choices while the place library is loading or unavailable.
+    if (spotsLoading || spotsError) return;
+    setCategories(previous => {
+      const next = previous.filter(category => availableCategories.includes(category));
+      return next.length === previous.length ? previous : next;
+    });
+    prevCategoriesRef.current = prevCategoriesRef.current.filter(category => availableCategories.includes(category));
+  }, [availableCategories, spotsLoading, spotsError, categories]);
+  const categoriesUnavailable = spotsLoading || spotsError || !availableCategories.length
+    || (restaurantHopping && !availableCategories.includes('Food'));
 
   const [genState, setGenState] = useState<GenState>('idle');
   const [errorCode, setErrorCode] = useState<ItineraryErrorCode | null>(null);
@@ -592,6 +608,7 @@ export function ItineraryScreen() {
   }
 
   async function handleGenerate() {
+    if (categoriesUnavailable) return;
     setGenState('loading');
     setErrorCode(null);
     const body: ItineraryGenerateRequest = {
@@ -893,6 +910,11 @@ export function ItineraryScreen() {
                   title={t('itineraryBuilder.stepMoodTitle')}
                   subtitle={t('itineraryBuilder.stepMoodSubtitle')}
                 >
+                  <p className="text-sm text-muted-foreground mb-3" role="status">
+                    {t(spotsLoading ? 'itineraryBuilder.categoriesLoading' : spotsError ? 'itineraryBuilder.categoriesLoadError' : !availableCategories.length ? 'itineraryBuilder.categoriesEmpty' : 'itineraryBuilder.categoriesAvailable')}
+                  </p>
+                  {spotsError && <button type="button" className="text-sm underline mb-3" onClick={reloadSpots}>{t('itineraryBuilder.categoriesRetry')}</button>}
+                  {!spotsLoading && !spotsError && restaurantHopping && !availableCategories.includes('Food') && <p role="status" className="text-sm mb-3">{t('itineraryBuilder.noRestaurantsInArea')}</p>}
                   {/* Interests — also doubles as an activity-order picker: once
                       2+ are selected, a "visit order" list appears below with
                       arrows to arrange them into the sequence the traveller
@@ -907,7 +929,7 @@ export function ItineraryScreen() {
                   {!restaurantHopping && (
                     <div>
                       <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
-                        {ITINERARY_CATEGORIES.map(c => {
+                        {!spotsLoading && !spotsError && availableCategories.map(c => {
                           const order = categories.indexOf(c);
                           return (
                             <InterestTile
@@ -1085,7 +1107,7 @@ export function ItineraryScreen() {
                 <div className="fixed bottom-[4.5rem] inset-x-0 z-30 px-4 py-3 bg-background/95 backdrop-blur border-t border-border space-y-2 md:static md:z-auto md:p-0 md:bg-transparent md:backdrop-blur-none md:border-0">
                   <button
                     onClick={handleGenerate}
-                    disabled={genState === 'loading'}
+                    disabled={genState === 'loading' || categoriesUnavailable}
                     className="w-full flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
                   >
                     {genState === 'loading' ? (
@@ -1150,7 +1172,7 @@ export function ItineraryScreen() {
                   {/* The aside is sticky from lg up, so the primary action stays visible next to the form. */}
                   <button
                     onClick={handleGenerate}
-                    disabled={genState === 'loading'}
+                    disabled={genState === 'loading' || categoriesUnavailable}
                     className="hidden lg:flex mt-4 w-full items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-xplora-ink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60"
                   >
                     {genState === 'loading' ? (
