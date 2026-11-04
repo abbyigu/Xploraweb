@@ -158,8 +158,8 @@ export default async function handler(req: any, res: any) {
   if (body.priceRanges.length) pool = pool.filter(spot => !!spot.priceRange && (/^(free|gratuit|gratuite|0\s*\$|\$0)$/i.test(spot.priceRange.trim()) || body.priceRanges.includes(spot.priceRange as any)));
   const opts: RouteOptions = { count: body.stopCount, categories: body.categories, pinnedIds: [...new Set(body.pinnedSpotIds)], maxLegMinutes: body.maxWalkMinutes, restaurantHopping: body.restaurantHopping, maxDurationMinutes: body.maxDurationMinutes, pace: body.pace };
 
-  if (!body.restaurantHopping && (new Set(body.categories).size > body.stopCount || body.categories.some(category => !pool.some(spot => spot.category === category)))) {
-    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'Not every selected interest has a matching place.' });
+  if (!body.restaurantHopping && new Set(body.categories).size > body.stopCount) {
+    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'Select at least one stop per interest.' });
   }
 
   if (body.replacement) {
@@ -186,6 +186,11 @@ export default async function handler(req: any, res: any) {
     const ordered = solveReplacement(existing, old.id, shortlist.filter(spot => !ids.includes(spot.id)), matrix, opts);
     if (!ordered) return res.status(422).json({ code: 'NO_COMPACT_ROUTE', error: 'No nearby replacement fits the walking limit.' });
     return res.status(200).json({ itineraries: [await finishRoute(ordered, matrix, shortlist, body)] });
+  }
+
+  // An interest with no matching place must fail loudly, not be silently swapped for another interest.
+  if (!body.restaurantHopping && body.categories.some(cat => !pool.some(spot => spot.category === cat))) {
+    return res.status(422).json({ code: 'NO_CANDIDATES', error: 'No place matches one of your interests in this area.' });
   }
 
   const pins = opts.pinnedIds.map(id => byId.get(id)).filter((spot): spot is CandidateSpot => !!spot);
