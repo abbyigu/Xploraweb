@@ -1106,7 +1106,7 @@ export function ItineraryScreen() {
                     <Sparkles className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">{t('itineraryBuilder.yourPreferencesSubtitle')}</p>
-                  <p className="text-xs text-muted-foreground mt-3">{t('outingStarters.accountNote')} <Link to="/membership" className="text-primary underline">{t('outingStarters.plans')}</Link></p>
+                  <p className="text-xs text-muted-foreground mt-3">{t('outingStarters.accountNote')}</p>
                   <div className="mt-2">
                     <PreferenceRow icon={MapPin} label={t('itineraryBuilder.stopCount')} value={t('itineraryBuilder.totalStops', { count: stopCount })} changeLabel={t('itineraryBuilder.change')} onChange={() => goToStep('step-count')} />
                     <PreferenceRow
@@ -1224,6 +1224,11 @@ export function ItineraryScreen() {
             <div role="alert" className="max-w-3xl mx-auto px-6 md:px-8 mb-6">
               <div className="rounded-2xl border border-red-200 bg-red-50 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
                 <p className="text-sm text-red-700 flex-1">{t(ERROR_KEY[errorCode])}</p>
+                {errorCode === 'ROUTING_UNAVAILABLE' && (
+                  <Link to="/" className="px-4 py-2 rounded-xl border border-red-200 bg-card text-sm font-medium hover:bg-muted/50 transition flex-shrink-0 text-center">
+                    {t('itineraryBuilder.browseReadyMade')}
+                  </Link>
+                )}
                 {errorCode !== 'NO_CANDIDATES' && errorCode !== 'NOT_CONFIGURED' ? (
                   <button
                     type="button"

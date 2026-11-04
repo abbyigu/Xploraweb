@@ -17,7 +17,7 @@ export function OutingStarters() {
         ))}
       </div>
 
-      <p className="mt-4 text-sm text-muted-foreground">{t('outingStarters.accountNote')} <Link to="/membership" className="text-primary underline underline-offset-4">{t('outingStarters.plans')}</Link></p>
+      <p className="mt-4 text-sm text-muted-foreground">{t('outingStarters.accountNote')}</p>
     </section>
   );
 }
