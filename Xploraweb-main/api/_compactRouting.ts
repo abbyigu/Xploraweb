@@ -10,6 +10,8 @@ export interface RouteOptions {
   pinnedIds: string[];
   maxLegMinutes: number;
   restaurantHopping: boolean;
+  maxDurationMinutes?: number;
+  pace?: string;
 }
 
 function geoMeters(a: CandidateSpot, b: CandidateSpot) {
@@ -83,7 +85,8 @@ export function walkingLeg(matrix: WalkingMatrix, fromId: string, toId: string) 
 /** Selects places AND order using real, directed walking routes. Category
  * coverage is required; category sequence is only a small tie preference. */
 export function solveCompactRoute(pool: CandidateSpot[], matrix: WalkingMatrix, opts: RouteOptions): CandidateSpot[] | null {
-  const requested = [...new Set(opts.categories)].filter(category => pool.some(spot => spot.category === category)).slice(0, opts.count);
+  const requested = opts.restaurantHopping ? [] : [...new Set(opts.categories)];
+  if (requested.length > opts.count || requested.some(category => !pool.some(spot => spot.category === category))) return null;
   const score = (path: CandidateSpot[], seconds: number) => {
     const missing = requested.filter(category => !path.some(spot => spot.category === category)).length;
     let inversions = 0;
@@ -108,7 +111,9 @@ export function solveCompactRoute(pool: CandidateSpot[], matrix: WalkingMatrix, 
         const last = state.path[state.path.length - 1];
         const leg = last ? walkingLeg(matrix, last.id, spot.id) : null;
         if (last && (!leg || leg.durationSeconds > opts.maxLegMinutes * 60)) continue;
-        next.push({ path, seconds: state.seconds + (leg?.durationSeconds || 0) });
+        const seconds = state.seconds + (leg?.durationSeconds || 0);
+        if (Math.ceil(seconds / 60) + path.reduce((sum, item) => sum + visitMinutes(item, opts.pace || 'moderate'), 0) > (opts.maxDurationMinutes ?? Infinity)) continue;
+        next.push({ path, seconds });
       }
     }
     next.sort((a, b) => score(a.path, a.seconds) - score(b.path, b.seconds)
@@ -134,6 +139,7 @@ export function solveReplacement(current: CandidateSpot[], spotId: string, alter
       if (!leg || leg.durationSeconds > opts.maxLegMinutes * 60) return null;
       seconds += leg.durationSeconds;
     }
+    if (Math.ceil(seconds / 60) + path.reduce((sum, item) => sum + visitMinutes(item, opts.pace || 'moderate'), 0) > (opts.maxDurationMinutes ?? Infinity)) return null;
     return { path, seconds };
   }).filter((route): route is { path: CandidateSpot[]; seconds: number } => route !== null);
   routes.sort((a, b) => a.seconds - b.seconds);

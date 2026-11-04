@@ -50,12 +50,13 @@ export interface DurationBucket {
   key: 'short' | 'half' | 'full';
   stopCount: number;
   foodHopStopCount: number;
+  maxDurationMinutes: number;
 }
 
 export const DURATION_BUCKETS: DurationBucket[] = [
-  { key: 'short', stopCount: 3, foodHopStopCount: 3 },
-  { key: 'half', stopCount: 5, foodHopStopCount: 4 },
-  { key: 'full', stopCount: 9, foodHopStopCount: 6 },
+  { key: 'short', stopCount: 3, foodHopStopCount: 3, maxDurationMinutes: 120 },
+  { key: 'half', stopCount: 5, foodHopStopCount: 4, maxDurationMinutes: 240 },
+  { key: 'full', stopCount: 9, foodHopStopCount: 6, maxDurationMinutes: 480 },
 ];
 
 export function stopCountForBucket(bucket: DurationBucket, restaurantHopping: boolean): number {
@@ -76,6 +77,7 @@ export type Who = (typeof WHO_OPTIONS)[number];
 export interface ItineraryGenerateRequest {
   stopCount: number;
   maxWalkMinutes?: number;
+  maxDurationMinutes?: number;
   replacement?: { stopIds: string[]; spotId: string };
   categories: SpotCategory[];
   priceRanges: PriceRange[];

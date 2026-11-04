@@ -459,7 +459,7 @@
     "anyCompany": "Peu importe",
     "routingUnavailable": "Impossible de vérifier les trajets à pied pour le moment. Réessayez plus tard; aucune durée de marche ne sera inventée.",
     "browseReadyMade": "Voir des sorties prêtes à suivre",
-    "noCompactRoute": "Aucun parcours ne respecte ces intérêts et cette limite de marche. Augmentez le temps entre les arrêts, modifiez le quartier ou choisissez moins d’arrêts. Des lieux épinglés éloignés peuvent aussi allonger le trajet.",
+    "noCompactRoute": "Aucun parcours ne respecte ces intérêts, le temps disponible et cette limite de marche. Augmentez la durée de la sortie ou le temps entre les arrêts, modifiez le quartier ou choisissez moins d’arrêts. Des lieux épinglés éloignés peuvent aussi allonger le trajet.",
     "replacementFailed": "Aucun remplacement proche ne respecte cette limite de marche. Votre parcours est conservé; vous pouvez modifier les filtres et le régénérer.",
     "checkingReplacement": "Vérification du trajet…",
     "maxWalkTitle": "Marche maximale entre deux arrêts",

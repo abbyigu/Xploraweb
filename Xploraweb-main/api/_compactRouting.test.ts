@@ -83,3 +83,19 @@ describe('candidate shortlist and inputs', () => {
     expect(visitMinutes(spot('cafe', 'Cafe', { visitTime: '20 min' }), 'moderate')).toBe(20);
   });
 });
+
+describe('requested interests and total available time', () => {
+  it('refuses to substitute another stop when a requested category is absent', () => {
+    const pool = places.slice(1);
+    expect(solveCompactRoute(pool, matrix(pool), { ...options, categories: ['Cafe', 'History'] })).toBeNull();
+  });
+  it('selects shorter visits when walking plus visits must fit two hours', () => {
+    const pool = [spot('coffee', 'Cafe'), spot('long', 'Culture', { visitTime: '3 h', lat: 46.812 }), spot('short', 'Culture', { visitTime: '30 min', lat: 46.814 })];
+    const route = solveCompactRoute(pool, matrix(pool), { ...options, count: 2, maxDurationMinutes: 120 });
+    expect(route?.map(s => s.id)).toEqual(['coffee', 'short']);
+  });
+  it('does not let replacement make an outing exceed its time budget', () => {
+    const a = spot('coffee', 'Cafe'), b = spot('art', 'Culture', { lat: 46.812 }), c = spot('long', 'Culture', { visitTime: '3 h', lat: 46.814 });
+    expect(solveReplacement([a, b], b.id, [c], matrix([a, b, c]), { ...options, count: 2, maxDurationMinutes: 120 })).toBeNull();
+  });
+});

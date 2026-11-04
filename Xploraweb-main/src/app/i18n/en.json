@@ -459,7 +459,7 @@
     "anyCompany": "Any group",
     "routingUnavailable": "Walking routes cannot be verified right now. Please try again later; we won’t invent walking times.",
     "browseReadyMade": "Browse ready-made outings",
-    "noCompactRoute": "No route fits these interests and walking limit. Increase the time between stops, change the neighbourhood, or choose fewer stops. Distant pinned places may also require a longer walk.",
+    "noCompactRoute": "No route fits these interests, available time and walking limit. Allow more time for the outing or between stops, change the neighbourhood, or choose fewer stops. Distant pinned places may also require a longer walk.",
     "replacementFailed": "No nearby replacement fits this walking limit. Your route is unchanged; you can adjust the filters and regenerate.",
     "checkingReplacement": "Checking walking route…",
     "maxWalkTitle": "Maximum walk between stops",
