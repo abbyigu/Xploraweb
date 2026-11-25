@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { SpeedInsights } from '@vercel/speed-insights/react';
+import { Analytics } from '@vercel/analytics/react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { BottomNav } from './components/BottomNav';
@@ -186,6 +187,7 @@ export default function App() {
         <BottomNav />
       </div>
       <SpeedInsights />
+      <Analytics />
     </BrowserRouter>
     </CartProvider>
     </HelmetProvider>
