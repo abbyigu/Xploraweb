@@ -1,8 +1,8 @@
 # GoXplora
 
-> GoXplora is an insider guide to Québec City: guided tours, self-guided neighbourhood walks, local perks, and events. Built for tourists and locals exploring Québec City neighbourhood by neighbourhood.
+> GoXplora is an insider guide to Québec City: self-guided neighbourhood walks, local perks, and curated itineraries. Built for tourists and locals exploring Québec City neighbourhood by neighbourhood.
 
-GoXplora organizes the city by neighbourhood (Vieux-Québec, Montcalm, Saint-Roch, Saint-Jean-Baptiste, Limoilou) and by experience type: free self-guided walking routes ("Xplorators"), paid guided tours ("Xploratours"), and evening events ("GoXplora Nights"). Content and prices are admin-curated and change over time — always confirm current details on the live pages rather than assuming this file is current.
+GoXplora organizes the city by neighbourhood (Vieux-Québec, Montcalm, Saint-Roch, Saint-Jean-Baptiste, Limoilou) and by experience type: free self-guided walking routes ("Xplorators"). Paid guided tours ("Xploratours") and evening events ("GoXplora Nights") are planned but not yet available. Content and prices are admin-curated and change over time — always confirm current details on the live pages rather than assuming this file is current.
 
 ## Key pages
 

@@ -13,8 +13,10 @@ const ROOT = join(__dirname, '..');
 const DIST = join(ROOT, 'dist');
 const BASE_URL = 'https://www.goxplora.ca';
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+// Public project URL + publishable anon key (same defaults as src/app/lib/supabase.ts) so the
+// build works without VITE_SUPABASE_* being set in Vercel.
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://qnalvzgqrfjbuoqsffbs.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_CCDW9tXRVNYA66aqo190bw_hIVgo8Nt';
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
   process.exit(1);
@@ -100,7 +102,7 @@ if (nErr) {
   process.exit(1);
 }
 
-const { data: experiences, error: eErr } = await supabase
+const { data: allExperiences, error: eErr } = await supabase
   .from('xplora_experiences')
   .select('*')
   .eq('status', 'active');
@@ -108,6 +110,10 @@ if (eErr) {
   console.error('Failed to fetch experiences:', eErr.message);
   process.exit(1);
 }
+
+// Paid/hidden types render "not found" in the app, so don't snapshot or advertise them.
+const HIDDEN_CATEGORIES = new Set(['xploratorsplus', 'xploranights', 'xploratours']); // mirrors useExperiences.ts: the app 404s these
+const experiences = allExperiences.filter(e => !HIDDEN_CATEGORIES.has(e.category));
 
 const en = JSON.parse(readFileSync(join(ROOT, 'src/app/i18n/en.json'), 'utf-8'));
 const fr = JSON.parse(readFileSync(join(ROOT, 'src/app/i18n/fr.json'), 'utf-8'));
@@ -217,7 +223,7 @@ const { data: siteContentRow } = await supabase
     name: 'GoXplora',
     url: `${BASE_URL}/`,
     logo: `${BASE_URL}/goxplora-logo.png`,
-    description: 'GoXplora is an insider guide to Québec City: guided tours, self-guided neighbourhood walks, local perks, and events.',
+    description: 'GoXplora is an insider guide to Québec City: self-guided neighbourhood walks, local perks, and curated itineraries.',
     areaServed: {
       '@type': 'City',
       name: 'Québec City',
@@ -228,7 +234,7 @@ const { data: siteContentRow } = await supabase
   const html = injectBody(
     injectHead(template, {
       title: 'GoXplora — Local Discovery & Experiences',
-      description: 'Discover the best of Québec City: guided tours, self-guided walks, local perks, and events in Vieux-Québec and beyond. GoXplora is your insider guide to the city.',
+      description: 'Discover the best of Québec City: self-guided walks, local perks, and curated neighbourhood itineraries in Vieux-Québec and beyond. GoXplora is your insider guide to the city.',
       canonical: '/',
       schemas: [organizationSchema],
     }),
