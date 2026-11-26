@@ -18,7 +18,7 @@ export function TermsScreen() {
 
         <section className="space-y-3">
           <p className="text-muted-foreground">
-            {t('terms.intro', 'These Terms of Service govern your use of GoXplora (goxplora.ca), operated by Club Horizon, Québec City, QC. By creating an account or using the platform, you agree to these terms.')}
+            {t('terms.intro', 'These Terms of Service govern your use of GoXplora (goxplora.ca), based in Québec City, QC. By creating an account or using the platform, you agree to these terms.')}
           </p>
         </section>
 

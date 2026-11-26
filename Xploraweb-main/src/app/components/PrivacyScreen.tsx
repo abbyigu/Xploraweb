@@ -27,7 +27,7 @@ export function PrivacyScreen() {
 
         <section className="space-y-3">
           <p className="text-muted-foreground">
-            {t('privacy.intro', 'GoXplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information.')}
+            {t('privacy.intro', 'GoXplora (Québec City, QC) is committed to protecting your personal information.')}
           </p>
         </section>
 
