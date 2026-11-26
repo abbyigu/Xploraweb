@@ -1120,7 +1120,7 @@
   "privacy": {
     "title": "Privacy Policy",
     "lastUpdated": "Last updated: November 26, 2026",
-    "intro": "GoXplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights under PIPEDA and applicable Québec privacy law.",
+    "intro": "GoXplora (Québec City, QC) is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights under PIPEDA and applicable Québec privacy law.",
     "s1title": "1. Information we collect",
     "s1account": "Account information",
     "s1accountDesc": "your name, email address, and password when you sign up.",
@@ -1168,15 +1168,15 @@
     "s8desc": "We may update this policy from time to time. If we make material changes, we will notify you by email or by posting a notice in the app. Continued use of GoXplora after changes are posted constitutes your acceptance of the revised policy.",
     "s9title": "9. Contact",
     "s9desc": "Questions or concerns about this policy? Reach us at hello@goxplora.ca.",
-    "orgLine": "GoXplora · Club Horizon · Québec City, QC, Canada",
+    "orgLine": "GoXplora · Québec City, QC, Canada",
     "s3google": "Google Analytics",
     "s3googleDesc": "Anonymous usage statistics (pages viewed, device type, approximate location). Only runs if you accept analytics cookies; you can change your choice at any time below.",
     "s4change": "Change my cookie choice"
   },
   "terms": {
     "title": "Terms of Service",
-    "lastUpdated": "Last updated: May 8, 2026",
-    "intro": "These Terms of Service govern your use of GoXplora (goxplora.ca), operated by Club Horizon, Québec City, QC. By creating an account or using the platform, you agree to these terms.",
+    "lastUpdated": "Last updated: November 26, 2026",
+    "intro": "These Terms of Service govern your use of GoXplora (goxplora.ca), based in Québec City, QC. By creating an account or using the platform, you agree to these terms.",
     "s1title": "1. Your account",
     "s1desc": "You must be 18 years or older to create an account. You are responsible for maintaining the security of your account credentials and for all activity that occurs under your account. Notify us immediately at hello@goxplora.ca if you suspect unauthorized access.",
     "s2title": "2. Experiences and bookings",
@@ -1203,9 +1203,9 @@
     "s5i5": "Interfere with the integrity or performance of the platform.",
     "s5footer": "We reserve the right to suspend or terminate accounts that violate these terms.",
     "s6title": "6. Intellectual property",
-    "s6desc": "All content on GoXplora — including text, design, logos, and curated routes — is owned by or licensed to Club Horizon. You may not reproduce, distribute, or create derivative works from our content without written permission.",
+    "s6desc": "All content on GoXplora — including text, design, logos, and curated routes — is owned by or licensed to GoXplora. You may not reproduce, distribute, or create derivative works from our content without written permission.",
     "s7title": "7. Limitation of liability",
-    "s7desc": "GoXplora is provided \"as is.\" To the extent permitted by law, Club Horizon is not liable for any indirect, incidental, or consequential damages arising from your use of the platform, including loss of data, personal injury during an experience, or disputes with third-party businesses.",
+    "s7desc": "GoXplora is provided \"as is.\" To the extent permitted by law, GoXplora is not liable for any indirect, incidental, or consequential damages arising from your use of the platform, including loss of data, personal injury during an experience, or disputes with third-party businesses.",
     "s7limit": "Our total liability for any claim related to GoXplora will not exceed the amount you paid us in the 12 months preceding the claim.",
     "s8title": "8. Governing law",
     "s8desc": "These terms are governed by the laws of the Province of Québec and the federal laws of Canada applicable therein. Any disputes will be resolved in the courts of Québec City, QC.",
@@ -1213,7 +1213,7 @@
     "s9desc": "We may update these terms from time to time. We will notify you of material changes by email or in-app notice. Continued use of GoXplora after changes are posted means you accept the updated terms.",
     "s10title": "10. Contact",
     "s10desc": "Questions about these terms? hello@goxplora.ca",
-    "orgLine": "GoXplora · Club Horizon · Québec City, QC, Canada"
+    "orgLine": "GoXplora · Québec City, QC, Canada"
   },
   "common": {
     "loading": "Loading...",

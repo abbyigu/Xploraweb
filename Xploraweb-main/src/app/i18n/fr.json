@@ -1120,7 +1120,7 @@
   "privacy": {
     "title": "Politique de confidentialité",
     "lastUpdated": "Dernière mise à jour : 26 novembre 2026",
-    "intro": "GoXplora (exploité par Club Horizon, Québec, QC) s'engage à protéger vos renseignements personnels. Cette politique explique ce que nous collectons, comment nous l'utilisons et vos droits en vertu de la LPRPDE et du droit québécois applicable.",
+    "intro": "GoXplora (Québec, QC) s'engage à protéger vos renseignements personnels. Cette politique explique ce que nous collectons, comment nous l'utilisons et vos droits en vertu de la LPRPDE et du droit québécois applicable.",
     "s1title": "1. Informations que nous collectons",
     "s1account": "Informations de compte",
     "s1accountDesc": "votre nom, votre adresse courriel et votre mot de passe lors de l'inscription.",
@@ -1168,15 +1168,15 @@
     "s8desc": "Nous pouvons mettre à jour cette politique de temps à autre. Si nous apportons des changements importants, nous vous en informerons par courriel ou par un avis dans l'application. L'utilisation continue de GoXplora après la publication des modifications constitue votre acceptation de la politique révisée.",
     "s9title": "9. Contact",
     "s9desc": "Des questions ou préoccupations concernant cette politique ? Écrivez-nous à hello@goxplora.ca.",
-    "orgLine": "GoXplora · Club Horizon · Québec, QC, Canada",
+    "orgLine": "GoXplora · Québec, QC, Canada",
     "s3google": "Google Analytics",
     "s3googleDesc": "Statistiques d'utilisation anonymes (pages consultées, type d'appareil, localisation approximative). Fonctionne uniquement si vous acceptez les témoins d'analytique; vous pouvez modifier votre choix en tout temps ci-dessous.",
     "s4change": "Modifier mon choix de témoins"
   },
   "terms": {
     "title": "Conditions d'utilisation",
-    "lastUpdated": "Dernière mise à jour : 8 mai 2026",
-    "intro": "Les présentes Conditions d'utilisation régissent votre utilisation de GoXplora (goxplora.ca), exploité par Club Horizon, Québec, QC. En créant un compte ou en utilisant la plateforme, vous acceptez ces conditions.",
+    "lastUpdated": "Dernière mise à jour : 26 novembre 2026",
+    "intro": "Les présentes Conditions d'utilisation régissent votre utilisation de GoXplora (goxplora.ca), établi à Québec, QC. En créant un compte ou en utilisant la plateforme, vous acceptez ces conditions.",
     "s1title": "1. Votre compte",
     "s1desc": "Vous devez avoir 18 ans ou plus pour créer un compte. Vous êtes responsable de la sécurité de vos identifiants et de toute activité qui se produit sous votre compte. Avisez-nous immédiatement à hello@goxplora.ca si vous soupçonnez un accès non autorisé.",
     "s2title": "2. Expériences et réservations",
@@ -1203,9 +1203,9 @@
     "s5i5": "Interférer avec l'intégrité ou les performances de la plateforme.",
     "s5footer": "Nous nous réservons le droit de suspendre ou de résilier les comptes qui violent ces conditions.",
     "s6title": "6. Propriété intellectuelle",
-    "s6desc": "Tout le contenu sur GoXplora — y compris les textes, la conception, les logos et les parcours sélectionnés — est la propriété de Club Horizon ou lui est licencié. Vous ne pouvez pas reproduire, distribuer ou créer des œuvres dérivées de notre contenu sans autorisation écrite.",
+    "s6desc": "Tout le contenu sur GoXplora — y compris les textes, la conception, les logos et les parcours sélectionnés — est la propriété de GoXplora ou lui est licencié. Vous ne pouvez pas reproduire, distribuer ou créer des œuvres dérivées de notre contenu sans autorisation écrite.",
     "s7title": "7. Limitation de responsabilité",
-    "s7desc": "GoXplora est fourni « tel quel ». Dans la mesure permise par la loi, Club Horizon n'est pas responsable des dommages indirects, accessoires ou consécutifs découlant de votre utilisation de la plateforme, y compris la perte de données, les blessures corporelles lors d'une expérience ou les litiges avec des entreprises tierces.",
+    "s7desc": "GoXplora est fourni « tel quel ». Dans la mesure permise par la loi, GoXplora n'est pas responsable des dommages indirects, accessoires ou consécutifs découlant de votre utilisation de la plateforme, y compris la perte de données, les blessures corporelles lors d'une expérience ou les litiges avec des entreprises tierces.",
     "s7limit": "Notre responsabilité totale pour toute réclamation liée à GoXplora ne dépassera pas le montant que vous nous avez payé au cours des 12 mois précédant la réclamation.",
     "s8title": "8. Droit applicable",
     "s8desc": "Ces conditions sont régies par les lois de la province de Québec et les lois fédérales du Canada qui s'y appliquent. Tout litige sera résolu devant les tribunaux de Québec, QC.",
@@ -1213,7 +1213,7 @@
     "s9desc": "Nous pouvons mettre à jour ces conditions de temps à autre. Nous vous informerons des changements importants par courriel ou par avis dans l'application. L'utilisation continue de GoXplora après la publication des modifications signifie que vous acceptez les conditions mises à jour.",
     "s10title": "10. Contact",
     "s10desc": "Des questions sur ces conditions ? hello@goxplora.ca",
-    "orgLine": "GoXplora · Club Horizon · Québec, QC, Canada"
+    "orgLine": "GoXplora · Québec, QC, Canada"
   },
   "common": {
     "loading": "Chargement...",
