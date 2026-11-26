@@ -71,7 +71,7 @@ export function FooterBottom() {
                 <TikTokIcon className="w-4 h-4" />
               </a>
               <a
-                href="https://www.facebook.com/goxploraqc"
+                href="https://www.facebook.com/goxplorago"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followFacebook')}
