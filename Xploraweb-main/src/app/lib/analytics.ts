@@ -7,6 +7,40 @@ declare global {
 
 const GTAG_ID = 'G-JF6LR3L9HH';
 
+const CONSENT_KEY = 'xplora_analytics_consent';
+export type AnalyticsConsent = 'granted' | 'denied';
+
+export function getAnalyticsConsent(): AnalyticsConsent | null {
+  try {
+    const v = localStorage.getItem(CONSENT_KEY);
+    return v === 'granted' || v === 'denied' ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Record the visitor's analytics choice (null = ask again). GA only ever loads after 'granted'. */
+export function setAnalyticsConsent(v: AnalyticsConsent | null) {
+  try {
+    if (v) localStorage.setItem(CONSENT_KEY, v);
+    else localStorage.removeItem(CONSENT_KEY);
+  } catch { /* storage blocked: choice just won't persist */ }
+  // Official GA opt-out switch: stops all further hits if gtag.js is already loaded.
+  (window as unknown as Record<string, boolean>)[`ga-disable-${GTAG_ID}`] = v !== 'granted';
+  if (v === 'granted') {
+    initGtag();
+  } else {
+    // Remove GA cookies set under an earlier opt-in (_ga, _ga_<id>).
+    document.cookie.split(';').map(c => c.split('=')[0].trim())
+      .filter(n => n === '_ga' || n.startsWith('_ga_'))
+      .forEach(n => {
+        document.cookie = `${n}=; Max-Age=0; path=/; domain=.goxplora.ca`;
+        document.cookie = `${n}=; Max-Age=0; path=/`;
+      });
+  }
+  window.dispatchEvent(new Event('xplora:consent'));
+}
+
 export function initGtag() {
   if (typeof window === 'undefined') return;
   if (document.querySelector(`script[src*="${GTAG_ID}"]`)) return;

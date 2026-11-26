@@ -1119,7 +1119,7 @@
   },
   "privacy": {
     "title": "Politique de confidentialité",
-    "lastUpdated": "Dernière mise à jour : 8 mai 2026",
+    "lastUpdated": "Dernière mise à jour : 26 novembre 2026",
     "intro": "GoXplora (exploité par Club Horizon, Québec, QC) s'engage à protéger vos renseignements personnels. Cette politique explique ce que nous collectons, comment nous l'utilisons et vos droits en vertu de la LPRPDE et du droit québécois applicable.",
     "s1title": "1. Informations que nous collectons",
     "s1account": "Informations de compte",
@@ -1152,7 +1152,7 @@
     "s3vercelDesc": "Hébergement de l'application et analytique de performance.",
     "s3footer": "Chaque fournisseur opère selon sa propre politique de confidentialité et ses normes de sécurité.",
     "s4title": "4. Témoins et stockage local",
-    "s4desc": "GoXplora utilise le stockage local du navigateur pour sauvegarder votre panier, vos itinéraires et vos préférences de session. Nous utilisons des témoins uniquement pour l'authentification (jetons de session Supabase) et la surveillance des performances (Vercel). Nous n'utilisons pas de témoins publicitaires ou de suivi.",
+    "s4desc": "GoXplora utilise le stockage local du navigateur pour sauvegarder votre panier, vos itinéraires, votre langue et votre choix de témoins. Nous utilisons des témoins pour l'authentification (jetons de session Supabase) et, seulement si vous acceptez, des témoins Google Analytics (_ga) qui mesurent l'utilisation du site. La surveillance des performances par Vercel n'utilise pas de témoins. Nous n'utilisons pas de témoins publicitaires et ne vendons pas vos données. Si vous refusez, ou retirez plus tard votre consentement, Google Analytics n'est pas chargé et ses témoins sont supprimés.",
     "s5title": "5. Conservation des données",
     "s5desc": "Nous conservons vos données de compte aussi longtemps que votre compte est actif. Si vous supprimez votre compte, nous retirerons vos informations personnelles dans les 30 jours, sauf si la conservation est requise par la loi ou pour des fins commerciales légitimes (ex. : dossiers financiers).",
     "s6title": "6. Vos droits",
@@ -1168,7 +1168,10 @@
     "s8desc": "Nous pouvons mettre à jour cette politique de temps à autre. Si nous apportons des changements importants, nous vous en informerons par courriel ou par un avis dans l'application. L'utilisation continue de GoXplora après la publication des modifications constitue votre acceptation de la politique révisée.",
     "s9title": "9. Contact",
     "s9desc": "Des questions ou préoccupations concernant cette politique ? Écrivez-nous à hello@goxplora.ca.",
-    "orgLine": "GoXplora · Club Horizon · Québec, QC, Canada"
+    "orgLine": "GoXplora · Club Horizon · Québec, QC, Canada",
+    "s3google": "Google Analytics",
+    "s3googleDesc": "Statistiques d'utilisation anonymes (pages consultées, type d'appareil, localisation approximative). Fonctionne uniquement si vous acceptez les témoins d'analytique; vous pouvez modifier votre choix en tout temps ci-dessous.",
+    "s4change": "Modifier mon choix de témoins"
   },
   "terms": {
     "title": "Conditions d'utilisation",
@@ -1409,5 +1412,12 @@
     "helpTitle": "Besoin d’aide ou un problème à signaler ?",
     "helpBody": "Indiquez la page ou le lieu concerné, le problème et le type d’aide qui vous serait utile. Évitez d’inclure des renseignements médicaux ou d’autres détails sensibles.",
     "feedback": "Signaler un problème"
+  },
+  "cookieConsent": {
+    "title": "Témoins d'analytique",
+    "body": "Nous utilisons Google Analytics, qui dépose des témoins, pour comprendre comment GoXplora est utilisé et l'améliorer. Il reste désactivé si vous ne l'acceptez pas.",
+    "learnMore": "En savoir plus",
+    "accept": "Accepter",
+    "decline": "Refuser"
   }
 }

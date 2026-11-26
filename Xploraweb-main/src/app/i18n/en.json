@@ -1119,7 +1119,7 @@
   },
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Last updated: May 8, 2026",
+    "lastUpdated": "Last updated: November 26, 2026",
     "intro": "GoXplora (operated by Club Horizon, Québec City, QC) is committed to protecting your personal information. This policy explains what we collect, how we use it, and your rights under PIPEDA and applicable Québec privacy law.",
     "s1title": "1. Information we collect",
     "s1account": "Account information",
@@ -1152,7 +1152,7 @@
     "s3vercelDesc": "Application hosting and performance analytics.",
     "s3footer": "Each provider operates under their own privacy policy and security standards.",
     "s4title": "4. Cookies and local storage",
-    "s4desc": "GoXplora uses browser local storage to save your cart, saved itineraries, and session preferences. We use cookies only as required for authentication (Supabase session tokens) and performance monitoring (Vercel). We do not use advertising or tracking cookies.",
+    "s4desc": "GoXplora uses browser local storage to save your cart, saved itineraries, language and cookie choice. We use cookies for authentication (Supabase session tokens) and, only if you accept, Google Analytics cookies (_ga) that measure how the site is used. Performance monitoring by Vercel does not use cookies. We do not use advertising cookies and do not sell your data. If you decline, or later withdraw your consent, Google Analytics is not loaded and its cookies are removed.",
     "s5title": "5. Data retention",
     "s5desc": "We retain your account data for as long as your account is active. If you delete your account, we will remove your personal information within 30 days, except where retention is required by law or for legitimate business purposes (e.g., financial records).",
     "s6title": "6. Your rights",
@@ -1168,7 +1168,10 @@
     "s8desc": "We may update this policy from time to time. If we make material changes, we will notify you by email or by posting a notice in the app. Continued use of GoXplora after changes are posted constitutes your acceptance of the revised policy.",
     "s9title": "9. Contact",
     "s9desc": "Questions or concerns about this policy? Reach us at hello@goxplora.ca.",
-    "orgLine": "GoXplora · Club Horizon · Québec City, QC, Canada"
+    "orgLine": "GoXplora · Club Horizon · Québec City, QC, Canada",
+    "s3google": "Google Analytics",
+    "s3googleDesc": "Anonymous usage statistics (pages viewed, device type, approximate location). Only runs if you accept analytics cookies; you can change your choice at any time below.",
+    "s4change": "Change my cookie choice"
   },
   "terms": {
     "title": "Terms of Service",
@@ -1409,5 +1412,12 @@
     "helpTitle": "Need help or found a barrier?",
     "helpBody": "Tell us the page or venue, what went wrong and what would help. Please avoid including medical information or other sensitive details.",
     "feedback": "Report a problem"
+  },
+  "cookieConsent": {
+    "title": "Analytics cookies",
+    "body": "We use Google Analytics, which sets cookies, to understand how GoXplora is used and improve it. It stays off unless you accept.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }
