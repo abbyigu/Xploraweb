@@ -5,8 +5,10 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
+// Public project URL + publishable anon key (same defaults as src/app/lib/supabase.ts) so the
+// build works without VITE_SUPABASE_* being set in Vercel.
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://qnalvzgqrfjbuoqsffbs.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_CCDW9tXRVNYA66aqo190bw_hIVgo8Nt';
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
   console.error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY environment variables');
@@ -15,10 +17,11 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 const BASE_URL = 'https://www.goxplora.ca';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const HIDDEN_CATEGORIES = new Set(['xploratorsplus', 'xploranights', 'xploratours']); // mirrors useExperiences.ts: the app 404s these
 
 const { data: experiences, error } = await supabase
   .from('xplora_experiences')
-  .select('id, created_at')
+  .select('id, category, created_at')
   .eq('status', 'active');
 
 if (error) {
@@ -38,7 +41,7 @@ if (nError) {
 
 const today = new Date().toISOString().split('T')[0];
 
-const experienceUrls = (experiences ?? []).map(({ id, created_at }) => {
+const experienceUrls = (experiences ?? []).filter(e => !HIDDEN_CATEGORIES.has(e.category)).map(({ id, created_at }) => {
   const lastmod = created_at ? created_at.split('T')[0] : today;
   return `
   <url>
