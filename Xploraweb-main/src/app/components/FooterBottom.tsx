@@ -53,7 +53,7 @@ export function FooterBottom() {
             {/* Social links */}
             <div className="flex items-center">
               <a
-                href="https://www.instagram.com/goxplora.qc"
+                href="https://www.instagram.com/goxplorago"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followInstagram')}
