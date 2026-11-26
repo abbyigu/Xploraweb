@@ -62,7 +62,7 @@ export function FooterBottom() {
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="https://www.tiktok.com/@goxplora.qc"
+                href="https://www.tiktok.com/@goxplorago"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={t('a11y.followTikTok')}
