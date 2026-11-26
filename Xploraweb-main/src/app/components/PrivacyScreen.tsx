@@ -1,5 +1,6 @@
 import { Footer } from './Footer';
 import { useTranslation } from 'react-i18next';
+import { setAnalyticsConsent } from '../lib/analytics';
 
 export function PrivacyScreen() {
   const { t } = useTranslation();
@@ -9,6 +10,7 @@ export function PrivacyScreen() {
     { name: t('privacy.s3stripe'), use: t('privacy.s3stripeDesc') },
     { name: t('privacy.s3resend'), use: t('privacy.s3resendDesc') },
     { name: t('privacy.s3vercel'), use: t('privacy.s3vercelDesc') },
+    { name: t('privacy.s3google'), use: t('privacy.s3googleDesc') },
   ];
 
   return (
@@ -70,6 +72,13 @@ export function PrivacyScreen() {
         <section id="cookies" className="space-y-3 scroll-mt-24">
           <h2 className="text-lg font-medium">{t('privacy.s4title')}</h2>
           <p className="text-muted-foreground">{t('privacy.s4desc')}</p>
+          <button
+            type="button"
+            onClick={() => setAnalyticsConsent(null)}
+            className="min-h-11 px-4 rounded-xl border border-foreground/25 bg-white text-foreground hover:bg-muted transition-colors"
+          >
+            {t('privacy.s4change')}
+          </button>
         </section>
 
         <section className="space-y-3">

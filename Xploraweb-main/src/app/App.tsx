@@ -10,7 +10,8 @@ import { HomeScreen } from './components/HomeScreen';
 import { AccessibilityScreen } from './components/AccessibilityScreen';
 import { CartProvider } from './context/CartContext';
 import { supabase } from './lib/supabase';
-import { analytics, initGtag } from './lib/analytics';
+import { analytics, initGtag, getAnalyticsConsent } from './lib/analytics';
+import { CookieConsent } from './components/CookieConsent';
 import './i18n';
 
 function SkipLink() {
@@ -122,6 +123,8 @@ function LanguageSync() {
 
 function GtagLoader() {
   useEffect(() => {
+    // Google Analytics sets cookies, so it loads only after the visitor opted in (see CookieConsent).
+    if (getAnalyticsConsent() !== 'granted') return;
     const id = requestIdleCallback(() => initGtag(), { timeout: 3000 });
     return () => cancelIdleCallback(id);
   }, []);
@@ -186,6 +189,7 @@ export default function App() {
         </main>
         <BottomNav />
       </div>
+      <CookieConsent />
       <SpeedInsights />
       <Analytics />
     </BrowserRouter>
